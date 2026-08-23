@@ -14,12 +14,27 @@ const EVIDENCE_PATH_GROUPS = {
 };
 
 const LINK_KEYWORD_PATTERN = /privacy|terms|security|trust|complian|legal|gdpr|hipaa|cookie|data.?protection/i;
+const GROUP_RELEVANCE = {
+  privacy: /privacy|personal data|data protection|data subject|right to access|right to erasure/i,
+  terms: /terms|conditions|acceptable use|user agreement/i,
+  security: /security|trust|vulnerability|incident response|encryption|security.txt/i,
+  compliance: /compliance|gdpr|iso|soc\s?2|pci|hipaa|data protection/i,
+  cookies: /cookie|consent|tracking|analytics/i,
+  support: /support|help|contact/i,
+  healthcare: /healthcare|health care|patient|medical|phi|hipaa/i
+};
 
 function stripTags(html) {
   return String(html || '')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractTitle(html) {
+  return (String(html || '').match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -50,6 +65,47 @@ function normalizeForDedupe(href) {
     return href;
   }
 }
+
+function pageLooksRelevant({ html, finalUrl, groups = [] }) {
+  if (!groups.length) return true;
+  const title = extractTitle(html);
+  const text = stripTags(html).slice(0, 5000);
+  return groups.some((group) => {
+    const pattern = GROUP_RELEVANCE[group] || LINK_KEYWORD_PATTERN;
+    if (pattern.test(title)) return true;
+    const matches = text.match(new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`)) || [];
+    return matches.length >= 2;
+  });
+}
+
+function describeError(error) {
+  if (error?.message) return error.message;
+  const nested = Array.isArray(error?.errors) ? error.errors : [];
+  const details = nested.map((item) => item?.message || item?.code).filter(Boolean);
+  if (details.length) return details.slice(0, 3).join(' | ');
+  return String(error?.code || error?.name || 'Request failed');
+}
+
+async function fetchPageWithRedirects(target, { timeout = 8000, maxBodyBytes = 900_000 } = {}) {
+  const response = await fetch(target, {
+    redirect: 'follow',
+    signal: AbortSignal.timeout(timeout),
+    headers: {
+      'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.4',
+      'Accept': 'text/html,application/xhtml+xml,text/plain;q=0.8,*/*;q=0.5'
+    }
+  });
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const body = buffer.subarray(0, maxBodyBytes).toString('utf8');
+  return {
+    finalUrl: response.url || target,
+    status: response.status || 0,
+    body,
+    truncated: buffer.length > maxBodyBytes,
+    headers: Object.fromEntries(response.headers.entries())
+  };
+}
+
 /**
  * Crawls a small, targeted set of pages beyond the homepage to find
  * compliance-relevant evidence (privacy policy, terms, security/trust pages,
@@ -89,14 +145,25 @@ export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPage
   const pages = [];
   const seenFinalUrls = new Map(); // normalized finalUrl -> index in `pages`
   for (const candidate of selected) {
+    let primaryError = null;
     try {
-      const response = await requestWithRedirects(candidate.url, {
-        rejectUnauthorized: false,
-        timeout: timeoutPerPage,
-        maxBodyBytes: 900_000
-      });
-      const found = response.status >= 200 && response.status < 400;
+      let response;
+      try {
+        response = await requestWithRedirects(candidate.url, {
+          rejectUnauthorized: false,
+          timeout: timeoutPerPage,
+          maxBodyBytes: 900_000
+        });
+      } catch (error) {
+        primaryError = error;
+        response = await fetchPageWithRedirects(candidate.url, {
+          timeout: timeoutPerPage,
+          maxBodyBytes: 900_000
+        });
+      }
+      const candidateFound = response.status >= 200 && response.status < 400;
       const finalUrl = response.finalUrl;
+      const found = candidateFound && (candidate.source !== 'well-known-path' || pageLooksRelevant({ html: response.body || '', finalUrl, groups: [...candidate.groups] }));
       const finalKey = found ? normalizeForDedupe(finalUrl) : null;
 
       // Different guessed paths for a group (e.g. /privacy and /privacy-policy)
@@ -114,27 +181,33 @@ export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPage
         status: response.status,
         groups: [...candidate.groups],
         source: candidate.source,
+        title: found ? extractTitle(response.body || '') : '',
         html: found ? (response.body || '') : '',
-        found
+        found,
+        error: primaryError ? `Primary HTTP client failed; fetch fallback succeeded: ${describeError(primaryError)}` : ''
       };
       if (found) seenFinalUrls.set(finalKey, pages.length);
       pages.push(page);
     } catch (error) {
-      pages.push({ url: candidate.url, finalUrl: candidate.url, status: 0, groups: [...candidate.groups], source: candidate.source, html: '', found: false, error: error.message });
+      pages.push({ url: candidate.url, finalUrl: candidate.url, status: 0, groups: [...candidate.groups], source: candidate.source, html: '', found: false, error: describeError(error) });
     }
   }
   return pages;
 }
 
 const EVIDENCE_SIGNALS = {
-  dataSubjectRights: /\b(right to (access|erasure|be forgotten|rectification|portability|object)|data subject rights?|opt-?out of (the )?sale|do not sell (my|our))\b/i,
-  consentManagement: /\b(cookie consent|consent management|manage (cookie )?preferences|onetrust|cookiebot|trustarc|usercentrics|quantcast choice)\b/i,
-  breachNotification: /\b(data breach notification|breach notification|incident response (plan|policy|process))\b/i,
-  encryption: /\b(encrypt(ed|ion)? (at rest|in transit)|end-to-end encryption|TLS ?1\.[23])\b/i,
-  subprocessors: /\b(sub-?processors?|data processing agreement|\bDPA\b)\b/i,
-  accessControl: /\b(multi-?factor authentication|\bMFA\b|role-based access control|least privilege)\b/i,
-  vulnerabilityMgmt: /\b(penetration test(ing)?|vulnerability (management|disclosure)|bug bounty)\b/i,
-  dataRetention: /\b(data retention (policy|period|schedule)|retention schedule)\b/i
+  dataSubjectRights: { label: 'Data rights', category: 'privacy', pattern: /\b(right to (access|erasure|be forgotten|rectification|portability|object)|data subject rights?|opt-?out of (the )?sale|do not sell (my|our))\b/i },
+  consentManagement: { label: 'Consent management', category: 'privacy', pattern: /\b(cookie consent|consent management|manage (cookie )?preferences|onetrust|cookiebot|trustarc|usercentrics|quantcast choice)\b/i },
+  breachNotification: { label: 'Breach notification / incident response', category: 'security-operations', pattern: /\b(data breach notification|breach notification|incident response (plan|policy|process))\b/i },
+  encryption: { label: 'Encryption', category: 'technical-control', pattern: /\b(encrypt(ed|ion)? (at rest|in transit)|end-to-end encryption|TLS ?1\.[23])\b/i },
+  subprocessors: { label: 'Processors / DPA', category: 'privacy', pattern: /\b(sub-?processors?|data processing agreement|\bDPA\b)\b/i },
+  accessControl: { label: 'Access control', category: 'security-control', pattern: /\b(multi-?factor authentication|\bMFA\b|role-based access control|least privilege)\b/i },
+  vulnerabilityMgmt: { label: 'Vulnerability management', category: 'security-operations', pattern: /\b(penetration test(ing)?|vulnerability (management|disclosure)|bug bounty)\b/i },
+  dataRetention: { label: 'Data retention', category: 'privacy', pattern: /\b(data retention (policy|period|schedule)|retention schedule|retain (your|personal|account) data)\b/i },
+  auditLogging: { label: 'Audit logging', category: 'security-control', pattern: /\b(audit log|audit logging|activity logs?|access logs?)\b/i },
+  availabilityBackup: { label: 'Backup / availability', category: 'resilience', pattern: /\b(backup|disaster recovery|business continuity|availability commitment|uptime)\b/i },
+  paymentProcessing: { label: 'Payment processing', category: 'payment', pattern: /\b(payment|checkout|credit card|debit card|cardholder|stripe|paypal|adyen|braintree|pci)\b/i },
+  healthcarePhi: { label: 'Healthcare / PHI', category: 'healthcare', pattern: /\b(healthcare|health care|medical|patient|protected health information|\bPHI\b|HIPAA)\b/i }
 };
 
 const CERTIFICATION_SIGNALS = {
@@ -152,10 +225,33 @@ const CERTIFICATION_SIGNALS = {
  * uses relevant language, not that any claim on it is true or verified.
  */
 export function extractComplianceEvidence(pages) {
-  const text = pages.filter((p) => p.found && p.html).map((p) => stripTags(p.html)).join(' \n ');
-
   const evidenceFound = {};
-  for (const [key, pattern] of Object.entries(EVIDENCE_SIGNALS)) evidenceFound[key] = pattern.test(text);
+  const evidenceItems = [];
+
+  for (const [key, signal] of Object.entries(EVIDENCE_SIGNALS)) {
+    evidenceFound[key] = false;
+    for (const page of pages.filter((p) => p.found && p.html)) {
+      const text = stripTags(page.html);
+      const match = text.match(signal.pattern);
+      if (!match) continue;
+      evidenceFound[key] = true;
+      const index = Math.max(0, match.index || 0);
+      const start = Math.max(0, index - 120);
+      const end = Math.min(text.length, index + String(match[0]).length + 180);
+      evidenceItems.push({
+        key,
+        label: signal.label,
+        category: signal.category,
+        sourceUrl: page.finalUrl || page.url,
+        pageTitle: page.title || '',
+        keyword: match[0],
+        evidenceText: text.slice(start, end).trim()
+      });
+      break;
+    }
+  }
+
+  const text = pages.filter((p) => p.found && p.html).map((p) => stripTags(p.html)).join(' \n ');
 
   const certifications = {};
   for (const [key, pattern] of Object.entries(CERTIFICATION_SIGNALS)) certifications[key] = pattern.test(text);
@@ -178,5 +274,5 @@ export function extractComplianceEvidence(pages) {
     }
   }
 
-  return { evidenceFound, certifications, pagesFoundByGroup };
+  return { evidenceFound, evidenceItems, certifications, pagesFoundByGroup };
 }

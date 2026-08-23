@@ -1164,9 +1164,14 @@ function renderSecurityResults(result) {
   const totals = result.totals || {};
   const frameworks = (result.frameworkResults || []).map((framework) => `
     <div class="security-framework-result">
-      <div class="framework-result-head"><span>${escapeHtml(framework.label)}</span><strong>${framework.technicalCoverage == null ? '—' : `${framework.technicalCoverage}%`}</strong></div>
-      <div class="framework-progress"><span style="width:${Math.max(0, Math.min(100, Number(framework.technicalCoverage) || 0))}%"></span></div>
-      <small>${framework.passed} passed · ${framework.attention} attention · ${framework.manualReview} manual/info</small>
+      <div class="framework-result-head"><span>${escapeHtml(framework.label)}</span><strong>${framework.applicable === false ? 'Not indicated' : 'Evidence'}</strong></div>
+      <small>${escapeHtml(framework.note || '')}</small>
+      <ul>
+        ${(framework.publicEvidence || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
+        ${(framework.technicalControls || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
+        ${(framework.missingEvidence || []).slice(0, 5).map((item) => `<li class="missing">⚠ ${escapeHtml(item)}</li>`).join('')}
+      </ul>
+      <small>${escapeHtml(framework.certification || 'No public certification proof was verified by this website scan.')}</small>
     </div>`).join('');
 
   const grouped = new Map();
@@ -1187,8 +1192,12 @@ function renderSecurityResults(result) {
           <div class="security-finding-copy">
             <h5>${escapeHtml(check.title)}</h5>
             <p>${escapeHtml(check.summary)}</p>
+            <small>${escapeHtml(check.severity ? `Severity: ${check.severity}` : 'Severity: informational')}${check.affectedUrl ? ` · ${escapeHtml(check.affectedUrl)}` : ''}</small>
             ${check.details ? `<small>${escapeHtml(check.details)}</small>` : ''}
+            ${check.evidence ? `<small>${escapeHtml(check.evidence)}</small>` : ''}
+            ${(check.evidenceItems || []).map((item) => `<small><strong>Evidence:</strong> ${escapeHtml(item.sourceUrl)} · ${escapeHtml(item.evidenceText)}</small>`).join('')}
             ${check.recommendation ? `<div class="security-recommendation"><strong>Recommendation</strong><span>${escapeHtml(check.recommendation)}</span></div>` : ''}
+            ${(check.references || []).length ? `<div class="security-recommendation"><strong>References</strong><span>${(check.references || []).map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</span></div>` : ''}
           </div>
         </article>`).join('')}</div>
     </details>`;
@@ -1208,6 +1217,7 @@ function renderSecurityResults(result) {
           <div class="security-finding-copy">
             <h5>${escapeHtml(p.url)}</h5>
             ${p.groups && p.groups.length ? `<small>${escapeHtml(p.groups.join(', '))}</small>` : ''}
+            ${p.error ? `<small>${escapeHtml(p.error)}</small>` : ''}
           </div>
         </article>`).join('')}</div>
     </details>` : (crawl && crawl.error ? `<div class="security-disclaimer"><strong>Evidence crawl:</strong> ${escapeHtml(crawl.error)}</div>` : '');
@@ -1224,7 +1234,7 @@ function renderSecurityResults(result) {
       <div class="security-score-card manual"><span>Manual review</span><strong>${totals.manual || 0}</strong></div>
     </div>
     <div class="security-disclaimer"><strong>Scope:</strong> ${escapeHtml(result.disclaimer)}</div>
-    <div class="security-section-title"><div><h4>Framework technical coverage</h4><span>Percentage of automated mapped checks that passed. This is not a compliance score or certification.</span></div></div>
+    <div class="security-section-title"><div><h4>Compliance evidence</h4><span>Public website evidence and technical controls only. No compliance percentages or certification claims are produced.</span></div></div>
     <div class="security-framework-results">${frameworks}</div>
     <div class="security-section-title"><div><h4>Technical findings</h4><span>Groups are closed by default. Open a group to review evidence and recommendations.</span></div></div>
     <div class="security-findings">${groups}</div>

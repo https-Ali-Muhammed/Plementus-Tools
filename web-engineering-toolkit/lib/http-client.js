@@ -5,6 +5,10 @@ import { URL } from 'node:url';
 const DEFAULT_TIMEOUT = 12000;
 const MAX_BODY_BYTES = 2_500_000;
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function cleanHeaders(headers) {
   return Object.fromEntries(Object.entries(headers || {}).map(([key, value]) => [key.toLowerCase(), Array.isArray(value) ? value.join(', ') : String(value || '')]));
 }
@@ -21,7 +25,7 @@ export function cleanHeaders(headers) {
  * no connection" in reports. Capturing at handshake time ties the TLS record
  * to the connection that actually served this request.
  */
-export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET', rejectUnauthorized = true, maxBodyBytes = MAX_BODY_BYTES } = {}) {
+export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET', rejectUnauthorized = true, maxBodyBytes = MAX_BODY_BYTES, headers = {} } = {}) {
   return new Promise((resolve, reject) => {
     const parsed = new URL(target);
     const transport = parsed.protocol === 'https:' ? https : http;
@@ -38,7 +42,8 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
       headers: {
         'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.4',
         'Accept': 'text/html,application/xhtml+xml,application/json;q=0.8,*/*;q=0.5',
-        'Connection': 'close'
+        'Connection': 'close',
+        ...headers
       }
     };
     if (parsed.protocol === 'https:') options.rejectUnauthorized = rejectUnauthorized;
@@ -49,6 +54,7 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
       const cert = typeof socket.getPeerCertificate === 'function' ? socket.getPeerCertificate() : null;
       tls = {
         protocol: typeof socket.getProtocol === 'function' ? socket.getProtocol() : '',
+        cipher: typeof socket.getCipher === 'function' ? socket.getCipher() : null,
         authorized: Boolean(socket.authorized),
         authorizationError: socket.authorizationError || '',
         validFrom: cert?.valid_from || '',
@@ -106,11 +112,22 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
   });
 }
 
-export async function requestWithRedirects(target, { maxRedirects = 6, ...options } = {}) {
+export async function requestWithRedirects(target, { maxRedirects = 6, retries = 1, ...options } = {}) {
   const chain = [];
   let current = target;
   for (let i = 0; i <= maxRedirects; i += 1) {
-    const response = await requestOnce(current, options);
+    let response;
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        response = await requestOnce(current, options);
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt < retries) await sleep(300 * (attempt + 1));
+      }
+    }
+    if (!response) throw lastError;
     chain.push({ url: current, status: response.status, location: response.headers.location || '' });
     if ([301, 302, 303, 307, 308].includes(response.status) && response.headers.location) {
       current = new URL(response.headers.location, current).href;
