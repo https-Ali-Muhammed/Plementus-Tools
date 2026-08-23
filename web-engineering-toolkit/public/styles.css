@@ -222,7 +222,6 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 @media (max-width: 760px) {
   .app-shell { display: block; }
   .sidebar { position: static; min-height: auto; padding: 18px; border-right: 0; border-bottom: 1px solid var(--border); }
-  .nav-stack { grid-template-columns: 1fr 1fr; }
   .sidebar-card, .sidebar-footer { display: none; }
   .main-content { padding: 24px 14px 50px; }
   .page-header { display: grid; }
@@ -1237,7 +1236,7 @@ body.modal-open { overflow: hidden; }
     display: flex;
     position: fixed;
     top: 18px;
-    left: 18px;
+    right: 18px;
     z-index: 1200;
     width: 46px;
     height: 46px;
@@ -1277,15 +1276,18 @@ body.modal-open { overflow: hidden; }
 
   .app-shell {
     display: block;
+    z-index: auto;
   }
 
   .sidebar {
+    height:100%;
     position: fixed;
+    gap:3rem;
     left: 0;
     top: 0;
     bottom: 0;
-    width: min(320px, 88vw);
-    z-index: 1100;
+    width: min(385px, 88vw);
+    z-index: 1200;
     transform: translateX(-105%);
     transition: transform .28s ease;
     overflow-y: auto;
@@ -1301,7 +1303,7 @@ body.modal-open { overflow: hidden; }
   }
 
   .brand {
-    padding-top: 72px;
+    padding-top: 2rem;
   }
 
   .project-grid,
