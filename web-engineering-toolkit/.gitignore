@@ -8,3 +8,10 @@ profiles/*
 
 # Shared project profiles
 data/projects.json
+
+# Mutable security assessment state
+data/security-evidence-vault.json
+data/security-finding-lifecycle.json
+data/security-schedules.json
+data/security-audit-log.jsonl
+data/security-sessions/

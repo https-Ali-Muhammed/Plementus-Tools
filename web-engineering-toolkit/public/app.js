@@ -34,6 +34,9 @@ const refs = {
   securityProjectName: $('#securityProjectName'), securityProjectField: $('#securityProjectField'), securityProjectError: $('#securityProjectError'),
   securityTargetUrl: $('#securityTargetUrl'), securityUrlField: $('#securityUrlField'), securityUrlError: $('#securityUrlError'), securityJurisdiction: $('#securityJurisdiction'),
   securityCrawlEnabled: $('#securityCrawlEnabled'), securityMaxPages: $('#securityMaxPages'),
+  securityAuthEnabled: $('#securityAuthEnabled'), securityAuthConfig: $('#securityAuthConfig'), securityAuthRole: $('#securityAuthRole'), securityLoginUrl: $('#securityLoginUrl'), securitySuccessUrl: $('#securitySuccessUrl'), securityUsernameSelector: $('#securityUsernameSelector'), securityPasswordSelector: $('#securityPasswordSelector'), securitySubmitSelector: $('#securitySubmitSelector'), securityAuthUsername: $('#securityAuthUsername'), securityAuthPassword: $('#securityAuthPassword'), securityReuseSession: $('#securityReuseSession'), securityAuthError: $('#securityAuthError'),
+  securityZapMode: $('#securityZapMode'), securityZapConfig: $('#securityZapConfig'), securityZapContextFields: $('#securityZapContextFields'), securityZapContextFile: $('#securityZapContextFile'), securityZapContextUser: $('#securityZapContextUser'), securityZapApiFields: $('#securityZapApiFields'), securityZapApiDefinition: $('#securityZapApiDefinition'), securityZapApiFormat: $('#securityZapApiFormat'), securityZapTimeout: $('#securityZapTimeout'), securityZapAuthorizationField: $('#securityZapAuthorizationField'), securityZapAuthorized: $('#securityZapAuthorized'), securityZapError: $('#securityZapError'),
+  securityScheduleEnabled: $('#securityScheduleEnabled'), securityScheduleIntervalField: $('#securityScheduleIntervalField'), securityScheduleInterval: $('#securityScheduleInterval'),
   allSecurityFrameworks: $('#allSecurityFrameworks'), securityFrameworksField: $('#securityFrameworksField'), securityFrameworkError: $('#securityFrameworkError'), securityFrameworkCount: $('#securityFrameworkCount'),
   startSecurityScanBtn: $('#startSecurityScanBtn'), securityScanState: $('#securityScanState'), securityResultsCard: $('#securityResultsCard'), securityResults: $('#securityResults'), securityResultActions: $('#securityResultActions'),
   activeProjectMini: $('#activeProjectMini'), activeProjectCard: $('#activeProjectCard'), projectsList: $('#projectsList'), projectCount: $('#projectCount'), newProjectBtn: $('#newProjectBtn'),
@@ -1153,11 +1156,40 @@ function validateSecurityScan() {
   const frameworkCount = selectedSecurityFrameworks().length;
   if (refs.securityFrameworkError) refs.securityFrameworkError.textContent = frameworkCount ? '' : 'Select at least one compliance framework.';
   refs.securityFrameworksField?.classList.toggle('has-error', !frameworkCount);
-  return projectOk && urlOk && frameworkCount > 0;
+  let authOk = true;
+  if (refs.securityAuthEnabled?.checked) {
+    const reusableOnly = refs.securityReuseSession?.checked && !refs.securityLoginUrl.value.trim() && !refs.securityAuthUsername.value;
+    const required = reusableOnly ? [] : [refs.securityLoginUrl, refs.securityUsernameSelector, refs.securityPasswordSelector, refs.securitySubmitSelector, refs.securityAuthUsername, refs.securityAuthPassword];
+    authOk = required.every((input) => input?.value.trim());
+    if (refs.securityAuthError) refs.securityAuthError.textContent = authOk ? '' : 'Complete the structured login flow and runtime credentials, or choose reuse with an existing role session.';
+  } else if (refs.securityAuthError) refs.securityAuthError.textContent = '';
+  const zapMode = refs.securityZapMode?.value || 'none';
+  let zapOk = true;
+  let zapMessage = '';
+  if (zapMode === 'authenticated-passive' && (!refs.securityZapContextFile.value.trim() || !refs.securityZapContextUser.value.trim())) {
+    zapOk = false; zapMessage = 'Authenticated passive scanning requires a ZAP context file and context user.';
+  } else if (zapMode === 'api' && !refs.securityZapApiDefinition.value.trim()) {
+    zapOk = false; zapMessage = 'API scanning requires an OpenAPI, SOAP, or GraphQL definition URL.';
+  } else if (['active', 'api'].includes(zapMode) && !refs.securityZapAuthorized.checked) {
+    zapOk = false; zapMessage = 'Active and API scans require explicit authorization acknowledgement.';
+  }
+  if (refs.securityZapError) refs.securityZapError.textContent = zapMessage;
+  return projectOk && urlOk && frameworkCount > 0 && authOk && zapOk;
+}
+
+function syncSecurityZapFields() {
+  const mode = refs.securityZapMode?.value || 'none';
+  refs.securityZapConfig?.classList.toggle('hidden', mode === 'none');
+  refs.securityZapContextFields?.classList.toggle('hidden', mode !== 'authenticated-passive');
+  refs.securityZapApiFields?.classList.toggle('hidden', mode !== 'api');
+  refs.securityZapAuthorizationField?.classList.toggle('hidden', !['active', 'api'].includes(mode));
+  if (mode === 'passive') refs.securityZapTimeout.value = '10';
+  if (['active', 'api'].includes(mode) && Number(refs.securityZapTimeout.value) < 30) refs.securityZapTimeout.value = '30';
+  validateSecurityScan();
 }
 
 function securityStatusLabel(status) {
-  return ({ pass: 'Passed', warning: 'Review', fail: 'Needs attention', manual: 'Manual review', info: 'Info' })[status] || humanize(status);
+  return ({ pass: 'Passed', warning: 'Review', fail: 'Needs attention', manual: 'Manual review', info: 'Info', confirmed: 'Confirmed', observed: 'Observed', inferred: 'Inferred', not_tested: 'Not Tested', failed_to_test: 'Failed To Test' })[status] || humanize(status);
 }
 
 function renderSecurityResults(result) {
@@ -1170,38 +1202,70 @@ function renderSecurityResults(result) {
         ${(framework.publicEvidence || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
         ${(framework.technicalControls || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
         ${(framework.missingEvidence || []).slice(0, 5).map((item) => `<li class="missing">⚠ ${escapeHtml(item)}</li>`).join('')}
+        ${(framework.controlEvaluations || []).slice(0, 5).map((control) => `<li class="${control.state === 'supported_by_automated_evidence' ? 'observed' : 'missing'}">${escapeHtml(control.controlId)}: ${escapeHtml(humanize(control.state))}</li>`).join('')}
       </ul>
+      <small>Manual review required for organizational implementation and operating effectiveness.</small>
       <small>${escapeHtml(framework.certification || 'No public certification proof was verified by this website scan.')}</small>
     </div>`).join('');
 
+  const findings = result.findings || (result.checks || []).filter((check) => ['fail', 'warning'].includes(check.status));
   const grouped = new Map();
-  for (const check of result.checks || []) {
-    if (!grouped.has(check.category)) grouped.set(check.category, []);
-    grouped.get(check.category).push(check);
+  for (const finding of findings) {
+    if (!grouped.has(finding.category)) grouped.set(finding.category, []);
+    grouped.get(finding.category).push(finding);
   }
-  const groups = [...grouped.entries()].map(([category, checks]) => {
-    const attention = checks.filter((item) => ['fail', 'warning'].includes(item.status)).length;
+  const groups = [...grouped.entries()].map(([category, categoryFindings]) => {
     return `<details class="security-finding-group">
       <summary>
-        <div><strong>${escapeHtml(category)}</strong><span>${checks.length} checks${attention ? ` · ${attention} need review` : ''}</span></div>
+        <div><strong>${escapeHtml(category)}</strong><span>${categoryFindings.length} open finding${categoryFindings.length === 1 ? '' : 's'}</span></div>
         <span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span>
       </summary>
-      <div class="security-finding-list">${checks.map((check) => `
+      <div class="security-finding-list">${categoryFindings.map((finding) => {
+        const severityClass = finding.severity === 'critical' || finding.severity === 'high' ? 'fail' : finding.severity === 'medium' ? 'warning' : 'info';
+        const evidence = typeof finding.evidence === 'object' ? finding.evidence : { raw: finding.evidence || finding.details || '', type: '' };
+        return `
         <article class="security-finding">
-          <span class="security-status ${escapeHtml(check.status)}"><i></i>${escapeHtml(securityStatusLabel(check.status))}</span>
+          <span class="security-status ${severityClass}"><i></i>${escapeHtml(finding.severity || 'informational')}</span>
           <div class="security-finding-copy">
-            <h5>${escapeHtml(check.title)}</h5>
-            <p>${escapeHtml(check.summary)}</p>
-            <small>${escapeHtml(check.severity ? `Severity: ${check.severity}` : 'Severity: informational')}${check.affectedUrl ? ` · ${escapeHtml(check.affectedUrl)}` : ''}</small>
-            ${check.details ? `<small>${escapeHtml(check.details)}</small>` : ''}
-            ${check.evidence ? `<small>${escapeHtml(check.evidence)}</small>` : ''}
-            ${(check.evidenceItems || []).map((item) => `<small><strong>Evidence:</strong> ${escapeHtml(item.sourceUrl)} · ${escapeHtml(item.evidenceText)}</small>`).join('')}
-            ${check.recommendation ? `<div class="security-recommendation"><strong>Recommendation</strong><span>${escapeHtml(check.recommendation)}</span></div>` : ''}
-            ${(check.references || []).length ? `<div class="security-recommendation"><strong>References</strong><span>${(check.references || []).map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</span></div>` : ''}
+            <h5>${escapeHtml(finding.title)}</h5>
+            <p>${escapeHtml(finding.impact || finding.summary || '')}</p>
+            <small>${escapeHtml(finding.id || '')} · Confidence: ${escapeHtml(securityStatusLabel(finding.confidence || 'observed'))}${finding.affectedUrl ? ` · ${escapeHtml(finding.affectedUrl)}` : ''}</small>
+            ${finding.testMethod ? `<small><strong>Test method:</strong> ${escapeHtml(finding.testMethod)}</small>` : ''}
+            ${evidence.raw ? `<small><strong>Evidence (${escapeHtml(evidence.type || 'observation')}):</strong> ${escapeHtml(evidence.raw)}</small>` : ''}
+            ${(finding.controls || []).length ? `<small><strong>Linked controls:</strong> ${escapeHtml(finding.controls.join(', '))}</small>` : ''}
+            ${(finding.limitations || []).length ? `<small><strong>Limitations:</strong> ${escapeHtml(finding.limitations.join(' · '))}</small>` : ''}
+            ${finding.recommendation ? `<div class="security-recommendation"><strong>Recommendation</strong><span>${escapeHtml(finding.recommendation)}</span></div>` : ''}
+            ${(finding.references || []).length ? `<div class="security-recommendation"><strong>References</strong><span>${(finding.references || []).map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</span></div>` : ''}
+            ${finding.fingerprint ? `<div class="security-lifecycle-controls"><input class="security-lifecycle-reason" type="text" placeholder="Decision reason" aria-label="Finding decision reason"><input class="security-lifecycle-expiry" type="date" aria-label="Risk acceptance expiry"><select class="security-lifecycle-status" data-fingerprint="${escapeHtml(finding.fingerprint)}" data-previous="${escapeHtml(finding.status || 'open')}" aria-label="Finding lifecycle status"><option value="${escapeHtml(finding.status || 'open')}">${escapeHtml(humanize(finding.status || 'open'))}</option>${['open','false_positive','suppressed','risk_accepted','resolved'].filter((status) => status !== finding.status).map((status) => `<option value="${status}">${escapeHtml(humanize(status))}</option>`).join('')}</select><button type="button" class="button button-secondary small security-lifecycle-save">Save decision</button></div>` : ''}
           </div>
-        </article>`).join('')}</div>
+        </article>`;
+      }).join('')}</div>
     </details>`;
-  }).join('');
+  }).join('') || '<div class="security-disclaimer"><strong>No open findings:</strong> No adverse conditions met the scanner finding thresholds. Review test coverage and limitations before drawing conclusions.</div>';
+
+  const testResults = result.testResults || [];
+  const testStateCounts = testResults.reduce((counts, item) => {
+    counts[item.state] = (counts[item.state] || 0) + 1;
+    return counts;
+  }, {});
+  const incompleteTests = testResults.filter((item) => ['observed', 'not_tested', 'failed_to_test'].includes(item.state));
+  const coverageSection = testResults.length ? `
+    <div class="security-section-title"><div><h4>Test coverage</h4><span>Collection state is separate from finding severity and lifecycle.</span></div></div>
+    <div class="security-score-grid security-coverage-grid">
+      <div class="security-score-card pass"><span>Confirmed</span><strong>${testStateCounts.confirmed || 0}</strong></div>
+      <div class="security-score-card warning"><span>Observed / partial</span><strong>${testStateCounts.observed || 0}</strong></div>
+      <div class="security-score-card manual"><span>Not tested</span><strong>${testStateCounts.not_tested || 0}</strong></div>
+      <div class="security-score-card fail"><span>Failed to test</span><strong>${testStateCounts.failed_to_test || 0}</strong></div>
+    </div>
+    ${incompleteTests.length ? `<details class="security-finding-group"><summary><div><strong>Coverage limitations</strong><span>${incompleteTests.length} test${incompleteTests.length === 1 ? '' : 's'} incomplete or partial</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-finding-list">${incompleteTests.map((item) => `<article class="security-finding"><span class="security-status ${item.state === 'failed_to_test' ? 'fail' : item.state === 'not_tested' ? 'manual' : 'warning'}"><i></i>${escapeHtml(securityStatusLabel(item.state))}</span><div class="security-finding-copy"><h5>${escapeHtml(item.title)}</h5><p>${escapeHtml(item.summary || '')}</p>${(item.limitations || []).length ? `<small>${escapeHtml(item.limitations.join(' · '))}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : '';
+
+  const evidenceSection = result.evidenceManifest ? `<div class="security-disclaimer"><strong>Evidence archive:</strong> ${result.evidenceManifest.artifactCount || 0} hashed artifact(s) captured. Raw headers, cookies, network data, crawl captures, TLS data, and screenshots are restricted to local filesystem access.</div>` : '';
+  const comparisonSection = result.comparison ? `<div class="security-disclaimer"><strong>Scan comparison:</strong> ${result.comparison.newCount || 0} new · ${result.comparison.recurringCount || 0} recurring · ${result.comparison.resolvedCount || 0} resolved since the previous project scan.</div>` : '';
+  const signatureSection = result.reportManifest ? `<div class="security-disclaimer"><strong>Snapshot:</strong> ${result.reportManifest.files?.length || 0} report file(s) hashed · ${result.reportManifest.signature?.algorithm === 'hmac-sha256' ? 'HMAC-signed' : 'unsigned (configure SECURITY_REPORT_SIGNING_KEY)'}</div>` : '';
+  const vaultEvidence = result.vaultEvidence || [];
+  const evidenceWorkflowSection = vaultEvidence.length ? `
+    <div class="security-section-title"><div><h4>Evidence review workflow</h4><span>Artifact status changes are recorded in the project audit log.</span></div><label class="field security-review-role"><span>Reviewer role</span><select id="securityEvidenceReviewerRole"><option value="security_reviewer">Security reviewer</option><option value="legal_reviewer">Legal reviewer</option><option value="compliance_owner">Compliance owner</option><option value="auditor">Auditor</option></select></label></div>
+    <details class="security-finding-group"><summary><div><strong>Evidence objects</strong><span>${vaultEvidence.length} hashed artifact${vaultEvidence.length === 1 ? '' : 's'}</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-finding-list">${vaultEvidence.map((evidence) => `<article class="security-finding"><span class="security-status ${evidence.approvalStatus === 'approved' ? 'pass' : evidence.approvalStatus === 'rejected' || evidence.approvalStatus === 'expired' ? 'fail' : 'manual'}"><i></i>${escapeHtml(humanize(evidence.approvalStatus))}</span><div class="security-finding-copy"><h5>${escapeHtml(evidence.metadata?.artifactId || evidence.type)}</h5><p>${escapeHtml(evidence.sourceReference)}</p><small>SHA-256 ${escapeHtml(evidence.hash)} · ${escapeHtml(evidence.metadata?.bytes || 0)} bytes${evidence.sensitive ? ' · Sensitive' : ''}</small><div class="security-lifecycle-controls"><input class="security-evidence-reviewer" type="text" placeholder="Reviewer name" aria-label="Reviewer name"><input class="security-evidence-note" type="text" placeholder="Review note" aria-label="Review note"><select class="security-evidence-status" data-evidence-id="${escapeHtml(evidence.id)}" data-previous="${escapeHtml(evidence.approvalStatus)}" aria-label="Evidence review status">${['automated_evidence_collected','manual_evidence_required','submitted_for_review','reviewed','approved','rejected','expired'].map((status) => `<option value="${status}" ${status === evidence.approvalStatus ? 'selected' : ''}>${escapeHtml(humanize(status))}</option>`).join('')}</select><button type="button" class="button button-secondary small security-evidence-save">Save review</button></div></div></article>`).join('')}</div></details>` : '';
 
   const crawl = result.crawl;
   const crawlSection = crawl && Array.isArray(crawl.pages) && crawl.pages.length ? `
@@ -1225,7 +1289,7 @@ function renderSecurityResults(result) {
   refs.securityResults.innerHTML = `
     <div class="security-result-header">
       <div><div class="eyebrow mini">${escapeHtml(result.projectName)}</div><h4>${escapeHtml(result.finalUrl)}</h4><span>HTTP ${escapeHtml(result.responseStatus)} · ${new Date(result.generatedAt).toLocaleString()}</span></div>
-      <span class="security-overall ${escapeHtml(result.overallStatus)}">${result.riskCount ? `${result.riskCount} item${result.riskCount === 1 ? '' : 's'} need attention` : 'No automated issues detected'}</span>
+      <span class="security-overall ${escapeHtml(result.overallStatus)}">${findings.length ? `${findings.length} open finding${findings.length === 1 ? '' : 's'}` : 'No open findings in tested scope'}</span>
     </div>
     <div class="security-score-grid">
       <div class="security-score-card pass"><span>Passed</span><strong>${totals.pass || 0}</strong></div>
@@ -1234,14 +1298,21 @@ function renderSecurityResults(result) {
       <div class="security-score-card manual"><span>Manual review</span><strong>${totals.manual || 0}</strong></div>
     </div>
     <div class="security-disclaimer"><strong>Scope:</strong> ${escapeHtml(result.disclaimer)}</div>
+    ${evidenceSection}
+    ${comparisonSection}
+    ${signatureSection}
+    ${coverageSection}
+    ${evidenceWorkflowSection}
     <div class="security-section-title"><div><h4>Compliance evidence</h4><span>Public website evidence and technical controls only. No compliance percentages or certification claims are produced.</span></div></div>
     <div class="security-framework-results">${frameworks}</div>
-    <div class="security-section-title"><div><h4>Technical findings</h4><span>Groups are closed by default. Open a group to review evidence and recommendations.</span></div></div>
+    <div class="security-section-title"><div><h4>Open technical findings</h4><span>Findings include evidence, confidence, test method, limitations, and linked controls.</span></div></div>
     <div class="security-findings">${groups}</div>
     ${crawlSection}`;
 
   refs.securityResultActions.innerHTML = `
     <a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a>
+    <a class="button button-ghost small" href="${result.executiveHref}" target="_blank" rel="noopener">Executive JSON</a>
+    <a class="button button-ghost small" href="${result.auditorHref}" target="_blank" rel="noopener">Auditor JSON</a>
     <a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>
     <a class="button button-secondary small" href="${result.xlsxHref}" download>Excel</a>`;
   refs.securityResultsCard.classList.remove('hidden');
@@ -1258,17 +1329,52 @@ async function runSecurityScan() {
   refs.securityScanState.className = 'security-scan-state running';
   refs.securityScanState.innerHTML = '<span class="security-spinner"></span><div><strong>Scanning website…</strong><small>Checking transport, headers, cookies and page signals.</small></div>';
   try {
+    const scanConfig = {
+      projectName: refs.securityProjectName.value.trim(),
+      targetUrl: refs.securityTargetUrl.value.trim(),
+      jurisdiction: refs.securityJurisdiction.value.trim(),
+      frameworks: selectedSecurityFrameworks(),
+      crawl: refs.securityCrawlEnabled ? refs.securityCrawlEnabled.checked : true,
+      maxCrawlPages: refs.securityMaxPages ? Number(refs.securityMaxPages.value) || 10 : 10,
+      authentication: refs.securityAuthEnabled?.checked ? {
+        enabled: true,
+        role: refs.securityAuthRole.value,
+        loginUrl: refs.securityLoginUrl.value.trim(),
+        usernameSelector: refs.securityUsernameSelector.value.trim(),
+        passwordSelector: refs.securityPasswordSelector.value.trim(),
+        submitSelector: refs.securitySubmitSelector.value.trim(),
+        successUrlPattern: refs.securitySuccessUrl.value.trim(),
+        username: refs.securityAuthUsername.value,
+        password: refs.securityAuthPassword.value,
+        reuseSession: refs.securityReuseSession.checked
+      } : { enabled: false },
+      zap: {
+        mode: refs.securityZapMode.value,
+        contextFile: refs.securityZapContextFile.value.trim(),
+        contextUser: refs.securityZapContextUser.value.trim(),
+        apiDefinition: refs.securityZapApiDefinition.value.trim(),
+        apiFormat: refs.securityZapApiFormat.value,
+        timeoutMinutes: Number(refs.securityZapTimeout.value) || 10,
+        activeScanAuthorized: refs.securityZapAuthorized.checked
+      }
+    };
     const result = await api('/api/security/scan', {
       method: 'POST',
-      body: JSON.stringify({
-        projectName: refs.securityProjectName.value.trim(),
-        targetUrl: refs.securityTargetUrl.value.trim(),
-        jurisdiction: refs.securityJurisdiction.value.trim(),
-        frameworks: selectedSecurityFrameworks(),
-        crawl: refs.securityCrawlEnabled ? refs.securityCrawlEnabled.checked : true,
-        maxCrawlPages: refs.securityMaxPages ? Number(refs.securityMaxPages.value) || 10 : 10
-      })
+      body: JSON.stringify(scanConfig)
     });
+    if (refs.securityScheduleEnabled?.checked) {
+      const scheduledConfig = structuredClone(scanConfig);
+      if (scheduledConfig.authentication?.enabled) {
+        delete scheduledConfig.authentication.username;
+        delete scheduledConfig.authentication.password;
+        scheduledConfig.authentication.reuseSession = true;
+      }
+      try {
+        await api('/api/security/schedules', { method: 'POST', body: JSON.stringify({ config: scheduledConfig, intervalMinutes: Number(refs.securityScheduleInterval.value) || 1440 }) });
+      } catch (scheduleError) {
+        toast(`Scan completed, but scheduling failed: ${scheduleError.message}`, true);
+      }
+    }
     renderSecurityResults(result);
     refs.securityScanState.className = 'security-scan-state success';
     refs.securityScanState.innerHTML = `<span class="security-state-dot"></span><div><strong>Scan completed</strong><small>${result.totals?.pass || 0} passed · ${(result.totals?.fail || 0) + (result.totals?.warning || 0)} need attention/review.</small></div>`;
@@ -1352,6 +1458,62 @@ refs.securityProjectName?.addEventListener('input', () => { if (refs.securityPro
 refs.securityTargetUrl?.addEventListener('input', () => { if (refs.securityUrlField?.classList.contains('has-error')) validateSecurityScan(); });
 refs.securityProjectName?.addEventListener('blur', validateSecurityScan);
 refs.securityTargetUrl?.addEventListener('blur', validateSecurityScan);
+refs.securityAuthEnabled?.addEventListener('change', () => {
+  refs.securityAuthConfig?.classList.toggle('hidden', !refs.securityAuthEnabled.checked);
+  validateSecurityScan();
+});
+refs.securityZapMode?.addEventListener('change', syncSecurityZapFields);
+refs.securityZapAuthorized?.addEventListener('change', validateSecurityScan);
+syncSecurityZapFields();
+refs.securityScheduleEnabled?.addEventListener('change', () => refs.securityScheduleIntervalField?.classList.toggle('hidden', !refs.securityScheduleEnabled.checked));
+refs.securityResults?.addEventListener('click', async (event) => {
+  const evidenceButton = event.target.closest('.security-evidence-save');
+  if (evidenceButton) {
+    const controls = evidenceButton.closest('.security-lifecycle-controls');
+    const evidenceSelect = controls.querySelector('.security-evidence-status');
+    const previous = evidenceSelect.dataset.previous;
+    try {
+      evidenceButton.disabled = true;
+      await api(`/api/security/evidence/${encodeURIComponent(evidenceSelect.dataset.evidenceId)}/review`, { method: 'POST', body: JSON.stringify({ status: evidenceSelect.value, reviewer: controls.querySelector('.security-evidence-reviewer').value.trim(), role: $('#securityEvidenceReviewerRole')?.value || 'security_reviewer', note: controls.querySelector('.security-evidence-note').value.trim() }) });
+      evidenceSelect.dataset.previous = evidenceSelect.value;
+      toast(`Evidence review saved as ${humanize(evidenceSelect.value)} and Report History refreshed.`);
+    } catch (error) {
+      evidenceSelect.value = previous;
+      toast(error.message, true);
+    } finally {
+      evidenceButton.disabled = false;
+    }
+    return;
+  }
+  const decisionButton = event.target.closest('.security-lifecycle-save');
+  if (!decisionButton) return;
+  const controls = decisionButton.closest('.security-lifecycle-controls');
+  const select = controls.querySelector('.security-lifecycle-status');
+  const reason = controls.querySelector('.security-lifecycle-reason').value.trim();
+  const expiresAt = controls.querySelector('.security-lifecycle-expiry').value;
+  const previous = select.dataset.previous || 'open';
+  if (['false_positive', 'suppressed', 'risk_accepted'].includes(select.value) && !reason) {
+    select.value = previous;
+    toast('Add a decision reason before changing this finding status.', true);
+    return;
+  }
+  if (select.value === 'risk_accepted' && !expiresAt) {
+    select.value = previous;
+    toast('Risk acceptance requires an expiry date.', true);
+    return;
+  }
+  try {
+    decisionButton.disabled = true;
+    await api(`/api/security/findings/${encodeURIComponent(select.dataset.fingerprint)}`, { method: 'POST', body: JSON.stringify({ projectName: refs.securityProjectName.value.trim(), status: select.value, reason, expiresAt, actor: 'local-user', role: 'security_reviewer' }) });
+    select.dataset.previous = select.value;
+    toast(`Finding decision saved as ${humanize(select.value)} and Report History refreshed.`);
+  } catch (error) {
+    select.value = previous;
+    toast(error.message, true);
+  } finally {
+    decisionButton.disabled = false;
+  }
+});
 refs.startSecurityScanBtn?.addEventListener('click', runSecurityScan);
 
 refs.newProjectBtn?.addEventListener('click', () => { clearProjectEditor(); refs.projectEditorCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); refs.sharedProjectName.focus(); });

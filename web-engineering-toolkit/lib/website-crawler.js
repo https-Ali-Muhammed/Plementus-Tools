@@ -91,7 +91,7 @@ async function fetchPageWithRedirects(target, { timeout = 8000, maxBodyBytes = 9
     redirect: 'follow',
     signal: AbortSignal.timeout(timeout),
     headers: {
-      'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.4',
+      'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.5',
       'Accept': 'text/html,application/xhtml+xml,text/plain;q=0.8,*/*;q=0.5'
     }
   });
@@ -207,7 +207,9 @@ const EVIDENCE_SIGNALS = {
   auditLogging: { label: 'Audit logging', category: 'security-control', pattern: /\b(audit log|audit logging|activity logs?|access logs?)\b/i },
   availabilityBackup: { label: 'Backup / availability', category: 'resilience', pattern: /\b(backup|disaster recovery|business continuity|availability commitment|uptime)\b/i },
   paymentProcessing: { label: 'Payment processing', category: 'payment', pattern: /\b(payment|checkout|credit card|debit card|cardholder|stripe|paypal|adyen|braintree|pci)\b/i },
-  healthcarePhi: { label: 'Healthcare / PHI', category: 'healthcare', pattern: /\b(healthcare|health care|medical|patient|protected health information|\bPHI\b|HIPAA)\b/i }
+  healthcarePhi: { label: 'Healthcare context', category: 'healthcare', pattern: /\b(healthcare|health care|medical|patient|protected health information|\bPHI\b|HIPAA)\b/i },
+  hipaaApplicability: { label: 'HIPAA / PHI applicability', category: 'healthcare', pattern: /\b(HIPAA|protected health information|\bPHI\b|covered entit(?:y|ies)|business associate agreement|\bBAA\b|patient portal)\b/i },
+  pciApplicability: { label: 'PCI / cardholder applicability', category: 'payment', pattern: /\b(PCI[\s-]?DSS|cardholder data|card data environment|\bCDE\b|payment card data|credit card number|debit card number|card security code|\bCVV\b|\bCVC\b)\b/i }
 };
 
 const CERTIFICATION_SIGNALS = {

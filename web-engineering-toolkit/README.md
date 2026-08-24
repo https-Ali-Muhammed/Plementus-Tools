@@ -1,11 +1,11 @@
-# Web Engineering Toolkit v1.2
+# Web Engineering Toolkit v1.5
 
 A framework-free website engineering and QA workspace built with vanilla HTML, CSS, JavaScript, and Node.js.
 
 ## Tools included
 
 - **Lighthouse Reporter** — repeatable Performance, Accessibility, Best Practices and SEO audits with public/session modes, language-aware routing, mobile/desktop runs, grouped Lighthouse findings and HTML/CSV/XLSX reports.
-- **Security & Compliance Scanner** — checks visible website security controls and maps technical evidence to ISO 27001, GDPR, SOC 2, HIPAA, PCI DSS and Local Regulations without claiming certification.
+- **Security & Compliance Scanner** — collects defensible HTTP, browser, TLS, crawl, and optional OWASP ZAP evidence; creates lifecycle findings and control mappings without claiming certification.
 - **Asset & Page-Weight Analyzer** — measures transferred page weight and network requests across selected pages, including JavaScript, CSS, images, fonts, media, XHR/fetch, third-party resources and the largest assets.
 
 ## Shared Projects
@@ -133,6 +133,91 @@ APP_PORT=4180 npm start
 ## Security/compliance scope
 
 The Security & Compliance Scanner evaluates technical website evidence only. It cannot verify internal policies, contracts, staff procedures, certifications, risk assessments or legal applicability, and therefore does not claim that a website or organization is compliant/certified.
+
+It separates:
+
+- confirmed, observed, inferred, not-tested, and failed-to-test results
+- open security findings from successful test coverage
+- automated evidence from manual evidence and reviewer decisions
+- control evidence support from framework-level compliance conclusions
+
+### Security scanner capabilities
+
+- browser retries with exponential backoff, timeout recovery, and partial evidence preservation
+- raw response headers, Set-Cookie values, browser cookies, network requests, console events, screenshots, TLS data, and crawl errors
+- SHA-256 evidence manifests and read-only report snapshots
+- atomic findings with severity, confidence, evidence, impact, recommendation, references, controls, first/last seen, test method, scanner version, and limitations
+- CSP, HSTS, cookie, consent-order, CORS, mixed-content, certificate, protocol, OCSP, DNS CAA, and forward-secrecy observations
+- structured login flows, role-scoped encrypted Playwright session reuse, and bounded authenticated crawling
+- OWASP ZAP passive, authenticated-passive, active, and OpenAPI/SOAP/GraphQL API modes
+- evidence review states, reviewer roles, and append-only audit events
+- finding comparison, false-positive/suppression/risk-acceptance lifecycle, and recurring schedules
+- executive, developer, auditor-evidence, privacy/legal, technical-appendix, HTML, JSON, CSV, and XLSX reports
+
+Raw evidence is stored below each report's `evidence/` directory and is intentionally blocked from the generic `/reports` static route because it can contain session identifiers or personal data.
+
+Reviewer changes and finding decisions refresh the affected Report History HTML, JSON, CSV, and XLSX outputs. Each refresh creates a numbered workflow snapshot under the report's `revisions/` directory and links the new report manifest to the preceding manifest hash; the original raw evidence archive is not modified.
+
+### Authenticated sessions
+
+The security scanner accepts a structured login flow: login URL, username selector, password selector, submit selector, and optional success URL/selector. Credentials are used only for the current request and are excluded from reports and evidence.
+
+Successful Playwright storage state is encrypted with AES-256-GCM under `profiles/security-scanner/`. Set a stable secret to reuse sessions after a toolkit restart:
+
+```bash
+SECURITY_SESSION_KEY='replace-with-a-long-random-secret' npm start
+```
+
+Without this variable, an ephemeral process key is used and stored sessions are reusable only until the server restarts.
+
+### OWASP ZAP
+
+ZAP integration uses the official stable container image. Docker must be installed and able to reach the target.
+
+- Passive mode uses `zap-baseline.py` and does not perform active attacks.
+- Authenticated passive mode requires a local ZAP context file and named context user.
+- Active mode uses `zap-full-scan.py` and requires explicit authorization acknowledgement.
+- API mode uses `zap-api-scan.py`, performs active testing, and accepts OpenAPI, SOAP, or GraphQL definitions.
+
+Postman collections must currently be converted to OpenAPI before using the packaged API scan.
+
+### Signing
+
+Configure an HMAC key to sign evidence and report manifests:
+
+```bash
+SECURITY_REPORT_SIGNING_KEY='replace-with-a-separate-random-secret' npm start
+```
+
+Without a configured key, manifests are still hashed and explicitly marked unsigned.
+
+### Security data and API
+
+Local platform state is stored beneath `data/`:
+
+- `security-evidence-vault.json`
+- `security-audit-log.jsonl`
+- `security-finding-lifecycle.json`
+- `security-schedules.json`
+
+Security API routes include:
+
+- `POST /api/security/scan`
+- `GET|POST /api/security/evidence`
+- `POST /api/security/evidence/:id/review`
+- `GET /api/security/audit-log`
+- `GET /api/security/findings`
+- `POST /api/security/findings/:fingerprint`
+- `GET|POST /api/security/schedules`
+- `DELETE /api/security/schedules/:id`
+
+### Tests
+
+```bash
+npm test
+```
+
+The local security lab and expected results are documented in `test/EXPECTED_FINDINGS.md`. Active security testing must only be run against targets for which the operator has explicit permission.
 
 
 ## v1.3

@@ -399,6 +399,49 @@
                   <input id="securityMaxPages" type="number" min="1" max="25" value="10" />
                 </label>
               </div>
+              <div class="security-auth-section">
+                <label class="security-select-all">
+                  <input id="securityAuthEnabled" type="checkbox" />
+                  <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                  <span>Authenticated browser scan</span>
+                </label>
+                <div id="securityAuthConfig" class="security-auth-config hidden">
+                  <div class="project-setup-grid">
+                    <label class="field"><span>Role</span><select id="securityAuthRole"><option value="normal-user">Normal user</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
+                    <label class="field"><span>Login URL</span><input id="securityLoginUrl" type="url" placeholder="https://example.com/login" autocomplete="url" /></label>
+                    <label class="field"><span>Success URL pattern <em>optional</em></span><input id="securitySuccessUrl" type="text" placeholder="**/dashboard" autocomplete="off" /></label>
+                  </div>
+                  <div class="project-setup-grid">
+                    <label class="field"><span>Username selector</span><input id="securityUsernameSelector" type="text" placeholder="input[name=username]" autocomplete="off" /></label>
+                    <label class="field"><span>Password selector</span><input id="securityPasswordSelector" type="text" placeholder="input[type=password]" autocomplete="off" /></label>
+                    <label class="field"><span>Submit selector</span><input id="securitySubmitSelector" type="text" placeholder="button[type=submit]" autocomplete="off" /></label>
+                  </div>
+                  <div class="project-setup-grid">
+                    <label class="field"><span>Username</span><input id="securityAuthUsername" type="text" autocomplete="username" /></label>
+                    <label class="field"><span>Password</span><input id="securityAuthPassword" type="password" autocomplete="current-password" /></label>
+                    <label class="security-select-all security-auth-reuse"><input id="securityReuseSession" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Reuse encrypted role session</span></label>
+                  </div>
+                  <small id="securityAuthError" class="field-error" aria-live="polite"></small>
+                </div>
+              </div>
+              <div class="security-auth-section">
+                <label class="field"><span>OWASP ZAP mode</span><select id="securityZapMode"><option value="none">Native scanner only</option><option value="passive">Passive scan</option><option value="authenticated-passive">Authenticated passive</option><option value="active">Active scan</option><option value="api">API scan</option></select></label>
+                <div id="securityZapConfig" class="security-auth-config hidden">
+                  <div id="securityZapContextFields" class="project-setup-grid hidden">
+                    <label class="field"><span>ZAP context file</span><input id="securityZapContextFile" type="text" placeholder="/absolute/path/application.context" autocomplete="off" /></label>
+                    <label class="field"><span>ZAP context user</span><input id="securityZapContextUser" type="text" autocomplete="off" /></label>
+                  </div>
+                  <div id="securityZapApiFields" class="project-setup-grid hidden">
+                    <label class="field"><span>API definition URL</span><input id="securityZapApiDefinition" type="url" placeholder="https://example.com/openapi.json" autocomplete="url" /></label>
+                    <label class="field"><span>API format</span><select id="securityZapApiFormat"><option value="openapi">OpenAPI</option><option value="graphql">GraphQL</option><option value="soap">SOAP</option></select></label>
+                  </div>
+                  <div class="project-setup-grid">
+                    <label class="field"><span>ZAP timeout (minutes)</span><input id="securityZapTimeout" type="number" min="2" max="180" value="10" /></label>
+                    <label id="securityZapAuthorizationField" class="security-select-all hidden"><input id="securityZapAuthorized" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>I have explicit permission to actively test this target</span></label>
+                  </div>
+                  <small id="securityZapError" class="field-error" aria-live="polite"></small>
+                </div>
+              </div>
             </section>
 
             <section class="card">
@@ -468,6 +511,10 @@
                 <div><b>HTTPS & TLS</b><b>Security headers</b><b>Cookie attributes</b><b>CORS</b><b>Mixed content</b><b>Privacy signals</b><b>Third-party scripts</b><b>security.txt</b></div>
               </div>
               <button id="startSecurityScanBtn" class="button button-primary full">Run security scan</button>
+              <div class="security-schedule-control">
+                <label class="security-select-all"><input id="securityScheduleEnabled" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Repeat this scan</span></label>
+                <label id="securityScheduleIntervalField" class="field hidden"><span>Interval (minutes)</span><input id="securityScheduleInterval" type="number" min="15" max="525600" value="1440" /></label>
+              </div>
               <div id="securityScanState" class="security-scan-state idle"><span class="security-spinner"></span><div><strong>Ready to scan</strong><small>No browser launch is required.</small></div></div>
             </section>
           </aside>
