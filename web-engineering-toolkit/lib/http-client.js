@@ -1,6 +1,7 @@
 import http from 'node:http';
 import https from 'node:https';
 import { URL } from 'node:url';
+import { SECURITY_SCANNER_USER_AGENT } from './tool-version.js';
 
 const DEFAULT_TIMEOUT = 12000;
 const MAX_BODY_BYTES = 2_500_000;
@@ -68,7 +69,7 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
       agent: false,
       requestOCSP: parsed.protocol === 'https:',
       headers: {
-        'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.5',
+        'User-Agent': SECURITY_SCANNER_USER_AGENT,
         'Accept': 'text/html,application/xhtml+xml,application/json;q=0.8,*/*;q=0.5',
         'Connection': 'close',
         ...headers

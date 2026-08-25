@@ -1,5 +1,7 @@
 # Security & Compliance Scanner Audit
 
+> Historical architecture audit for toolkit version 1.4.0. This document is archived and does not describe the current Compliance Mapping implementation. See the active README for current capabilities and schemas.
+
 Audit date: 2026-08-24
 Audited version: 1.4.0
 Scope: scanner engine, HTTP and browser collection, crawler, TLS/header/cookie analysis, compliance mapping, persistence, reports, and frontend rendering.

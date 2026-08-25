@@ -34,7 +34,7 @@
 
         <div class="nav-label nav-label-spaced">Tools</div>
         <button class="nav-item active" data-section="runner"><span class="nav-glyph nav-lighthouse"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 4-3 4 3"/><path d="M9 9h6l2 11H7L9 9Z"/><path d="M9.8 13h4.4"/><path d="M6 7 3.5 5.8"/><path d="m18 7 2.5-1.2"/><path d="M12 3v2"/><path d="M4 20h16"/></svg></span><span>Lighthouse Reporter</span></button>
-        <button class="nav-item" data-section="security"><span class="nav-glyph nav-shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="m9 12 2 2 4-5"/></svg></span><span>Security & Compliance</span></button>
+        <button class="nav-item" data-section="security"><span class="nav-glyph nav-shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="m9 12 2 2 4-5"/></svg></span><span>Compliance Mapping</span></button>
         <button class="nav-item" data-section="assets"><span class="nav-glyph nav-assets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8M9 18V4M14 18v-7M19 18V6"/><path d="M3 20h18"/></svg></span><span>Asset & Page Weight</span></button>
 
         <div class="nav-label nav-label-spaced">Reports</div>
@@ -48,7 +48,7 @@
       </div>
 
       <div class="sidebar-footer">
-        <span>v1.2</span>
+        <span>v1.7.1</span>
       </div>
     </aside>
 
@@ -58,7 +58,7 @@
           <div>
             <div class="eyebrow">Shared workspace</div>
             <h2>Projects</h2>
-            <p>Save website environments, languages and common target pages once, then reuse them across Lighthouse, Security & Compliance, and Asset & Page-Weight reports.</p>
+            <p>Save website environments, languages and common target pages once, then reuse them across Lighthouse, Compliance Mapping, and Asset & Page-Weight reports.</p>
           </div>
           <button id="newProjectBtn" class="button button-primary" type="button">New project</button>
         </header>
@@ -357,21 +357,34 @@
       <section id="securitySection" class="page-section">
         <header class="page-header">
           <div>
-            <div class="eyebrow">Security & Compliance Scanner</div>
-            <h2>Assess visible website security controls</h2>
-            <p>Scan technical website signals such as HTTPS, TLS, security headers, cookies, mixed content, privacy indicators, and third-party scripts, then map the findings to selected compliance frameworks.</p>
+            <div class="eyebrow">Compliance Mapping Tool</div>
+            <h2>Turn website evidence into a reviewable control map</h2>
+            <p>Collect technical evidence, connect it to selected framework controls, and surface gaps that need manual review—without presenting the result as certification.</p>
           </div>
-          <div class="browser-badge security-scope-badge"><span class="pulse"></span><span>Technical assessment</span></div>
+          <div class="browser-badge security-scope-badge"><span class="pulse"></span><span>Evidence-based mapping</span></div>
         </header>
 
-        <div class="security-layout">
-          <div class="content-column">
-            <section class="card">
+        <div class="security-workflow-strip" aria-label="Compliance mapping workflow">
+          <div><span>01</span><strong>Collect evidence</strong><small>Inspect public and authenticated website controls.</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>02</span><strong>Map controls</strong><small>Link observed signals to selected frameworks.</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>03</span><strong>Review gaps</strong><small>Separate automated evidence from manual work.</small></div>
+        </div>
+
+        <div class="security-workspace">
+          <section id="securityConfigSummary" class="security-config-summary hidden" aria-live="polite"></section>
+
+          <div id="securityConfigPanel" class="security-setup-container">
+            <div class="security-setup-grid">
+              <div class="security-setup-main">
+            <section class="card security-scope-card">
               <div class="card-heading">
-                <div><span class="step-number">01</span><h3>Scan target</h3></div>
-                <span class="muted">Website scope</span>
+                <div><span class="step-number">01</span><h3>Evidence scope</h3></div>
+                <span class="muted">Project &amp; target</span>
               </div>
-              <div class="project-setup-grid">
+              <div id="securityProjectContext" class="security-project-context hidden"></div>
+              <div id="securityProjectOverrideFields" class="project-setup-grid">
                 <label class="field" id="securityProjectField">
                   <span>Project name</span>
                   <input id="securityProjectName" type="text" placeholder="Enter project name" autocomplete="off" />
@@ -382,77 +395,83 @@
                   <input id="securityTargetUrl" type="url" placeholder="https://example.com" autocomplete="url" />
                   <small id="securityUrlError" class="field-error" aria-live="polite"></small>
                 </label>
-                <label class="field security-jurisdiction-field">
-                  <span>Local jurisdiction <em>optional</em></span>
-                  <input id="securityJurisdiction" type="text" placeholder="Example: Egypt" autocomplete="country-name" />
-                  <small>Used only as context for the Local Regulations section.</small>
-                </label>
               </div>
-              <div class="project-setup-grid" style="margin-top:14px">
+              <div class="security-crawl-toggle">
                 <label class="security-select-all" style="align-items:flex-start">
                   <input id="securityCrawlEnabled" type="checkbox" checked />
                   <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
                   <span>Crawl for compliance evidence pages<br><small class="muted">Looks for privacy, terms, security and compliance pages beyond the homepage.</small></span>
                 </label>
-                <label class="field" id="securityMaxPagesField">
-                  <span>Max pages to crawl</span>
-                  <input id="securityMaxPages" type="number" min="1" max="25" value="10" />
-                </label>
               </div>
-              <div class="security-auth-section">
-                <label class="security-select-all">
-                  <input id="securityAuthEnabled" type="checkbox" />
-                  <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                  <span>Authenticated browser scan</span>
-                </label>
-                <div id="securityAuthConfig" class="security-auth-config hidden">
-                  <div class="project-setup-grid">
-                    <label class="field"><span>Role</span><select id="securityAuthRole"><option value="normal-user">Normal user</option><option value="manager">Manager</option><option value="admin">Admin</option></select></label>
-                    <label class="field"><span>Login URL</span><input id="securityLoginUrl" type="url" placeholder="https://example.com/login" autocomplete="url" /></label>
-                    <label class="field"><span>Success URL pattern <em>optional</em></span><input id="securitySuccessUrl" type="text" placeholder="**/dashboard" autocomplete="off" /></label>
+              <details id="securityAdvancedOptions" class="security-advanced-options">
+                <summary><span><strong>Advanced scan settings &amp; evidence sources</strong><small id="securityAdvancedSummary">Crawl limit: 10 pages · Authenticated: Off · Consent scenarios: Off · ZAP: None</small></span><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary>
+                <div class="security-advanced-body">
+                  <div class="security-auth-section">
+                    <label class="field" id="securityMaxPagesField">
+                      <span>Max pages to crawl</span>
+                      <input id="securityMaxPages" type="number" min="1" max="25" value="10" />
+                      <small>Safe default: 10 candidate pages.</small>
+                    </label>
                   </div>
-                  <div class="project-setup-grid">
-                    <label class="field"><span>Username selector</span><input id="securityUsernameSelector" type="text" placeholder="input[name=username]" autocomplete="off" /></label>
-                    <label class="field"><span>Password selector</span><input id="securityPasswordSelector" type="text" placeholder="input[type=password]" autocomplete="off" /></label>
-                    <label class="field"><span>Submit selector</span><input id="securitySubmitSelector" type="text" placeholder="button[type=submit]" autocomplete="off" /></label>
+                  <div class="security-auth-section">
+                    <label class="security-select-all">
+                      <input id="securityAuthEnabled" type="checkbox" />
+                      <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                      <span>Collect authenticated browser evidence</span>
+                    </label>
+                    <div id="securityAuthConfig" class="security-auth-config hidden">
+                      <div class="project-setup-grid">
+                        <label class="field"><span>Test role / Evidence profile</span><select id="securityAuthRole"><option value="normal-user">Normal user</option><option value="privileged-user">Privileged user</option><option value="administrator">Administrator</option><option value="custom">Custom</option></select><small>Describes the authenticated perspective tested; it does not validate role-based access control.</small></label>
+                        <label id="securityAuthCustomRoleField" class="field hidden"><span>Custom evidence profile</span><input id="securityAuthCustomRole" type="text" maxlength="80" placeholder="Example: Billing operator" autocomplete="off" /></label>
+                        <label class="field"><span>Login URL</span><input id="securityLoginUrl" type="url" placeholder="https://example.com/login" autocomplete="url" /></label>
+                        <label class="field"><span>Success URL pattern <em>optional</em></span><input id="securitySuccessUrl" type="text" placeholder="**/dashboard" autocomplete="off" /></label>
+                      </div>
+                      <div class="project-setup-grid">
+                        <label class="field"><span>Username selector</span><input id="securityUsernameSelector" type="text" placeholder="input[name=username]" autocomplete="off" /></label>
+                        <label class="field"><span>Password selector</span><input id="securityPasswordSelector" type="text" placeholder="input[type=password]" autocomplete="off" /></label>
+                        <label class="field"><span>Submit selector</span><input id="securitySubmitSelector" type="text" placeholder="button[type=submit]" autocomplete="off" /></label>
+                      </div>
+                      <div class="project-setup-grid">
+                        <label class="field"><span>Username</span><input id="securityAuthUsername" type="text" autocomplete="username" /></label>
+                        <label class="field"><span>Password</span><input id="securityAuthPassword" type="password" autocomplete="current-password" /></label>
+                        <label class="security-select-all security-auth-reuse"><input id="securityReuseSession" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Reuse encrypted role session</span></label>
+                      </div>
+                      <small id="securityAuthError" class="field-error" aria-live="polite"></small>
+                    </div>
                   </div>
-                  <div class="project-setup-grid">
-                    <label class="field"><span>Username</span><input id="securityAuthUsername" type="text" autocomplete="username" /></label>
-                    <label class="field"><span>Password</span><input id="securityAuthPassword" type="password" autocomplete="current-password" /></label>
-                    <label class="security-select-all security-auth-reuse"><input id="securityReuseSession" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Reuse encrypted role session</span></label>
+                  <div class="security-auth-section">
+                    <label class="security-select-all">
+                      <input id="securityAdvancedConsent" type="checkbox" />
+                      <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                      <span>Run bounded advanced consent scenarios<br><small class="muted">Opt-in tests accept, reject, preferences, withdrawal, reload persistence, and returning-user behavior.</small></span>
+                    </label>
                   </div>
-                  <small id="securityAuthError" class="field-error" aria-live="polite"></small>
+                  <div class="security-auth-section">
+                    <label class="field"><span>Additional security evidence — ZAP</span><select id="securityZapMode"><option value="none">None</option><option value="passive">Passive</option><option value="authenticated-passive">Authenticated passive</option></select><small>Passive modes add observations without exposing active attack testing in the compliance workflow.</small></label>
+                    <div id="securityZapConfig" class="security-auth-config hidden">
+                      <div id="securityZapContextFields" class="project-setup-grid hidden">
+                        <label class="field"><span>ZAP context file</span><input id="securityZapContextFile" type="text" placeholder="/absolute/path/application.context" autocomplete="off" /></label>
+                        <label class="field"><span>ZAP context user</span><input id="securityZapContextUser" type="text" autocomplete="off" /></label>
+                      </div>
+                      <div class="project-setup-grid">
+                        <label class="field"><span>ZAP timeout (minutes)</span><input id="securityZapTimeout" type="number" min="2" max="60" value="10" /></label>
+                      </div>
+                      <small id="securityZapError" class="field-error" aria-live="polite"></small>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="security-auth-section">
-                <label class="field"><span>OWASP ZAP mode</span><select id="securityZapMode"><option value="none">Native scanner only</option><option value="passive">Passive scan</option><option value="authenticated-passive">Authenticated passive</option><option value="active">Active scan</option><option value="api">API scan</option></select></label>
-                <div id="securityZapConfig" class="security-auth-config hidden">
-                  <div id="securityZapContextFields" class="project-setup-grid hidden">
-                    <label class="field"><span>ZAP context file</span><input id="securityZapContextFile" type="text" placeholder="/absolute/path/application.context" autocomplete="off" /></label>
-                    <label class="field"><span>ZAP context user</span><input id="securityZapContextUser" type="text" autocomplete="off" /></label>
-                  </div>
-                  <div id="securityZapApiFields" class="project-setup-grid hidden">
-                    <label class="field"><span>API definition URL</span><input id="securityZapApiDefinition" type="url" placeholder="https://example.com/openapi.json" autocomplete="url" /></label>
-                    <label class="field"><span>API format</span><select id="securityZapApiFormat"><option value="openapi">OpenAPI</option><option value="graphql">GraphQL</option><option value="soap">SOAP</option></select></label>
-                  </div>
-                  <div class="project-setup-grid">
-                    <label class="field"><span>ZAP timeout (minutes)</span><input id="securityZapTimeout" type="number" min="2" max="180" value="10" /></label>
-                    <label id="securityZapAuthorizationField" class="security-select-all hidden"><input id="securityZapAuthorized" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>I have explicit permission to actively test this target</span></label>
-                  </div>
-                  <small id="securityZapError" class="field-error" aria-live="polite"></small>
-                </div>
-              </div>
+              </details>
             </section>
 
-            <section class="card">
+            <section class="card security-framework-scope-card">
               <div class="card-heading">
-                <div><span class="step-number">02</span><h3>Compliance mapping</h3></div>
+                <div><span class="step-number">02</span><h3>Framework scope</h3></div>
                 <span id="securityFrameworkCount" class="pill">6 selected</span>
               </div>
               <div class="security-framework-head">
                 <div>
-                  <strong>Frameworks to map</strong>
-                  <span>The scanner reports technical evidence only. It does not certify compliance.</span>
+                  <strong>Frameworks and regulations to map</strong>
+                  <span>Each mapping distinguishes observed evidence, missing evidence, and manual-review requirements.</span>
                 </div>
                 <label class="security-select-all">
                   <input id="allSecurityFrameworks" type="checkbox" checked />
@@ -461,63 +480,60 @@
                 </label>
               </div>
               <div class="security-framework-grid" id="securityFrameworksField">
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="iso-27001" checked />
-                  <span class="framework-symbol">ISO</span><span><strong>ISO 27001</strong><small>Information-security control mapping</small></span><span class="framework-check">✓</span>
-                </label>
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="gdpr" checked />
-                  <span class="framework-symbol">GD</span><span><strong>GDPR</strong><small>Privacy, transparency and data-security signals</small></span><span class="framework-check">✓</span>
-                </label>
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="soc-2" checked />
-                  <span class="framework-symbol">S2</span><span><strong>SOC 2</strong><small>Security and trust-control signals</small></span><span class="framework-check">✓</span>
-                </label>
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="hipaa" checked />
-                  <span class="framework-symbol">HI</span><span><strong>HIPAA</strong><small>Technical safeguards when applicable</small></span><span class="framework-check">✓</span>
-                </label>
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="pci-dss" checked />
-                  <span class="framework-symbol">PCI</span><span><strong>PCI DSS</strong><small>Payment-environment security signals</small></span><span class="framework-check">✓</span>
-                </label>
-                <label class="security-framework-option">
-                  <input class="securityFrameworkCheck" type="checkbox" value="local" checked />
-                  <span class="framework-symbol">LR</span><span><strong>Local Regulations</strong><small>Jurisdiction-dependent technical indicators</small></span><span class="framework-check">✓</span>
-                </label>
+                <article class="security-framework-option" data-framework-card="iso-27001">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="iso-27001" checked /><span class="framework-symbol">ISO</span><span><strong>ISO 27001</strong><small>Information-security control mapping</small></span><span class="framework-check">✓</span></label>
+                </article>
+                <article class="security-framework-option" data-framework-card="gdpr">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="gdpr" checked /><span class="framework-symbol">GD</span><span><strong>GDPR</strong><small>Privacy, transparency and data-security signals</small></span><span class="framework-check">✓</span></label>
+                  <label class="field security-framework-applicability" data-framework-input="gdpr"><span>Applicability</span><select id="securityGdprApplicability"><option value="unknown">Unknown — confirm scope</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
+                </article>
+                <article class="security-framework-option" data-framework-card="soc-2">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="soc-2" checked /><span class="framework-symbol">S2</span><span><strong>SOC 2</strong><small>Security and trust-control signals</small></span><span class="framework-check">✓</span></label>
+                </article>
+                <article class="security-framework-option" data-framework-card="hipaa">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="hipaa" checked /><span class="framework-symbol">HI</span><span><strong>HIPAA</strong><small>Technical safeguards when applicable</small></span><span class="framework-check">✓</span></label>
+                  <label class="field security-framework-applicability" data-framework-input="hipaa"><span>Applicability</span><select id="securityHipaaApplicability"><option value="unknown">Unknown — detect scope signals</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
+                </article>
+                <article class="security-framework-option" data-framework-card="pci-dss">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="pci-dss" checked /><span class="framework-symbol">PCI</span><span><strong>PCI DSS</strong><small>Payment-environment security signals</small></span><span class="framework-check">✓</span></label>
+                  <label class="field security-framework-applicability" data-framework-input="pci-dss"><span>Applicability</span><select id="securityPciApplicability"><option value="unknown">Unknown — detect scope signals</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
+                </article>
+                <article class="security-framework-option" data-framework-card="local">
+                  <label><input class="securityFrameworkCheck" type="checkbox" value="local" checked /><span class="framework-symbol">LR</span><span><strong>Local Regulations</strong><small>Jurisdiction-dependent technical indicators</small></span><span class="framework-check">✓</span></label>
+                  <div class="security-framework-applicability" data-framework-input="local">
+                    <label class="field"><span>Applicability</span><select id="securityLocalApplicability"><option value="unknown">Unknown — confirm scope</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
+                    <label class="field security-jurisdiction-field"><span>Jurisdiction <em>optional</em></span><input id="securityJurisdiction" type="text" placeholder="Example: Egypt" autocomplete="country-name" /><small>Context only for Local Regulations.</small></label>
+                  </div>
+                </article>
               </div>
+              <small class="muted">Selecting applicable is an operator assertion, not an automated conclusion. Unknown never means not applicable; HIPAA and PCI DSS remain unconfirmed unless strong PHI/cardholder-data signals or operator evidence supports scope.</small>
               <small id="securityFrameworkError" class="field-error" aria-live="polite"></small>
             </section>
-
-            <section class="security-scope-note">
-              <div class="scope-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="M12 8v5M12 16h.01"/></svg></div>
-              <div><strong>What this scanner can and cannot conclude</strong><p>It can identify technical website controls and visible gaps. It cannot verify internal policies, employee processes, contracts, risk assessments, certifications, or legal compliance. Those items remain manual-review requirements.</p></div>
-            </section>
-
-            <section id="securityResultsCard" class="card hidden">
-              <div class="card-heading">
-                <div><span class="step-number">04</span><h3>Security assessment</h3></div>
-                <div id="securityResultActions" class="security-result-actions"></div>
               </div>
-              <div id="securityResults" class="security-results"></div>
-            </section>
-          </div>
 
-          <aside class="action-column">
+              <aside class="security-run-column">
             <section class="card sticky-card security-run-card">
               <div class="card-heading slim"><div><span class="step-number">03</span><h3>Run assessment</h3></div></div>
+              <div id="securityRunSummary" class="security-run-summary"></div>
               <div class="security-scan-preview">
                 <span>Checks include</span>
                 <div><b>HTTPS & TLS</b><b>Security headers</b><b>Cookie attributes</b><b>CORS</b><b>Mixed content</b><b>Privacy signals</b><b>Third-party scripts</b><b>security.txt</b></div>
               </div>
-              <button id="startSecurityScanBtn" class="button button-primary full">Run security scan</button>
-              <div class="security-schedule-control">
-                <label class="security-select-all"><input id="securityScheduleEnabled" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Repeat this scan</span></label>
-                <label id="securityScheduleIntervalField" class="field hidden"><span>Interval (minutes)</span><input id="securityScheduleInterval" type="number" min="15" max="525600" value="1440" /></label>
-              </div>
-              <div id="securityScanState" class="security-scan-state idle"><span class="security-spinner"></span><div><strong>Ready to scan</strong><small>No browser launch is required.</small></div></div>
+              <div class="security-action-disclaimer"><strong>Technical pre-assessment only.</strong><span>Results do not determine compliance, certification, legal applicability, or complete control satisfaction.</span></div>
+              <button id="startSecurityScanBtn" class="button button-primary full">Run technical pre-assessment</button>
+              <div id="securityScanState" class="security-scan-state idle"><span class="security-spinner"></span><div><strong>Ready to map</strong><small>Evidence is collected in a managed browser session.</small></div></div>
             </section>
-          </aside>
+              </aside>
+            </div>
+          </div>
+
+          <section id="securityResultsCard" class="card security-results-card hidden">
+            <div class="card-heading security-results-heading">
+              <div><span class="step-number">04</span><h3>Assessment workspace</h3></div>
+              <div id="securityResultActions" class="security-result-actions"></div>
+            </div>
+            <div id="securityResults" class="security-results"></div>
+          </section>
         </div>
       </section>
 
@@ -572,7 +588,7 @@
           <div>
             <div class="eyebrow">Report library</div>
             <h2>Report history</h2>
-            <p>Open Lighthouse, Security & Compliance, and Asset & Page-Weight summaries, then download the available CSV/Excel exports.</p>
+            <p>Open Lighthouse, Compliance Mapping, and Asset & Page-Weight summaries, then download the available CSV/Excel exports.</p>
           </div>
           <button id="refreshHistoryBtn" class="button button-secondary">Refresh</button>
         </header>

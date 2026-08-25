@@ -14,7 +14,7 @@ import { AssetReportManager } from './lib/asset-report-manager.js';
 import { SecuritySessionStore } from './lib/security-session-store.js';
 import { EvidenceVault } from './lib/evidence-vault.js';
 import { SecurityLifecycleManager } from './lib/security-lifecycle-manager.js';
-import { SecurityScheduleManager } from './lib/security-schedule-manager.js';
+import { contentTypeForFile } from './lib/mime-types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -34,23 +34,6 @@ const projectManager = new ProjectManager({ dataDir: DATA_DIR });
 const assetReportManager = new AssetReportManager({ reportsRoot: REPORTS_DIR });
 const securitySessionStore = new SecuritySessionStore({ root: path.join(PROFILES_DIR, 'security-scanner') });
 const executeSecurityScan = async (config) => securityReportManager.save(securityLifecycleManager.reconcile(await scanWebsiteSecurity(config, { sessionStore: securitySessionStore })));
-const securityScheduleManager = new SecurityScheduleManager({ dataDir: DATA_DIR, runner: executeSecurityScan, audit: (event) => evidenceVault.audit(event) });
-try {
-  await securityReportManager.refreshWorkflow({ legacyOnly: true });
-} catch (error) {
-  console.error(`Could not upgrade legacy security report workflow data: ${error.message}`);
-}
-
-const mime = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.csv': 'text/csv; charset=utf-8',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png'
-};
 
 function json(res, status, data) {
   const body = JSON.stringify(data);
@@ -78,7 +61,7 @@ function sendFile(res, file) {
   if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
     res.writeHead(404); res.end('Not found'); return;
   }
-  res.writeHead(200, { 'Content-Type': mime[path.extname(file)] || 'application/octet-stream' });
+  res.writeHead(200, { 'Content-Type': contentTypeForFile(file) });
   fs.createReadStream(file).pipe(res);
 }
 
@@ -101,19 +84,15 @@ const server = http.createServer(async (req, res) => {
       return json(res, 202, runManager.create(await readBody(req)));
     }
     if (req.method === 'POST' && url.pathname === '/api/security/scan') {
-      return json(res, 200, await executeSecurityScan(await readBody(req)));
+      const config = await readBody(req);
+      const zapMode = config.zap?.mode || 'none';
+      if (!['none', 'passive', 'authenticated-passive'].includes(zapMode)) {
+        return json(res, 400, { error: 'Compliance Mapping supports ZAP modes: none, passive, and authenticated-passive.' });
+      }
+      return json(res, 200, await executeSecurityScan(config));
     }
     if (req.method === 'GET' && url.pathname === '/api/security/evidence') {
       return json(res, 200, evidenceVault.list({ projectName: url.searchParams.get('project') || '' }));
-    }
-    if (req.method === 'POST' && url.pathname === '/api/security/evidence') {
-      return json(res, 201, evidenceVault.createManual(await readBody(req)));
-    }
-    const evidenceReviewMatch = url.pathname.match(/^\/api\/security\/evidence\/([^/]+)\/review$/);
-    if (req.method === 'POST' && evidenceReviewMatch) {
-      const reviewed = evidenceVault.review(decodeURIComponent(evidenceReviewMatch[1]), await readBody(req));
-      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: reviewed.projectName, reportName: reviewed.reportName });
-      return json(res, 200, { ...reviewed, refreshedReports });
     }
     if (req.method === 'GET' && url.pathname === '/api/security/audit-log') {
       return json(res, 200, evidenceVault.auditLog({ projectName: url.searchParams.get('project') || '', limit: url.searchParams.get('limit') || 250 }));
@@ -121,21 +100,23 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/security/findings') {
       return json(res, 200, securityLifecycleManager.list(url.searchParams.get('project') || ''));
     }
+    const findingReviewCollectionMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})\/reviews$/);
+    if (req.method === 'POST' && findingReviewCollectionMatch) {
+      const finding = securityLifecycleManager.addReview(findingReviewCollectionMatch[1], await readBody(req));
+      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
+      return json(res, 200, { ...finding, refreshedReports });
+    }
+    const findingReviewMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})\/reviews\/([a-f0-9-]+)$/);
+    if (['PUT', 'PATCH'].includes(req.method) && findingReviewMatch) {
+      const finding = securityLifecycleManager.updateReview(findingReviewMatch[1], findingReviewMatch[2], await readBody(req));
+      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
+      return json(res, 200, { ...finding, refreshedReports });
+    }
     const findingLifecycleMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})$/);
     if (req.method === 'POST' && findingLifecycleMatch) {
       const finding = securityLifecycleManager.update(findingLifecycleMatch[1], await readBody(req));
       const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
       return json(res, 200, { ...finding, refreshedReports });
-    }
-    if (req.method === 'GET' && url.pathname === '/api/security/schedules') {
-      return json(res, 200, securityScheduleManager.list());
-    }
-    if (req.method === 'POST' && url.pathname === '/api/security/schedules') {
-      return json(res, 201, securityScheduleManager.create(await readBody(req)));
-    }
-    const scheduleMatch = url.pathname.match(/^\/api\/security\/schedules\/([^/]+)$/);
-    if (req.method === 'DELETE' && scheduleMatch) {
-      return json(res, 200, securityScheduleManager.delete(decodeURIComponent(scheduleMatch[1])));
     }
     if (req.method === 'POST' && url.pathname === '/api/assets/analyze') {
       const result = await analyzeWebsiteAssets(await readBody(req));
@@ -198,9 +179,14 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (url.pathname.startsWith('/api/')) return json(res, 404, { error: 'API route not found.' });
+
     if (url.pathname.startsWith('/reports/')) {
       const relative = url.pathname.slice('/reports/'.length);
-      if (decodeURIComponent(relative).split(/[\\/]+/).includes('evidence')) return json(res, 403, { error: 'Raw security evidence is restricted to local filesystem access.' });
+      const parts = decodeURIComponent(relative).split(/[\\/]+/);
+      const evidenceIndex = parts.indexOf('evidence');
+      const isEvidenceManifest = evidenceIndex === parts.length - 2 && parts.at(-1) === 'manifest.json';
+      if (evidenceIndex !== -1 && !isEvidenceManifest) return json(res, 403, { error: 'Raw security evidence is restricted to local filesystem access.' });
       return sendFile(res, safeFile(REPORTS_DIR, relative));
     }
 

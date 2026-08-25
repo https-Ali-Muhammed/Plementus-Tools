@@ -13,7 +13,10 @@ const state = {
   projects: [],
   activeProjectId: '',
   assetDevice: 'desktop',
-  pendingProjectDeleteId: ''
+  pendingProjectDeleteId: '',
+  securityResult: null,
+  securityProjectOverride: false,
+  securityObservationMode: 'attention'
 };
 
 const refs = {
@@ -33,12 +36,13 @@ const refs = {
   deleteModal: $('#deleteModal'), deleteModalTitle: $('#deleteModalTitle'), deleteModalMessage: $('#deleteModalMessage'), deleteModalCloseBtn: $('#deleteModalCloseBtn'), cancelDeleteBtn: $('#cancelDeleteBtn'), confirmDeleteBtn: $('#confirmDeleteBtn'),
   securityProjectName: $('#securityProjectName'), securityProjectField: $('#securityProjectField'), securityProjectError: $('#securityProjectError'),
   securityTargetUrl: $('#securityTargetUrl'), securityUrlField: $('#securityUrlField'), securityUrlError: $('#securityUrlError'), securityJurisdiction: $('#securityJurisdiction'),
-  securityCrawlEnabled: $('#securityCrawlEnabled'), securityMaxPages: $('#securityMaxPages'),
-  securityAuthEnabled: $('#securityAuthEnabled'), securityAuthConfig: $('#securityAuthConfig'), securityAuthRole: $('#securityAuthRole'), securityLoginUrl: $('#securityLoginUrl'), securitySuccessUrl: $('#securitySuccessUrl'), securityUsernameSelector: $('#securityUsernameSelector'), securityPasswordSelector: $('#securityPasswordSelector'), securitySubmitSelector: $('#securitySubmitSelector'), securityAuthUsername: $('#securityAuthUsername'), securityAuthPassword: $('#securityAuthPassword'), securityReuseSession: $('#securityReuseSession'), securityAuthError: $('#securityAuthError'),
-  securityZapMode: $('#securityZapMode'), securityZapConfig: $('#securityZapConfig'), securityZapContextFields: $('#securityZapContextFields'), securityZapContextFile: $('#securityZapContextFile'), securityZapContextUser: $('#securityZapContextUser'), securityZapApiFields: $('#securityZapApiFields'), securityZapApiDefinition: $('#securityZapApiDefinition'), securityZapApiFormat: $('#securityZapApiFormat'), securityZapTimeout: $('#securityZapTimeout'), securityZapAuthorizationField: $('#securityZapAuthorizationField'), securityZapAuthorized: $('#securityZapAuthorized'), securityZapError: $('#securityZapError'),
-  securityScheduleEnabled: $('#securityScheduleEnabled'), securityScheduleIntervalField: $('#securityScheduleIntervalField'), securityScheduleInterval: $('#securityScheduleInterval'),
+  securityCrawlEnabled: $('#securityCrawlEnabled'), securityMaxPages: $('#securityMaxPages'), securityAdvancedConsent: $('#securityAdvancedConsent'),
+  securityAuthEnabled: $('#securityAuthEnabled'), securityAuthConfig: $('#securityAuthConfig'), securityAuthRole: $('#securityAuthRole'), securityAuthCustomRoleField: $('#securityAuthCustomRoleField'), securityAuthCustomRole: $('#securityAuthCustomRole'), securityLoginUrl: $('#securityLoginUrl'), securitySuccessUrl: $('#securitySuccessUrl'), securityUsernameSelector: $('#securityUsernameSelector'), securityPasswordSelector: $('#securityPasswordSelector'), securitySubmitSelector: $('#securitySubmitSelector'), securityAuthUsername: $('#securityAuthUsername'), securityAuthPassword: $('#securityAuthPassword'), securityReuseSession: $('#securityReuseSession'), securityAuthError: $('#securityAuthError'),
+  securityZapMode: $('#securityZapMode'), securityZapConfig: $('#securityZapConfig'), securityZapContextFields: $('#securityZapContextFields'), securityZapContextFile: $('#securityZapContextFile'), securityZapContextUser: $('#securityZapContextUser'), securityZapTimeout: $('#securityZapTimeout'), securityZapError: $('#securityZapError'),
   allSecurityFrameworks: $('#allSecurityFrameworks'), securityFrameworksField: $('#securityFrameworksField'), securityFrameworkError: $('#securityFrameworkError'), securityFrameworkCount: $('#securityFrameworkCount'),
+  securityGdprApplicability: $('#securityGdprApplicability'), securityHipaaApplicability: $('#securityHipaaApplicability'), securityPciApplicability: $('#securityPciApplicability'), securityLocalApplicability: $('#securityLocalApplicability'),
   startSecurityScanBtn: $('#startSecurityScanBtn'), securityScanState: $('#securityScanState'), securityResultsCard: $('#securityResultsCard'), securityResults: $('#securityResults'), securityResultActions: $('#securityResultActions'),
+  securityConfigPanel: $('#securityConfigPanel'), securityConfigSummary: $('#securityConfigSummary'), securityProjectContext: $('#securityProjectContext'), securityProjectOverrideFields: $('#securityProjectOverrideFields'), securityAdvancedOptions: $('#securityAdvancedOptions'), securityAdvancedSummary: $('#securityAdvancedSummary'), securityRunSummary: $('#securityRunSummary'),
   activeProjectMini: $('#activeProjectMini'), activeProjectCard: $('#activeProjectCard'), projectsList: $('#projectsList'), projectCount: $('#projectCount'), newProjectBtn: $('#newProjectBtn'),
   projectEditorCard: $('#projectEditorCard'), projectEditorTitle: $('#projectEditorTitle'), projectEditId: $('#projectEditId'), sharedProjectName: $('#sharedProjectName'), sharedProjectNameField: $('#sharedProjectNameField'), sharedProjectNameError: $('#sharedProjectNameError'),
   projectTestingUrl: $('#projectTestingUrl'), projectTestingUrlField: $('#projectTestingUrlField'), projectTestingUrlError: $('#projectTestingUrlError'), projectProductionUrl: $('#projectProductionUrl'), projectProductionUrlField: $('#projectProductionUrlField'), projectProductionUrlError: $('#projectProductionUrlError'),
@@ -505,6 +509,11 @@ function humanize(value) {
   return String(value || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function reportTypeLabel(reportType) {
+  if (reportType === 'security-compliance') return 'Compliance Mapping';
+  return humanize(reportType);
+}
+
 function findingStatusLabel(status) {
   const normalized = String(status || '').toLowerCase();
   if (normalized === 'issue' || normalized === 'error') return 'Needs attention';
@@ -782,8 +791,10 @@ async function loadHistory() {
       if (overview.accessibility !== '' && overview.accessibility != null) scoreParts.push(`Accessibility ${formatScore(overview.accessibility)}`);
       if (overview.seo !== '' && overview.seo != null) scoreParts.push(`SEO ${formatScore(overview.seo)}`);
       if (reportType === 'security-compliance') {
-        if (overview.securityAttention != null) scoreParts.push(`${overview.securityAttention} attention`);
-        if (overview.securityPassed != null) scoreParts.push(`${overview.securityPassed} passed`);
+        const attention = overview.attentionFindings ?? overview.securityAttention;
+        const withoutAdverse = overview.checksWithoutAdverseObservation ?? overview.securityPassed;
+        if (attention != null) scoreParts.push(`${attention} attention`);
+        if (withoutAdverse != null) scoreParts.push(`${withoutAdverse} without adverse observation`);
       }
       if (reportType === 'asset-page-weight') {
         if (overview.pages != null) scoreParts.push(`${overview.pages} page${overview.pages === 1 ? '' : 's'}`);
@@ -795,13 +806,16 @@ async function loadHistory() {
         <div class="history-item upgraded" data-report-name="${escapeHtml(report.name)}">
           <label class="history-check-wrap" title="Select report"><input class="history-report-check" type="checkbox" value="${escapeHtml(report.name)}" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span></label>
           <div class="history-info">
-            <div class="history-title-line"><span class="report-type-badge ${escapeHtml(reportType)}">${escapeHtml(humanize(reportType))}</span><strong>${escapeHtml(report.name)}</strong></div>
+            <div class="history-title-line"><span class="report-type-badge ${escapeHtml(reportType)}">${escapeHtml(reportTypeLabel(reportType))}</span><strong>${escapeHtml(report.name)}</strong></div>
             <span>${new Date(report.modifiedAt).toLocaleString()}${scoreText ? ` · ${escapeHtml(scoreText)}` : ''}</span>
           </div>
           <div class="history-actions">
             ${report.summaryHref ? `<a href="${report.summaryHref}" target="_blank" rel="noopener">View report ${externalLinkIcon()}</a>` : ''}
-            ${report.csvHref ? `<a href="${report.csvHref}" download>CSV</a>` : ''}
+            ${reportType === 'security-compliance' && report.jsonHref ? `<a href="${report.jsonHref}" download>JSON</a>` : ''}
+            ${report.csvHref ? `<a href="${report.csvHref}" download>${reportType === 'security-compliance' ? 'Findings CSV' : 'CSV'}</a>` : ''}
             ${report.xlsxHref ? `<a class="primary" href="${report.xlsxHref}" download>Excel</a>` : ''}
+            ${reportType === 'security-compliance' && report.pdfHref ? `<a class="primary" href="${report.pdfHref}" download="${escapeHtml(report.name)}.pdf">PDF</a>` : ''}
+            ${reportType === 'security-compliance' && report.evidenceManifestHref ? `<a href="${report.evidenceManifestHref}" download>Evidence manifest</a>` : ''}
             <button class="history-delete-btn" type="button" data-delete-report="${escapeHtml(report.name)}" title="Delete report folder">Delete</button>
           </div>
         </div>`;
@@ -823,6 +837,51 @@ function currentProject() {
   return state.projects.find((project) => project.id === state.activeProjectId) || null;
 }
 
+function securityEvidenceModeLabel() {
+  const auth = refs.securityAuthEnabled?.checked;
+  const consent = refs.securityAdvancedConsent?.checked;
+  const zap = refs.securityZapMode?.value || 'none';
+  if (auth && zap !== 'none') return 'Authenticated + ZAP';
+  if (auth) return 'Authenticated application';
+  if (zap !== 'none') return `Public URL + ${humanize(zap)} ZAP`;
+  if (consent) return 'Public URL + consent scenarios';
+  return 'Public URL';
+}
+
+function updateSecuritySetupSummaries() {
+  const frameworks = selectedSecurityFrameworks();
+  const crawlLimit = Number(refs.securityMaxPages?.value) || 10;
+  const authRole = refs.securityAuthRole?.value === 'custom' ? refs.securityAuthCustomRole?.value.trim() : refs.securityAuthRole?.value;
+  if (refs.securityAdvancedSummary) {
+    refs.securityAdvancedSummary.textContent = `Crawl limit: ${crawlLimit} pages · Authenticated: ${refs.securityAuthEnabled?.checked ? `Enabled${authRole ? ` (${humanize(authRole)})` : ''}` : 'Off'} · Consent scenarios: ${refs.securityAdvancedConsent?.checked ? 'Enabled' : 'Off'} · ZAP: ${humanize(refs.securityZapMode?.value || 'none')}`;
+  }
+  if (refs.securityRunSummary) {
+    refs.securityRunSummary.innerHTML = `<div><span>Target</span><strong>${escapeHtml(refs.securityTargetUrl?.value.trim() || 'Not set')}</strong></div><div><span>Frameworks</span><strong>${frameworks.length} selected</strong></div><div><span>Evidence mode</span><strong>${escapeHtml(securityEvidenceModeLabel())}</strong></div><div><span>Crawl</span><strong>${refs.securityCrawlEnabled?.checked ? `${crawlLimit} pages` : 'Homepage only'}</strong></div>`;
+  }
+}
+
+function renderSecurityConfigurationContext() {
+  const project = currentProject();
+  const useProjectContext = Boolean(project && !state.securityProjectOverride);
+  refs.securityProjectOverrideFields?.classList.toggle('hidden', useProjectContext);
+  refs.securityProjectContext?.classList.toggle('hidden', !useProjectContext);
+  if (useProjectContext && refs.securityProjectContext) {
+    const target = projectEnvironmentUrl(project);
+    refs.securityProjectContext.innerHTML = `<div class="security-project-facts"><div><span>Project</span><strong>${escapeHtml(project.name)}</strong></div><div><span>Environment</span><strong>${escapeHtml(humanize(project.activeEnvironment))}</strong></div><div><span>Target</span><strong>${escapeHtml(target || 'No URL configured')}</strong></div></div><button type="button" class="button button-ghost small" data-security-project-override>Override</button>`;
+  } else if (refs.securityProjectContext) {
+    refs.securityProjectContext.innerHTML = '';
+  }
+  updateSecuritySetupSummaries();
+}
+
+function setSecurityConfigurationCollapsed(collapsed, result = state.securityResult) {
+  refs.securityConfigPanel?.classList.toggle('hidden', collapsed);
+  refs.securityConfigSummary?.classList.toggle('hidden', !collapsed);
+  if (!collapsed || !refs.securityConfigSummary) return;
+  const frameworks = (result?.frameworkResults || []).map((item) => item.label).filter(Boolean);
+  refs.securityConfigSummary.innerHTML = `<div class="security-config-summary-copy"><span>Assessment configuration</span><strong>${escapeHtml(result?.projectName || refs.securityProjectName?.value || 'Ad-hoc assessment')}</strong><small>${escapeHtml(result?.finalUrl || refs.securityTargetUrl?.value || '')}</small><small>${escapeHtml(frameworks.join(' · ') || selectedSecurityFrameworks().map(humanize).join(' · '))} · ${escapeHtml(securityEvidenceModeLabel())} · Crawl limit ${Number(refs.securityMaxPages?.value) || 10}</small></div><div class="security-config-summary-actions"><button type="button" class="button button-ghost small" data-security-edit-config>Edit configuration</button><button type="button" class="button button-secondary small" data-security-run-again>Run again</button></div>`;
+}
+
 function syncSharedProjectToTools(project, { overwrite = true } = {}) {
   if (!project) return;
   const baseUrl = projectEnvironmentUrl(project);
@@ -836,6 +895,7 @@ function syncSharedProjectToTools(project, { overwrite = true } = {}) {
 
   set(refs.securityProjectName, project.name);
   set(refs.securityTargetUrl, baseUrl);
+  if (overwrite) state.securityProjectOverride = false;
 
   set(refs.assetProjectName, project.name);
   set(refs.assetBaseUrl, baseUrl);
@@ -843,6 +903,7 @@ function syncSharedProjectToTools(project, { overwrite = true } = {}) {
 
   updateEstimate();
   updateRoutingPreview();
+  renderSecurityConfigurationContext();
 }
 
 function renderProjectWorkspace() {
@@ -883,6 +944,7 @@ function renderProjectWorkspace() {
       </div>
     </article>`;
   }).join('') : '<div class="empty-state">No projects yet. Create the first shared project profile.</div>';
+  renderSecurityConfigurationContext();
 }
 
 async function loadProjects({ sync = false } = {}) {
@@ -1131,6 +1193,12 @@ function syncSecurityFrameworks() {
     refs.allSecurityFrameworks.indeterminate = count > 0 && count < checks.length;
   }
   if (refs.securityFrameworkCount) refs.securityFrameworkCount.textContent = `${count} selected`;
+  checks.forEach((input) => {
+    const card = input.closest('[data-framework-card]');
+    card?.classList.toggle('is-selected', input.checked);
+    card?.querySelector('[data-framework-input]')?.classList.toggle('hidden', !input.checked);
+  });
+  updateSecuritySetupSummaries();
 }
 
 function setSecurityFieldError(field, errorRef, message = '') {
@@ -1160,7 +1228,7 @@ function validateSecurityScan() {
   if (refs.securityAuthEnabled?.checked) {
     const reusableOnly = refs.securityReuseSession?.checked && !refs.securityLoginUrl.value.trim() && !refs.securityAuthUsername.value;
     const required = reusableOnly ? [] : [refs.securityLoginUrl, refs.securityUsernameSelector, refs.securityPasswordSelector, refs.securitySubmitSelector, refs.securityAuthUsername, refs.securityAuthPassword];
-    authOk = required.every((input) => input?.value.trim());
+    authOk = required.every((input) => input?.value.trim()) && (refs.securityAuthRole.value !== 'custom' || Boolean(refs.securityAuthCustomRole.value.trim()));
     if (refs.securityAuthError) refs.securityAuthError.textContent = authOk ? '' : 'Complete the structured login flow and runtime credentials, or choose reuse with an existing role session.';
   } else if (refs.securityAuthError) refs.securityAuthError.textContent = '';
   const zapMode = refs.securityZapMode?.value || 'none';
@@ -1168,177 +1236,248 @@ function validateSecurityScan() {
   let zapMessage = '';
   if (zapMode === 'authenticated-passive' && (!refs.securityZapContextFile.value.trim() || !refs.securityZapContextUser.value.trim())) {
     zapOk = false; zapMessage = 'Authenticated passive scanning requires a ZAP context file and context user.';
-  } else if (zapMode === 'api' && !refs.securityZapApiDefinition.value.trim()) {
-    zapOk = false; zapMessage = 'API scanning requires an OpenAPI, SOAP, or GraphQL definition URL.';
-  } else if (['active', 'api'].includes(zapMode) && !refs.securityZapAuthorized.checked) {
-    zapOk = false; zapMessage = 'Active and API scans require explicit authorization acknowledgement.';
   }
   if (refs.securityZapError) refs.securityZapError.textContent = zapMessage;
   return projectOk && urlOk && frameworkCount > 0 && authOk && zapOk;
 }
 
-function syncSecurityZapFields() {
+function syncSecurityZapFields({ validate = true } = {}) {
   const mode = refs.securityZapMode?.value || 'none';
   refs.securityZapConfig?.classList.toggle('hidden', mode === 'none');
   refs.securityZapContextFields?.classList.toggle('hidden', mode !== 'authenticated-passive');
-  refs.securityZapApiFields?.classList.toggle('hidden', mode !== 'api');
-  refs.securityZapAuthorizationField?.classList.toggle('hidden', !['active', 'api'].includes(mode));
   if (mode === 'passive') refs.securityZapTimeout.value = '10';
-  if (['active', 'api'].includes(mode) && Number(refs.securityZapTimeout.value) < 30) refs.securityZapTimeout.value = '30';
-  validateSecurityScan();
+  if (validate) validateSecurityScan();
+  updateSecuritySetupSummaries();
 }
 
 function securityStatusLabel(status) {
-  return ({ pass: 'Passed', warning: 'Review', fail: 'Needs attention', manual: 'Manual review', info: 'Info', confirmed: 'Confirmed', observed: 'Observed', inferred: 'Inferred', not_tested: 'Not Tested', failed_to_test: 'Failed To Test' })[status] || humanize(status);
+  return ({ pass: 'No adverse observation', warning: 'Review', fail: 'Needs attention', manual: 'Manual review', info: 'Info', confirmed: 'Technical Check Completed', observed: 'Observed', inferred: 'Inferred', not_tested: 'Not Assessed', failed_to_test: 'Failed To Test' })[status] || humanize(status);
+}
+
+function securityConfidenceLabel(status) {
+  return ({ confirmed: 'High — technical evidence', observed: 'Medium — observed', inferred: 'Low — inferred', not_assessed: 'Not assessed' })[status] || humanize(status);
+}
+
+function coverageLimitationCategory(item) {
+  const text = `${item.category || ''} ${item.title || ''} ${item.summary || ''} ${(item.limitations || []).join(' ')}`.toLowerCase();
+  if (/payment|card|pci/.test(text)) return 'Payment';
+  if (/locale|language|translation/.test(text)) return 'Locale';
+  if (/authenticated|login|role|access control/.test(text)) return 'Authenticated evidence';
+  if (/consent|cookie preference/.test(text)) return 'Consent';
+  if (/scope|applicab|jurisdiction/.test(text)) return 'Scope';
+  if (/organiz|contract|procedure|manual/.test(text)) return 'Organizational/manual evidence';
+  return 'Public evidence';
+}
+
+function crawlSourceLabel(source = '', status = 0) {
+  if (status >= 300 && status < 400) return 'Redirected';
+  return ({ 'initial-page': 'Direct target', 'homepage-link': 'Linked', 'homepage-locale-link': 'Linked locale', 'well-known-path': 'Probed', 'locale-well-known-path': 'Probed locale' })[source] || humanize(source || 'discovered');
+}
+
+function findingFrameworks(finding) {
+  const values = new Set();
+  for (const mapping of finding.controlMappings || []) values.add(mapping.framework || '');
+  for (const control of finding.controls || []) {
+    if (/^ISO/i.test(control)) values.add('iso-27001');
+    else if (/^GDPR/i.test(control)) values.add('gdpr');
+    else if (/^SOC/i.test(control)) values.add('soc-2');
+    else if (/^HIPAA/i.test(control)) values.add('hipaa');
+    else if (/^PCI/i.test(control)) values.add('pci-dss');
+    else if (/^LOCAL/i.test(control)) values.add('local');
+  }
+  return [...values].filter(Boolean);
+}
+
+function renderFindingCard(finding) {
+  const severityClass = ['critical', 'high'].includes(finding.severity) ? 'fail' : finding.severity === 'medium' ? 'warning' : 'info';
+  const evidence = typeof finding.evidence === 'object' ? finding.evidence : { raw: finding.evidence || finding.details || '', type: '' };
+  const reviewDecision = finding.reviewDecision || '';
+  const reviewState = reviewDecision ? 'reviewed' : 'awaiting';
+  const frameworks = findingFrameworks(finding);
+  const searchable = [finding.id, finding.title, finding.category, finding.affectedUrl, finding.impact, evidence.raw, ...(finding.controls || [])].join(' ').toLowerCase();
+  return `<article class="security-finding-card" data-security-finding data-severity="${escapeHtml(finding.severity || 'informational')}" data-category="${escapeHtml(finding.category || 'Uncategorized')}" data-review="${reviewState}" data-frameworks="${escapeHtml(frameworks.join(' '))}" data-search="${escapeHtml(searchable)}" data-fingerprint="${escapeHtml(finding.fingerprint || '')}">
+    <div class="security-finding-primary">
+      <span class="security-status ${severityClass}"><i></i>${escapeHtml(finding.severity || 'informational')}</span>
+      <div class="security-finding-copy">
+        <div class="security-finding-title-row"><h5>${escapeHtml(finding.title)}</h5><span class="security-review-badge finding-review-state ${reviewState}">${reviewDecision ? escapeHtml(humanize(reviewDecision)) : 'Awaiting review'}</span></div>
+        <div class="security-finding-meta"><span>${escapeHtml(finding.id || '')}</span><span>Confidence: ${escapeHtml(securityConfidenceLabel(finding.confidence || 'observed'))}</span>${finding.affectedUrl ? `<span class="security-url">${escapeHtml(finding.affectedUrl)}</span>` : ''}</div>
+        <p>${escapeHtml(finding.impact || finding.summary || '')}</p>
+        ${finding.recommendation ? `<div class="security-recommendation flat"><strong>Recommendation</strong><span>${escapeHtml(finding.recommendation)}</span></div>` : ''}
+        <div class="security-finding-actions">
+          <details class="security-inline-details"><summary>Evidence &amp; mappings</summary><div class="security-detail-body">
+            ${finding.testMethod ? `<p><strong>Test method</strong>${escapeHtml(finding.testMethod)}</p>` : ''}
+            ${evidence.raw ? `<p><strong>Evidence (${escapeHtml(evidence.type || 'observation')})</strong><span class="security-evidence-text">${escapeHtml(evidence.raw)}</span></p>` : ''}
+            ${(finding.controlMappings || []).length ? `<p><strong>Candidate mappings</strong>${(finding.controlMappings || []).map((mapping) => `${escapeHtml(mapping.framework || '')} ${escapeHtml(mapping.controlId || '')} — ${escapeHtml(humanize(mapping.relationship || 'contextual'))}`).join('<br>')}</p>` : (finding.controls || []).length ? `<p><strong>Candidate mappings</strong>${escapeHtml(finding.controls.join(', '))}</p>` : ''}
+            ${(finding.limitations || []).length ? `<p><strong>Limitations</strong>${escapeHtml(finding.limitations.join(' · '))}</p>` : ''}
+            ${(finding.references || []).length ? `<p><strong>References</strong>${finding.references.map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</p>` : ''}
+          </div></details>
+          ${finding.fingerprint ? `<details class="security-inline-details security-review-panel"><summary>${reviewDecision ? 'Update review' : 'Review finding'}</summary><div class="security-review-form"><label class="field"><span>Decision</span><select class="security-review-decision" data-fingerprint="${escapeHtml(finding.fingerprint)}" data-previous="${escapeHtml(reviewDecision)}"><option value="">Review required</option>${['accepted_as_observation','false_positive','requires_more_evidence'].map((decision) => `<option value="${decision}" ${decision === reviewDecision ? 'selected' : ''}>${escapeHtml(humanize(decision))}</option>`).join('')}</select></label><label class="field"><span>Review note</span><textarea class="security-lifecycle-reason" rows="3" placeholder="Explain the evidence-based decision"></textarea></label><button type="button" class="button button-secondary small security-lifecycle-save">Save review</button></div></details>` : ''}
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function updateSecurityReviewProgress() {
+  const cards = $$('[data-security-finding]');
+  const reviewed = cards.filter((card) => card.dataset.review === 'reviewed');
+  const decisions = reviewed.reduce((counts, card) => {
+    const value = card.querySelector('.security-review-decision')?.value || '';
+    counts[value] = (counts[value] || 0) + 1;
+    return counts;
+  }, {});
+  const target = $('#securityReviewProgress');
+  if (target) target.innerHTML = `<div><span>Total</span><strong>${cards.length}</strong></div><div><span>Reviewed</span><strong>${reviewed.length}</strong></div><div><span>Awaiting</span><strong>${cards.length - reviewed.length}</strong></div><div><span>Accepted observations</span><strong>${decisions.accepted_as_observation || 0}</strong></div><div><span>False positives</span><strong>${decisions.false_positive || 0}</strong></div><div><span>More evidence required</span><strong>${decisions.requires_more_evidence || 0}</strong></div>`;
+}
+
+function applySecurityFindingFilters() {
+  const search = ($('#securityFindingSearch')?.value || '').trim().toLowerCase();
+  const severity = $('#securityFindingSeverity')?.value || 'all';
+  const category = $('#securityFindingCategory')?.value || 'all';
+  const review = $('#securityFindingReview')?.value || 'all';
+  const framework = $('#securityFindingFramework')?.value || 'all';
+  let visible = 0;
+  for (const card of $$('[data-security-finding]')) {
+    const matches = (!search || card.dataset.search.includes(search)) && (severity === 'all' || card.dataset.severity === severity) && (category === 'all' || card.dataset.category === category) && (review === 'all' || card.dataset.review === review) && (framework === 'all' || card.dataset.frameworks.split(' ').includes(framework));
+    card.classList.toggle('hidden', !matches);
+    if (matches) visible += 1;
+  }
+  const count = $('#securityFindingVisibleCount');
+  if (count) count.textContent = `${visible} shown`;
+}
+
+function applySecurityObservationMode(mode = 'attention') {
+  state.securityObservationMode = mode;
+  for (const card of $$('[data-security-observation]')) {
+    const emphasized = ['fail', 'warning', 'manual'].includes(card.dataset.status) || card.dataset.state === 'failed_to_test';
+    card.classList.toggle('hidden', mode !== 'all' && !emphasized);
+  }
+  $$('[data-security-observation-mode]').forEach((button) => button.classList.toggle('active', button.dataset.securityObservationMode === mode));
 }
 
 function renderSecurityResults(result) {
+  const renderStarted = performance.now();
+  state.securityResult = result;
+  state.securityObservationMode = 'attention';
   const totals = result.totals || {};
-  const frameworks = (result.frameworkResults || []).map((framework) => `
-    <div class="security-framework-result">
-      <div class="framework-result-head"><span>${escapeHtml(framework.label)}</span><strong>${framework.applicable === false ? 'Not indicated' : 'Evidence'}</strong></div>
-      <small>${escapeHtml(framework.note || '')}</small>
-      <ul>
-        ${(framework.publicEvidence || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
-        ${(framework.technicalControls || []).slice(0, 4).map((item) => `<li class="observed">✓ ${escapeHtml(item)}</li>`).join('')}
-        ${(framework.missingEvidence || []).slice(0, 5).map((item) => `<li class="missing">⚠ ${escapeHtml(item)}</li>`).join('')}
-        ${(framework.controlEvaluations || []).slice(0, 5).map((control) => `<li class="${control.state === 'supported_by_automated_evidence' ? 'observed' : 'missing'}">${escapeHtml(control.controlId)}: ${escapeHtml(humanize(control.state))}</li>`).join('')}
-      </ul>
-      <small>Manual review required for organizational implementation and operating effectiveness.</small>
-      <small>${escapeHtml(framework.certification || 'No public certification proof was verified by this website scan.')}</small>
-    </div>`).join('');
-
   const findings = result.findings || (result.checks || []).filter((check) => ['fail', 'warning'].includes(check.status));
-  const grouped = new Map();
-  for (const finding of findings) {
-    if (!grouped.has(finding.category)) grouped.set(finding.category, []);
-    grouped.get(finding.category).push(finding);
-  }
-  const groups = [...grouped.entries()].map(([category, categoryFindings]) => {
-    return `<details class="security-finding-group">
-      <summary>
-        <div><strong>${escapeHtml(category)}</strong><span>${categoryFindings.length} open finding${categoryFindings.length === 1 ? '' : 's'}</span></div>
-        <span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span>
-      </summary>
-      <div class="security-finding-list">${categoryFindings.map((finding) => {
-        const severityClass = finding.severity === 'critical' || finding.severity === 'high' ? 'fail' : finding.severity === 'medium' ? 'warning' : 'info';
-        const evidence = typeof finding.evidence === 'object' ? finding.evidence : { raw: finding.evidence || finding.details || '', type: '' };
-        return `
-        <article class="security-finding">
-          <span class="security-status ${severityClass}"><i></i>${escapeHtml(finding.severity || 'informational')}</span>
-          <div class="security-finding-copy">
-            <h5>${escapeHtml(finding.title)}</h5>
-            <p>${escapeHtml(finding.impact || finding.summary || '')}</p>
-            <small>${escapeHtml(finding.id || '')} · Confidence: ${escapeHtml(securityStatusLabel(finding.confidence || 'observed'))}${finding.affectedUrl ? ` · ${escapeHtml(finding.affectedUrl)}` : ''}</small>
-            ${finding.testMethod ? `<small><strong>Test method:</strong> ${escapeHtml(finding.testMethod)}</small>` : ''}
-            ${evidence.raw ? `<small><strong>Evidence (${escapeHtml(evidence.type || 'observation')}):</strong> ${escapeHtml(evidence.raw)}</small>` : ''}
-            ${(finding.controls || []).length ? `<small><strong>Linked controls:</strong> ${escapeHtml(finding.controls.join(', '))}</small>` : ''}
-            ${(finding.limitations || []).length ? `<small><strong>Limitations:</strong> ${escapeHtml(finding.limitations.join(' · '))}</small>` : ''}
-            ${finding.recommendation ? `<div class="security-recommendation"><strong>Recommendation</strong><span>${escapeHtml(finding.recommendation)}</span></div>` : ''}
-            ${(finding.references || []).length ? `<div class="security-recommendation"><strong>References</strong><span>${(finding.references || []).map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</span></div>` : ''}
-            ${finding.fingerprint ? `<div class="security-lifecycle-controls"><input class="security-lifecycle-reason" type="text" placeholder="Decision reason" aria-label="Finding decision reason"><input class="security-lifecycle-expiry" type="date" aria-label="Risk acceptance expiry"><select class="security-lifecycle-status" data-fingerprint="${escapeHtml(finding.fingerprint)}" data-previous="${escapeHtml(finding.status || 'open')}" aria-label="Finding lifecycle status"><option value="${escapeHtml(finding.status || 'open')}">${escapeHtml(humanize(finding.status || 'open'))}</option>${['open','false_positive','suppressed','risk_accepted','resolved'].filter((status) => status !== finding.status).map((status) => `<option value="${status}">${escapeHtml(humanize(status))}</option>`).join('')}</select><button type="button" class="button button-secondary small security-lifecycle-save">Save decision</button></div>` : ''}
-          </div>
-        </article>`;
-      }).join('')}</div>
-    </details>`;
-  }).join('') || '<div class="security-disclaimer"><strong>No open findings:</strong> No adverse conditions met the scanner finding thresholds. Review test coverage and limitations before drawing conclusions.</div>';
-
   const testResults = result.testResults || [];
-  const testStateCounts = testResults.reduce((counts, item) => {
-    counts[item.state] = (counts[item.state] || 0) + 1;
-    return counts;
-  }, {});
+  const testStateCounts = testResults.reduce((counts, item) => ({ ...counts, [item.state]: (counts[item.state] || 0) + 1 }), {});
   const incompleteTests = testResults.filter((item) => ['observed', 'not_tested', 'failed_to_test'].includes(item.state));
-  const coverageSection = testResults.length ? `
-    <div class="security-section-title"><div><h4>Test coverage</h4><span>Collection state is separate from finding severity and lifecycle.</span></div></div>
-    <div class="security-score-grid security-coverage-grid">
-      <div class="security-score-card pass"><span>Confirmed</span><strong>${testStateCounts.confirmed || 0}</strong></div>
-      <div class="security-score-card warning"><span>Observed / partial</span><strong>${testStateCounts.observed || 0}</strong></div>
-      <div class="security-score-card manual"><span>Not tested</span><strong>${testStateCounts.not_tested || 0}</strong></div>
-      <div class="security-score-card fail"><span>Failed to test</span><strong>${testStateCounts.failed_to_test || 0}</strong></div>
-    </div>
-    ${incompleteTests.length ? `<details class="security-finding-group"><summary><div><strong>Coverage limitations</strong><span>${incompleteTests.length} test${incompleteTests.length === 1 ? '' : 's'} incomplete or partial</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-finding-list">${incompleteTests.map((item) => `<article class="security-finding"><span class="security-status ${item.state === 'failed_to_test' ? 'fail' : item.state === 'not_tested' ? 'manual' : 'warning'}"><i></i>${escapeHtml(securityStatusLabel(item.state))}</span><div class="security-finding-copy"><h5>${escapeHtml(item.title)}</h5><p>${escapeHtml(item.summary || '')}</p>${(item.limitations || []).length ? `<small>${escapeHtml(item.limitations.join(' · '))}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : '';
+  const limitationGroups = incompleteTests.reduce((groups, item) => {
+    const category = coverageLimitationCategory(item);
+    (groups[category] ||= []).push(item);
+    return groups;
+  }, {});
+  const frameworkCards = (result.frameworkResults || []).map((framework) => {
+    const controls = framework.controlEvaluations || [];
+    const evidenceCount = (framework.evidenceStatements || []).length + (framework.technicalEvidenceStatements || []).length;
+    return `<article class="security-framework-result compact">
+      <div class="framework-result-head"><span>${escapeHtml(framework.label)}</span><span class="security-status manual">${escapeHtml(framework.applicabilityLabel || humanize(framework.applicability || 'selected_for_mapping'))}</span></div>
+      <div class="security-framework-metrics"><div><span>Evidence</span><strong>${evidenceCount ? 'Partial technical evidence' : 'Not assessed'}</strong></div><div><span>Candidate controls</span><strong>${controls.length}</strong></div><div><span>Scope</span><strong>${escapeHtml(humanize(framework.applicability || 'selected_for_mapping'))}</strong></div></div>
+      <details class="security-inline-details"><summary>View evidence</summary><div class="security-detail-body"><p><strong>Scope basis</strong>${escapeHtml(humanize(framework.scopeBasis || 'not_determined'))} · Confidence ${escapeHtml(humanize(framework.scopeConfidence || 'not_determined'))}</p><p><strong>Control satisfaction</strong>${escapeHtml(humanize(framework.controlSatisfaction || 'not_determined'))}</p>${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].length ? `<p><strong>Observed evidence</strong>${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].map((item) => escapeHtml(item.statement)).join('<br>')}</p>` : ''}${controls.length ? `<p><strong>Candidate controls</strong>${controls.map((control) => `${escapeHtml(control.controlId)} — ${escapeHtml(humanize(control.state))}`).join('<br>')}</p>` : ''}${(framework.missingEvidence || []).length ? `<p><strong>Limitations</strong>${framework.missingEvidence.map(escapeHtml).join('<br>')}</p>` : ''}</div></details>
+    </article>`;
+  }).join('');
 
-  const evidenceSection = result.evidenceManifest ? `<div class="security-disclaimer"><strong>Evidence archive:</strong> ${result.evidenceManifest.artifactCount || 0} hashed artifact(s) captured. Raw headers, cookies, network data, crawl captures, TLS data, and screenshots are restricted to local filesystem access.</div>` : '';
-  const comparisonSection = result.comparison ? `<div class="security-disclaimer"><strong>Scan comparison:</strong> ${result.comparison.newCount || 0} new · ${result.comparison.recurringCount || 0} recurring · ${result.comparison.resolvedCount || 0} resolved since the previous project scan.</div>` : '';
-  const signatureSection = result.reportManifest ? `<div class="security-disclaimer"><strong>Snapshot:</strong> ${result.reportManifest.files?.length || 0} report file(s) hashed · ${result.reportManifest.signature?.algorithm === 'hmac-sha256' ? 'HMAC-signed' : 'unsigned (configure SECURITY_REPORT_SIGNING_KEY)'}</div>` : '';
-  const vaultEvidence = result.vaultEvidence || [];
-  const evidenceWorkflowSection = vaultEvidence.length ? `
-    <div class="security-section-title"><div><h4>Evidence review workflow</h4><span>Artifact status changes are recorded in the project audit log.</span></div><label class="field security-review-role"><span>Reviewer role</span><select id="securityEvidenceReviewerRole"><option value="security_reviewer">Security reviewer</option><option value="legal_reviewer">Legal reviewer</option><option value="compliance_owner">Compliance owner</option><option value="auditor">Auditor</option></select></label></div>
-    <details class="security-finding-group"><summary><div><strong>Evidence objects</strong><span>${vaultEvidence.length} hashed artifact${vaultEvidence.length === 1 ? '' : 's'}</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-finding-list">${vaultEvidence.map((evidence) => `<article class="security-finding"><span class="security-status ${evidence.approvalStatus === 'approved' ? 'pass' : evidence.approvalStatus === 'rejected' || evidence.approvalStatus === 'expired' ? 'fail' : 'manual'}"><i></i>${escapeHtml(humanize(evidence.approvalStatus))}</span><div class="security-finding-copy"><h5>${escapeHtml(evidence.metadata?.artifactId || evidence.type)}</h5><p>${escapeHtml(evidence.sourceReference)}</p><small>SHA-256 ${escapeHtml(evidence.hash)} · ${escapeHtml(evidence.metadata?.bytes || 0)} bytes${evidence.sensitive ? ' · Sensitive' : ''}</small><div class="security-lifecycle-controls"><input class="security-evidence-reviewer" type="text" placeholder="Reviewer name" aria-label="Reviewer name"><input class="security-evidence-note" type="text" placeholder="Review note" aria-label="Review note"><select class="security-evidence-status" data-evidence-id="${escapeHtml(evidence.id)}" data-previous="${escapeHtml(evidence.approvalStatus)}" aria-label="Evidence review status">${['automated_evidence_collected','manual_evidence_required','submitted_for_review','reviewed','approved','rejected','expired'].map((status) => `<option value="${status}" ${status === evidence.approvalStatus ? 'selected' : ''}>${escapeHtml(humanize(status))}</option>`).join('')}</select><button type="button" class="button button-secondary small security-evidence-save">Save review</button></div></div></article>`).join('')}</div></details>` : '';
+  const availableLocales = result.localeCoverage?.availableLocales || [];
+  const testedLocales = result.localeCoverage?.policyLocalesTested || [];
+  const untestedLocales = availableLocales.filter((locale) => !testedLocales.includes(locale));
+  const payment = result.paymentFlow || {};
+  const gdprMatrix = result.gdprPublicNoticeMatrix || [];
+  const gdprAggregate = result.gdprPublicNoticeAggregate || 'not_assessed';
+  const gdprCounts = gdprMatrix.reduce((counts, item) => ({ ...counts, [item.state]: (counts[item.state] || 0) + 1 }), {});
+  const evidenceArtifacts = result.evidenceManifest?.artifacts || [];
+  const evidenceHashes = evidenceArtifacts.filter((item) => /^[a-f0-9]{64}$/i.test(item.sha256 || '')).length;
+  const evidenceRestricted = evidenceArtifacts.filter((item) => item.sensitive).length;
 
-  const crawl = result.crawl;
-  const crawlSection = crawl && Array.isArray(crawl.pages) && crawl.pages.length ? `
-    <div class="security-section-title"><div><h4>Crawled evidence pages</h4><span>${crawl.pages.filter((p) => p.found).length} of ${crawl.pages.length} candidate page(s) found while looking for privacy, security and compliance pages.</span></div></div>
-    <details class="security-finding-group">
-      <summary>
-        <div><strong>Crawl results</strong><span>${crawl.pages.length} URLs checked</span></div>
-        <span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span>
-      </summary>
-      <div class="security-finding-list">${crawl.pages.map((p) => `
-        <article class="security-finding">
-          <span class="security-status ${p.found ? 'pass' : 'manual'}"><i></i>${p.found ? `HTTP ${p.status}` : 'Not found'}</span>
-          <div class="security-finding-copy">
-            <h5>${escapeHtml(p.url)}</h5>
-            ${p.groups && p.groups.length ? `<small>${escapeHtml(p.groups.join(', '))}</small>` : ''}
-            ${p.error ? `<small>${escapeHtml(p.error)}</small>` : ''}
-          </div>
-        </article>`).join('')}</div>
-    </details>` : (crawl && crawl.error ? `<div class="security-disclaimer"><strong>Evidence crawl:</strong> ${escapeHtml(crawl.error)}</div>` : '');
+  const categories = [...new Set(findings.map((finding) => finding.category || 'Uncategorized'))].sort();
+  const severities = [...new Set(findings.map((finding) => finding.severity || 'informational'))];
+  const frameworkOptions = (result.frameworkResults || []).map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.label)}</option>`).join('');
+  const observationCards = (result.checks || []).map((check) => `<article class="security-observation-row" data-security-observation data-status="${escapeHtml(check.status || '')}" data-state="${escapeHtml(check.testState || '')}"><span class="security-status ${check.status === 'fail' ? 'fail' : check.status === 'warning' ? 'warning' : check.status === 'manual' ? 'manual' : 'pass'}"><i></i>${escapeHtml(securityStatusLabel(check.status))}</span><div><strong>${escapeHtml(check.title)}</strong><span>${escapeHtml(check.summary || '')}</span></div></article>`).join('');
+  const crawlPages = result.crawl?.pages || [];
+  const successfulPages = crawlPages.filter((page) => page.found);
+  const redirectPages = crawlPages.filter((page) => page.status >= 300 && page.status < 400);
+  const unsuccessfulPages = crawlPages.filter((page) => !page.found);
+  const notFoundPages = unsuccessfulPages.filter((page) => page.status === 404);
+  const failedPages = unsuccessfulPages.filter((page) => page.status !== 404);
 
   refs.securityResults.innerHTML = `
-    <div class="security-result-header">
-      <div><div class="eyebrow mini">${escapeHtml(result.projectName)}</div><h4>${escapeHtml(result.finalUrl)}</h4><span>HTTP ${escapeHtml(result.responseStatus)} · ${new Date(result.generatedAt).toLocaleString()}</span></div>
-      <span class="security-overall ${escapeHtml(result.overallStatus)}">${findings.length ? `${findings.length} open finding${findings.length === 1 ? '' : 's'}` : 'No open findings in tested scope'}</span>
-    </div>
-    <div class="security-score-grid">
-      <div class="security-score-card pass"><span>Passed</span><strong>${totals.pass || 0}</strong></div>
-      <div class="security-score-card warning"><span>Review</span><strong>${totals.warning || 0}</strong></div>
-      <div class="security-score-card fail"><span>Needs attention</span><strong>${totals.fail || 0}</strong></div>
-      <div class="security-score-card manual"><span>Manual review</span><strong>${totals.manual || 0}</strong></div>
-    </div>
-    <div class="security-disclaimer"><strong>Scope:</strong> ${escapeHtml(result.disclaimer)}</div>
-    ${evidenceSection}
-    ${comparisonSection}
-    ${signatureSection}
-    ${coverageSection}
-    ${evidenceWorkflowSection}
-    <div class="security-section-title"><div><h4>Compliance evidence</h4><span>Public website evidence and technical controls only. No compliance percentages or certification claims are produced.</span></div></div>
-    <div class="security-framework-results">${frameworks}</div>
-    <div class="security-section-title"><div><h4>Open technical findings</h4><span>Findings include evidence, confidence, test method, limitations, and linked controls.</span></div></div>
-    <div class="security-findings">${groups}</div>
-    ${crawlSection}`;
+    <nav class="security-results-nav" aria-label="Assessment sections"><a href="#securityOverview">Overview</a><a href="#securityScope">Scope</a><a href="#securityEvidence">Evidence</a><a href="#securityFindings">Findings</a><a href="#securityMappings">Mappings</a><a href="#securityCrawl">Crawl</a><a href="#securityReview">Review</a></nav>
+    <section id="securityOverview" class="security-workspace-section">
+      <div class="security-result-header"><div><div class="eyebrow mini">${escapeHtml(result.projectName)}</div><h4>${escapeHtml(result.finalUrl)}</h4><span>HTTP ${escapeHtml(result.responseStatus)} · ${new Date(result.generatedAt).toLocaleString()}</span></div><span class="security-overall ${escapeHtml(result.overallStatus)}">${findings.length ? `${findings.length} finding${findings.length === 1 ? '' : 's'}` : 'No normalized findings in tested scope'}</span></div>
+      <div class="security-assessment-boundary"><strong>Technical compliance pre-assessment</strong><span>Compliance conclusion: ${escapeHtml(humanize(result.complianceConclusion || 'not_determined'))} · Coverage: ${escapeHtml(humanize(result.coverage || 'partial'))} · Control satisfaction remains not determined.</span></div>
+      <div class="security-section-title"><div><h4>Assessment quality</h4><span>Collection state describes technical test coverage, not compliance confirmation.</span></div></div>
+      <div class="security-score-grid security-coverage-grid"><div class="security-score-card pass"><span>Technical checks completed</span><strong>${testStateCounts.confirmed || 0}</strong></div><div class="security-score-card warning"><span>Observed / partial evidence</span><strong>${testStateCounts.observed || 0}</strong></div><div class="security-score-card manual"><span>Not assessed</span><strong>${testStateCounts.not_tested || 0}</strong></div><div class="security-score-card fail"><span>Failed to test</span><strong>${testStateCounts.failed_to_test || 0}</strong></div></div>
+      <div class="security-section-title"><div><h4>Technical observations</h4><span>Attention-focused by default; all observations remain available.</span></div><div class="security-toggle-group"><button type="button" class="button button-secondary small active" data-security-observation-mode="attention">Needs review</button><button type="button" class="button button-ghost small" data-security-observation-mode="all">Show all checks</button></div></div>
+      <div class="security-observation-list">${observationCards || '<div class="empty-state">No technical observations were recorded.</div>'}</div>
+    </section>
 
-  refs.securityResultActions.innerHTML = `
-    <a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a>
-    <a class="button button-ghost small" href="${result.executiveHref}" target="_blank" rel="noopener">Executive JSON</a>
-    <a class="button button-ghost small" href="${result.auditorHref}" target="_blank" rel="noopener">Auditor JSON</a>
-    <a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>
-    <a class="button button-secondary small" href="${result.xlsxHref}" download>Excel</a>`;
+    <section id="securityScope" class="security-workspace-section">
+      <div class="security-section-title"><div><h4>Scope &amp; coverage limitations</h4><span>Incomplete and partial evidence remains available for review.</span></div></div>
+      ${incompleteTests.length ? `<details class="security-summary-details"><summary><div><strong>Coverage limitations</strong><span>${incompleteTests.length} areas require review</span></div><div class="security-limitation-counts">${Object.entries(limitationGroups).map(([label, items]) => `<span>${escapeHtml(label)} <b>${items.length}</b></span>`).join('')}</div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-detail-list">${Object.entries(limitationGroups).map(([label, items]) => `<section><h5>${escapeHtml(label)}</h5>${items.map((item) => `<article><span class="security-status ${item.state === 'failed_to_test' ? 'fail' : item.state === 'not_tested' ? 'manual' : 'warning'}">${escapeHtml(securityStatusLabel(item.state))}</span><div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.summary || '')}</p>${(item.limitations || []).length ? `<small>${escapeHtml(item.limitations.join(' · '))}</small>` : ''}</div></article>`).join('')}</section>`).join('')}</div></details>` : '<div class="empty-state">No incomplete coverage items were recorded.</div>'}
+    </section>
+
+    <section id="securityEvidence" class="security-workspace-section">
+      <div class="security-section-title"><div><h4>Structured public evidence</h4><span>Concise states with bounded evidence context.</span></div></div>
+      <div class="security-structured-grid">
+        <article class="security-evidence-card"><span>Public policy evidence</span><strong>${(result.policyDocumentQuality || []).length} document(s) assessed</strong><div>${(result.policyDocumentQuality || []).slice(0, 4).map((item) => `<p><b>${escapeHtml(item.sourceUrl)}</b><small>Quality: ${escapeHtml(humanize(item.policyDocumentQuality))} · Locale: ${escapeHtml(item.detectedLocale || 'unknown')} · Extraction: ${item.policyDocumentQuality === 'failed_to_extract' ? 'failed' : 'successful'}</small></p>`).join('') || '<p>Not assessed</p>'}</div></article>
+        <article class="security-evidence-card"><span>Locale coverage</span><strong>${escapeHtml(humanize(result.localeCoverage?.state || 'locale_parity_not_assessed'))}</strong><dl><div><dt>Detected</dt><dd>${escapeHtml(availableLocales.join(', ') || 'none')}</dd></div><div><dt>Tested</dt><dd>${escapeHtml(testedLocales.join(', ') || 'none')}</dd></div><div><dt>Untested</dt><dd>${escapeHtml(untestedLocales.join(', ') || 'none')}</dd></div></dl></article>
+        <article class="security-evidence-card"><span>Payment-flow evidence</span><strong>${payment.paymentFlowObserved ? 'Observed / partial evidence' : 'Not determined'}</strong><dl><div><dt>Terminology</dt><dd>${payment.cardTerminologyObserved ? 'Observed' : 'Not observed'}</dd></div><div><dt>Provider evidence</dt><dd>${escapeHtml(payment.providerHosts?.join(', ') || 'Not observed')}</dd></div><div><dt>Architecture</dt><dd>${escapeHtml(humanize(payment.architecture || 'unknown'))}</dd></div><div><dt>Origin participation</dt><dd>${payment.testedOriginParticipatesInPaymentFlow === true ? 'Observed' : 'Unknown'}</dd></div><div><dt>Card-data handling</dt><dd>Not determined</dd></div></dl></article>
+        <details class="security-evidence-card security-gdpr-matrix"><summary><div><span>GDPR public-notice evidence</span><strong>${escapeHtml(humanize(gdprAggregate))}</strong><small>${gdprMatrix.length} elements · Observed ${gdprCounts.observed || 0} · Partial ${gdprCounts.partially_observed || 0} · Not observed ${gdprCounts.not_observed || 0} · Not assessed ${gdprCounts.not_assessed || 0}</small></div><span class="button button-ghost small">View matrix</span></summary><div class="security-gdpr-grid">${gdprMatrix.map((item) => `<article><div><strong>${escapeHtml(humanize(item.element))}</strong><span class="security-status ${item.state === 'observed' ? 'pass' : item.state === 'partially_observed' ? 'warning' : item.state === 'failed_to_assess' ? 'fail' : 'manual'}">${escapeHtml(humanize(item.state))}</span></div>${item.evidenceItems?.[0]?.sourceUrl ? `<p>Source: ${escapeHtml(item.evidenceItems[0].sourceUrl)} · Confidence: ${escapeHtml(humanize(item.confidence))}</p>` : item.state === 'not_observed' ? '<p>No matching public evidence was observed. This does not determine GDPR compliance.</p>' : `<p>${escapeHtml(item.reason || 'No applicable assessment was performed.')}</p>`}${item.evidenceItems?.[0]?.excerpt ? `<details><summary>Evidence excerpt</summary><p>${escapeHtml(item.evidenceItems[0].excerpt)}</p></details>` : ''}</article>`).join('') || '<div class="empty-state">Matrix not assessed.</div>'}</div></details>
+      </div>
+      ${result.evidenceManifest ? `<div class="security-integrity-summary"><div><span>Artifacts verified</span><strong>${evidenceHashes} / ${evidenceArtifacts.length}</strong></div><div><span>Manifest integrity</span><strong>${evidenceHashes === evidenceArtifacts.length ? 'Verified' : 'Review required'}</strong></div><div><span>Hash algorithm</span><strong>SHA-256</strong></div><div><span>Signature</span><strong>${result.reportManifest?.signature?.algorithm === 'hmac-sha256' ? 'Verified' : 'Not configured'}</strong></div><div><span>Restricted</span><strong>${evidenceRestricted}</strong></div><div><span>Metadata-safe</span><strong>${evidenceArtifacts.length - evidenceRestricted}</strong></div></div>` : ''}
+    </section>
+
+    <section id="securityFindings" class="security-workspace-section">
+      <div class="security-section-title"><div><h4>Technical findings</h4><span>One-column review queue; filters affect this workspace view only.</span></div><span id="securityFindingVisibleCount" class="pill">${findings.length} shown</span></div>
+      <div id="securityReview" class="security-review-toolbar"><div class="security-review-context"><label class="field"><span>Reviewing as</span><input id="securityReviewerContext" type="text" maxlength="80" placeholder="Reviewer name or role" autocomplete="off"></label><small>Used for review actions only; not stored in browser persistence.</small></div><div id="securityReviewProgress" class="security-review-progress"></div><small>Review decisions do not change the compliance conclusion or control satisfaction.</small></div>
+      <div class="security-finding-filters" role="group" aria-label="Finding filters"><label class="field"><span>Search</span><input id="securityFindingSearch" type="search" placeholder="ID, title, cookie, URL…"></label><label class="field"><span>Severity</span><select id="securityFindingSeverity"><option value="all">All severities</option>${severities.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))}</option>`).join('')}</select></label><label class="field"><span>Category</span><select id="securityFindingCategory"><option value="all">All categories</option>${categories.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}</select></label><label class="field"><span>Review status</span><select id="securityFindingReview"><option value="all">All review states</option><option value="awaiting">Awaiting review</option><option value="reviewed">Reviewed</option></select></label><label class="field"><span>Framework mapping</span><select id="securityFindingFramework"><option value="all">All frameworks</option>${frameworkOptions}</select></label></div>
+      <div class="security-findings">${findings.map(renderFindingCard).join('') || '<div class="security-disclaimer"><strong>No normalized findings:</strong> No adverse conditions met the scanner finding thresholds. Review test coverage before drawing conclusions.</div>'}</div>
+    </section>
+
+    <section id="securityMappings" class="security-workspace-section"><div class="security-section-title"><div><h4>Framework evidence &amp; candidate mappings</h4><span>Compact scope summaries; expand a framework for evidence and control detail.</span></div></div><div class="security-framework-results">${frameworkCards}</div></section>
+
+    <section id="securityCrawl" class="security-workspace-section"><div class="security-section-title"><div><h4>Crawl results</h4><span>Successful evidence pages first; discovery failures remain available as diagnostics.</span></div></div>${crawlPages.length ? `<div class="security-crawl-metrics"><div><span>Successful pages</span><strong>${successfulPages.length}</strong></div><div><span>Redirects</span><strong>${redirectPages.length}</strong></div><div><span>Candidate paths tested</span><strong>${crawlPages.length}</strong></div><div><span>Not found</span><strong>${notFoundPages.length}</strong></div></div><div class="security-crawl-success">${successfulPages.map((page) => `<article><span class="security-crawl-badge status-${page.status}">${page.status || 200}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><strong>${escapeHtml(page.url)}</strong></article>`).join('') || '<div class="empty-state">No successful evidence pages were discovered.</div>'}</div>${unsuccessfulPages.length ? `<details class="security-summary-details security-crawl-failures"><summary><div><strong>Show ${unsuccessfulPages.length} unsuccessful discovery attempt${unsuccessfulPages.length === 1 ? '' : 's'}</strong><span>${notFoundPages.length} not found · ${failedPages.length} failed or skipped</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-crawl-diagnostics">${unsuccessfulPages.map((page) => `<article><span class="security-crawl-badge ${page.status === 404 ? 'status-404' : 'status-failed'}">${page.status || 'Failed'}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><div><strong>${escapeHtml(page.url)}</strong>${page.error ? `<small>${escapeHtml(page.error)}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : `<div class="empty-state">${escapeHtml(result.crawl?.error || 'Crawl evidence was not collected for this assessment.')}</div>`}</section>`;
+
+  const primaryDownloads = [[result.summaryHref, 'Open Report', false], [result.pdfHref, 'Download PDF', true, result.pdfDownloadName || 'compliance-pre-assessment.pdf']].filter(([href]) => Boolean(href));
+  const secondaryDownloads = [[result.jsonHref, 'JSON', true], [result.xlsxHref, 'Excel', true], [result.csvHref, 'Findings CSV', true], [result.evidenceManifestHref, 'Evidence Manifest', true]].filter(([href]) => Boolean(href));
+  refs.securityResultActions.innerHTML = `${primaryDownloads.map(([href, label, download, filename]) => `<a class="button ${label === 'Open Report' ? 'button-secondary' : 'button-primary'} small" href="${escapeHtml(href)}" ${download ? `download="${escapeHtml(filename || '')}"` : 'target="_blank" rel="noopener"'}>${label}</a>`).join('')}${secondaryDownloads.length ? `<details class="security-export-menu"><summary class="button button-ghost small">More Exports</summary><div>${secondaryDownloads.map(([href, label]) => `<a href="${escapeHtml(href)}" download>${label}</a>`).join('')}</div></details>` : ''}`;
   refs.securityResultsCard.classList.remove('hidden');
+  setSecurityConfigurationCollapsed(true, result);
+  updateSecurityReviewProgress();
+  applySecurityFindingFilters();
+  applySecurityObservationMode('attention');
+  refs.securityResultsCard.dataset.renderMs = (performance.now() - renderStarted).toFixed(2);
   refs.securityResultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function runSecurityScan() {
   if (!validateSecurityScan()) {
-    toast('Fix the highlighted fields before running the scan.', true);
+    toast('Fix the highlighted fields before generating the compliance map.', true);
     return;
   }
   refs.startSecurityScanBtn.disabled = true;
-  refs.startSecurityScanBtn.textContent = 'Scanning…';
+  refs.startSecurityScanBtn.textContent = 'Mapping evidence…';
   refs.securityScanState.className = 'security-scan-state running';
-  refs.securityScanState.innerHTML = '<span class="security-spinner"></span><div><strong>Scanning website…</strong><small>Checking transport, headers, cookies and page signals.</small></div>';
+  refs.securityScanState.innerHTML = '<span class="security-spinner"></span><div><strong>Collecting evidence…</strong><small>Checking transport, headers, cookies and page signals, then mapping controls.</small></div>';
   try {
     const scanConfig = {
       projectName: refs.securityProjectName.value.trim(),
       targetUrl: refs.securityTargetUrl.value.trim(),
       jurisdiction: refs.securityJurisdiction.value.trim(),
       frameworks: selectedSecurityFrameworks(),
+      frameworkApplicability: {
+        gdpr: refs.securityGdprApplicability?.value || 'unknown',
+        hipaa: refs.securityHipaaApplicability?.value || 'unknown',
+        'pci-dss': refs.securityPciApplicability?.value || 'unknown',
+        local: refs.securityLocalApplicability?.value || 'unknown'
+      },
       crawl: refs.securityCrawlEnabled ? refs.securityCrawlEnabled.checked : true,
       maxCrawlPages: refs.securityMaxPages ? Number(refs.securityMaxPages.value) || 10 : 10,
+      consentTesting: refs.securityAdvancedConsent?.checked ? { mode: 'advanced', scenarios: ['accept','reject','reopen_preferences','withdraw','reload_persistence','returning_user'] } : { mode: 'basic', scenarios: ['fresh_load'] },
       authentication: refs.securityAuthEnabled?.checked ? {
         enabled: true,
-        role: refs.securityAuthRole.value,
+        role: refs.securityAuthRole.value === 'custom' ? refs.securityAuthCustomRole.value.trim() : refs.securityAuthRole.value,
         loginUrl: refs.securityLoginUrl.value.trim(),
         usernameSelector: refs.securityUsernameSelector.value.trim(),
         passwordSelector: refs.securityPasswordSelector.value.trim(),
@@ -1352,41 +1491,25 @@ async function runSecurityScan() {
         mode: refs.securityZapMode.value,
         contextFile: refs.securityZapContextFile.value.trim(),
         contextUser: refs.securityZapContextUser.value.trim(),
-        apiDefinition: refs.securityZapApiDefinition.value.trim(),
-        apiFormat: refs.securityZapApiFormat.value,
-        timeoutMinutes: Number(refs.securityZapTimeout.value) || 10,
-        activeScanAuthorized: refs.securityZapAuthorized.checked
+        timeoutMinutes: Number(refs.securityZapTimeout.value) || 10
       }
     };
     const result = await api('/api/security/scan', {
       method: 'POST',
       body: JSON.stringify(scanConfig)
     });
-    if (refs.securityScheduleEnabled?.checked) {
-      const scheduledConfig = structuredClone(scanConfig);
-      if (scheduledConfig.authentication?.enabled) {
-        delete scheduledConfig.authentication.username;
-        delete scheduledConfig.authentication.password;
-        scheduledConfig.authentication.reuseSession = true;
-      }
-      try {
-        await api('/api/security/schedules', { method: 'POST', body: JSON.stringify({ config: scheduledConfig, intervalMinutes: Number(refs.securityScheduleInterval.value) || 1440 }) });
-      } catch (scheduleError) {
-        toast(`Scan completed, but scheduling failed: ${scheduleError.message}`, true);
-      }
-    }
     renderSecurityResults(result);
     refs.securityScanState.className = 'security-scan-state success';
-    refs.securityScanState.innerHTML = `<span class="security-state-dot"></span><div><strong>Scan completed</strong><small>${result.totals?.pass || 0} passed · ${(result.totals?.fail || 0) + (result.totals?.warning || 0)} need attention/review.</small></div>`;
-    toast('Security & compliance report generated.');
+    refs.securityScanState.innerHTML = `<span class="security-state-dot"></span><div><strong>Compliance map generated</strong><small>${result.totals?.pass || 0} supported checks · ${(result.totals?.fail || 0) + (result.totals?.warning || 0)} need attention/review.</small></div>`;
+    toast('Compliance mapping report generated.');
     loadHistory();
   } catch (error) {
     refs.securityScanState.className = 'security-scan-state error';
-    refs.securityScanState.innerHTML = `<span class="security-state-dot"></span><div><strong>Scan failed</strong><small>${escapeHtml(error.message)}</small></div>`;
+    refs.securityScanState.innerHTML = `<span class="security-state-dot"></span><div><strong>Mapping failed</strong><small>${escapeHtml(error.message)}</small></div>`;
     toast(error.message, true);
   } finally {
     refs.startSecurityScanBtn.disabled = false;
-    refs.startSecurityScanBtn.textContent = 'Run security scan';
+    refs.startSecurityScanBtn.textContent = 'Run technical pre-assessment';
   }
 }
 
@@ -1456,62 +1579,88 @@ $$('.securityFrameworkCheck').forEach((input) => input.addEventListener('change'
 }));
 refs.securityProjectName?.addEventListener('input', () => { if (refs.securityProjectField?.classList.contains('has-error')) validateSecurityScan(); });
 refs.securityTargetUrl?.addEventListener('input', () => { if (refs.securityUrlField?.classList.contains('has-error')) validateSecurityScan(); });
+refs.securityProjectName?.addEventListener('input', updateSecuritySetupSummaries);
+refs.securityTargetUrl?.addEventListener('input', updateSecuritySetupSummaries);
 refs.securityProjectName?.addEventListener('blur', validateSecurityScan);
 refs.securityTargetUrl?.addEventListener('blur', validateSecurityScan);
 refs.securityAuthEnabled?.addEventListener('change', () => {
   refs.securityAuthConfig?.classList.toggle('hidden', !refs.securityAuthEnabled.checked);
   validateSecurityScan();
+  updateSecuritySetupSummaries();
 });
+refs.securityAuthRole?.addEventListener('change', () => {
+  refs.securityAuthCustomRoleField?.classList.toggle('hidden', refs.securityAuthRole.value !== 'custom');
+  validateSecurityScan();
+  updateSecuritySetupSummaries();
+});
+refs.securityAuthCustomRole?.addEventListener('input', () => { validateSecurityScan(); updateSecuritySetupSummaries(); });
+refs.securityAdvancedConsent?.addEventListener('change', updateSecuritySetupSummaries);
+refs.securityCrawlEnabled?.addEventListener('change', updateSecuritySetupSummaries);
+refs.securityMaxPages?.addEventListener('input', updateSecuritySetupSummaries);
 refs.securityZapMode?.addEventListener('change', syncSecurityZapFields);
-refs.securityZapAuthorized?.addEventListener('change', validateSecurityScan);
-syncSecurityZapFields();
-refs.securityScheduleEnabled?.addEventListener('change', () => refs.securityScheduleIntervalField?.classList.toggle('hidden', !refs.securityScheduleEnabled.checked));
+syncSecurityZapFields({ validate: false });
 refs.securityResults?.addEventListener('click', async (event) => {
-  const evidenceButton = event.target.closest('.security-evidence-save');
-  if (evidenceButton) {
-    const controls = evidenceButton.closest('.security-lifecycle-controls');
-    const evidenceSelect = controls.querySelector('.security-evidence-status');
-    const previous = evidenceSelect.dataset.previous;
-    try {
-      evidenceButton.disabled = true;
-      await api(`/api/security/evidence/${encodeURIComponent(evidenceSelect.dataset.evidenceId)}/review`, { method: 'POST', body: JSON.stringify({ status: evidenceSelect.value, reviewer: controls.querySelector('.security-evidence-reviewer').value.trim(), role: $('#securityEvidenceReviewerRole')?.value || 'security_reviewer', note: controls.querySelector('.security-evidence-note').value.trim() }) });
-      evidenceSelect.dataset.previous = evidenceSelect.value;
-      toast(`Evidence review saved as ${humanize(evidenceSelect.value)} and Report History refreshed.`);
-    } catch (error) {
-      evidenceSelect.value = previous;
-      toast(error.message, true);
-    } finally {
-      evidenceButton.disabled = false;
-    }
+  const observationButton = event.target.closest('[data-security-observation-mode]');
+  if (observationButton) {
+    applySecurityObservationMode(observationButton.dataset.securityObservationMode);
     return;
   }
   const decisionButton = event.target.closest('.security-lifecycle-save');
   if (!decisionButton) return;
-  const controls = decisionButton.closest('.security-lifecycle-controls');
-  const select = controls.querySelector('.security-lifecycle-status');
+  const controls = decisionButton.closest('.security-review-panel');
+  const select = controls.querySelector('.security-review-decision');
   const reason = controls.querySelector('.security-lifecycle-reason').value.trim();
-  const expiresAt = controls.querySelector('.security-lifecycle-expiry').value;
-  const previous = select.dataset.previous || 'open';
-  if (['false_positive', 'suppressed', 'risk_accepted'].includes(select.value) && !reason) {
+  const reviewer = $('#securityReviewerContext')?.value.trim() || 'local-user';
+  const previous = select.dataset.previous || '';
+  if (!select.value || !reason) {
     select.value = previous;
-    toast('Add a decision reason before changing this finding status.', true);
-    return;
-  }
-  if (select.value === 'risk_accepted' && !expiresAt) {
-    select.value = previous;
-    toast('Risk acceptance requires an expiry date.', true);
+    toast('Choose a review decision and add a reason.', true);
     return;
   }
   try {
     decisionButton.disabled = true;
-    await api(`/api/security/findings/${encodeURIComponent(select.dataset.fingerprint)}`, { method: 'POST', body: JSON.stringify({ projectName: refs.securityProjectName.value.trim(), status: select.value, reason, expiresAt, actor: 'local-user', role: 'security_reviewer' }) });
+    await api(`/api/security/findings/${encodeURIComponent(select.dataset.fingerprint)}`, { method: 'POST', body: JSON.stringify({ projectName: state.securityResult?.projectName || refs.securityProjectName.value.trim(), findingStatus: 'reviewed', reviewDecision: select.value, reason, reviewer, role: 'reviewer' }) });
     select.dataset.previous = select.value;
-    toast(`Finding decision saved as ${humanize(select.value)} and Report History refreshed.`);
+    const card = controls.closest('[data-security-finding]');
+    card.dataset.review = 'reviewed';
+    const badge = card.querySelector('.finding-review-state');
+    if (badge) {
+      badge.className = 'security-review-badge finding-review-state reviewed';
+      badge.textContent = humanize(select.value);
+    }
+    const finding = state.securityResult?.findings?.find((item) => item.fingerprint === select.dataset.fingerprint);
+    if (finding) finding.reviewDecision = select.value;
+    controls.open = false;
+    updateSecurityReviewProgress();
+    applySecurityFindingFilters();
+    toast(`Finding review saved as ${humanize(select.value)} and Report History refreshed.`);
   } catch (error) {
     select.value = previous;
     toast(error.message, true);
   } finally {
     decisionButton.disabled = false;
+  }
+});
+refs.securityResults?.addEventListener('input', (event) => {
+  if (event.target.matches('#securityFindingSearch')) applySecurityFindingFilters();
+});
+refs.securityResults?.addEventListener('change', (event) => {
+  if (event.target.matches('#securityFindingSeverity, #securityFindingCategory, #securityFindingReview, #securityFindingFramework')) applySecurityFindingFilters();
+});
+refs.securityProjectContext?.addEventListener('click', (event) => {
+  if (!event.target.closest('[data-security-project-override]')) return;
+  state.securityProjectOverride = true;
+  renderSecurityConfigurationContext();
+  refs.securityProjectName?.focus();
+});
+refs.securityConfigSummary?.addEventListener('click', (event) => {
+  if (event.target.closest('[data-security-edit-config]')) {
+    setSecurityConfigurationCollapsed(false);
+    refs.securityConfigPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (event.target.closest('[data-security-run-again]')) {
+    setSecurityConfigurationCollapsed(false);
+    runSecurityScan();
   }
 });
 refs.startSecurityScanBtn?.addEventListener('click', runSecurityScan);

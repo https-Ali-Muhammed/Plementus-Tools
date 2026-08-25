@@ -1,31 +1,42 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureDir, slugify } from './utils.js';
+import { ensureDir } from './utils.js';
 
-const REVIEW_STATUSES = new Set(['not_started', 'automated_evidence_collected', 'manual_evidence_required', 'submitted_for_review', 'reviewed', 'approved', 'rejected', 'expired']);
-const REVIEW_ROLES = new Set(['security_reviewer', 'legal_reviewer', 'compliance_owner', 'auditor']);
+const EVIDENCE_VAULT_SCHEMA_VERSION = 3;
 
 function now() { return new Date().toISOString(); }
 function id() { return `ev_${Date.now().toString(36)}_${crypto.randomBytes(5).toString('hex')}`; }
-function sha256(buffer) { return crypto.createHash('sha256').update(buffer).digest('hex'); }
 
 export class EvidenceVault {
   constructor({ dataDir }) {
     this.dataDir = ensureDir(dataDir);
-    this.documentsDir = ensureDir(path.join(dataDir, 'evidence-documents'));
     this.indexFile = path.join(dataDir, 'security-evidence-vault.json');
     this.auditFile = path.join(dataDir, 'security-audit-log.jsonl');
-    if (!fs.existsSync(this.indexFile)) fs.writeFileSync(this.indexFile, `${JSON.stringify({ version: 1, evidence: [] }, null, 2)}\n`);
+    if (!fs.existsSync(this.indexFile)) fs.writeFileSync(this.indexFile, `${JSON.stringify({ version: EVIDENCE_VAULT_SCHEMA_VERSION, evidence: [] }, null, 2)}\n`);
   }
 
   read() {
-    try { return JSON.parse(fs.readFileSync(this.indexFile, 'utf8')); } catch { return { version: 1, evidence: [] }; }
+    try {
+      const data = JSON.parse(fs.readFileSync(this.indexFile, 'utf8'));
+      const evidence = (Array.isArray(data.evidence) ? data.evidence : []).map((item) => ({
+        ...item,
+        evidenceType: item.evidenceType || item.type || 'unknown',
+        evidenceStrength: item.evidenceStrength || (item.source === 'manual_upload' ? 'manual_evidence' : 'direct_observation'),
+        sourceMethod: item.sourceMethod || (item.source === 'manual_upload' ? 'manual_reviewer_evidence' : 'automated_scan_artifact'),
+        sourceUrl: item.sourceUrl || '',
+        observedAt: item.observedAt || item.collectedAt || '',
+        confidence: item.confidence || (item.source === 'manual_upload' ? 'manual_review_required' : 'confirmed'),
+        limitations: Array.isArray(item.limitations) ? item.limitations : [],
+        reviewState: item.reviewState || (item.source === 'manual_upload' ? 'legacy_manual_evidence' : 'automated')
+      }));
+      return { ...data, version: EVIDENCE_VAULT_SCHEMA_VERSION, evidence };
+    } catch { return { version: EVIDENCE_VAULT_SCHEMA_VERSION, evidence: [] }; }
   }
 
   write(data) {
     const temporary = `${this.indexFile}.${process.pid}.tmp`;
-    fs.writeFileSync(temporary, `${JSON.stringify(data, null, 2)}\n`);
+    fs.writeFileSync(temporary, `${JSON.stringify({ ...data, version: EVIDENCE_VAULT_SCHEMA_VERSION }, null, 2)}\n`);
     fs.renameSync(temporary, this.indexFile);
   }
 
@@ -42,98 +53,35 @@ export class EvidenceVault {
         projectName,
         reportName,
         type: artifact.type,
+        evidenceType: artifact.type,
+        evidenceStrength: 'direct_observation',
         source: 'automated_scan',
+        sourceMethod: 'automated_scan_artifact',
+        sourceUrl: manifest.scan?.finalUrl || manifest.scan?.requestedUrl || '',
         sourceReference: artifact.path,
         owner: 'security-scanner',
         collectedAt: manifest.generatedAt || now(),
-        expiryDate: '',
+        observedAt: manifest.generatedAt || now(),
+        confidence: 'confirmed',
+        reviewState: 'automated',
+        limitations: ['Artifact presence and integrity are recorded; interpretation remains subject to the associated test limitations.'],
         hash: artifact.sha256,
         version: 1,
-        reviewer: '',
-        reviewerRole: '',
-        approvalStatus: 'automated_evidence_collected',
         linkedControls: [],
         linkedFindings: [],
         sensitive: Boolean(artifact.sensitive),
-        metadata: { artifactId: artifact.id, bytes: artifact.bytes, access: manifest.access }
+        metadata: { artifactId: artifact.id, artifactRoles: [...(artifact.roles || [artifact.id])], artifactAliases: [...(artifact.aliases || [])], bytes: artifact.bytes, access: manifest.access }
       };
       data.evidence.push(record);
       created.push(record);
     }
     this.write(data);
-    this.audit({ action: 'automated_evidence_registered', actor: 'security-scanner', role: 'security_reviewer', projectName, reportName, evidenceIds: created.map((item) => item.id) });
+    this.audit({ action: 'automated_evidence_registered', actor: 'security-scanner', role: 'reviewer', projectName, reportName, evidenceIds: created.map((item) => item.id) });
     return created;
   }
 
-  createManual(input = {}) {
-    const projectName = String(input.projectName || '').trim();
-    if (!projectName) throw new Error('Project name is required for manual evidence.');
-    const content = input.contentBase64 ? Buffer.from(String(input.contentBase64), 'base64') : Buffer.from(String(input.note || ''), 'utf8');
-    if (!content.length) throw new Error('Manual evidence content or note is required.');
-    if (content.length > 10_000_000) throw new Error('Manual evidence is limited to 10 MB.');
-    const evidenceId = id();
-    const extension = input.contentBase64 ? path.extname(String(input.fileName || '')).slice(0, 12) : '.txt';
-    const fileName = `${evidenceId}_${slugify(path.basename(String(input.fileName || 'manual-note'), path.extname(String(input.fileName || ''))))}${extension || '.bin'}`;
-    const file = path.join(this.documentsDir, fileName);
-    fs.writeFileSync(file, content, { mode: 0o600 });
-    const record = {
-      id: evidenceId,
-      projectName,
-      reportName: '',
-      type: String(input.type || (input.contentBase64 ? 'document' : 'manual_note')),
-      source: 'manual_upload',
-      sourceReference: `evidence-documents/${fileName}`,
-      owner: String(input.owner || ''),
-      collectedAt: now(),
-      expiryDate: String(input.expiryDate || ''),
-      hash: sha256(content),
-      version: 1,
-      reviewer: '',
-      reviewerRole: '',
-      approvalStatus: 'manual_evidence_required',
-      linkedControls: Array.isArray(input.linkedControls) ? input.linkedControls.map(String) : [],
-      linkedFindings: Array.isArray(input.linkedFindings) ? input.linkedFindings.map(String) : [],
-      sensitive: input.sensitive !== false,
-      metadata: { fileName: String(input.fileName || 'manual-note.txt'), bytes: content.length }
-    };
-    const data = this.read();
-    data.evidence.push(record);
-    this.write(data);
-    this.audit({ action: 'manual_evidence_created', actor: String(input.actor || input.owner || 'local-user'), role: String(input.role || 'compliance_owner'), projectName, evidenceId });
-    return record;
-  }
-
-  review(evidenceId, input = {}) {
-    const status = String(input.status || '');
-    const role = String(input.role || '');
-    if (!REVIEW_STATUSES.has(status)) throw new Error('Invalid evidence review status.');
-    if (!REVIEW_ROLES.has(role)) throw new Error('Invalid reviewer role.');
-    const data = this.read();
-    const record = data.evidence.find((item) => item.id === evidenceId);
-    if (!record) throw new Error('Evidence object not found.');
-    const previousStatus = record.approvalStatus;
-    record.approvalStatus = status;
-    record.reviewer = String(input.reviewer || '');
-    record.reviewerRole = role;
-    record.reviewedAt = now();
-    record.reviewNote = String(input.note || '');
-    record.version = Number(record.version || 1) + 1;
-    this.write(data);
-    this.audit({ action: 'evidence_review_status_changed', actor: record.reviewer || 'local-user', role, projectName: record.projectName, evidenceId, previousStatus, status, note: record.reviewNote });
-    return record;
-  }
-
   list({ projectName = '' } = {}) {
-    const currentTime = Date.now();
     const data = this.read();
-    let changed = false;
-    for (const item of data.evidence) {
-      if (item.expiryDate && Date.parse(item.expiryDate) <= currentTime && item.approvalStatus !== 'expired') {
-        item.approvalStatus = 'expired';
-        changed = true;
-      }
-    }
-    if (changed) this.write(data);
     return projectName ? data.evidence.filter((item) => item.projectName === projectName) : data.evidence;
   }
 
@@ -143,5 +91,3 @@ export class EvidenceVault {
     return events.filter((event) => !projectName || event.projectName === projectName).slice(-Math.max(1, Math.min(1000, Number(limit) || 250))).reverse();
   }
 }
-
-export { REVIEW_ROLES, REVIEW_STATUSES };

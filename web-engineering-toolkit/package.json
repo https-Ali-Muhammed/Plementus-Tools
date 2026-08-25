@@ -1,13 +1,15 @@
 {
   "name": "web-engineering-toolkit",
-  "version": "1.5.0",
+  "version": "1.7.1",
   "private": true,
   "type": "module",
   "description": "Framework-free web engineering workspace with shared projects, Lighthouse reporting, security/compliance scanning, asset/page-weight analysis, browser automation, and unified report history.",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "package": "node scripts/package-source.js",
+    "smoke:all": "node scripts/smoke-all-tools.js"
   },
   "dependencies": {
     "lighthouse": "12.8.2",

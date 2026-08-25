@@ -29,7 +29,8 @@ function handler(req, res) {
 
   let body = page('Security lab', '<h1>Security lab</h1>');
   if (url.pathname === '/mixed-content') body = page('Mixed content', '<img src="http://assets.example.invalid/logo.png"><form action="http://api.example.invalid/submit"></form>');
-  if (url.pathname === '/analytics-before-consent') body = page('Tracking before consent', '<script src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script><button>Accept cookies</button>');
+  if (url.pathname === '/analytics-before-consent') body = page('Tracking before consent', '<script src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script><p>Cookie preferences</p><button>Accept cookies</button>');
+  if (url.pathname === '/analytics-no-consent') body = page('Tracking without consent UI', '<script src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script><p>Analytics loads without a visitor choice.</p>');
   if (url.pathname === '/login') body = page('Login', '<form method="post" action="/session"><input name="username"><input name="password" type="password"><button>Sign in</button></form>');
   if (url.pathname === '/dashboard') body = page('Dashboard', '<nav><a href="/account">Account</a><a href="/admin">Admin</a></nav><h1>User dashboard</h1>');
   if (url.pathname === '/admin') {
