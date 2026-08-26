@@ -9,7 +9,7 @@ import { createComplianceSummary, assertConservativeInvariants, PHASE1_OBSERVED_
 
 const requiredMappingFields = ['mappingId', 'checkId', 'framework', 'frameworkVersion', 'controlId', 'relationship', 'evidenceTypes', 'prerequisites', 'limitations', 'reviewStatus', 'mappingVersion'];
 const relationships = new Set(['direct', 'supporting', 'contextual', 'scope_signal', 'manual_only']);
-const prefixes = { 'iso-27001': 'ISO27001:', gdpr: ['GDPR-', 'EPRIVACY-'], 'soc-2': 'SOC2-', hipaa: 'HIPAA-', 'pci-dss': 'PCI-DSS-', local: 'LOCAL-' };
+const prefixes = { 'iso-27001': 'ISO27001:', gdpr: 'GDPR-', eprivacy: ['EPRIVACY-', 'GDPR-EPRIVACY-'], 'soc-2': 'SOC2-', hipaa: 'HIPAA-', 'pci-dss': 'PCI-DSS-', local: 'LOCAL-' };
 
 test('Phase 1 fixture model preserves global conservative invariants', () => {
   assertConservativeInvariants(assert, createComplianceSummary());
@@ -36,7 +36,8 @@ test('mapping registry has complete, versioned, uniquely identified records', ()
     exactRecords.add(exact);
   }
   const eprivacy = SECURITY_MAPPING_REGISTRY.find((mapping) => mapping.controlId === 'EPRIVACY-DIR-2002-58-ART-5(3)');
-  assert.equal(eprivacy.frameworkVersion, 'Directive 2002/58/EC');
+  assert.equal(eprivacy.framework, 'eprivacy');
+  assert.equal(eprivacy.frameworkVersion, 'Directive 2002/58/EC as amended by Directive 2009/136/EC');
   assert.equal(eprivacy.sourceCitation, EPRIVACY_ARTICLE_5_3_SOURCE);
   assert.ok(eprivacy.aliases.includes('GDPR-EPRIVACY-ART-5(3)'));
 });
@@ -51,7 +52,7 @@ test('mapping prerequisite matrix distinguishes met, unknown, not met, and manua
   assert.equal(evaluate('pci_scope_confirmed_or_potential', { frameworkApplicability: { 'pci-dss': 'potentially_applicable' } }), 'met');
   assert.equal(evaluate('tested_origin_participates_in_payment_flow', { frameworkApplicability: { 'pci-dss': 'potentially_applicable' }, paymentFlow: { testedOriginParticipatesInPaymentFlow: true } }), 'met');
   assert.equal(evaluate('tested_origin_participates_in_payment_flow', { frameworkApplicability: { 'pci-dss': 'potentially_applicable' }, paymentFlow: { testedOriginParticipatesInPaymentFlow: null } }), 'unknown');
-  assert.equal(evaluate('tested_origin_participates_in_payment_flow', { frameworkApplicability: { 'pci-dss': 'potentially_applicable' }, paymentFlow: { testedOriginParticipatesInPaymentFlow: false } }), 'requires_manual_confirmation');
+  assert.equal(evaluate('tested_origin_participates_in_payment_flow', { frameworkApplicability: { 'pci-dss': 'potentially_applicable' }, paymentFlow: { testedOriginParticipatesInPaymentFlow: false } }), 'not_met');
   assert.equal(evaluate('local_jurisdiction_confirmed', { frameworkApplicability: { local: 'selected_for_mapping' }, jurisdiction: 'Egypt' }), 'met');
   assert.equal(evaluate('local_jurisdiction_confirmed', { frameworkApplicability: { local: 'selected_for_mapping' }, jurisdiction: '' }), 'requires_manual_confirmation');
 });

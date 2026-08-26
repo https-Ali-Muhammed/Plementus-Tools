@@ -149,7 +149,7 @@ test('cookie evidence is deduplicated and inferred session severity is calibrate
   assert.equal(findings[0].severity, 'medium');
   assert.equal(findings[0].evidenceItems.length, 2);
   assert.ok(findings[0].controls.includes('ISO27001:2022-A.8.5'));
-  assert.ok(findings[0].controls.includes('LOCAL-EG-PDPL-LAW151-2020'));
+  assert.equal(findings[0].controls.some((control) => control.startsWith('LOCAL-')), false);
   assert.equal(findings[0].controls.some((control) => control.startsWith('HIPAA-')), false);
   assert.equal(findings[0].controls.some((control) => control.startsWith('PCI-DSS-')), false);
   const isoMapping = findings[0].controlMappings.filter((mapping) => mapping.controlId === 'ISO27001:2022-A.8.5' && mapping.relationship === 'supporting');
@@ -182,7 +182,10 @@ test('ZAP alerts normalize without losing plugin, URL, evidence, or remediation'
   assert.equal(findings.length, 1);
   assert.equal(findings[0].id, 'ZAP_10020');
   assert.equal(findings[0].severity, 'medium');
-  assert.equal(findings[0].confidence, 'confirmed');
+  assert.equal(findings[0].confidence, 'high');
+  assert.equal(findings[0].legacyConfidence, 'confirmed');
+  assert.equal(findings[0].collectionState, 'completed');
+  assert.equal(findings[0].collectionMethod, 'zap_passive');
   assert.equal(findings[0].affectedUrl, 'https://example.test/login');
   assert.match(findings[0].evidence.raw, /GET/);
 });
@@ -204,7 +207,10 @@ test('evidence vault records immutable automated artifact provenance without an 
   t.after(() => fs.rmSync(dataDir, { recursive: true, force: true }));
   const vault = new EvidenceVault({ dataDir });
   const [evidence] = vault.registerScan({ projectName: 'Example', reportName: 'example-report', manifest: { generatedAt: '2026-08-24T00:00:00.000Z', access: 'local-filesystem-only', scan: { finalUrl: 'https://example.test/' }, artifacts: [{ id: 'headers', type: 'application/json', path: 'evidence/http/initial-response.json', sha256: 'a'.repeat(64), bytes: 123, sensitive: true }] } });
-  assert.equal(evidence.evidenceStrength, 'direct_observation');
+  assert.equal(evidence.evidenceStrength, 'provenance_only');
+  assert.equal(evidence.semanticEvidenceStrength, 'not_applicable');
+  assert.equal(evidence.collectionMethod, 'artifact_only');
+  assert.equal(evidence.collectionState, 'completed');
   assert.equal(evidence.sourceMethod, 'automated_scan_artifact');
   assert.equal(evidence.reviewState, 'automated');
   assert.equal(evidence.hash, 'a'.repeat(64));
@@ -365,7 +371,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
     browserRetryCount: 0,
     browserTimeoutMs: 5000
   });
-  assert.equal(scan.schemaVersion, '2.2.0');
+  assert.equal(scan.schemaVersion, '2.4.0');
   assert.equal(scan.scannerVersion, '1.7.1');
   assert.equal(scan.toolVersion, '1.7.1');
   assert.match(scan.mappingCatalogVersion, /^\d{4}\.\d{2}\.\d{2}\.\d+$/);
@@ -433,7 +439,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   const refreshedManifest = JSON.parse(fs.readFileSync(path.join(reportRoot, 'report-manifest.json'), 'utf8'));
   assert.equal(refreshedSummary.workflow.revision, 2);
   assert.equal(refreshedSummary.workflow.schemaVersion, '2.0.0');
-  assert.equal(vault.read().version, 3);
+  assert.equal(vault.read().version, 4);
   assert.equal(lifecycle.read().version, 4);
   assert.match(refreshedHtml, /Bob Reviewer/);
   assert.match(refreshedHtml, /Compensating edge control verified/);

@@ -151,10 +151,22 @@ export class SecurityLifecycleManager {
     const priorActive = data.findings.filter((item) => item.projectName === projectName && item.findingStatus !== 'resolved');
     const seen = new Set();
     const comparison = { new: [], recurring: [], resolved: [] };
+    const aliasCounts = new Map();
+    for (const finding of summary.findings || []) {
+      for (const alias of finding.fingerprintAliases || []) aliasCounts.set(alias, (aliasCounts.get(alias) || 0) + 1);
+    }
 
     for (const finding of summary.findings || []) {
       seen.add(finding.fingerprint);
       let record = data.findings.find((item) => item.projectName === projectName && item.fingerprint === finding.fingerprint);
+      if (!record) {
+        const unambiguousAlias = (finding.fingerprintAliases || []).find((alias) => aliasCounts.get(alias) === 1);
+        record = unambiguousAlias ? data.findings.find((item) => item.projectName === projectName && item.fingerprint === unambiguousAlias) : null;
+        if (record) {
+          record.legacyFingerprints = [...new Set([...(record.legacyFingerprints || []), record.fingerprint, unambiguousAlias].filter(Boolean))];
+          record.fingerprint = finding.fingerprint;
+        }
+      }
       if (record) {
         finding.firstSeen = record.firstSeen;
         if (record.findingStatus === 'resolved') {
@@ -194,7 +206,7 @@ export class SecurityLifecycleManager {
         record.title = finding.title;
         comparison.recurring.push(finding.fingerprint);
       } else {
-        record = normalizeRecord({ projectName, fingerprint: finding.fingerprint, findingId: finding.id, title: finding.title, severity: finding.severity, affectedUrl: finding.affectedUrl, firstSeen: finding.firstSeen, lastSeen: finding.lastSeen, findingStatus: 'open' });
+        record = normalizeRecord({ projectName, fingerprint: finding.fingerprint, legacyFingerprints: [...(finding.fingerprintAliases || [])], findingId: finding.id, title: finding.title, severity: finding.severity, affectedUrl: finding.affectedUrl, firstSeen: finding.firstSeen, lastSeen: finding.lastSeen, findingStatus: 'open' });
         data.findings.push(record);
         finding.findingStatus = 'open';
         comparison.new.push(finding.fingerprint);

@@ -7,8 +7,17 @@ import { detectBrowsers } from './environment-checker.js';
 import { sleep } from './utils.js';
 import { buildControlEvaluations, buildFindings, buildTestResults, mergeFindingsByFingerprint, resolveLocalJurisdictions } from './security-finding-model.js';
 import { MAPPING_CATALOG_VERSION, frameworkForControl } from './security-mapping-registry.js';
+import { classifyNegativeObservation, normalizeCollectionMethod, normalizeCollectionState, normalizeEvidenceConfidence, normalizeEvidenceStrength, normalizeTraceabilityTuple } from './security-evidence-semantics.js';
 import { TOOL_VERSION } from './tool-version.js';
-import { runZapScan } from './zap-runner.js';
+import { buildZapEvidenceMetadata, runZapScan } from './zap-runner.js';
+import {
+  applicabilityPresentation,
+  FRAMEWORK_DISPLAY_NAMES,
+  frameworkManualReviewReasons,
+  RELATIONSHIP_DEFINITIONS,
+  RELATIONSHIP_DISCLAIMER,
+  REVIEW_REASON_DEFINITIONS
+} from './security-compliance-semantics.js';
 
 const SCANNER_VERSION = TOOL_VERSION;
 const RESULT_STATES = {
@@ -20,12 +29,13 @@ const RESULT_STATES = {
 };
 
 const FRAMEWORKS = {
-  'iso-27001': { label: 'ISO 27001' },
-  gdpr: { label: 'GDPR' },
-  'soc-2': { label: 'SOC 2' },
-  hipaa: { label: 'HIPAA' },
-  'pci-dss': { label: 'PCI DSS' },
-  local: { label: 'Local Regulations' }
+  'iso-27001': { label: FRAMEWORK_DISPLAY_NAMES['iso-27001'] },
+  gdpr: { label: FRAMEWORK_DISPLAY_NAMES.gdpr },
+  eprivacy: { label: FRAMEWORK_DISPLAY_NAMES.eprivacy },
+  'soc-2': { label: FRAMEWORK_DISPLAY_NAMES['soc-2'] },
+  hipaa: { label: FRAMEWORK_DISPLAY_NAMES.hipaa },
+  'pci-dss': { label: FRAMEWORK_DISPLAY_NAMES['pci-dss'] },
+  local: { label: FRAMEWORK_DISPLAY_NAMES.local }
 };
 
 const APPLICABILITY_VALUES = new Set(['unknown', 'applicable', 'not_applicable']);
@@ -125,8 +135,8 @@ const CHECK_FRAMEWORKS = {
   'referrer-policy': ['gdpr', 'iso-27001', 'soc-2'],
   'permissions-policy': ['gdpr', 'iso-27001', 'soc-2'],
   'cross-origin-policies': ['iso-27001', 'gdpr', 'soc-2'],
-  cookies: ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss', 'local'],
-  'runtime-cookies': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss', 'local'],
+  cookies: ['iso-27001', 'gdpr', 'eprivacy', 'soc-2', 'hipaa', 'pci-dss', 'local'],
+  'runtime-cookies': ['iso-27001', 'gdpr', 'eprivacy', 'soc-2', 'hipaa', 'pci-dss', 'local'],
   'authenticated-session': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss'],
   'authenticated-crawl': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss'],
   'access-control-candidates': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss'],
@@ -135,8 +145,8 @@ const CHECK_FRAMEWORKS = {
   'mixed-content': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss'],
   'password-transport': ['iso-27001', 'gdpr', 'soc-2', 'hipaa', 'pci-dss'],
   privacy: ['gdpr', 'local'],
-  consent: ['gdpr', 'local'],
-  'consent-behavior': ['gdpr', 'local'],
+  consent: ['gdpr', 'eprivacy', 'local'],
+  'consent-behavior': ['gdpr', 'eprivacy', 'local'],
   'privacy-runtime-consistency': ['gdpr', 'local'],
   'privacy-runtime-verification': ['gdpr', 'local'],
   'third-party-scripts': ['gdpr', 'iso-27001', 'soc-2'],
@@ -171,17 +181,44 @@ function describeError(error) {
   return String(error?.code || error?.name || 'Request failed');
 }
 
-function result({ id, title, category, status, summary, details = '', recommendation = '', evidence = '', affectedUrl = '', severity = '', references = [], evidenceItems = [], instances = [], testState = '', confidence = '', testMethod = '', limitations = [] }) {
+function result({ id, title, category, status, summary, details = '', recommendation = '', evidence = '', affectedUrl = '', severity = '', references = [], evidenceItems = [], instances = [], testState = '', collectionState = '', confidence = '', evidenceConfidence = '', collectionMethod = '', negativeObservation = null, testMethod = '', limitations = [] }) {
   const resolvedTestState = testState || (status === 'manual' ? 'not_tested' : status === 'info' ? 'observed' : 'confirmed');
+  const legacyConfidence = confidence || (resolvedTestState === 'confirmed' ? 'confirmed' : resolvedTestState === 'observed' ? 'observed' : resolvedTestState === 'inferred' ? 'inferred' : 'not_tested');
+  const normalizedCollectionState = normalizeCollectionState(collectionState || resolvedTestState);
+  const normalizedCollectionMethod = normalizeCollectionMethod(collectionMethod || testMethod || 'http_response_analysis');
   return {
     id, title, category, status, severity: severity || defaultSeverity(status), summary, details, recommendation, evidence, affectedUrl, references, evidenceItems, instances,
     frameworks: CHECK_FRAMEWORKS[id] || [],
     testState: resolvedTestState,
     testStateLabel: RESULT_STATES[resolvedTestState] || resolvedTestState,
-    confidence: confidence || (resolvedTestState === 'confirmed' ? 'confirmed' : resolvedTestState === 'observed' ? 'observed' : resolvedTestState === 'inferred' ? 'inferred' : 'not_tested'),
+    collectionState: normalizedCollectionState,
+    collectionMethod: normalizedCollectionMethod,
+    confidence: legacyConfidence,
+    evidenceConfidence: normalizeEvidenceConfidence(evidenceConfidence || legacyConfidence),
+    negativeObservation,
     testMethod,
     limitations: Array.isArray(limitations) ? limitations.filter(Boolean) : []
   };
+}
+
+export function tlsCollectionFailureChecks(affectedUrl = '', details = '') {
+  const shared = {
+    category: 'Transport security',
+    status: 'info',
+    severity: 'informational',
+    details,
+    affectedUrl,
+    references: [REFERENCES.sslLabs],
+    testState: 'failed_to_test',
+    collectionState: 'failed_to_test',
+    collectionMethod: 'tls_probe',
+    confidence: 'not_tested',
+    negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' })
+  };
+  return [
+    result({ ...shared, id: 'certificate', title: 'Certificate status', summary: 'Failed to test certificate details; no certificate-validity outcome was asserted.', recommendation: 'Verify certificate status directly against the origin.' }),
+    result({ ...shared, id: 'tls', title: 'TLS configuration', summary: 'Failed to test TLS protocol and cipher details; no protocol-strength outcome was asserted.', recommendation: 'Verify TLS protocol and cipher support directly against the origin.' })
+  ];
 }
 
 // --- Cookie sensitivity classification -------------------------------------
@@ -226,6 +263,8 @@ function cookieChecks(cookies = [], runtimeCookies = []) {
   for (const cookie of cookies) {
     const name = cookie.split('=')[0]?.trim() || 'cookie';
     const lower = cookie.toLowerCase();
+    const explicitDomain = cookie.match(/;\s*domain=([^;]+)/i)?.[1]?.trim() || '';
+    const configuredPath = cookie.match(/;\s*path=([^;]+)/i)?.[1]?.trim() || '/';
     const category = classifyCookie(name);
     const expected = expectedCookieAttributes(category);
     const missing = [];
@@ -236,7 +275,7 @@ function cookieChecks(cookies = [], runtimeCookies = []) {
     const entry = `${name} [${category}]: missing ${missing.join(', ')}`;
     details.push(entry);
     const runtimeCookie = runtimeCookies.find((item) => item.name === name);
-    instances.push({ name, category, missing, raw: cookie.replace(/^([^=]+)=([^;]*)/, '$1=[REDACTED]'), configuredSameSite: lower.match(/;\s*samesite=([^;]+)/i)?.[1] || null, effectiveSameSiteObserved: runtimeCookie?.sameSite || 'not_assessed', unsafeCrossSiteConditionObserved: false });
+    instances.push({ name, domain: explicitDomain, path: configuredPath, hostOnly: !explicitDomain, category, missing, raw: cookie.replace(/^([^=]+)=([^;]*)/, '$1=[REDACTED]'), configuredSameSite: lower.match(/;\s*samesite=([^;]+)/i)?.[1] || null, effectiveSameSiteObserved: runtimeCookie?.sameSite || 'not_assessed', unsafeCrossSiteConditionObserved: false });
     if (category === 'session-or-auth') highSeverity.push(entry);
     else lowSeverity.push(entry);
   }
@@ -261,6 +300,12 @@ function cookieChecks(cookies = [], runtimeCookies = []) {
 }
 
 function browserCookieChecks(cookies = [], affectedUrl = '', browserScan = {}) {
+  if (browserScan.state === 'failed_to_test') {
+    return result({ id: 'runtime-cookies', title: 'Runtime browser cookies', category: 'Privacy & session', status: 'info', summary: 'Failed to test runtime cookies; no runtime-cookie absence was asserted.', details: browserScan.error || '', recommendation: 'Verify the browser runtime prerequisite and retry the scan.', affectedUrl, testState: 'failed_to_test', collectionState: 'failed_to_test', collectionMethod: 'browser_runtime', negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' }), testMethod: 'Headless browser cookie snapshot', limitations: browserScan.limitations || [browserScan.error] });
+  }
+  if (browserScan.state === 'not_tested') {
+    return result({ id: 'runtime-cookies', title: 'Runtime browser cookies', category: 'Privacy & session', status: 'manual', summary: 'Runtime cookies were not assessed because browser collection was not run.', affectedUrl, testState: 'not_tested', collectionState: 'not_tested', collectionMethod: 'browser_runtime', negativeObservation: classifyNegativeObservation({ collectionState: 'not_tested' }), testMethod: 'Headless browser cookie snapshot', limitations: browserScan.limitations || [] });
+  }
   const partial = browserScan.state === 'observed';
   const runtimeMeta = {
     testState: browserScan.state || 'confirmed',
@@ -285,6 +330,9 @@ function browserCookieChecks(cookies = [], affectedUrl = '', browserScan = {}) {
     const entry = `${cookie.name} [${category}]: missing ${missing.join(', ')}`;
     instances.push({
       name: cookie.name,
+      domain: cookie.domain || '',
+      path: cookie.path || '/',
+      hostOnly: typeof cookie.hostOnly === 'boolean' ? cookie.hostOnly : !String(cookie.domain || '').startsWith('.'),
       category,
       missing,
       configuredSameSite: 'not_assessed',
@@ -916,6 +964,7 @@ const PAYMENT_PATH_PATTERN = /(?:^|[\/_-])(?:payment|payments|checkout|billing|c
 
 export function analyzePaymentFlowEvidence({ pages = [], browserScan = {}, testedOrigin = '', observedAt = '' } = {}) {
   const providerHosts = new Set();
+  const signalSourceUrls = new Set();
   const observations = [];
   let iframeObserved = false;
   let hostedFieldsObserved = false;
@@ -924,20 +973,24 @@ export function analyzePaymentFlowEvidence({ pages = [], browserScan = {}, teste
   let merchantManagedScriptsObserved = false;
   let cardTerminologyObserved = false;
   const origin = (() => { try { return new URL(testedOrigin || browserScan.finalUrl).origin; } catch { return ''; } })();
-  const inspectUrl = (value, kind, sourceUrl) => {
+  const recordSignalSource = (sourceUrl) => { if (sourceUrl) signalSourceUrls.add(sourceUrl); };
+  const inspectUrl = (value, kind, sourceUrl, { forceRelevant = false } = {}) => {
     try {
       const parsed = new URL(value, sourceUrl || origin);
-      if (PAYMENT_PROVIDER_PATTERN.test(parsed.hostname)) providerHosts.add(parsed.hostname);
-      if (kind === 'iframe' && (PAYMENT_PROVIDER_PATTERN.test(parsed.hostname) || /pay|checkout|card/i.test(parsed.pathname))) iframeObserved = true;
-      if (kind === 'redirect' && PAYMENT_PROVIDER_PATTERN.test(parsed.hostname)) redirectObserved = true;
-      observations.push({ kind, sourceUrl, destination: parsed.href });
+      const providerHost = PAYMENT_PROVIDER_PATTERN.test(parsed.hostname) ? parsed.hostname : '';
+      const paymentRelevant = forceRelevant || Boolean(providerHost) || PAYMENT_PATH_PATTERN.test(parsed.pathname);
+      if (providerHost) providerHosts.add(providerHost);
+      if (kind === 'iframe' && (providerHost || /pay|checkout|card/i.test(parsed.pathname))) iframeObserved = true;
+      if (kind === 'redirect' && providerHost) redirectObserved = true;
+      if (paymentRelevant) recordSignalSource(sourceUrl);
+      observations.push({ kind, observationKind: kind, sourceUrl: sourceUrl || '', destination: parsed.href, destinationUrl: parsed.href, providerHost, paymentRelevant });
     } catch {}
   };
   for (const page of pages.filter((item) => item.found && item.html)) {
     const sourceUrl = page.finalUrl || page.url;
     const text = String(page.html).replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     const paymentPageObserved = (() => { try { return PAYMENT_PATH_PATTERN.test(new URL(sourceUrl).pathname); } catch { return false; } })();
-    if (CARD_FIELD_PATTERN.test(text)) cardTerminologyObserved = true;
+    if (CARD_FIELD_PATTERN.test(text)) { cardTerminologyObserved = true; recordSignalSource(sourceUrl); }
     for (const match of String(page.html).matchAll(/<iframe\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/gi)) inspectUrl(match[1], 'iframe', sourceUrl);
     for (const match of String(page.html).matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*>/gi)) {
       if (/pay|checkout|billing/i.test(match[1])) inspectUrl(match[1], 'redirect', sourceUrl);
@@ -960,7 +1013,7 @@ export function analyzePaymentFlowEvidence({ pages = [], browserScan = {}, teste
           else if (PAYMENT_PROVIDER_PATTERN.test(destination.hostname)) redirectObserved = true;
           providerHosts.add(PAYMENT_PROVIDER_PATTERN.test(destination.hostname) ? destination.hostname : '');
         } catch {}
-        inspectUrl(action, 'form_action', sourceUrl);
+        inspectUrl(action, 'form_action', sourceUrl, { forceRelevant: true });
       }
     }
   }
@@ -972,24 +1025,37 @@ export function analyzePaymentFlowEvidence({ pages = [], browserScan = {}, teste
         const action = new URL(form.action, browserScan.finalUrl || testedOrigin);
         merchantFormObserved = action.origin === origin;
         if (PAYMENT_PROVIDER_PATTERN.test(action.hostname)) providerHosts.add(action.hostname);
+        inspectUrl(action.href, 'form_action', browserScan.finalUrl || testedOrigin, { forceRelevant: true });
       } catch {}
     }
   }
   for (const resource of browserScan.resources || []) {
     try {
       const parsed = new URL(resource.url);
-      if (PAYMENT_PROVIDER_PATTERN.test(parsed.hostname)) providerHosts.add(parsed.hostname);
+      if (PAYMENT_PROVIDER_PATTERN.test(parsed.hostname)) {
+        providerHosts.add(parsed.hostname);
+        inspectUrl(parsed.href, resource.category === 'script' ? 'provider_script' : 'provider_request', browserScan.finalUrl || testedOrigin, { forceRelevant: true });
+      }
       if (resource.category === 'script' && paymentScript(resource.url)) hostedFieldsObserved = true;
     } catch {}
   }
   const architecture = merchantFormObserved ? 'merchant_form' : hostedFieldsObserved ? 'hosted_fields' : iframeObserved ? 'iframe' : redirectObserved ? 'redirect' : 'unknown';
   const paymentFlowObserved = merchantFormObserved || hostedFieldsObserved || iframeObserved || redirectObserved;
   const paymentSignalsObserved = paymentFlowObserved || cardTerminologyObserved || providerHosts.size > 0;
+  const preciseSourceUrl = [...signalSourceUrls].sort((left, right) => {
+    const depth = (value) => { try { return new URL(value).pathname.split('/').filter(Boolean).length; } catch { return 0; } };
+    return depth(right) - depth(left);
+  })[0] || browserScan.finalUrl || pages.find((item) => item.found)?.finalUrl || pages.find((item) => item.found)?.url || testedOrigin || '';
+  const primaryObservation = observations.find((item) => item.paymentRelevant && item.sourceUrl === preciseSourceUrl) || observations.find((item) => item.paymentRelevant) || null;
   const evidenceItem = paymentSignalsObserved ? {
     evidenceId: 'payment_flow_observation',
     key: 'paymentFlow',
     label: 'Payment-flow or payment-scope signal',
-    sourceUrl: testedOrigin || browserScan.finalUrl || pages.find((item) => item.found)?.finalUrl || '',
+    testedOrigin: origin,
+    sourceUrl: preciseSourceUrl,
+    destinationUrl: primaryObservation?.destinationUrl || '',
+    providerHost: primaryObservation?.providerHost || [...providerHosts].filter(Boolean).sort()[0] || '',
+    observationKind: primaryObservation?.observationKind || (cardTerminologyObserved ? 'public_page_text' : architecture),
     excerpt: `Architecture: ${architecture}; provider hosts: ${[...providerHosts].filter(Boolean).sort().join(', ') || 'none observed'}; card terminology: ${cardTerminologyObserved ? 'observed' : 'not observed'}.`,
     evidenceText: `Architecture: ${architecture}; provider hosts: ${[...providerHosts].filter(Boolean).sort().join(', ') || 'none observed'}; card terminology: ${cardTerminologyObserved ? 'observed' : 'not observed'}.`,
     collectionMethod: 'bounded_public_and_runtime_payment_flow_analysis',
@@ -1001,6 +1067,7 @@ export function analyzePaymentFlowEvidence({ pages = [], browserScan = {}, teste
     limitations: ['Payment signals do not determine PCI DSS applicability, card-data handling, SAQ type, or validation obligations.']
   } : null;
   return {
+    testedOrigin: origin,
     paymentFlowObserved,
     paymentSignalsObserved,
     testedOriginParticipatesInPaymentFlow: paymentFlowObserved ? true : null,
@@ -1037,19 +1104,30 @@ function frameworkEvidenceStatements(id, evidenceItems = []) {
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).map((item) => ({
-    statementId: `statement_${id}_${item.evidenceId}`,
-    statement: `${item.label || item.key} public evidence observed`,
-    evidenceRefs: [item.evidenceId],
-    sourceUrls: [item.sourceUrl],
-    confidence: item.confidence || 'medium',
-    limitations: [...(item.limitations || ['Public evidence was observed but not independently verified.'])]
-  }));
+  }).map((item) => {
+    const trace = normalizeTraceabilityTuple(item, { sourceCheckId: item.sourceCheckId || `crawl:${item.key || 'public_evidence'}`, mappingIds: [] });
+    return {
+      statementId: `statement_${id}_${item.evidenceId}`,
+      statement: `${item.label || item.key} public evidence observed`,
+      evidenceRefs: [item.evidenceId],
+      artifactRefs: trace.artifactRefs,
+      sourceUrls: trace.sourceUrls,
+      collectionMethod: trace.collectionMethod,
+      collectionState: trace.collectionState,
+      observedAt: trace.observedAt,
+      confidence: trace.confidence,
+      evidenceStrength: trace.normalizedEvidenceStrength,
+      sourceCheckId: trace.sourceCheckId,
+      mappingIds: trace.mappingIds,
+      limitations: trace.limitations.length ? trace.limitations : ['Public evidence was observed but not independently verified.']
+    };
+  });
 }
 
 const FRAMEWORK_EVIDENCE_KEYS = {
   'iso-27001': ['encryption', 'accessControl', 'vulnerabilityMgmt', 'auditLogging', 'availabilityBackup', 'breachNotification'],
   gdpr: ['dataSubjectRights', 'consentManagement', 'consentInterfaceClaim', 'subprocessors', 'dataRetention', 'noAdvertisingCookiesClaim', 'noTrackingClaim'],
+  eprivacy: ['consentManagement', 'consentInterfaceClaim', 'noAdvertisingCookiesClaim', 'noTrackingClaim'],
   'soc-2': ['encryption', 'accessControl', 'vulnerabilityMgmt', 'auditLogging', 'availabilityBackup', 'breachNotification', 'subprocessors'],
   hipaa: ['healthcarePhi', 'hipaaApplicability', 'accessControl', 'auditLogging', 'breachNotification'],
   'pci-dss': ['paymentContext', 'paymentProcessing', 'pciApplicability'],
@@ -1069,6 +1147,9 @@ function frameworkEvidenceSummary(id, { checks, crawl, jurisdiction, frameworkAp
   if (id === 'gdpr') {
     applicability = inputState === 'applicable' ? 'applicable' : inputState === 'not_applicable' ? 'not_applicable' : 'requires_scope_confirmation';
     applicable = inputState === 'applicable' ? true : inputState === 'not_applicable' ? false : null;
+  } else if (id === 'eprivacy') {
+    applicability = inputState === 'applicable' ? 'applicable' : inputState === 'not_applicable' ? 'not_applicable' : 'requires_scope_confirmation';
+    applicable = inputState === 'applicable' ? true : inputState === 'not_applicable' ? false : null;
   } else if (id === 'hipaa') {
     applicability = inputState === 'applicable' ? 'applicable' : inputState === 'not_applicable' ? 'not_applicable' : hipaaIndicated ? 'potentially_applicable' : 'not_indicated';
     applicable = inputState === 'applicable' ? true : inputState === 'not_applicable' ? false : null;
@@ -1079,18 +1160,22 @@ function frameworkEvidenceSummary(id, { checks, crawl, jurisdiction, frameworkAp
     applicability = inputState === 'not_applicable' ? 'not_applicable' : !jurisdiction ? 'requires_input' : inputState === 'applicable' ? 'applicable' : 'requires_scope_confirmation';
     applicable = inputState === 'applicable' && Boolean(jurisdiction) ? true : inputState === 'not_applicable' ? false : null;
   }
+  const applicabilityDisplay = applicabilityPresentation(applicability, { inputState });
   const base = {
     id,
     label: FRAMEWORKS[id].label,
     applicable,
     applicability,
     applicabilityInput: inputState,
-    applicabilityLabel: ({ selected_for_mapping: 'Selected for mapping', applicable: 'Applicable', not_applicable: 'Not applicable', potentially_applicable: 'Potentially applicable', not_indicated: 'Not indicated', requires_scope_confirmation: 'Scope confirmation required', requires_input: 'Input required' })[applicability],
+    applicabilityLabel: applicabilityDisplay.label,
+    selectedForMapping: true,
+    selectionLabel: applicabilityDisplay.selectionLabel,
     publicEvidence: [],
     technicalControls: [],
     missingEvidence: [],
     certification: 'No public certification proof was verified by this website scan.',
     manualReviewRequired: true,
+    manualReviewReasons: frameworkManualReviewReasons({ id, applicability }),
     scopeBasis: ['applicable', 'not_applicable'].includes(inputState)
       ? 'operator_assertion'
       : ['iso-27001', 'soc-2'].includes(id)
@@ -1173,6 +1258,14 @@ function frameworkEvidenceSummary(id, { checks, crawl, jurisdiction, frameworkAp
     const consentRuntimeCheck = checks.find((check) => check.id === 'privacy-runtime-verification');
     if (consentRuntimeCheck?.status === 'warning') base.missingEvidence.push('Consent-interface claim not verified at runtime');
     else if (consentRuntimeCheck?.status === 'manual') base.missingEvidence.push('Consent-interface runtime verification');
+  } else if (id === 'eprivacy') {
+    if (applicability === 'requires_scope_confirmation') base.missingEvidence.push('ePrivacy territorial/material scope and national implementation confirmation');
+    if (hasEvidence('consentManagement')) base.publicEvidence.push('Consent-management evidence found');
+    if (hasEvidence('consentInterfaceClaim')) base.publicEvidence.push('Consent-interface claim found; runtime verification reported separately');
+    const consentBehavior = checks.find((check) => check.id === 'consent-behavior');
+    if (!consentBehavior || !['confirmed', 'observed'].includes(consentBehavior.testState)) base.missingEvidence.push('Bounded terminal storage/access and consent-ordering evidence');
+    base.missingEvidence.push('Strictly-necessary exception and legal consent requirement review');
+    base.note = 'ePrivacy Directive evidence is reported separately from GDPR. Bounded network/cookie/storage observations do not determine Article 5(3) applicability, an exception, or a violation.';
   } else if (id === 'hipaa') {
     const relevant = hipaaIndicated || applicability === 'applicable';
     if (applicability === 'potentially_applicable' || (applicability === 'applicable' && !hipaaIndicated)) base.missingEvidence.push('HIPAA covered-entity/business-associate and PHI scope evidence');
@@ -1203,11 +1296,12 @@ function frameworkEvidenceSummary(id, { checks, crawl, jurisdiction, frameworkAp
     const recognizedJurisdictions = resolveLocalJurisdictions(jurisdiction);
     base.localRegulations = recognizedJurisdictions;
     if (jurisdiction) base.publicEvidence.push(`Jurisdiction configured: ${jurisdiction}`);
-    if (recognizedJurisdictions.length) base.publicEvidence.push(`Built-in mappings available: ${recognizedJurisdictions.map((item) => item.label).join(', ')}`);
+    if (recognizedJurisdictions.length) base.publicEvidence.push(`Official local-law instrument metadata identified for manual review: ${recognizedJurisdictions.map((item) => item.label).join(', ')}`);
     if (hasPage('privacy')) base.publicEvidence.push('Privacy/legal page available');
     if (hasEvidence('dataSubjectRights')) base.publicEvidence.push('Rights/privacy language found');
     if (applicability === 'requires_scope_confirmation') base.missingEvidence.push('Local-law territorial/material scope confirmation');
     if (jurisdiction && !recognizedJurisdictions.length) base.missingEvidence.push('No built-in control mapping for the entered jurisdiction; legal mapping required');
+    if (recognizedJurisdictions.length) base.missingEvidence.push('Provision-level local-law mapping by a qualified legal reviewer');
     base.missingEvidence.push('Jurisdiction-specific legal interpretation');
   }
 
@@ -1222,14 +1316,29 @@ function frameworkEvidenceSummary(id, { checks, crawl, jurisdiction, frameworkAp
   }
   base.evidenceStatements = frameworkEvidenceStatements(id, base.evidenceItems);
   base.publicEvidence = base.evidenceStatements.map((statement) => statement.statement);
-  base.technicalEvidenceStatements = checks.filter((check) => check.frameworks.includes(id) && ['pass', 'fail', 'warning'].includes(check.status)).map((check) => ({
-    statementId: `statement_${id}_check_${check.id}`,
-    statement: `${check.title}: ${check.summary}`,
-    evidenceRefs: [`check:${check.id}`],
-    sourceUrls: [check.affectedUrl].filter(Boolean),
-    confidence: check.confidence || 'observed',
-    limitations: [...(check.limitations || [])]
-  }));
+  if (id === 'local' && jurisdiction) {
+    base.publicEvidence.push(`Jurisdiction configured: ${jurisdiction}`);
+    if (base.localRegulations?.length) base.publicEvidence.push(`Official local-law instrument metadata identified for manual review: ${base.localRegulations.map((item) => item.label).join(', ')}`);
+  }
+  base.technicalEvidenceStatements = checks.filter((check) => check.frameworks.includes(id) && ['pass', 'fail', 'warning'].includes(check.status)).map((check) => {
+    const evidenceItems = (check.evidenceItems || []).map((item) => normalizeTraceabilityTuple(item, { sourceCheckId: check.id, observedAt: check.observedAt || '', sourceUrl: check.affectedUrl || '', limitations: check.limitations || [] }));
+    const trace = evidenceItems[0] || normalizeTraceabilityTuple({ evidenceId: `check:${check.id}`, sourceUrl: check.affectedUrl || '', collectionMethod: check.collectionMethod, collectionState: check.collectionState || check.testState, observedAt: check.observedAt || '', confidence: check.evidenceConfidence || check.confidence, evidenceStrength: 'contextual', limitations: check.limitations || [] }, { sourceCheckId: check.id, mappingIds: [] });
+    return {
+      statementId: `statement_${id}_check_${check.id}`,
+      statement: `${check.title}: ${check.summary}`,
+      evidenceRefs: evidenceItems.length ? evidenceItems.map((item) => item.evidenceId).filter(Boolean) : [`check:${check.id}`],
+      artifactRefs: [...new Set(evidenceItems.flatMap((item) => item.artifactRefs || []))],
+      sourceUrls: trace.sourceUrls,
+      collectionMethod: trace.collectionMethod,
+      collectionState: trace.collectionState,
+      observedAt: trace.observedAt,
+      confidence: trace.confidence,
+      evidenceStrength: trace.normalizedEvidenceStrength,
+      sourceCheckId: check.id,
+      mappingIds: [],
+      limitations: trace.limitations
+    };
+  });
   base.statementTraceability = [...base.evidenceStatements, ...base.technicalEvidenceStatements];
   return base;
 }
@@ -1238,7 +1347,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   const projectName = String(config.projectName || '').trim();
   const targetUrl = String(config.targetUrl || '').trim();
   const jurisdiction = String(config.jurisdiction || '').trim();
-  const frameworks = Array.isArray(config.frameworks) ? [...new Set(config.frameworks.filter((id) => FRAMEWORKS[id]))] : Object.keys(FRAMEWORKS);
+  const requestedFrameworks = Array.isArray(config.frameworks) ? [...new Set(config.frameworks.filter((id) => FRAMEWORKS[id]))] : Object.keys(FRAMEWORKS).filter((id) => id !== 'eprivacy');
+  const frameworks = requestedFrameworks.includes('gdpr') && !requestedFrameworks.includes('eprivacy')
+    ? requestedFrameworks.flatMap((id) => id === 'gdpr' ? ['gdpr', 'eprivacy'] : [id])
+    : requestedFrameworks;
   const frameworkApplicabilityInput = normalizeFrameworkApplicability(config.frameworkApplicability);
   const crawlEnabled = config.crawl !== false;
   const maxCrawlPages = Math.max(1, Math.min(25, Number(config.maxCrawlPages) || 10));
@@ -1321,13 +1433,21 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     }));
     const authenticatedPages = browserScan.authenticatedPages || [];
     const failedPages = authenticatedPages.filter((page) => page.state === 'failed_to_test');
+    const authenticatedCrawlState = authenticatedPages.length ? (failedPages.length ? 'observed' : 'confirmed') : authState === 'failed_to_test' ? 'failed_to_test' : 'not_tested';
     checks.push(result({
       id: 'authenticated-crawl', title: `Authenticated crawl (${authentication.role})`, category: 'Authenticated coverage',
-      status: authenticatedPages.length ? 'info' : 'manual',
-      summary: authenticatedPages.length ? `${authenticatedPages.length} same-origin authenticated page(s) were visited; ${failedPages.length} failed to load.` : 'No additional same-origin authenticated pages were discovered or visited.',
+      status: authenticatedPages.length || authState === 'failed_to_test' ? 'info' : 'manual',
+      summary: authenticatedPages.length
+        ? `${authenticatedPages.length} same-origin authenticated page(s) were visited; ${failedPages.length} failed to load.`
+        : authState === 'failed_to_test'
+          ? 'Failed to test the authenticated crawl because the authenticated session was not established; no authenticated-route absence was asserted.'
+          : 'Authenticated route discovery was not assessed beyond the established session.',
       details: authenticatedPages.map((page) => `${page.status || 'failed'} ${page.finalUrl || page.url}${page.forms?.length ? ` (${page.forms.length} form(s))` : ''}`).join(' · '),
       affectedUrl: response.finalUrl,
-      testState: authenticatedPages.length ? (failedPages.length ? 'observed' : 'confirmed') : browserScan.authentication?.state === 'failed_to_test' ? 'failed_to_test' : 'not_tested',
+      testState: authenticatedCrawlState,
+      collectionState: authenticatedCrawlState === 'confirmed' ? 'completed' : authenticatedCrawlState === 'observed' ? 'partial' : authenticatedCrawlState,
+      collectionMethod: 'authenticated_browser',
+      negativeObservation: authenticatedCrawlState === 'failed_to_test' ? classifyNegativeObservation({ collectionState: 'failed_to_test' }) : authenticatedCrawlState === 'not_tested' ? classifyNegativeObservation({ collectionState: 'not_tested' }) : null,
       confidence: authenticatedPages.length ? 'observed' : 'not_tested',
       testMethod: 'Bounded same-origin authenticated browser crawl',
       limitations: ['Only safe GET navigation through discovered links was performed. Forms were inventoried but not submitted. Access-control and IDOR conclusions require explicit cross-role comparison.']
@@ -1336,19 +1456,25 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     const objectCandidates = authenticatedPages.filter((page) => /\/(users?|accounts?|orders?|patients?|records?)\/(?:\d+|[0-9a-f]{8}-[0-9a-f-]{27,})\b/i.test(new URL(page.finalUrl || page.url).pathname));
     checks.push(result({
       id: 'access-control-candidates', title: 'Access-control review candidates', category: 'Authenticated coverage',
-      status: adminCandidates.length ? 'warning' : 'manual',
-      severity: adminCandidates.length ? 'medium' : 'manual',
+      status: adminCandidates.length ? 'warning' : authState === 'failed_to_test' ? 'info' : 'manual',
+      severity: adminCandidates.length ? 'medium' : authState === 'failed_to_test' ? 'informational' : 'manual',
       summary: adminCandidates.length
         ? `${adminCandidates.length} admin-labeled route(s) returned a successful response to the configured normal-user role.`
         : objectCandidates.length
           ? `${objectCandidates.length} object-identifier route(s) require explicit cross-role authorization testing.`
-          : 'No admin-labeled or common object-identifier route was discovered for role comparison.',
+          : authState === 'failed_to_test'
+            ? 'Failed to test access-control route candidates because the authenticated session was not established; no candidate-route absence was asserted.'
+            : 'No admin-labeled or common object-identifier route was discovered within the bounded authenticated crawl.',
       details: [...adminCandidates, ...objectCandidates].map((page) => `${page.status} ${page.finalUrl || page.url}`).join(' · '),
       recommendation: 'Compare the same requests with anonymous, normal-user, manager, and admin sessions and confirm authorization is enforced server-side for each object and action.',
       affectedUrl: response.finalUrl,
-      testState: adminCandidates.length ? 'inferred' : 'not_tested',
-      confidence: adminCandidates.length ? 'inferred' : 'not_tested',
+      testState: adminCandidates.length || objectCandidates.length ? 'inferred' : authState === 'failed_to_test' ? 'failed_to_test' : 'not_tested',
+      collectionState: adminCandidates.length || objectCandidates.length ? 'partial' : authState === 'failed_to_test' ? 'failed_to_test' : 'not_tested',
+      collectionMethod: 'authenticated_browser',
+      negativeObservation: authState === 'failed_to_test' ? classifyNegativeObservation({ collectionState: 'failed_to_test' }) : null,
+      confidence: adminCandidates.length || objectCandidates.length ? 'inferred' : 'not_tested',
       testMethod: 'Authenticated route-name and object-identifier triage',
+      evidenceItems: [...adminCandidates, ...objectCandidates].map((page, index) => ({ evidenceId: `authenticated_access_candidate_${index + 1}`, artifactId: 'authenticated-pages', sourceUrl: page.finalUrl || page.url, collectionMethod: 'bounded_authenticated_crawl', sourceMethod: 'authenticated_route_observation', observedAt: startedAt, confidence: 'inferred', evidenceType: 'runtime_observation', evidenceStrength: 'contextual', evidenceText: `${page.status} ${page.finalUrl || page.url}`, observationKind: 'access_control_candidate', limitations: ['Route name and response status do not establish authorization correctness.'] })),
       limitations: ['Route names and HTTP success do not prove unauthorized data or action access. This is a candidate for controlled manual or cross-role verification, not a confirmed broken-access-control or IDOR finding.']
     }));
   }
@@ -1358,7 +1484,8 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     status: finalUrl.protocol === 'https:' ? 'pass' : 'fail',
     summary: finalUrl.protocol === 'https:' ? 'The final page is delivered over HTTPS.' : 'The final page is not delivered over HTTPS.',
     recommendation: finalUrl.protocol === 'https:' ? '' : 'Serve the entire website over HTTPS and redirect HTTP traffic to HTTPS.',
-    evidence: response.finalUrl
+    evidence: response.finalUrl,
+    affectedUrl: response.finalUrl
   }));
 
   let httpRedirect = null;
@@ -1367,12 +1494,12 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     try {
       const probe = await requestWithRedirects(httpUrl.href, { rejectUnauthorized: false, maxBodyBytes: 40_000 });
       httpRedirect = new URL(probe.finalUrl).protocol === 'https:';
-      checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: httpRedirect ? 'pass' : 'warning', summary: httpRedirect ? 'HTTP traffic redirects to HTTPS.' : 'HTTP traffic did not end on HTTPS.', recommendation: httpRedirect ? '' : 'Redirect all HTTP requests to the canonical HTTPS URL.', evidence: probe.redirectChain.map((item) => `${item.status} ${item.url}`).join(' → ') }));
+      checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: httpRedirect ? 'pass' : 'warning', summary: httpRedirect ? 'HTTP traffic redirects to HTTPS.' : 'HTTP traffic did not end on HTTPS.', recommendation: httpRedirect ? '' : 'Redirect all HTTP requests to the canonical HTTPS URL.', evidence: probe.redirectChain.map((item) => `${item.status} ${item.url}`).join(' → '), affectedUrl: httpUrl.href }));
     } catch (error) {
-      checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: 'info', summary: 'The HTTP redirect probe could not be completed.', details: describeError(error), recommendation: 'Verify manually that HTTP traffic is redirected to HTTPS.' }));
+      checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: 'info', summary: 'Failed to test the HTTP-to-HTTPS redirect; no redirect absence was asserted.', details: describeError(error), recommendation: 'Verify manually that HTTP traffic is redirected to HTTPS.', affectedUrl: httpUrl.href, testState: 'failed_to_test', collectionState: 'failed_to_test', collectionMethod: 'http_response', negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' }) }));
     }
   } else {
-    checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: 'fail', summary: 'The scanned page remains on HTTP.', recommendation: 'Configure a permanent redirect from HTTP to HTTPS.' }));
+    checks.push(result({ id: 'http-to-https', title: 'HTTP to HTTPS redirect', category: 'Transport security', status: 'fail', summary: 'The scanned page remains on HTTP.', recommendation: 'Configure a permanent redirect from HTTP to HTTPS.', affectedUrl: response.finalUrl }));
   }
 
   if (finalUrl.protocol === 'https:' && tlsAnalysis) {
@@ -1430,8 +1557,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       limitations: ['DNS resolver state and split-horizon DNS can affect this observation.']
     }));
   } else if (finalUrl.protocol === 'https:') {
-    checks.push(result({ id: 'certificate', title: 'Certificate status', category: 'Transport security', status: 'warning', summary: 'The response was delivered over HTTPS but certificate details could not be captured.', recommendation: 'Verify certificate status directly against the origin.', affectedUrl: response.finalUrl, references: [REFERENCES.sslLabs] }));
-    checks.push(result({ id: 'tls', title: 'TLS configuration', category: 'Transport security', status: 'warning', summary: 'The response was delivered over HTTPS but TLS protocol/cipher details could not be captured.', recommendation: 'Verify TLS protocol and cipher support directly against the origin.', affectedUrl: response.finalUrl, references: [REFERENCES.sslLabs] }));
+    checks.push(...tlsCollectionFailureChecks(response.finalUrl, strictTlsError));
   } else {
     checks.push(result({ id: 'certificate', title: 'Certificate status', category: 'Transport security', status: 'manual', summary: 'Certificate status is not applicable because the final page is not HTTPS.', recommendation: 'Serve the website over HTTPS with a valid TLS certificate.', affectedUrl: response.finalUrl, references: [REFERENCES.sslLabs] }));
     checks.push(result({ id: 'tls', title: 'TLS configuration', category: 'Transport security', status: 'fail', summary: 'No TLS connection was established because the final page is HTTP.', recommendation: 'Serve the website over HTTPS with a valid TLS certificate and modern TLS configuration.', affectedUrl: response.finalUrl, references: [REFERENCES.sslLabs] }));
@@ -1502,23 +1628,24 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   }));
 
   checks.push({ ...cookieChecks(response.setCookies, browserScan.cookies || []), affectedUrl: response.finalUrl, references: [REFERENCES.zapPassive] });
-  if (browserScan.available) {
-    checks.push(browserCookieChecks(browserScan.cookies || [], browserScan.finalUrl || response.finalUrl, browserScan));
-  } else {
-    checks.push(result({ id: 'runtime-cookies', title: 'Runtime browser cookies', category: 'Privacy & session', status: 'info', summary: browserScan.state === 'failed_to_test' ? 'Runtime cookie analysis failed to complete.' : 'Runtime cookies were not tested because browser scanning prerequisites were unavailable.', details: browserScan.error || '', recommendation: 'Verify the browser runtime prerequisite and retry the scan.', affectedUrl: response.finalUrl, testState: browserScan.state || 'failed_to_test', testMethod: 'Headless browser cookie snapshot', limitations: [browserScan.error] }));
-  }
+  checks.push(browserCookieChecks(browserScan.cookies || [], browserScan.finalUrl || response.finalUrl, browserScan));
 
   const firstPartyApiCalls = browserScan.available ? (browserScan.apiCalls || []).filter((url) => isFirstParty(url, response.finalUrl)) : [];
   const corsTargets = [response.finalUrl, ...firstPartyApiCalls];
   const corsObservations = await probeCors(corsTargets);
   const riskyCors = corsObservations.filter((item) => item.risky);
   const completedCors = corsObservations.filter((item) => !item.error);
+  const corsFailures = corsObservations.filter((item) => item.error);
   const testedApis = corsObservations.filter((item) => item.url !== response.finalUrl).length;
   checks.push(result({
     id: 'cors', title: 'Cross-Origin Resource Sharing (CORS)', category: 'Application exposure',
-    status: riskyCors.length ? 'warning' : completedCors.length ? 'pass' : 'info',
+    status: riskyCors.length ? 'warning' : completedCors.length && !corsFailures.length ? 'pass' : 'info',
     summary: riskyCors.length
       ? `${riskyCors.length} scanned resource(s) returned permissive CORS headers to a synthetic external Origin.`
+      : !completedCors.length
+        ? 'Failed to test CORS response behavior; no absence of permissive CORS was asserted.'
+        : corsFailures.length
+          ? `No permissive CORS headers were observed for ${completedCors.length} completed source(s); ${corsFailures.length} source(s) failed to test.`
       : testedApis
         ? 'No permissive CORS headers were observed on the main page or discovered API calls.'
         : 'No permissive CORS headers were observed on the main page; API endpoint coverage was limited.',
@@ -1527,6 +1654,9 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     affectedUrl: response.finalUrl,
     references: [REFERENCES.cors, REFERENCES.headers],
     testState: completedCors.length === corsObservations.length ? 'confirmed' : completedCors.length ? 'observed' : 'failed_to_test',
+    collectionState: completedCors.length === corsObservations.length ? 'completed' : completedCors.length ? 'partial' : 'failed_to_test',
+    collectionMethod: 'http_response',
+    negativeObservation: riskyCors.length ? null : !completedCors.length ? classifyNegativeObservation({ collectionState: 'failed_to_test' }) : corsFailures.length ? classifyNegativeObservation({ collectionState: 'partial', negativeObserved: true, boundary: 'completed_cors_sources', failedSources: corsFailures.map((item) => item.url) }) : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'tested_response' }),
     confidence: riskyCors.length ? 'observed' : completedCors.length ? 'observed' : 'not_tested',
     testMethod: 'Synthetic cross-origin HTTP response analysis',
     limitations: ['Only GET requests and a bounded set of public endpoints were tested.', ...corsObservations.filter((item) => item.error).map((item) => `${item.url}: ${item.error}`)]
@@ -1538,15 +1668,19 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   const mixedMatches = [...html.matchAll(/\b(?:src|href|action)\s*=\s*["'](http:\/\/[^"']+)["']/gi)].map((m) => m[1]).slice(0, 20);
   const browserMixed = browserScan.available ? (browserScan.mixedContent || []).map((item) => `${item.category}: ${item.url}`) : [];
   const mixedEvidence = [...new Set([...mixedMatches, ...browserMixed])].slice(0, 30);
+  const mixedEvidenceItems = [
+    ...(mixedMatches.length ? [{ evidenceId: 'mixed_content_static_html', artifactId: 'initial-http-response', sourceUrl: response.finalUrl, collectionMethod: 'initial_http_response', sourceMethod: 'static_html_analysis', observedAt: startedAt, confidence: 'confirmed', evidenceType: 'document_observation', evidenceStrength: 'direct_observation', evidenceText: mixedMatches.join(' · '), observationKind: 'static_insecure_reference', limitations: ['Static HTML covers only the captured response body.'] }] : []),
+    ...(browserMixed.length ? [{ evidenceId: 'mixed_content_browser_network', artifactId: 'browser-network', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_network', observedAt: startedAt, confidence: browserScan.state === 'confirmed' ? 'confirmed' : 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'direct_observation', evidenceText: browserMixed.join(' · '), observationKind: 'runtime_insecure_request', limitations: [...(browserScan.limitations || [])] }] : [])
+  ];
   checks.push(result({
     id: 'mixed-content', title: 'Mixed/insecure resource references', category: 'Page content',
-    status: finalUrl.protocol === 'https:' && mixedEvidence.length ? 'fail' : finalUrl.protocol === 'https:' && browserScan.state === 'observed' ? 'info' : finalUrl.protocol === 'https:' ? 'pass' : 'info',
+    status: finalUrl.protocol === 'https:' && mixedEvidence.length ? 'fail' : finalUrl.protocol === 'https:' && browserScan.state === 'confirmed' ? 'pass' : 'info',
     summary: finalUrl.protocol !== 'https:'
       ? 'Mixed-content enforcement is not applicable because the final page itself is not HTTPS.'
       : mixedEvidence.length
         ? `${mixedEvidence.length} insecure http:// reference/request${mixedEvidence.length === 1 ? '' : 's'} detected on an HTTPS page.`
-        : browserScan.state === 'observed'
-          ? 'No insecure references were observed in the static HTML or partial browser capture; runtime coverage is incomplete.'
+        : browserScan.state !== 'confirmed'
+          ? 'No insecure references were observed in the static HTML; browser runtime collection was incomplete or failed, so no full runtime absence is asserted.'
           : browserScan.available
           ? 'No static or runtime mixed-content requests were detected on the scanned HTTPS page.'
           : 'No direct http:// resource references were detected in the scanned HTML; runtime mixed content was not assessed.',
@@ -1554,41 +1688,66 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     recommendation: mixedEvidence.length ? 'Load page resources, embeds, and form actions over HTTPS.' : '',
     affectedUrl: response.finalUrl,
     references: [REFERENCES.zapPassive],
-    testState: browserScan.state === 'observed' && !mixedEvidence.length ? 'observed' : 'confirmed',
+    testState: browserScan.state === 'confirmed' ? 'confirmed' : 'observed',
+    collectionState: browserScan.state === 'confirmed' ? 'completed' : 'partial',
+    negativeObservation: !mixedEvidence.length ? classifyNegativeObservation({ collectionState: browserScan.state === 'confirmed' ? 'completed' : 'partial', negativeObserved: true, boundary: 'static_html', failedSources: browserScan.state === 'confirmed' ? [] : ['browser_runtime'] }) : null,
     confidence: mixedEvidence.length ? 'confirmed' : browserScan.state === 'observed' ? 'observed' : 'confirmed',
     testMethod: 'Static HTML and headless browser network analysis',
+    evidenceItems: mixedEvidenceItems,
     limitations: browserScan.limitations || []
   }));
 
   const passwordInputs = (html.match(/<input\b[^>]*\btype\s*=\s*["']password["'][^>]*>/gi) || []).length;
-  checks.push(result({ id: 'password-transport', title: 'Password transport', category: 'Page content', status: passwordInputs && finalUrl.protocol !== 'https:' ? 'fail' : 'pass', summary: passwordInputs ? (finalUrl.protocol === 'https:' ? 'Password fields detected on an HTTPS page.' : 'Password fields were detected on an insecure HTTP page.') : 'No password field was detected in the scanned HTML.', recommendation: passwordInputs && finalUrl.protocol !== 'https:' ? 'Never collect passwords over HTTP.' : '' }));
+  checks.push(result({ id: 'password-transport', title: 'Password transport', category: 'Page content', status: passwordInputs && finalUrl.protocol !== 'https:' ? 'fail' : 'pass', summary: passwordInputs ? (finalUrl.protocol === 'https:' ? 'Password fields detected on an HTTPS page.' : 'Password fields were detected on an insecure HTTP page.') : 'No password field was detected in the scanned HTML.', recommendation: passwordInputs && finalUrl.protocol !== 'https:' ? 'Never collect passwords over HTTP.' : '', affectedUrl: response.finalUrl }));
 
   const privacyDetected = detectPrivacyPolicySignal(html);
-  checks.push(result({ id: 'privacy', title: 'Privacy policy signal', category: 'Privacy & transparency', status: privacyDetected ? 'pass' : 'manual', summary: privacyDetected ? 'A privacy-policy signal/link was detected in the scanned HTML.' : 'A privacy-policy link was not confidently detected on this page.', recommendation: privacyDetected ? '' : 'Verify manually that users can easily access the applicable privacy notice.' }));
+  checks.push(result({ id: 'privacy', title: 'Privacy policy signal', category: 'Privacy & transparency', status: privacyDetected ? 'pass' : 'manual', summary: privacyDetected ? 'A privacy-policy signal/link was detected in the scanned HTML.' : 'No privacy-policy link was confidently observed in the tested initial HTML; this is a bounded page observation.', recommendation: privacyDetected ? '' : 'Verify manually that users can easily access the applicable privacy notice.', testState: 'confirmed', collectionState: 'completed', collectionMethod: 'http_response', negativeObservation: privacyDetected ? null : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'tested_response' }) }));
 
   const consentDetected = /cookie.{0,80}(?:consent|preferences|settings|accept|reject)|(?:consent|preferences).{0,80}cookie/is.test(html);
-  checks.push(result({ id: 'consent', title: 'Cookie consent signal', category: 'Privacy & transparency', status: consentDetected ? 'pass' : 'manual', summary: consentDetected ? 'Cookie-consent/preference text was detected.' : 'No clear cookie-consent interface was detected in the initial HTML.', details: 'This check cannot determine whether consent behavior is legally sufficient.', recommendation: 'Verify consent requirements and behavior manually for the jurisdictions and tracking technologies that apply.' }));
+  checks.push(result({ id: 'consent', title: 'Cookie consent signal', category: 'Privacy & transparency', status: consentDetected ? 'pass' : 'manual', summary: consentDetected ? 'Cookie-consent/preference text was detected.' : 'No clear cookie-consent interface was observed in the tested initial HTML; browser behavior is assessed separately.', details: 'This check cannot determine whether consent behavior is legally sufficient.', recommendation: 'Verify consent requirements and behavior manually for the jurisdictions and tracking technologies that apply.', testState: 'confirmed', collectionState: 'completed', collectionMethod: 'http_response', negativeObservation: consentDetected ? null : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'tested_response' }) }));
 
   const runtimeConsentDetected = Boolean(browserScan.storage?.consentInterfaceDetected);
   const trackingBeforeChoice = Boolean(browserScan.trackingBeforeConsent || browserScan.trackingWithoutConsentInterface);
+  const failedConsentScenarios = (browserScan.consentScenarios || []).filter((scenario) => scenario.state === 'failed_to_test');
+  const consentCollectionState = browserScan.state === 'failed_to_test'
+    ? 'failed_to_test'
+    : failedConsentScenarios.length || browserScan.state === 'observed'
+      ? 'partial'
+      : browserScan.state === 'confirmed' && (trackingBeforeChoice || runtimeConsentDetected)
+        ? 'completed'
+        : 'not_tested';
+  const consentEvidenceItems = [
+    ...((browserScan.trackingRequests || []).length ? [{ evidenceId: 'consent_tracking_network_requests', artifactId: 'browser-network', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_network', observedAt: startedAt, confidence: browserScan.state === 'confirmed' ? 'confirmed' : 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'supporting_technical', evidenceText: browserScan.trackingRequests.map((request) => request.url).join(' · '), observationKind: 'network_request', limitations: ['Known-host matching does not determine request purpose, legal necessity, or whether terminal storage/access occurred.'] }] : []),
+    ...((browserScan.cookies || []).length ? [{ evidenceId: 'consent_cookie_snapshot', artifactId: 'browser-cookies', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_cookie_snapshot', observedAt: startedAt, confidence: 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'supporting_technical', evidenceText: `${browserScan.cookies.length} cookie metadata record(s) observed.`, observationKind: 'cookie_snapshot', limitations: ['A cookie snapshot does not establish when each cookie was written, its necessity, or legal consent requirements.'] }] : []),
+    ...((browserScan.storage?.localStorageKeys || []).length ? [{ evidenceId: 'consent_local_storage_snapshot', artifactId: 'browser-storage', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_storage_snapshot', observedAt: startedAt, confidence: 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'contextual', evidenceText: `${browserScan.storage.localStorageKeys.length} localStorage key name(s) observed.`, observationKind: 'local_storage_key_snapshot', limitations: ['Key-name presence does not establish when storage was written, its purpose, or legal consent requirements.'] }] : []),
+    ...(runtimeConsentDetected ? [{ evidenceId: 'consent_interface_runtime', artifactId: 'browser-storage', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_dom_observation', observedAt: startedAt, confidence: 'confirmed', evidenceType: 'runtime_observation', evidenceStrength: 'contextual', evidenceText: 'A consent interface was observed in the tested browser state.', observationKind: 'consent_interface', limitations: ['Interface presence does not establish valid consent or complete behavior across routes, locales, or visitor states.'] }] : [])
+  ];
   checks.push(result({
     id: 'consent-behavior', title: 'Tracking before consent interaction', category: 'Privacy & transparency',
-    status: trackingBeforeChoice ? 'warning' : browserScan.state === 'confirmed' && runtimeConsentDetected ? 'pass' : 'manual',
-    severity: trackingBeforeChoice ? 'medium' : 'manual',
+    status: trackingBeforeChoice ? 'warning' : failedConsentScenarios.length || browserScan.state === 'failed_to_test' ? 'info' : browserScan.state === 'confirmed' && runtimeConsentDetected ? 'pass' : 'manual',
+    severity: trackingBeforeChoice ? 'medium' : failedConsentScenarios.length || browserScan.state === 'failed_to_test' ? 'informational' : 'manual',
     summary: browserScan.trackingWithoutConsentInterface
       ? `${browserScan.trackingRequests.length} request(s) to known analytics/tracking hosts were observed in a fresh browser context and no consent interface was detected.`
       : browserScan.trackingBeforeConsent
         ? `${browserScan.trackingRequests.length} request(s) to known analytics/tracking hosts were observed during initial load before interaction with the detected consent interface.`
       : browserScan.state === 'confirmed' && runtimeConsentDetected
-        ? 'A consent interface was observed and no requests to the scanner\'s known tracking-host list were captured before interaction.'
+        ? failedConsentScenarios.length
+          ? `A consent interface was observed, but ${failedConsentScenarios.length} configured consent scenario(s) failed to test; no complete behavior absence was asserted.`
+          : 'A consent interface was observed and no requests to the scanner\'s known tracking-host list were captured before interaction.'
+        : browserScan.state === 'failed_to_test'
+          ? 'Failed to test consent ordering; no consent-interface or tracking absence was asserted.'
         : 'Consent ordering could not be assessed from the available browser evidence.',
     details: (browserScan.trackingRequests || []).map((request) => request.url).join(' · '),
     recommendation: trackingBeforeChoice ? 'Confirm the purpose and legal basis of each request and block non-essential tracking until the required consent is recorded.' : 'Review consent behavior against applicable jurisdictions, tracking purposes, and withdrawal requirements.',
     affectedUrl: response.finalUrl,
-    testState: browserScan.state === 'confirmed' ? (trackingBeforeChoice || runtimeConsentDetected ? 'confirmed' : 'not_tested') : browserScan.state || 'failed_to_test',
-    confidence: trackingBeforeChoice ? 'confirmed' : runtimeConsentDetected ? 'confirmed' : 'not_tested',
+    testState: consentCollectionState === 'completed' ? 'confirmed' : consentCollectionState === 'partial' ? 'observed' : consentCollectionState,
+    collectionState: consentCollectionState,
+    collectionMethod: 'browser_runtime',
+    negativeObservation: trackingBeforeChoice ? null : consentCollectionState === 'failed_to_test' ? classifyNegativeObservation({ collectionState: 'failed_to_test' }) : consentCollectionState === 'partial' ? classifyNegativeObservation({ collectionState: 'partial', negativeObserved: true, boundary: 'completed_consent_scenarios', failedSources: failedConsentScenarios.map((scenario) => scenario.scenario) }) : null,
+    confidence: trackingBeforeChoice ? 'confirmed' : consentCollectionState === 'completed' ? 'confirmed' : consentCollectionState === 'partial' ? 'observed' : 'not_tested',
     testMethod: 'Initial-load browser network and consent-interface observation',
-    limitations: ['Host matching cannot determine tracking purpose, legal basis, or jurisdictional applicability.', ...(browserScan.freshConsentContext ? [] : ['A stored browser session was reused, so a prior consent choice may have existed.']), ...(browserScan.limitations || [])]
+    evidenceItems: consentEvidenceItems,
+    limitations: ['Host matching cannot determine tracking purpose, legal basis, or jurisdictional applicability.', 'The observation does not determine whether storage/access occurred, whether consent was legally required, or whether an applicable strictly-necessary exception exists.', ...(browserScan.freshConsentContext ? [] : ['A stored browser session was reused, so a prior consent choice may have existed.']), ...(browserScan.limitations || [])]
   }));
 
   const staticThirdParty = findThirdPartyScripts(html, response.finalUrl);
@@ -1598,7 +1757,8 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       }).filter(Boolean))]
     : [];
   const thirdParty = [...new Set([...staticThirdParty, ...runtimeScriptHosts])];
-  checks.push(result({ id: 'third-party-scripts', title: 'Third-party scripts', category: 'Privacy & supply chain', status: thirdParty.length ? 'manual' : 'pass', summary: thirdParty.length ? `${thirdParty.length} third-party script host${thirdParty.length === 1 ? '' : 's'} detected.` : (browserScan.available ? 'No third-party script hosts were detected statically or at runtime.' : 'No third-party script hosts were detected in the initial HTML; runtime third-party scripts were not assessed.'), details: thirdParty.slice(0, 30).join(', '), recommendation: thirdParty.length ? 'Review each third-party script for necessity, data handling, contractual controls, consent requirements, and supply-chain risk.' : '', affectedUrl: response.finalUrl, references: [REFERENCES.zapPassive] }));
+  const thirdPartyCollectionComplete = browserScan.state === 'confirmed';
+  checks.push(result({ id: 'third-party-scripts', title: 'Third-party scripts', category: 'Privacy & supply chain', status: thirdParty.length ? 'manual' : thirdPartyCollectionComplete ? 'pass' : 'info', summary: thirdParty.length ? `${thirdParty.length} third-party script host${thirdParty.length === 1 ? '' : 's'} detected.` : (thirdPartyCollectionComplete ? 'No third-party script hosts were observed in the static HTML or bounded browser runtime.' : 'No third-party script hosts were observed in the static HTML; browser runtime collection was incomplete or failed.'), details: thirdParty.slice(0, 30).join(', '), recommendation: thirdParty.length ? 'Review each third-party script for necessity, data handling, contractual controls, consent requirements, and supply-chain risk.' : '', affectedUrl: response.finalUrl, references: [REFERENCES.zapPassive], testState: thirdPartyCollectionComplete ? 'confirmed' : 'observed', collectionState: thirdPartyCollectionComplete ? 'completed' : 'partial', collectionMethod: 'browser_runtime', negativeObservation: thirdParty.length ? null : classifyNegativeObservation({ collectionState: thirdPartyCollectionComplete ? 'completed' : 'partial', negativeObserved: true, boundary: 'static_html', failedSources: thirdPartyCollectionComplete ? [] : ['browser_runtime'] }) }));
 
   checks.push(result({
     id: 'browser-security', title: 'Browser runtime security observations', category: 'Browser/runtime evidence',
@@ -1629,7 +1789,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     const found = securityTxt.status >= 200 && securityTxt.status < 300 && /contact\s*:/i.test(securityTxt.body || '');
     checks.push(result({ id: 'security-txt', title: 'security.txt disclosure channel', category: 'Security operations', status: found ? 'pass' : 'info', summary: found ? 'A .well-known/security.txt file with a Contact field was detected.' : 'A usable .well-known/security.txt file was not detected.', recommendation: found ? '' : 'Consider publishing security.txt if a public vulnerability-reporting channel is appropriate for the organization.' }));
   } catch (error) {
-    checks.push(result({ id: 'security-txt', title: 'security.txt disclosure channel', category: 'Security operations', status: 'info', summary: 'security.txt could not be verified.', details: describeError(error) }));
+    checks.push(result({ id: 'security-txt', title: 'security.txt disclosure channel', category: 'Security operations', status: 'info', summary: 'Failed to test security.txt; no security.txt absence was asserted.', details: describeError(error), testState: 'failed_to_test', collectionState: 'failed_to_test', collectionMethod: 'http_response', negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' }) }));
   }
 
   // --- Website crawl for compliance evidence --------------------------------
@@ -1660,10 +1820,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
 
       const hasGroup = (g) => (evidence.pagesFoundByGroup[g] || []).length > 0;
 
-      checks.push(result({ id: 'evidence-privacy-page', title: 'Privacy policy document', category: 'Compliance evidence', status: hasGroup('privacy') ? 'pass' : 'manual', summary: hasGroup('privacy') ? `A privacy-related document was found or linked publicly: ${evidence.pagesFoundByGroup.privacy.join(', ')}. Document presence does not establish quality or legal sufficiency.` : 'No dedicated privacy policy document was discovered by crawling common paths and homepage links.', recommendation: hasGroup('privacy') ? '' : 'Publish a clearly linked privacy policy.' }));
-      checks.push(result({ id: 'evidence-security-page', title: 'Security/trust page', category: 'Compliance evidence', status: hasGroup('security') ? 'pass' : 'manual', summary: hasGroup('security') ? `A security/trust page was found: ${evidence.pagesFoundByGroup.security.join(', ')}` : 'No dedicated security or trust-center page was discovered.', recommendation: hasGroup('security') ? '' : 'Consider publishing a security/trust page describing controls and certifications.' }));
-      checks.push(result({ id: 'evidence-compliance-page', title: 'Compliance/legal page', category: 'Compliance evidence', status: (hasGroup('compliance') || hasGroup('terms')) ? 'pass' : 'manual', summary: (hasGroup('compliance') || hasGroup('terms')) ? `Compliance/legal or terms pages were found or linked publicly: ${[...(evidence.pagesFoundByGroup.compliance || []), ...(evidence.pagesFoundByGroup.terms || [])].join(', ')}` : 'No dedicated compliance or terms page was discovered.', recommendation: (hasGroup('compliance') || hasGroup('terms')) ? '' : 'Publish terms of service and, where applicable, a dedicated compliance/legal page.' }));
-      const evidenceFor = (key) => (evidence.evidenceItems || []).filter((item) => item.key === key);
+      checks.push(result({ id: 'evidence-privacy-page', title: 'Privacy policy document', category: 'Compliance evidence', status: hasGroup('privacy') ? 'pass' : 'manual', summary: hasGroup('privacy') ? `A privacy-related document was found or linked publicly: ${evidence.pagesFoundByGroup.privacy.join(', ')}. Document presence does not establish quality or legal sufficiency.` : 'No dedicated privacy policy document was observed within the bounded crawl of common paths and homepage links.', recommendation: hasGroup('privacy') ? '' : 'Publish a clearly linked privacy policy.', testState: 'confirmed', collectionState: 'completed', collectionMethod: 'crawl', negativeObservation: hasGroup('privacy') ? null : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'bounded_crawl' }) }));
+      checks.push(result({ id: 'evidence-security-page', title: 'Security/trust page', category: 'Compliance evidence', status: hasGroup('security') ? 'pass' : 'manual', summary: hasGroup('security') ? `A security/trust page was found: ${evidence.pagesFoundByGroup.security.join(', ')}` : 'No dedicated security or trust-center page was observed within the bounded crawl.', recommendation: hasGroup('security') ? '' : 'Consider publishing a security/trust page describing controls and certifications.', testState: 'confirmed', collectionState: 'completed', collectionMethod: 'crawl', negativeObservation: hasGroup('security') ? null : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'bounded_crawl' }) }));
+      checks.push(result({ id: 'evidence-compliance-page', title: 'Compliance/legal page', category: 'Compliance evidence', status: (hasGroup('compliance') || hasGroup('terms')) ? 'pass' : 'manual', summary: (hasGroup('compliance') || hasGroup('terms')) ? `Compliance/legal or terms pages were found or linked publicly: ${[...(evidence.pagesFoundByGroup.compliance || []), ...(evidence.pagesFoundByGroup.terms || [])].join(', ')}` : 'No dedicated compliance or terms page was observed within the bounded crawl.', recommendation: (hasGroup('compliance') || hasGroup('terms')) ? '' : 'Publish terms of service and, where applicable, a dedicated compliance/legal page.', testState: 'confirmed', collectionState: 'completed', collectionMethod: 'crawl', negativeObservation: (hasGroup('compliance') || hasGroup('terms')) ? null : classifyNegativeObservation({ collectionState: 'completed', negativeObserved: true, boundary: 'bounded_crawl' }) }));
+      const evidenceFor = (key) => (evidence.evidenceItems || []).filter((item) => item.key === key).map((item) => ({ ...item, artifactId: item.artifactId || 'crawl-pages' }));
       checks.push(result({ id: 'evidence-data-subject-rights', title: 'Data subject rights language', category: 'Compliance evidence', status: evidence.evidenceFound.dataSubjectRights ? 'pass' : 'manual', summary: evidence.evidenceFound.dataSubjectRights ? 'Language describing data subject rights (access, erasure, opt-out, etc.) was found on crawled pages.' : 'No explicit data subject rights language was found on crawled pages.', recommendation: evidence.evidenceFound.dataSubjectRights ? '' : 'Describe data subject rights (access, erasure, portability, opt-out) in the privacy policy.', evidenceItems: evidenceFor('dataSubjectRights') }));
       checks.push(result({ id: 'evidence-consent-management', title: 'Cookie/consent management evidence', category: 'Compliance evidence', status: evidence.evidenceFound.consentManagement ? 'pass' : 'manual', summary: evidence.evidenceFound.consentManagement ? 'Consent-management language or a known consent platform was detected on crawled pages.' : 'No consent-management platform or language was detected on crawled pages.', recommendation: evidence.evidenceFound.consentManagement ? '' : 'Verify an appropriate cookie-consent mechanism is deployed where required after qualified scope review.', evidenceItems: evidenceFor('consentManagement') }));
       checks.push(result({ id: 'evidence-breach-notification', title: 'Breach notification / incident response language', category: 'Compliance evidence', status: evidence.evidenceFound.breachNotification ? 'pass' : 'manual', summary: evidence.evidenceFound.breachNotification ? 'Breach notification or incident response language was found on crawled pages.' : 'No breach notification or incident response language was found on crawled pages.', recommendation: evidence.evidenceFound.breachNotification ? '' : 'Publish a summary of breach notification / incident response commitments where applicable.', evidenceItems: evidenceFor('breachNotification') }));
@@ -1678,7 +1838,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
         summary: policyQualityIssues.length ? `${policyQualityIssues.length} public policy page(s) contain apparent template, placeholder, or draft language.` : (evidence.policyDocuments || []).length ? 'No common template or draft marker was detected in the bounded policy-page text.' : 'No public policy document was available for quality analysis.',
         details: policyQualityIssues.map((item) => `${item.sourceUrl}: ${item.excerpt}`).join(' · '),
         recommendation: policyQualityIssues.length ? 'Have the document owner review and replace apparent template or draft content; this observation does not determine legal validity.' : '',
-        evidenceItems: policyQualityIssues.map((item) => ({ evidenceId: item.documentId, key: 'policyDocumentQuality', label: 'Policy document quality', sourceUrl: item.sourceUrl, evidenceText: item.excerpt, excerpt: item.excerpt, collectionMethod: item.collectionMethod, sourceMethod: 'public_policy_text', observedAt: item.observedAt, confidence: item.confidence, evidenceType: 'public_policy_text', evidenceStrength: 'direct_observation', limitations: item.limitations })),
+        evidenceItems: policyQualityIssues.map((item) => ({ evidenceId: item.documentId, key: 'policyDocumentQuality', label: 'Policy document quality', artifactId: 'crawl-pages', sourceUrl: item.sourceUrl, evidenceText: item.excerpt, excerpt: item.excerpt, collectionMethod: item.collectionMethod, sourceMethod: 'public_policy_text', observedAt: item.observedAt, confidence: item.confidence, evidenceType: 'public_policy_text', evidenceStrength: 'direct_observation', limitations: item.limitations })),
         confidence: policyQualityIssues.some((item) => item.confidence === 'high') ? 'confirmed' : 'observed',
         testMethod: 'Bounded public policy text quality heuristics',
         limitations: ['Template/draft matching does not determine whether a document is legally valid, complete, current, or applicable.']
@@ -1707,6 +1867,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       }));
     } catch (error) {
       crawl = { error: describeError(error), pagesScanned: 0, pages: [] };
+      checks.push(result({ id: 'public-evidence-crawl', title: 'Public evidence crawl', category: 'Compliance evidence', status: 'info', summary: 'Failed to test public evidence discovery; no public-document absence was asserted.', details: crawl.error, affectedUrl: response.finalUrl, testState: 'failed_to_test', collectionState: 'failed_to_test', collectionMethod: 'crawl', negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' }), limitations: ['Crawl failure does not establish that a public policy, security, compliance, or terms document is absent.'] }));
     }
   }
 
@@ -1716,7 +1877,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   // decide legal compliance; it identifies evidence that reviewers should
   // reconcile because the public notice and observed page behavior differ.
   if (crawl?.evidenceFound) {
-    const claimItems = relevantEvidenceItems(crawl, ['noAdvertisingCookiesClaim', 'noTrackingClaim']);
+    const claimItems = relevantEvidenceItems(crawl, ['noAdvertisingCookiesClaim', 'noTrackingClaim']).map((item) => ({ ...item, artifactId: item.artifactId || 'crawl-pages' }));
     if (claimItems.length) {
       const noAdvertisingClaim = Boolean(crawl.evidenceFound.noAdvertisingCookiesClaim);
       const noTrackingClaim = Boolean(crawl.evidenceFound.noTrackingClaim);
@@ -1741,7 +1902,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
         ].join(' · '),
         recommendation: contradictionObserved ? 'Review the observed services and cookies, then update either the runtime configuration or the privacy notice so the disclosure matches actual processing.' : '',
         affectedUrl: response.finalUrl,
-        evidenceItems: claimItems,
+        evidenceItems: [
+          ...claimItems,
+          ...(runtimeDetails.length ? [{ evidenceId: 'privacy_runtime_consistency_browser', artifactId: 'browser-network', artifactRefs: ['browser-network', ...(advertisingCookies.length ? ['browser-cookies'] : [])], sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_network_and_cookie_snapshot', observedAt: startedAt, confidence: browserScan.state === 'confirmed' ? 'confirmed' : 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'supporting_technical', evidenceText: runtimeDetails.join(' · '), observationKind: 'runtime_claim_comparison', limitations: ['Vendor/host matching cannot by itself determine each request purpose.'] }] : [])
+        ],
         testState: browserScan.state === 'confirmed' ? 'confirmed' : browserScan.state || 'failed_to_test',
         confidence: contradictionObserved && browserScan.state === 'confirmed' ? 'confirmed' : 'observed',
         testMethod: 'Crawled privacy-notice claim compared with initial-load browser requests and cookies',
@@ -1749,7 +1913,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       }));
     }
 
-    const consentClaimItems = relevantEvidenceItems(crawl, ['consentInterfaceClaim']);
+    const consentClaimItems = relevantEvidenceItems(crawl, ['consentInterfaceClaim']).map((item) => ({ ...item, artifactId: item.artifactId || 'crawl-pages' }));
     if (consentClaimItems.length) {
       const consentConsistency = assessPrivacyRuntimeConsistency({
         consentInterfaceClaim: true,
@@ -1773,7 +1937,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
         details: consentClaimItems.map((item) => `${item.sourceUrl}: ${item.keyword}`).join(' · '),
         recommendation: consentConsistency.consentClaimUnverified ? 'Verify that the interface is deployed for the tested locale and visitor state, then align the runtime behavior or privacy notice.' : '',
         affectedUrl: response.finalUrl,
-        evidenceItems: consentClaimItems,
+        evidenceItems: [
+          ...consentClaimItems,
+          ...(['confirmed', 'observed'].includes(browserScan.state) ? [{ evidenceId: 'privacy_runtime_consent_interface', artifactId: 'browser-storage', sourceUrl: browserScan.finalUrl || response.finalUrl, collectionMethod: 'headless_browser_runtime', sourceMethod: 'browser_dom_observation', observedAt: startedAt, confidence: browserScan.state === 'confirmed' ? 'confirmed' : 'observed', evidenceType: 'runtime_observation', evidenceStrength: 'contextual', evidenceText: browserScan.storage?.consentInterfaceDetected ? 'Consent interface observed.' : 'Consent interface not observed in the bounded runtime state.', observationKind: 'consent_interface', limitations: ['One bounded load does not establish behavior for every route, locale, region, or visitor state.'] }] : [])
+        ],
         testState: browserScan.state === 'confirmed' ? 'confirmed' : browserScan.state || 'failed_to_test',
         confidence: consentConsistency.consentClaimUnverified ? 'observed' : consentConsistency.consentClaimVerified ? 'confirmed' : 'not_tested',
         testMethod: 'Crawled privacy-notice claim compared with a fresh-context browser DOM observation',
@@ -1783,7 +1950,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   }
 
   const selectedSet = new Set(frameworks);
-  const filteredChecks = checks.map((check) => ({ ...check, frameworks: check.frameworks.filter((id) => selectedSet.has(id)) }));
+  const filteredChecks = checks.map((check) => ({ ...check, observedAt: check.observedAt || startedAt, frameworks: check.frameworks.filter((id) => selectedSet.has(id)) }));
   const frameworkResults = frameworks.map((id) => frameworkEvidenceSummary(id, { checks: filteredChecks, crawl, jurisdiction, frameworkApplicability: frameworkApplicabilityInput, paymentFlow }));
   const frameworkApplicability = Object.fromEntries(frameworkResults.map((framework) => [framework.id, framework.applicability]));
 
@@ -1797,15 +1964,16 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   let riskCount = totals.fail + totals.warning;
   let overallStatus = totals.fail ? 'high-attention' : totals.warning ? 'review' : 'good';
   const generatedAt = new Date().toISOString();
-  let findings = buildFindings(filteredChecks, { generatedAt, toolVersion: SCANNER_VERSION, frameworks, frameworkApplicability, jurisdiction, paymentFlow });
+  let findings = buildFindings(filteredChecks, { generatedAt, toolVersion: SCANNER_VERSION, frameworks, frameworkApplicability, jurisdiction, paymentFlow, defaultSourceUrl: response.finalUrl });
   const testResults = buildTestResults(filteredChecks, { generatedAt });
   const zapConfig = config.zap && typeof config.zap === 'object' ? config.zap : { mode: 'none' };
   const zapResult = await runZapScan(zapConfig, response.finalUrl);
   findings.push(...(zapResult.findings || []));
   findings = mergeFindingsByFingerprint(findings);
   if (zapResult.enabled) {
+    const zapEvidence = buildZapEvidenceMetadata(zapResult, response.finalUrl, generatedAt);
     testResults.push({
-      id: 'owasp-zap', title: `OWASP ZAP ${zapResult.mode} scan`, category: 'External scanner', outcome: zapResult.state === 'confirmed' ? 'pass' : 'info', state: zapResult.state, stateLabel: zapResult.stateLabel, confidence: zapResult.state === 'confirmed' ? 'confirmed' : zapResult.state === 'observed' ? 'observed' : 'not_tested', affectedUrl: response.finalUrl, summary: zapResult.state === 'confirmed' ? `ZAP completed and returned ${zapResult.alertCount} alert(s).` : `ZAP did not fully complete: ${zapResult.error}`, testMethod: 'OWASP ZAP Docker packaged scan', evidence: { type: 'zap_json_report', raw: `${zapResult.alertCount} alert(s)`, artifactId: 'zap-json-report' }, limitations: zapResult.limitations || []
+      id: 'owasp-zap', title: `OWASP ZAP ${zapResult.mode} scan`, category: 'External scanner', outcome: zapResult.state === 'confirmed' ? 'pass' : 'info', state: zapResult.state, collectionState: zapResult.collectionState || normalizeCollectionState(zapResult.state), collectionMethod: 'zap_passive', stateLabel: zapResult.stateLabel, confidence: 'unknown', legacyConfidence: zapResult.state === 'confirmed' ? 'confirmed' : zapResult.state === 'observed' ? 'observed' : 'not_tested', affectedUrl: response.finalUrl, summary: zapResult.state === 'confirmed' ? `ZAP completed and returned ${zapResult.alertCount} alert(s).` : `ZAP did not fully complete: ${zapResult.error}`, testMethod: 'OWASP ZAP Docker packaged scan', evidence: zapEvidence, evidenceItems: [zapEvidence], limitations: zapResult.limitations || []
     });
   }
   const evidenceLevel = authentication.enabled && (browserScan.authenticatedPages || []).length ? 'authenticated_application' : 'public_url';
@@ -1830,10 +1998,14 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   const scopeEvidence = buildOperatorScopeEvidence({ frameworkApplicability: frameworkApplicabilityInput, jurisdiction, sourceUrl: response.finalUrl, observedAt: generatedAt });
 
   return {
-    schemaVersion: '2.2.0',
+    schemaVersion: '2.4.0',
     scannerVersion: SCANNER_VERSION,
     toolVersion: TOOL_VERSION,
     mappingCatalogVersion: MAPPING_CATALOG_VERSION,
+    relationshipDefinitions: RELATIONSHIP_DEFINITIONS,
+    relationshipDisclaimer: RELATIONSHIP_DISCLAIMER,
+    frameworkDefinitions: FRAMEWORK_DISPLAY_NAMES,
+    reviewReasonDefinitions: REVIEW_REASON_DEFINITIONS,
     reportType: 'security-compliance',
     assessmentType: 'compliance_pre_assessment',
     evidenceLevel,
@@ -1849,6 +2021,9 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     frameworkApplicability,
     scopeAssessment: Object.fromEntries(frameworkResultsWithControls.map((framework) => [framework.id, {
       state: framework.applicability,
+      label: framework.applicabilityLabel,
+      selectedForMapping: framework.selectedForMapping,
+      selectionLabel: framework.selectionLabel,
       basis: framework.scopeBasis,
       confidence: framework.scopeConfidence,
       decisionRequired: framework.scopeDecisionRequired,

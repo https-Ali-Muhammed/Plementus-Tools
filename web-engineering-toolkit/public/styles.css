@@ -1503,6 +1503,11 @@ body.modal-open { overflow: hidden; }
 #securitySection .security-review-form { display: grid; grid-template-columns: minmax(180px,.7fr) minmax(240px,1.4fr) auto; gap: 9px; align-items: end; margin-top: 9px; padding: 12px; background: rgba(7,12,24,.42); border-radius: 10px; }
 #securitySection .security-review-form textarea { min-height: 72px; padding: 10px 11px; font-size: 12px; }
 #securitySection .security-framework-results { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+#securitySection .security-relationship-legend { margin: 0 0 14px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.025); }
+#securitySection .security-relationship-legend > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 10px 0; }
+#securitySection .security-relationship-legend p { margin: 0; }
+#securitySection .security-relationship-legend p b, #securitySection .security-relationship-legend p span { display: block; }
+#securitySection .security-relationship-legend p span, #securitySection .security-relationship-legend small { color: var(--security-secondary); font-size: 11px; }
 #securitySection .security-framework-result.compact { padding: 15px; border: 0; background: rgba(255,255,255,.025); }
 #securitySection .security-framework-result .framework-result-head { align-items: flex-start; }
 #securitySection .security-framework-result .framework-result-head > span:first-child { color: #e8ecf5; font-size: 14px; font-weight: 800; }
@@ -1548,6 +1553,7 @@ body.modal-open { overflow: hidden; }
   #securitySection .security-run-card { position: static; }
   #securitySection .security-framework-grid,
   #securitySection .security-framework-results { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #securitySection .security-relationship-legend > div { grid-template-columns: 1fr; }
   #securitySection .security-finding-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
   #securitySection .security-finding-filters .field:first-child { grid-column: 1 / -1; }
   #securitySection .security-integrity-summary,

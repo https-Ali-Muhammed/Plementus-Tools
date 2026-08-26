@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { normalizeTraceabilityTuple } from './security-evidence-semantics.js';
 
 const ZAP_IMAGE = 'ghcr.io/zaproxy/zaproxy:stable';
 const ZAP_REFERENCE = 'https://www.zaproxy.org/docs/docker/';
@@ -48,13 +49,37 @@ function severityFor(alert) {
 
 function confidenceFor(alert) {
   const value = String(alert.confidence || '').toLowerCase();
-  if (value.includes('high') || value === '3') return 'confirmed';
-  if (value.includes('medium') || value === '2') return 'observed';
-  return 'inferred';
+  if (value.includes('high') || value === '3') return 'high';
+  if (value.includes('medium') || value === '2') return 'medium';
+  return 'low';
+}
+
+function legacyConfidenceFor(alert) {
+  const confidence = confidenceFor(alert);
+  return confidence === 'high' ? 'confirmed' : confidence === 'medium' ? 'observed' : 'inferred';
 }
 
 function referencesFor(alert) {
   return [...new Set([...(String(alert.reference || '').match(/https?:\/\/[^\s]+/g) || []), ZAP_REFERENCE])];
+}
+
+export function buildZapEvidenceMetadata(zapResult = {}, sourceUrl = '', observedAt = '') {
+  const artifactId = zapResult.rawReport ? 'zap-json-report' : 'zap-execution';
+  return normalizeTraceabilityTuple({
+    evidenceId: `zap_run_${hash([zapResult.mode || 'passive', sourceUrl, observedAt]).slice(0, 16)}`,
+    type: zapResult.rawReport ? 'zap_json_report' : 'zap_execution_record',
+    evidenceType: zapResult.rawReport ? 'zap_json_report' : 'zap_execution_record',
+    raw: `${zapResult.alertCount || 0} alert(s)`,
+    artifactId,
+    artifactRefs: [artifactId],
+    collectionMethod: 'zap_passive',
+    collectionState: zapResult.collectionState || zapResult.state || 'failed_to_test',
+    confidence: 'unknown',
+    evidenceStrength: 'provenance_only',
+    sourceUrl,
+    observedAt,
+    limitations: zapResult.limitations || []
+  }, { sourceCheckId: 'owasp-zap', mappingIds: [] });
 }
 
 export function normalizeZapAlerts(report = {}, { generatedAt = new Date().toISOString(), toolVersion = 'OWASP ZAP stable container' } = {}) {
@@ -65,16 +90,20 @@ export function normalizeZapAlerts(report = {}, { generatedAt = new Date().toISO
     const affectedUrl = instance.uri || alert.url || alert.siteName || '';
     const rawEvidence = [instance.method, instance.uri, instance.param ? `parameter=${instance.param}` : '', instance.evidence ? `evidence=${instance.evidence}` : '', instance.attack ? `attack=${instance.attack}` : ''].filter(Boolean).join(' | ');
     return {
-      schemaVersion: '1.0.0',
+      schemaVersion: '1.1.0',
       id: `ZAP_${pluginId.replace(/[^A-Za-z0-9]+/g, '_')}`,
       fingerprint: hash([pluginId, affectedUrl, instance.param, instance.evidence]),
       title: alert.alert || alert.name || `ZAP alert ${pluginId}`,
       category: 'OWASP ZAP',
       severity: severityFor(alert),
       confidence: confidenceFor(alert),
+      legacyConfidence: legacyConfidenceFor(alert),
+      collectionMethod: 'zap_passive',
+      collectionState: 'completed',
+      normalizedEvidenceStrength: 'supporting',
       status: 'open',
       affectedUrl,
-      evidence: { type: 'zap_alert', evidenceType: 'zap_alert', evidenceStrength: 'supporting_technical', sourceMethod: 'owasp_zap_alert', sourceUrl: affectedUrl, observedAt: generatedAt, confidence: confidenceFor(alert), raw: rawEvidence || alert.evidence || alert.otherinfo || '', artifactId: 'zap-json-report', limitations: ['ZAP output requires exploitability and false-positive review.'] },
+      evidence: { evidenceId: `zap_${pluginId}_${hash([affectedUrl, instance.param]).slice(0, 16)}`, type: 'zap_alert', evidenceType: 'zap_alert', evidenceStrength: 'supporting_technical', normalizedEvidenceStrength: 'supporting', collectionMethod: 'zap_passive', collectionState: 'completed', sourceMethod: 'owasp_zap_alert', sourceUrl: affectedUrl, sourceUrls: [affectedUrl].filter(Boolean), observedAt: generatedAt, confidence: confidenceFor(alert), legacyConfidence: legacyConfidenceFor(alert), raw: rawEvidence || alert.evidence || alert.otherinfo || '', artifactId: 'zap-json-report', artifactRefs: ['zap-json-report'], sourceCheckId: pluginId, mappingIds: [], limitations: ['ZAP output requires exploitability and false-positive review.'] },
       impact: alert.desc || alert.otherinfo || 'ZAP reported a condition that may affect application security.',
       recommendation: alert.solution || 'Review the ZAP alert and remediate the underlying condition.',
       references: referencesFor(alert),
@@ -135,6 +164,8 @@ export async function runZapScan(config = {}, targetUrl) {
       mode,
       image: ZAP_IMAGE,
       state: completed ? 'confirmed' : findings.length ? 'observed' : 'failed_to_test',
+      collectionMethod: 'zap_passive',
+      collectionState: completed ? 'completed' : findings.length ? 'partial' : 'failed_to_test',
       stateLabel: completed ? 'Technical Check Completed' : findings.length ? 'Observed' : 'Failed To Test',
       exitCode: execution.exitCode,
       timedOut: execution.timedOut,

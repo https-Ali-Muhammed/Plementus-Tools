@@ -1255,7 +1255,7 @@ function securityStatusLabel(status) {
 }
 
 function securityConfidenceLabel(status) {
-  return ({ confirmed: 'High — technical evidence', observed: 'Medium — observed', inferred: 'Low — inferred', not_assessed: 'Not assessed' })[status] || humanize(status);
+  return ({ high: 'High', medium: 'Medium', low: 'Low', asserted_not_verified: 'Asserted, not verified', unknown: 'Unknown', confirmed: 'Legacy confirmed — not normalized', observed: 'Legacy observed — not normalized', inferred: 'Legacy inferred — not normalized', not_assessed: 'Not assessed' })[status] || humanize(status || 'unknown');
 }
 
 function coverageLimitationCategory(item) {
@@ -1276,9 +1276,10 @@ function crawlSourceLabel(source = '', status = 0) {
 
 function findingFrameworks(finding) {
   const values = new Set();
-  for (const mapping of finding.controlMappings || []) values.add(mapping.framework || '');
+  for (const mapping of finding.controlMappings || []) values.add(/^EPRIVACY-|^GDPR-EPRIVACY-/i.test(mapping.controlId || '') ? 'eprivacy' : mapping.framework || '');
   for (const control of finding.controls || []) {
     if (/^ISO/i.test(control)) values.add('iso-27001');
+    else if (/^EPRIVACY-|^GDPR-EPRIVACY-/i.test(control)) values.add('eprivacy');
     else if (/^GDPR/i.test(control)) values.add('gdpr');
     else if (/^SOC/i.test(control)) values.add('soc-2');
     else if (/^HIPAA/i.test(control)) values.add('hipaa');
@@ -1288,9 +1289,15 @@ function findingFrameworks(finding) {
   return [...values].filter(Boolean);
 }
 
-function renderFindingCard(finding) {
+function securityMappingFrameworkLabel(mapping = {}, frameworkDefinitions = {}) {
+  const framework = /^EPRIVACY-|^GDPR-EPRIVACY-/i.test(mapping.controlId || '') ? 'eprivacy' : mapping.framework || '';
+  return frameworkDefinitions[framework] || ({ eprivacy: 'ePrivacy Directive', gdpr: 'GDPR', 'iso-27001': 'ISO/IEC 27001', 'soc-2': 'SOC 2', hipaa: 'HIPAA', 'pci-dss': 'PCI DSS', local: 'Local Regulations' })[framework] || humanize(framework);
+}
+
+function renderFindingCard(finding, presentation = {}) {
   const severityClass = ['critical', 'high'].includes(finding.severity) ? 'fail' : finding.severity === 'medium' ? 'warning' : 'info';
   const evidence = typeof finding.evidence === 'object' ? finding.evidence : { raw: finding.evidence || finding.details || '', type: '' };
+  const evidenceConfidence = finding.evidenceConfidence || evidence.evidenceConfidence || evidence.confidence || 'unknown';
   const reviewDecision = finding.reviewDecision || '';
   const reviewState = reviewDecision ? 'reviewed' : 'awaiting';
   const frameworks = findingFrameworks(finding);
@@ -1300,14 +1307,22 @@ function renderFindingCard(finding) {
       <span class="security-status ${severityClass}"><i></i>${escapeHtml(finding.severity || 'informational')}</span>
       <div class="security-finding-copy">
         <div class="security-finding-title-row"><h5>${escapeHtml(finding.title)}</h5><span class="security-review-badge finding-review-state ${reviewState}">${reviewDecision ? escapeHtml(humanize(reviewDecision)) : 'Awaiting review'}</span></div>
-        <div class="security-finding-meta"><span>${escapeHtml(finding.id || '')}</span><span>Confidence: ${escapeHtml(securityConfidenceLabel(finding.confidence || 'observed'))}</span>${finding.affectedUrl ? `<span class="security-url">${escapeHtml(finding.affectedUrl)}</span>` : ''}</div>
+        <div class="security-finding-meta"><span>${escapeHtml(finding.id || '')}</span><span>Evidence confidence: ${escapeHtml(securityConfidenceLabel(evidenceConfidence))}</span>${finding.affectedUrl ? `<span class="security-url">${escapeHtml(finding.affectedUrl)}</span>` : ''}</div>
         <p>${escapeHtml(finding.impact || finding.summary || '')}</p>
         ${finding.recommendation ? `<div class="security-recommendation flat"><strong>Recommendation</strong><span>${escapeHtml(finding.recommendation)}</span></div>` : ''}
         <div class="security-finding-actions">
           <details class="security-inline-details"><summary>Evidence &amp; mappings</summary><div class="security-detail-body">
             ${finding.testMethod ? `<p><strong>Test method</strong>${escapeHtml(finding.testMethod)}</p>` : ''}
             ${evidence.raw ? `<p><strong>Evidence (${escapeHtml(evidence.type || 'observation')})</strong><span class="security-evidence-text">${escapeHtml(evidence.raw)}</span></p>` : ''}
-            ${(finding.controlMappings || []).length ? `<p><strong>Candidate mappings</strong>${(finding.controlMappings || []).map((mapping) => `${escapeHtml(mapping.framework || '')} ${escapeHtml(mapping.controlId || '')} — ${escapeHtml(humanize(mapping.relationship || 'contextual'))}`).join('<br>')}</p>` : (finding.controls || []).length ? `<p><strong>Candidate mappings</strong>${escapeHtml(finding.controls.join(', '))}</p>` : ''}
+            ${(evidence.collectionMethod || evidence.collectionState || evidence.normalizedEvidenceStrength) ? `<p><strong>Traceability</strong>${[
+              evidence.collectionMethod ? `Method: ${humanize(evidence.collectionMethod)}` : '',
+              evidence.collectionState ? `Collection: ${humanize(evidence.collectionState)}` : '',
+              evidence.confidence ? `Confidence: ${humanize(evidence.confidence)}` : '',
+              evidence.normalizedEvidenceStrength ? `Strength: ${humanize(evidence.normalizedEvidenceStrength)}` : '',
+              evidence.observedAt ? `Observed: ${evidence.observedAt}` : '',
+              ...(evidence.artifactRefs || []).map((ref) => `Artifact: ${ref}`)
+            ].filter(Boolean).map(escapeHtml).join('<br>')}</p>` : ''}
+            ${(finding.controlMappings || []).length ? `<p><strong>Candidate mappings</strong>${(finding.controlMappings || []).map((mapping) => `${escapeHtml(securityMappingFrameworkLabel(mapping, presentation.frameworkDefinitions || {}))} ${escapeHtml(mapping.controlId || '')} — ${escapeHtml((presentation.relationshipDefinitions || {})[mapping.relationship]?.label || humanize(mapping.relationship || 'contextual'))}`).join('<br>')}</p>` : (finding.controls || []).length ? `<p><strong>Candidate mappings</strong>${escapeHtml(finding.controls.join(', '))}</p>` : ''}
             ${(finding.limitations || []).length ? `<p><strong>Limitations</strong>${escapeHtml(finding.limitations.join(' · '))}</p>` : ''}
             ${(finding.references || []).length ? `<p><strong>References</strong>${finding.references.map((ref) => `<a href="${escapeHtml(ref)}" target="_blank" rel="noopener">${escapeHtml(ref)}</a>`).join('<br>')}</p>` : ''}
           </div></details>
@@ -1369,13 +1384,17 @@ function renderSecurityResults(result) {
     (groups[category] ||= []).push(item);
     return groups;
   }, {});
+  const relationshipDefinitions = result.relationshipDefinitions || {};
+  const reviewReasonDefinitions = result.reviewReasonDefinitions || {};
+  const relationshipLegend = `<div class="security-relationship-legend"><strong>Mapping relationships</strong><div>${['direct', 'supporting', 'contextual'].map((relationship) => { const definition = relationshipDefinitions[relationship]; return definition ? `<p><b>${escapeHtml(definition.label)}</b><span>${escapeHtml(definition.shortDescription)}</span></p>` : ''; }).join('')}</div><small>${escapeHtml(result.relationshipDisclaimer || '')}</small></div>`;
+  const reviewReasonLabels = (reasons = []) => reasons.map((reason) => reviewReasonDefinitions[reason]?.label || humanize(reason));
   const frameworkCards = (result.frameworkResults || []).map((framework) => {
     const controls = framework.controlEvaluations || [];
     const evidenceCount = (framework.evidenceStatements || []).length + (framework.technicalEvidenceStatements || []).length;
     return `<article class="security-framework-result compact">
-      <div class="framework-result-head"><span>${escapeHtml(framework.label)}</span><span class="security-status manual">${escapeHtml(framework.applicabilityLabel || humanize(framework.applicability || 'selected_for_mapping'))}</span></div>
-      <div class="security-framework-metrics"><div><span>Evidence</span><strong>${evidenceCount ? 'Partial technical evidence' : 'Not assessed'}</strong></div><div><span>Candidate controls</span><strong>${controls.length}</strong></div><div><span>Scope</span><strong>${escapeHtml(humanize(framework.applicability || 'selected_for_mapping'))}</strong></div></div>
-      <details class="security-inline-details"><summary>View evidence</summary><div class="security-detail-body"><p><strong>Scope basis</strong>${escapeHtml(humanize(framework.scopeBasis || 'not_determined'))} · Confidence ${escapeHtml(humanize(framework.scopeConfidence || 'not_determined'))}</p><p><strong>Control satisfaction</strong>${escapeHtml(humanize(framework.controlSatisfaction || 'not_determined'))}</p>${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].length ? `<p><strong>Observed evidence</strong>${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].map((item) => escapeHtml(item.statement)).join('<br>')}</p>` : ''}${controls.length ? `<p><strong>Candidate controls</strong>${controls.map((control) => `${escapeHtml(control.controlId)} — ${escapeHtml(humanize(control.state))}`).join('<br>')}</p>` : ''}${(framework.missingEvidence || []).length ? `<p><strong>Limitations</strong>${framework.missingEvidence.map(escapeHtml).join('<br>')}</p>` : ''}</div></details>
+      <div class="framework-result-head"><span>${escapeHtml(result.frameworkDefinitions?.[framework.id] || framework.label)}</span><span class="security-status manual">${escapeHtml(framework.applicabilityLabel || 'Applicability not determined')}</span></div>
+      <div class="security-framework-metrics"><div><span>Evidence</span><strong>${evidenceCount ? 'Partial technical evidence' : 'Not assessed'}</strong></div><div><span>Candidate controls</span><strong>${controls.length}</strong></div><div><span>Mapping selection</span><strong>${escapeHtml(framework.selectionLabel || 'Selected for mapping')}</strong></div><div><span>Applicability</span><strong>${escapeHtml(framework.applicabilityLabel || 'Applicability not determined')}</strong></div></div>
+      <details class="security-inline-details"><summary>View evidence</summary><div class="security-detail-body"><p><strong>Scope basis</strong>${escapeHtml(humanize(framework.scopeBasis || 'not_determined'))} · Confidence ${escapeHtml(humanize(framework.scopeConfidence || 'not_determined'))}</p><p><strong>Control satisfaction</strong>${escapeHtml(humanize(framework.controlSatisfaction || 'not_determined'))}</p>${(framework.manualReviewReasons || []).length ? `<p><strong>Human review required</strong>${reviewReasonLabels(framework.manualReviewReasons).map(escapeHtml).join('<br>')}</p>` : ''}${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].length ? `<p><strong>Observed evidence</strong>${[...(framework.evidenceStatements || []), ...(framework.technicalEvidenceStatements || [])].map((item) => escapeHtml(item.statement)).join('<br>')}</p>` : ''}${controls.length ? `<p><strong>Candidate controls</strong>${controls.map((control) => { const sources = control.provenanceSummary?.sourceCheckCount ?? (control.automatedEvidence || []).length; const qualifiers = (control.coverageQualifiers || []).map(humanize).join(', ') || 'coverage complete for listed sources'; const reasons = reviewReasonLabels(control.manualReviewReasons || []); return `${escapeHtml(control.controlId)} — ${escapeHtml(humanize(control.state))}<br><small>${sources} technical observation${sources === 1 ? '' : 's'} (provenance breadth, not assurance strength) · ${escapeHtml(qualifiers)}</small>${reasons.length ? `<br><small>Human review required: ${reasons.map(escapeHtml).join(', ')}</small>` : ''}`; }).join('<br>')}</p>` : ''}${(framework.missingEvidence || []).length ? `<p><strong>Limitations</strong>${framework.missingEvidence.map(escapeHtml).join('<br>')}</p>` : ''}</div></details>
     </article>`;
   }).join('');
 
@@ -1389,6 +1408,14 @@ function renderSecurityResults(result) {
   const evidenceArtifacts = result.evidenceManifest?.artifacts || [];
   const evidenceHashes = evidenceArtifacts.filter((item) => /^[a-f0-9]{64}$/i.test(item.sha256 || '')).length;
   const evidenceRestricted = evidenceArtifacts.filter((item) => item.sensitive).length;
+  const integrityPresentation = result.integrityPresentation || {
+    artifactHashLabel: 'Artifacts with SHA-256 recorded',
+    artifactHashValue: `${evidenceHashes} / ${evidenceArtifacts.length}`,
+    manifestLabel: 'Manifest hash metadata',
+    manifestValue: evidenceArtifacts.length && evidenceHashes === evidenceArtifacts.length ? 'Complete metadata; Not verified in this view' : evidenceArtifacts.length ? 'Incomplete metadata; Not verified in this view' : 'No artifact metadata',
+    signatureLabel: 'Signature metadata',
+    signatureValue: result.reportManifest?.signature?.algorithm === 'hmac-sha256' ? 'HMAC signature recorded; Not verified in this view' : 'Not configured'
+  };
 
   const categories = [...new Set(findings.map((finding) => finding.category || 'Uncategorized'))].sort();
   const severities = [...new Set(findings.map((finding) => finding.severity || 'informational'))];
@@ -1425,17 +1452,17 @@ function renderSecurityResults(result) {
         <article class="security-evidence-card"><span>Payment-flow evidence</span><strong>${payment.paymentFlowObserved ? 'Observed / partial evidence' : 'Not determined'}</strong><dl><div><dt>Terminology</dt><dd>${payment.cardTerminologyObserved ? 'Observed' : 'Not observed'}</dd></div><div><dt>Provider evidence</dt><dd>${escapeHtml(payment.providerHosts?.join(', ') || 'Not observed')}</dd></div><div><dt>Architecture</dt><dd>${escapeHtml(humanize(payment.architecture || 'unknown'))}</dd></div><div><dt>Origin participation</dt><dd>${payment.testedOriginParticipatesInPaymentFlow === true ? 'Observed' : 'Unknown'}</dd></div><div><dt>Card-data handling</dt><dd>Not determined</dd></div></dl></article>
         <details class="security-evidence-card security-gdpr-matrix"><summary><div><span>GDPR public-notice evidence</span><strong>${escapeHtml(humanize(gdprAggregate))}</strong><small>${gdprMatrix.length} elements · Observed ${gdprCounts.observed || 0} · Partial ${gdprCounts.partially_observed || 0} · Not observed ${gdprCounts.not_observed || 0} · Not assessed ${gdprCounts.not_assessed || 0}</small></div><span class="button button-ghost small">View matrix</span></summary><div class="security-gdpr-grid">${gdprMatrix.map((item) => `<article><div><strong>${escapeHtml(humanize(item.element))}</strong><span class="security-status ${item.state === 'observed' ? 'pass' : item.state === 'partially_observed' ? 'warning' : item.state === 'failed_to_assess' ? 'fail' : 'manual'}">${escapeHtml(humanize(item.state))}</span></div>${item.evidenceItems?.[0]?.sourceUrl ? `<p>Source: ${escapeHtml(item.evidenceItems[0].sourceUrl)} · Confidence: ${escapeHtml(humanize(item.confidence))}</p>` : item.state === 'not_observed' ? '<p>No matching public evidence was observed. This does not determine GDPR compliance.</p>' : `<p>${escapeHtml(item.reason || 'No applicable assessment was performed.')}</p>`}${item.evidenceItems?.[0]?.excerpt ? `<details><summary>Evidence excerpt</summary><p>${escapeHtml(item.evidenceItems[0].excerpt)}</p></details>` : ''}</article>`).join('') || '<div class="empty-state">Matrix not assessed.</div>'}</div></details>
       </div>
-      ${result.evidenceManifest ? `<div class="security-integrity-summary"><div><span>Artifacts verified</span><strong>${evidenceHashes} / ${evidenceArtifacts.length}</strong></div><div><span>Manifest integrity</span><strong>${evidenceHashes === evidenceArtifacts.length ? 'Verified' : 'Review required'}</strong></div><div><span>Hash algorithm</span><strong>SHA-256</strong></div><div><span>Signature</span><strong>${result.reportManifest?.signature?.algorithm === 'hmac-sha256' ? 'Verified' : 'Not configured'}</strong></div><div><span>Restricted</span><strong>${evidenceRestricted}</strong></div><div><span>Metadata-safe</span><strong>${evidenceArtifacts.length - evidenceRestricted}</strong></div></div>` : ''}
+      ${result.evidenceManifest ? `<div class="security-integrity-summary"><div><span>${escapeHtml(integrityPresentation.artifactHashLabel)}</span><strong>${escapeHtml(integrityPresentation.artifactHashValue)}</strong></div><div><span>${escapeHtml(integrityPresentation.manifestLabel)}</span><strong>${escapeHtml(integrityPresentation.manifestValue)}</strong></div><div><span>Hash algorithm</span><strong>SHA-256 recorded</strong></div><div><span>${escapeHtml(integrityPresentation.signatureLabel)}</span><strong>${escapeHtml(integrityPresentation.signatureValue)}</strong></div><div><span>Restricted</span><strong>${evidenceRestricted}</strong></div><div><span>Metadata-safe</span><strong>${evidenceArtifacts.length - evidenceRestricted}</strong></div></div>` : ''}
     </section>
 
     <section id="securityFindings" class="security-workspace-section">
       <div class="security-section-title"><div><h4>Technical findings</h4><span>One-column review queue; filters affect this workspace view only.</span></div><span id="securityFindingVisibleCount" class="pill">${findings.length} shown</span></div>
       <div id="securityReview" class="security-review-toolbar"><div class="security-review-context"><label class="field"><span>Reviewing as</span><input id="securityReviewerContext" type="text" maxlength="80" placeholder="Reviewer name or role" autocomplete="off"></label><small>Used for review actions only; not stored in browser persistence.</small></div><div id="securityReviewProgress" class="security-review-progress"></div><small>Review decisions do not change the compliance conclusion or control satisfaction.</small></div>
       <div class="security-finding-filters" role="group" aria-label="Finding filters"><label class="field"><span>Search</span><input id="securityFindingSearch" type="search" placeholder="ID, title, cookie, URL…"></label><label class="field"><span>Severity</span><select id="securityFindingSeverity"><option value="all">All severities</option>${severities.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))}</option>`).join('')}</select></label><label class="field"><span>Category</span><select id="securityFindingCategory"><option value="all">All categories</option>${categories.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}</select></label><label class="field"><span>Review status</span><select id="securityFindingReview"><option value="all">All review states</option><option value="awaiting">Awaiting review</option><option value="reviewed">Reviewed</option></select></label><label class="field"><span>Framework mapping</span><select id="securityFindingFramework"><option value="all">All frameworks</option>${frameworkOptions}</select></label></div>
-      <div class="security-findings">${findings.map(renderFindingCard).join('') || '<div class="security-disclaimer"><strong>No normalized findings:</strong> No adverse conditions met the scanner finding thresholds. Review test coverage before drawing conclusions.</div>'}</div>
+      <div class="security-findings">${findings.map((finding) => renderFindingCard(finding, result)).join('') || '<div class="security-disclaimer"><strong>No normalized findings:</strong> No adverse conditions met the scanner finding thresholds. Review test coverage before drawing conclusions.</div>'}</div>
     </section>
 
-    <section id="securityMappings" class="security-workspace-section"><div class="security-section-title"><div><h4>Framework evidence &amp; candidate mappings</h4><span>Compact scope summaries; expand a framework for evidence and control detail.</span></div></div><div class="security-framework-results">${frameworkCards}</div></section>
+    <section id="securityMappings" class="security-workspace-section"><div class="security-section-title"><div><h4>Framework evidence &amp; candidate mappings</h4><span>Compact scope summaries; expand a framework for evidence and control detail.</span></div></div>${relationshipLegend}<div class="security-framework-results">${frameworkCards}</div></section>
 
     <section id="securityCrawl" class="security-workspace-section"><div class="security-section-title"><div><h4>Crawl results</h4><span>Successful evidence pages first; discovery failures remain available as diagnostics.</span></div></div>${crawlPages.length ? `<div class="security-crawl-metrics"><div><span>Successful pages</span><strong>${successfulPages.length}</strong></div><div><span>Redirects</span><strong>${redirectPages.length}</strong></div><div><span>Candidate paths tested</span><strong>${crawlPages.length}</strong></div><div><span>Not found</span><strong>${notFoundPages.length}</strong></div></div><div class="security-crawl-success">${successfulPages.map((page) => `<article><span class="security-crawl-badge status-${page.status}">${page.status || 200}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><strong>${escapeHtml(page.url)}</strong></article>`).join('') || '<div class="empty-state">No successful evidence pages were discovered.</div>'}</div>${unsuccessfulPages.length ? `<details class="security-summary-details security-crawl-failures"><summary><div><strong>Show ${unsuccessfulPages.length} unsuccessful discovery attempt${unsuccessfulPages.length === 1 ? '' : 's'}</strong><span>${notFoundPages.length} not found · ${failedPages.length} failed or skipped</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-crawl-diagnostics">${unsuccessfulPages.map((page) => `<article><span class="security-crawl-badge ${page.status === 404 ? 'status-404' : 'status-failed'}">${page.status || 'Failed'}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><div><strong>${escapeHtml(page.url)}</strong>${page.error ? `<small>${escapeHtml(page.error)}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : `<div class="empty-state">${escapeHtml(result.crawl?.error || 'Crawl evidence was not collected for this assessment.')}</div>`}</section>`;
 

@@ -50,6 +50,25 @@ test('coverage, framework evidence, GDPR matrix, review forms, and crawl failure
   assert.doesNotMatch(app, /security-reviewer-name/);
 });
 
+test('workspace presents coverage and source density as traceable provenance', () => {
+  assert.match(app, /<strong>Traceability<\/strong>/);
+  assert.match(app, /provenance breadth, not assurance strength/);
+  assert.match(app, /coverageQualifiers/);
+  assert.match(app, /finding\.evidenceConfidence \|\| evidence\.evidenceConfidence \|\| evidence\.confidence/);
+  assert.doesNotMatch(app, /confidence score|mapping score|readiness percentage|partially compliant/i);
+});
+
+test('workspace presents canonical relationship, applicability, and manual-review guidance', () => {
+  assert.match(app, /result\.relationshipDefinitions/);
+  assert.match(app, /Mapping relationships/);
+  assert.match(app, /result\.relationshipDisclaimer/);
+  assert.match(app, /selectionLabel/);
+  assert.match(app, /applicabilityLabel/);
+  assert.match(app, /manualReviewReasons/);
+  assert.match(app, /Human review required/);
+  assert.match(app, /ISO\/IEC 27001/);
+});
+
 test('finding filters are display-only, reset with each rendered result, and keep findings one-column', () => {
   for (const id of ['securityFindingSearch', 'securityFindingSeverity', 'securityFindingCategory', 'securityFindingReview', 'securityFindingFramework']) {
     assert.match(app, new RegExp(`id="${id}"`));

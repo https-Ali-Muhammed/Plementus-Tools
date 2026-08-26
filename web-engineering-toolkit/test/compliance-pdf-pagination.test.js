@@ -33,6 +33,9 @@ function fixtureSummary() {
   const longEvidence = `${longMachineUrl} · COOKIE_TRACKING_SECURE_MISSING · ` + Array.from({ length: 85 }, (_, index) => `https://example.test/evidence/path-${index + 1}?source=G-3FKJ4RP8QB&policy=strict-origin-when-cross-origin`).join(' · ');
   const eprivacy = mapping('EPRIVACY-DIR-2002-58-ART-5(3)', 1);
   eprivacy.mappings = [{ framework: 'gdpr', frameworkVersion: 'Directive 2002/58/EC', relationship: 'direct', sourceCitation: 'https://eur-lex.europa.eu/eli/dir/2002/58/oj', prerequisiteResults: [] }];
+  const soc2 = mapping('SOC2-CC6.7', 5);
+  soc2.manualReviewReasons = ['organizational_evidence_required'];
+  soc2.mappings = [{ mappingId: 'SOC2-CC6.7-FIXTURE', framework: 'soc-2', frameworkVersion: '2017 Trust Services Criteria (With Revised Points of Focus — 2022)', sourceVersion: '2017 Trust Services Criteria (With Revised Points of Focus — 2022)', relationship: 'supporting', sourceCitation: 'https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022', rationale: 'The technical observation is relevant to a narrow aspect of the candidate criterion but does not establish control satisfaction.', reviewStatus: 'internal_review_required', lastReviewedAt: '2026-08-26', reviewedBy: 'toolkit_mapping_governance', changeReason: 'Governance metadata added during Phase 2.2C.', approvedBy: null, prerequisiteResults: [] }];
   return {
     projectName: 'Deterministic Pagination Fixture',
     requestedUrl: 'https://elmoosa-pre.odoo.com/en',
@@ -64,6 +67,7 @@ function fixtureSummary() {
       mapping('ISO27001:TEST-MEDIUM-2', 7),
       mapping('ISO27001:TEST-LARGE', 150, 'LARGE-END-MARKER'),
       mapping('ISO27001:TEST-SMALL-3', 1),
+      soc2,
       eprivacy
     ],
     policyDocumentQuality: [],
@@ -146,6 +150,14 @@ test('Chromium print flow packs mappings, splits large mappings, and keeps findi
   assert.doesNotMatch(pdfText, /[\u00ad\u200b-\u200f\u202a-\u202e\u2060\u2066-\u2069\ufeff\ufffd]/);
   assert.match(pdfText, /Compliance conclusion:\s*Not determined/i);
   assert.match(pdfText, /Coverage:\s*Partial/i);
+  assert.match(pdfText, /ePrivacy Directive/);
+  assert.match(pdfText, /provenance breadth, not assurance strength/i);
+  assert.match(pdfText, /Evidence coverage:\s*Partial/i);
+  assert.match(pdfText, /Mapping relationships/i);
+  assert.match(pdfText, /No relationship type determines control satisfaction or compliance/i);
+  assert.match(pdfText, /Human review required/i);
+  assert.match(pdfText, /toolkit_mapping_governance/i);
+  assert.match(rawPdfText.replace(/\r?\n/g, ''), /2017-trust-services-criteria-with-revised-points-of-focus-2022/i);
 });
 
 test('native PDF projection excludes restricted browser and consent values', { timeout: 30_000 }, async (t) => {

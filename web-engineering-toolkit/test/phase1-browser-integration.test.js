@@ -62,8 +62,8 @@ test('controlled browser archetypes preserve conservative scope and payment sema
   const secureScan = scans.get('/secure-corporate');
   const eprivacyControls = secureScan.controlEvaluations.filter((control) => control.controlId.startsWith('EPRIVACY-'));
   assert.ok(eprivacyControls.length > 0, 'fixture should exercise canonical ePrivacy control projection');
-  assert.deepEqual(secureScan.frameworkResults.find((framework) => framework.id === 'gdpr').controlEvaluations.filter((control) => control.controlId.startsWith('EPRIVACY-')).map((control) => control.controlId), eprivacyControls.map((control) => control.controlId));
-  assert.equal(secureScan.frameworkResults.filter((framework) => framework.id !== 'gdpr').some((framework) => framework.controlEvaluations.some((control) => control.controlId.startsWith('EPRIVACY-'))), false);
+  assert.deepEqual(secureScan.frameworkResults.find((framework) => framework.id === 'eprivacy').controlEvaluations.map((control) => control.controlId), eprivacyControls.map((control) => control.controlId));
+  assert.equal(secureScan.frameworkResults.filter((framework) => framework.id !== 'eprivacy').some((framework) => framework.controlEvaluations.some((control) => control.controlId.startsWith('EPRIVACY-'))), false);
 });
 
 test('browser capability probe reports launch, navigation, and PDF independently', { timeout: 30_000 }, async (t) => {

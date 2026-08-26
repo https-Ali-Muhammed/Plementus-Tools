@@ -7,7 +7,7 @@ import test from 'node:test';
 import { AssetReportManager } from '../lib/asset-report-manager.js';
 import { buildLanguagePath } from '../lib/lighthouse-runner.js';
 import { buildControlEvaluations, buildFindings } from '../lib/security-finding-model.js';
-import { MAPPING_CATALOG_VERSION, SECURITY_MAPPING_REGISTRY } from '../lib/security-mapping-registry.js';
+import { EPRIVACY_ARTICLE_5_3_SOURCE, MAPPING_CATALOG_VERSION, SECURITY_MAPPING_REGISTRY } from '../lib/security-mapping-registry.js';
 import { SecurityReportManager, writeEvidenceArchive } from '../lib/security-report-manager.js';
 import { buildComplianceHtml } from '../lib/security-report-html.js';
 import { aggregateGdprPublicNoticeState, analyzePaymentFlowEvidence, analyzeReferrerPolicy, buildOperatorScopeEvidence, cookieChecks, detectPrivacyPolicySignal, extractLinkedEvidencePages, frameworkEvidenceSummary, normalizeConsentTestingConfig } from '../lib/security-scanner.js';
@@ -39,9 +39,11 @@ test('mapping registry records the conservative header relationships and catalog
   assert.deepEqual(hstsPci.prerequisites, ['pci_scope_confirmed_or_potential', 'tested_origin_participates_in_payment_flow']);
   assert.equal(cspIso.relationship, 'contextual');
   assert.equal(clickPci.relationship, 'contextual');
-  assert.equal(eprivacy.frameworkVersion, 'Directive 2002/58/EC');
-  assert.equal(eprivacy.sourceCitation, 'https://eur-lex.europa.eu/eli/dir/2002/58/oj');
-  assert.deepEqual(eprivacy.aliases, ['GDPR-EPRIVACY-ART-5(3)']);
+  assert.equal(eprivacy.framework, 'eprivacy');
+  assert.equal(eprivacy.frameworkVersion, 'Directive 2002/58/EC as amended by Directive 2009/136/EC');
+  assert.equal(eprivacy.relationship, 'supporting');
+  assert.equal(eprivacy.sourceCitation, EPRIVACY_ARTICLE_5_3_SOURCE);
+  assert.ok(eprivacy.aliases.includes('GDPR-EPRIVACY-ART-5(3)'));
   assert.equal(cspSoc.relationship, 'contextual');
   assert.ok(SECURITY_MAPPING_REGISTRY.every((item) => item.mappingVersion === MAPPING_CATALOG_VERSION));
 });
@@ -67,7 +69,7 @@ test('unknown mapping prerequisites preserve evidence but prevent elevation', ()
   const checks = [check('https', 'fail')];
   const { findings, controls } = findingsAndControls(checks, ['pci-dss'], { 'pci-dss': 'potentially_applicable' }, { paymentFlow: { testedOriginParticipatesInPaymentFlow: null } });
   assert.equal(findings.length, 1);
-  assert.equal(controls[0].state, 'contextual_evidence_observed');
+  assert.equal(controls[0].state, 'manual_review_required');
   const prerequisite = controls[0].mappings[0].prerequisiteResults.find((item) => item.prerequisite === 'tested_origin_participates_in_payment_flow');
   assert.equal(prerequisite.state, 'unknown');
 });
@@ -257,7 +259,8 @@ test('payment-flow model distinguishes no signal, generic wording, redirect, ifr
   const pci = frameworkEvidenceSummary('pci-dss', { checks: [], crawl: null, jurisdiction: '', frameworkApplicability: { 'pci-dss': 'unknown' }, paymentFlow: cardSignal });
   assert.equal(pci.applicability, 'potentially_applicable');
   assert.equal(pci.evidenceStatements[0].evidenceRefs[0], cardSignal.evidenceItems[0].evidenceId);
-  assert.equal(pci.evidenceStatements[0].sourceUrls[0], 'https://shop.test/');
+  assert.equal(pci.evidenceStatements[0].sourceUrls[0], 'https://shop.test/checkout');
+  assert.equal(cardSignal.evidenceItems[0].testedOrigin, 'https://shop.test');
 });
 
 test('consent scenarios are basic by default and bounded when explicitly enabled', () => {
@@ -367,7 +370,7 @@ test('Compliance report uses compact GDPR print output, evidence terminology, an
   assert.match(html, /strict-origin-when-cross-origin/);
   assert.match(html, /G-3FKJ4RP8QB/);
   assert.match(html, new RegExp(hash));
-  assert.match(html, /href="https:\/\/eur-lex\.europa\.eu\/eli\/dir\/2002\/58\/oj"/);
+  assert.match(html, /href="https:\/\/eur-lex\.europa\.eu\/eli\/dir\/2002\/58\/2009-12-19\/eng"/);
   assert.doesNotMatch(html, /[\u00ad\u200b-\u200f\u202a-\u202e\u2060\u2066-\u2069\ufeff\ufffd]/);
   assert.match(html, /Satisfaction<\/small>Not determined/);
 });

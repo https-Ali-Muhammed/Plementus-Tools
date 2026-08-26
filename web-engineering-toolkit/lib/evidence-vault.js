@@ -2,8 +2,9 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './utils.js';
+import { normalizeCollectionMethod, normalizeCollectionState, normalizeEvidenceConfidence } from './security-evidence-semantics.js';
 
-const EVIDENCE_VAULT_SCHEMA_VERSION = 3;
+const EVIDENCE_VAULT_SCHEMA_VERSION = 4;
 
 function now() { return new Date().toISOString(); }
 function id() { return `ev_${Date.now().toString(36)}_${crypto.randomBytes(5).toString('hex')}`; }
@@ -22,11 +23,15 @@ export class EvidenceVault {
       const evidence = (Array.isArray(data.evidence) ? data.evidence : []).map((item) => ({
         ...item,
         evidenceType: item.evidenceType || item.type || 'unknown',
-        evidenceStrength: item.evidenceStrength || (item.source === 'manual_upload' ? 'manual_evidence' : 'direct_observation'),
+        evidenceStrength: item.evidenceStrength || (item.source === 'manual_upload' ? 'manual_evidence' : 'provenance_only'),
+        semanticEvidenceStrength: item.semanticEvidenceStrength || (item.source === 'manual_upload' ? 'manual' : 'not_applicable'),
         sourceMethod: item.sourceMethod || (item.source === 'manual_upload' ? 'manual_reviewer_evidence' : 'automated_scan_artifact'),
+        collectionMethod: normalizeCollectionMethod(item.collectionMethod || item.sourceMethod || (item.source === 'manual_upload' ? 'manual_reviewer_evidence' : 'automated_scan_artifact')),
+        collectionState: normalizeCollectionState(item.collectionState || item.testState || 'completed'),
         sourceUrl: item.sourceUrl || '',
         observedAt: item.observedAt || item.collectedAt || '',
-        confidence: item.confidence || (item.source === 'manual_upload' ? 'manual_review_required' : 'confirmed'),
+        confidence: item.confidence || (item.source === 'manual_upload' ? 'asserted_not_verified' : 'unknown'),
+        evidenceConfidence: normalizeEvidenceConfidence(item.evidenceConfidence || item.confidence || (item.source === 'manual_upload' ? 'asserted_not_verified' : 'unknown')),
         limitations: Array.isArray(item.limitations) ? item.limitations : [],
         reviewState: item.reviewState || (item.source === 'manual_upload' ? 'legacy_manual_evidence' : 'automated')
       }));
@@ -54,15 +59,19 @@ export class EvidenceVault {
         reportName,
         type: artifact.type,
         evidenceType: artifact.type,
-        evidenceStrength: 'direct_observation',
+        evidenceStrength: 'provenance_only',
+        semanticEvidenceStrength: 'not_applicable',
         source: 'automated_scan',
         sourceMethod: 'automated_scan_artifact',
+        collectionMethod: 'artifact_only',
+        collectionState: 'completed',
         sourceUrl: manifest.scan?.finalUrl || manifest.scan?.requestedUrl || '',
         sourceReference: artifact.path,
         owner: 'security-scanner',
         collectedAt: manifest.generatedAt || now(),
         observedAt: manifest.generatedAt || now(),
-        confidence: 'confirmed',
+        confidence: 'unknown',
+        evidenceConfidence: 'unknown',
         reviewState: 'automated',
         limitations: ['Artifact presence and integrity are recorded; interpretation remains subject to the associated test limitations.'],
         hash: artifact.sha256,
