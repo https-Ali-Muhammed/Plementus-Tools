@@ -4,10 +4,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
+import { browserSkipReason, detectBrowserCapabilities } from '../lib/browser-capability.js';
 import { generateCompliancePdf } from '../lib/security-pdf.js';
 import { buildComplianceHtml } from '../lib/security-report-html.js';
+import { SecurityReportManager } from '../lib/security-report-manager.js';
+import { createComplianceSummary } from './fixtures/compliance-summary-fixture.js';
 
 const generatedAt = '2026-08-25T12:00:00.000Z';
+const longMachineUrl = 'https://example.test/very-long-path-with-hyphens?x=1&y=2';
 
 function mapping(controlId, evidenceCount, marker = '') {
   return {
@@ -26,7 +30,9 @@ function mapping(controlId, evidenceCount, marker = '') {
 }
 
 function fixtureSummary() {
-  const longEvidence = Array.from({ length: 85 }, (_, index) => `https://example.test/evidence/path-${index + 1}?source=G-3FKJ4RP8QB&policy=strict-origin-when-cross-origin`).join(' · ');
+  const longEvidence = `${longMachineUrl} · COOKIE_TRACKING_SECURE_MISSING · ` + Array.from({ length: 85 }, (_, index) => `https://example.test/evidence/path-${index + 1}?source=G-3FKJ4RP8QB&policy=strict-origin-when-cross-origin`).join(' · ');
+  const eprivacy = mapping('EPRIVACY-DIR-2002-58-ART-5(3)', 1);
+  eprivacy.mappings = [{ framework: 'gdpr', frameworkVersion: 'Directive 2002/58/EC', relationship: 'direct', sourceCitation: 'https://eur-lex.europa.eu/eli/dir/2002/58/oj', prerequisiteResults: [] }];
   return {
     projectName: 'Deterministic Pagination Fixture',
     requestedUrl: 'https://elmoosa-pre.odoo.com/en',
@@ -57,7 +63,8 @@ function fixtureSummary() {
       mapping('ISO27001:TEST-MEDIUM-1', 7),
       mapping('ISO27001:TEST-MEDIUM-2', 7),
       mapping('ISO27001:TEST-LARGE', 150, 'LARGE-END-MARKER'),
-      mapping('ISO27001:TEST-SMALL-3', 1)
+      mapping('ISO27001:TEST-SMALL-3', 1),
+      eprivacy
     ],
     policyDocumentQuality: [],
     localeCoverage: { state: 'single_locale_observed', contentLocalesDiscovered: ['en'], availableLocales: ['en'], policyLocalesTested: [], languageSignals: ['en', 'en-US'] },
@@ -87,12 +94,16 @@ function bboxPageUtilization(xml) {
 
 test('Chromium print flow packs mappings, splits large mappings, and keeps finding tails readable', { timeout: 30_000 }, async (t) => {
   if (spawnSync('pdftotext', ['-v'], { encoding: 'utf8' }).error) return t.skip('pdftotext is unavailable');
+  const capability = await detectBrowserCapabilities();
+  const capabilityReason = browserSkipReason(capability, 'pdf');
+  if (capabilityReason) return t.skip(capabilityReason);
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'compliance-pagination-fixture-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const summary = fixtureSummary();
   const htmlPath = path.join(root, 'summary.html');
   const pdfPath = path.join(root, 'summary.pdf');
   const textPath = path.join(root, 'summary.txt');
+  const rawTextPath = path.join(root, 'summary-raw.txt');
   const bboxPath = path.join(root, 'summary-bbox.html');
   const html = buildComplianceHtml(summary);
   fs.writeFileSync(htmlPath, html);
@@ -103,9 +114,12 @@ test('Chromium print flow packs mappings, splits large mappings, and keeps findi
   assert.equal(fs.readFileSync(pdfPath).subarray(0, 5).toString(), '%PDF-');
   const extracted = spawnSync('pdftotext', ['-layout', pdfPath, textPath], { encoding: 'utf8' });
   assert.equal(extracted.status, 0, extracted.stderr);
+  const rawExtracted = spawnSync('pdftotext', ['-raw', pdfPath, rawTextPath], { encoding: 'utf8' });
+  assert.equal(rawExtracted.status, 0, rawExtracted.stderr);
   const bbox = spawnSync('pdftotext', ['-bbox-layout', pdfPath, bboxPath], { encoding: 'utf8' });
   assert.equal(bbox.status, 0, bbox.stderr);
   const pdfText = fs.readFileSync(textPath, 'utf8');
+  const rawPdfText = fs.readFileSync(rawTextPath, 'utf8');
   const pages = pdfText.split('\f').filter((page) => page.trim());
 
   const smallOnePage = pageFor(pages, 'ISO27001:TEST-SMALL-1');
@@ -125,12 +139,78 @@ test('Chromium print flow packs mappings, splits large mappings, and keeps findi
   const bboxMappings = bboxPageUtilization(fs.readFileSync(bboxPath, 'utf8')).filter((page) => /ISO27001:TEST-(?:SMALL|MEDIUM|LARGE)|LARGE-END-MARKER/.test(page.text));
   assert.equal(bboxMappings.filter((page) => page.utilization < 0.45).length, 0, 'mapping pages should use at least 45% of printable height in this deterministic mixed fixture');
 
-  const compactText = pdfText.replace(/\s+/g, '');
-  assert.match(compactText, /https:\/\/elmoosa-pre\.odoo\.com\/en/);
-  assert.match(compactText, /strict-origin-when-cross-origin/);
-  assert.match(compactText, /G-3FKJ4RP8QB/);
-  assert.match(compactText, new RegExp('b'.repeat(64)));
+  const lineWrapNormalizedText = rawPdfText.replace(/\r?\n/g, '');
+  for (const exact of ['https://elmoosa-pre.odoo.com/en', longMachineUrl, 'strict-origin-when-cross-origin', 'EPRIVACY-DIR-2002-58-ART-5(3)', 'G-3FKJ4RP8QB', 'COOKIE_TRACKING_SECURE_MISSING', 'b'.repeat(64)]) {
+    assert.ok(rawPdfText.includes(exact) || lineWrapNormalizedText.includes(exact), `PDF extraction changed machine string: ${exact}`);
+  }
   assert.doesNotMatch(pdfText, /[\u00ad\u200b-\u200f\u202a-\u202e\u2060\u2066-\u2069\ufeff\ufffd]/);
   assert.match(pdfText, /Compliance conclusion:\s*Not determined/i);
   assert.match(pdfText, /Coverage:\s*Partial/i);
+});
+
+test('native PDF projection excludes restricted browser and consent values', { timeout: 30_000 }, async (t) => {
+  if (spawnSync('pdftotext', ['-v'], { encoding: 'utf8' }).error) return t.skip('pdftotext is unavailable');
+  const capability = await detectBrowserCapabilities();
+  const capabilityReason = browserSkipReason(capability, 'pdf');
+  if (capabilityReason) return t.skip(capabilityReason);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'compliance-pdf-redaction-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const secretValues = ['SECRET_PDF_TOKEN', 'SECRET_PDF_COOKIE', 'SECRET_PDF_STORAGE', 'SECRET_PDF_BODY', 'SECRET_PDF_SESSION_STATE'];
+  const summary = createComplianceSummary();
+  summary.browserScan = {
+    state: 'confirmed',
+    resources: [{ url: 'https://example.test/api', requestHeaders: { authorization: 'Bearer SECRET_PDF_TOKEN' }, responseHeaders: { 'set-cookie': 'session=SECRET_PDF_COOKIE' } }],
+    cookies: [{ name: 'session', value: 'SECRET_PDF_COOKIE', secure: true }],
+    sessionState: { cookies: [{ name: 'session', value: 'SECRET_PDF_SESSION_STATE' }], origins: [] },
+    storage: { localStorageKeys: ['session'], sessionStorageKeys: [], values: ['SECRET_PDF_STORAGE'] },
+    authenticatedPages: [{ url: 'https://example.test/account', bodyText: 'SECRET_PDF_BODY' }],
+    consentScenarios: [{ scenario: 'fresh_load', cookies: [{ name: 'session', value: 'SECRET_PDF_COOKIE' }], storage: { localStorageKeys: ['consent'], values: ['SECRET_PDF_STORAGE'] } }]
+  };
+  const saved = await new SecurityReportManager({ reportsRoot: root, browserPath: capability.browser.path }).save(summary);
+  const reportRoot = path.join(root, saved.reportName);
+  const textPath = path.join(root, 'redaction.txt');
+  const extracted = spawnSync('pdftotext', ['-raw', path.join(reportRoot, 'summary.pdf'), textPath], { encoding: 'utf8' });
+  assert.equal(extracted.status, 0, extracted.stderr);
+  const pdfText = fs.readFileSync(textPath, 'utf8');
+  for (const secret of secretValues) assert.equal(pdfText.includes(secret), false, `summary.pdf leaked ${secret}`);
+  assert.equal(saved.complianceConclusion, 'not_determined');
+  assert.equal(saved.coverage, 'partial');
+});
+
+test('GDPR-heavy report and large evidence table flow without empty internal pages', { timeout: 30_000 }, async (t) => {
+  if (spawnSync('pdftotext', ['-v'], { encoding: 'utf8' }).error) return t.skip('pdftotext is unavailable');
+  const capability = await detectBrowserCapabilities();
+  const capabilityReason = browserSkipReason(capability, 'pdf');
+  if (capabilityReason) return t.skip(capabilityReason);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'compliance-pdf-gdpr-evidence-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const elements = ['controller_identity', 'controller_contact', 'dpo_contact', 'processing_purposes', 'legal_bases', 'legitimate_interests', 'recipients', 'international_transfers', 'retention', 'data_subject_rights', 'complaint_right', 'data_source', 'automated_decision_making', 'statutory_contractual_requirement', 'withdrawal_right'];
+  const artifacts = Array.from({ length: 42 }, (_, index) => ({ id: `artifact-${String(index + 1).padStart(3, '0')}`, type: index % 2 ? 'application/json' : 'image/png', bytes: 1024 + index, sha256: index.toString(16).padStart(64, '0'), sensitive: index % 5 === 0 }));
+  const summary = createComplianceSummary({
+    projectName: 'GDPR and Evidence Pagination Fixture',
+    frameworks: ['gdpr'],
+    frameworkApplicability: { gdpr: 'unknown' },
+    gdprPublicNoticeMatrix: elements.map((element) => ({ element, state: 'not_assessed', confidence: 'not_assessed', evidenceItems: [] })),
+    gdprPublicNoticeAggregate: 'not_assessed',
+    evidenceManifest: { artifactCount: artifacts.length, artifacts }
+  });
+  const html = buildComplianceHtml(summary);
+  assert.match(html, /gdpr-compact-print print-only/);
+  assert.match(html, /notice-grid print-hide/);
+  const htmlPath = path.join(root, 'summary.html');
+  const pdfPath = path.join(root, 'summary.pdf');
+  const textPath = path.join(root, 'summary.txt');
+  fs.writeFileSync(htmlPath, html);
+  await generateCompliancePdf({ htmlPath, pdfPath, summary, browserPath: capability.browser.path });
+  const extracted = spawnSync('pdftotext', ['-layout', pdfPath, textPath], { encoding: 'utf8' });
+  assert.equal(extracted.status, 0, extracted.stderr);
+  const pdfText = fs.readFileSync(textPath, 'utf8');
+  const pages = pdfText.split('\f').filter((page) => page.trim());
+  assert.ok(pages.length >= 3, 'large evidence fixture should exercise multi-page flow');
+  assert.equal(pages.slice(1, -1).some((page) => page.replace(/\s+/g, '').length < 100), false, 'no internal page should be empty or nearly empty');
+  assert.match(pdfText, /Controller identity\s+Not assessed/i);
+  assert.equal((pdfText.match(/No applicable public-notice assessment was performed\./g) || []).length, 1);
+  assert.match(pdfText, /artifact-001/);
+  assert.match(pdfText, /artifact-042/);
+  assert.match(pdfText, new RegExp(artifacts.at(-1).sha256));
 });

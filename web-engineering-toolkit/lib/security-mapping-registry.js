@@ -1,4 +1,4 @@
-export const MAPPING_CATALOG_VERSION = '2026.08.25.1';
+export const MAPPING_CATALOG_VERSION = '2026.08.25.2';
 
 const FRAMEWORK_PREFIX = {
   'iso-27001': 'ISO27001:',
@@ -115,6 +115,7 @@ add('access-control-candidates', 'pci-dss', 'PCI-DSS-v4.0.1-7.2.1', 'contextual'
 export const SECURITY_MAPPING_REGISTRY = Object.freeze(registry);
 
 export function frameworkForControl(controlId = '') {
+  if (String(controlId).startsWith('EPRIVACY-')) return 'gdpr';
   return Object.entries(FRAMEWORK_PREFIX).find(([, prefix]) => String(controlId).startsWith(prefix))?.[0] || '';
 }
 

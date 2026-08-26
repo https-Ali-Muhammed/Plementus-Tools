@@ -4,7 +4,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { analyzeWebsiteAssets } from '../lib/asset-analyzer.js';
 import { AssetReportManager } from '../lib/asset-report-manager.js';
-import { detectBrowsers } from '../lib/environment-checker.js';
+import { browserSkipCode, browserSkipReason, detectBrowserCapabilities } from '../lib/browser-capability.js';
 import { runSingleLighthouse } from '../lib/lighthouse-runner.js';
 import { ReportManager } from '../lib/report-manager.js';
 import { SecurityReportManager } from '../lib/security-report-manager.js';
@@ -15,16 +15,17 @@ import { startSecurityLab } from '../test/fixtures/security-lab-server.js';
 const keep = process.argv.includes('--keep');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'web-toolkit-smoke-'));
 const reportsRoot = ensureDir(path.join(root, 'reports'));
-const lab = await startSecurityLab();
-let browserProcess;
+const browserProcesses = [];
+let lab;
 
 async function startCdpBrowser(executablePath) {
   const port = await findFreePort(9333);
   const profile = fs.mkdtempSync(path.join(root, 'lighthouse-profile-'));
-  browserProcess = spawn(executablePath, [
+  const processHandle = spawn(executablePath, [
     '--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`,
     '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check', 'about:blank'
   ], { stdio: 'ignore' });
+  browserProcesses.push(processHandle);
   for (let attempt = 0; attempt < 50; attempt += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${port}/json/version`, { signal: AbortSignal.timeout(500) });
@@ -35,64 +36,91 @@ async function startCdpBrowser(executablePath) {
   throw new Error('Headless browser did not expose the Lighthouse debugging endpoint.');
 }
 
+function skipped(reason) {
+  return { status: 'skipped', reason };
+}
+
+async function captureTool(name, operation) {
+  try {
+    return { status: 'passed', ...(await operation()) };
+  } catch (error) {
+    return { status: 'failed', reason: 'application_error', error: String(error?.stack || error?.message || error), tool: name };
+  }
+}
+
+const result = {
+  outputRoot: root,
+  environment: { browserDetected: false, browserLaunch: 'not_tested', navigation: 'not_tested', pdfRendering: 'not_tested' },
+  compliance: skipped('environment_not_checked'),
+  lighthouse: skipped('environment_not_checked'),
+  asset: skipped('environment_not_checked')
+};
+
 try {
-  const browsers = await detectBrowsers();
-  if (!browsers[0]?.path) throw new Error('No compatible browser is available for smoke testing.');
-  const browserPath = browsers[0].path;
-
-  const complianceScanStarted = performance.now();
-  const assessment = await scanWebsiteSecurity({
-    projectName: 'Toolkit Compliance Smoke', targetUrl: `${lab.baseUrl}/weak-cookies`,
-    frameworks: ['iso-27001', 'gdpr', 'soc-2'], crawl: false,
-    frameworkApplicability: { gdpr: 'unknown' }, preferredBrowserPath: browserPath
-  });
-  const complianceReportStarted = performance.now();
-  const compliance = await new SecurityReportManager({ reportsRoot, browserPath }).save(assessment);
-  const complianceReportMs = Math.round(performance.now() - complianceReportStarted);
-  const complianceRoot = path.join(reportsRoot, compliance.reportName);
-
-  const assetStarted = performance.now();
-  const assetAssessment = await analyzeWebsiteAssets({ projectName: 'Toolkit Asset Smoke', baseUrl: lab.baseUrl, paths: ['/'], device: 'desktop', preferredBrowserPath: browserPath });
-  const asset = await new AssetReportManager({ reportsRoot }).save(assetAssessment);
-  const assetMs = Math.round(performance.now() - assetStarted);
-
-  const lighthouseStarted = performance.now();
-  const debugPort = await startCdpBrowser(browserPath);
-  const lighthouseManager = new ReportManager({ reportsRoot });
-  const lighthouseConfig = { projectName: 'Toolkit Lighthouse Smoke', baseUrl: lab.baseUrl, mode: 'public', targetLanguage: 'en', defaultLanguage: 'en', devices: ['desktop'], categories: ['accessibility'], runsPerPage: 1, urls: ['/'] };
-  const { root: lighthouseRoot, runName: lighthouseReportName } = lighthouseManager.createRunDirectory(lighthouseConfig);
-  lighthouseManager.writeMetadata(lighthouseRoot, lighthouseConfig, { browser: browsers[0].name, debugPort });
-  const lighthouseRecord = await runSingleLighthouse({ config: lighthouseConfig, port: debugPort, root: lighthouseRoot, device: 'desktop', logicalPath: '/', iteration: 1 });
-  lighthouseManager.writeManifest(lighthouseRoot, [lighthouseRecord]);
-  const lighthouse = await lighthouseManager.generateSummary(lighthouseRoot, [lighthouseRecord], lighthouseConfig);
-
-  const pdfPath = path.join(complianceRoot, 'summary.pdf');
-  const manifest = JSON.parse(fs.readFileSync(path.join(complianceRoot, 'report-manifest.json'), 'utf8'));
-  const result = {
-    outputRoot: root,
-    browser: browsers[0],
-    compliance: {
-      reportName: compliance.reportName, status: 'completed', findings: compliance.findings.length,
-      html: fs.existsSync(path.join(complianceRoot, 'summary.html')), json: fs.existsSync(path.join(complianceRoot, 'summary.json')),
-      findingsCsv: fs.existsSync(path.join(complianceRoot, 'findings.csv')), xlsx: fs.existsSync(path.join(complianceRoot, 'summary.xlsx')),
-      pdf: fs.existsSync(pdfPath), pdfBytes: fs.statSync(pdfPath).size, manifest: manifest.files.some((entry) => entry.file === 'summary.pdf'),
-      evidenceAccess: compliance.evidenceManifest.access, assessmentMs: Math.round(complianceReportStarted - complianceScanStarted),
-      reportMs: complianceReportMs, htmlMs: compliance.reportGeneration?.htmlGenerationMs, pdfMs: compliance.pdfGeneration?.durationMs
-    },
-    lighthouse: {
-      reportName: lighthouseReportName, status: lighthouseRecord.status, completed: lighthouse.overview.totalAudits === 1,
-      report: fs.existsSync(path.join(lighthouseRoot, 'summary.html')), accessibility: lighthouse.overview.accessibility,
-      durationMs: Math.round(performance.now() - lighthouseStarted)
-    },
-    asset: {
-      reportName: asset.reportName, status: 'completed', pages: assetAssessment.pages.length,
-      metrics: assetAssessment.summary.totalRequests >= 1, report: fs.existsSync(path.join(reportsRoot, asset.reportName, 'summary.html')),
-      durationMs: assetMs
-    }
+  lab = await startSecurityLab();
+  const capability = await detectBrowserCapabilities({ fixtureUrl: `${lab.baseUrl}/secure-corporate` });
+  result.environment = {
+    browserDetected: capability.browserDetected,
+    browser: capability.browser,
+    browserLaunch: capability.launch,
+    navigation: capability.navigation,
+    pdfSourceNavigation: capability.pdfSourceNavigation,
+    pdfRendering: capability.pdfRendering,
+    reasons: capability.reasons
   };
-  console.log(JSON.stringify(result, null, 2));
+
+  const navigationReason = browserSkipReason(capability, 'navigation');
+  const pdfReason = browserSkipReason(capability, 'pdf');
+  const navigationReasonCode = browserSkipCode(capability, 'navigation');
+  const pdfReasonCode = browserSkipCode(capability, 'pdf');
+  const browserPath = capability.browser?.path || '';
+
+  result.compliance = navigationReason || pdfReason ? skipped(navigationReasonCode || pdfReasonCode) : await captureTool('compliance', async () => {
+    const assessmentStarted = performance.now();
+    const assessment = await scanWebsiteSecurity({ projectName: 'Toolkit Compliance Smoke', targetUrl: `${lab.baseUrl}/weak-security`, frameworks: ['iso-27001', 'gdpr', 'soc-2'], crawl: false, frameworkApplicability: { gdpr: 'unknown' }, browserRetryCount: 0, browserTimeoutMs: 8_000 });
+    const reportStarted = performance.now();
+    const compliance = await new SecurityReportManager({ reportsRoot, browserPath }).save(assessment);
+    const reportMs = Math.round(performance.now() - reportStarted);
+    const reportRoot = path.join(reportsRoot, compliance.reportName);
+    const pdfPath = path.join(reportRoot, 'summary.pdf');
+    const manifest = JSON.parse(fs.readFileSync(path.join(reportRoot, 'report-manifest.json'), 'utf8'));
+    const required = ['summary.html', 'summary.json', 'findings.csv', 'summary.xlsx', 'summary.pdf'];
+    if (!required.every((file) => fs.existsSync(path.join(reportRoot, file)))) throw new Error('Compliance smoke report is missing a required export.');
+    return { reportName: compliance.reportName, findings: compliance.findings.length, html: true, json: true, findingsCsv: true, xlsx: true, pdf: true, pdfBytes: fs.statSync(pdfPath).size, manifest: manifest.files.some((entry) => entry.file === 'summary.pdf'), evidenceAccess: compliance.evidenceManifest.access, assessmentMs: Math.round(reportStarted - assessmentStarted), reportMs, htmlMs: compliance.reportGeneration?.htmlGenerationMs, pdfMs: compliance.pdfGeneration?.durationMs };
+  });
+
+  result.asset = navigationReason ? skipped(navigationReasonCode) : await captureTool('asset', async () => {
+    const started = performance.now();
+    const assessment = await analyzeWebsiteAssets({ projectName: 'Toolkit Asset Smoke', baseUrl: lab.baseUrl, paths: ['/secure-corporate'], device: 'desktop', preferredBrowserPath: browserPath });
+    const asset = await new AssetReportManager({ reportsRoot }).save(assessment);
+    const reportRoot = path.join(reportsRoot, asset.reportName);
+    if (!assessment.pages.length || assessment.summary.totalRequests < 1) throw new Error('Asset smoke produced no page metrics.');
+    if (!fs.existsSync(path.join(reportRoot, 'summary.html')) || !fs.existsSync(path.join(reportRoot, 'summary.xlsx'))) throw new Error('Asset smoke report exports are incomplete.');
+    return { reportName: asset.reportName, pages: assessment.pages.length, metrics: true, report: true, xlsx: true, durationMs: Math.round(performance.now() - started) };
+  });
+
+  result.lighthouse = navigationReason ? skipped(navigationReasonCode) : await captureTool('lighthouse', async () => {
+    const started = performance.now();
+    const debugPort = await startCdpBrowser(browserPath);
+    const manager = new ReportManager({ reportsRoot });
+    const config = { projectName: 'Toolkit Lighthouse Smoke', baseUrl: lab.baseUrl, mode: 'public', targetLanguage: 'en', defaultLanguage: 'en', devices: ['desktop'], categories: ['accessibility'], runsPerPage: 1, urls: ['/secure-corporate'] };
+    const { root: reportRoot, runName: reportName } = manager.createRunDirectory(config);
+    manager.writeMetadata(reportRoot, config, { browser: capability.browser.name, debugPort });
+    const record = await runSingleLighthouse({ config, port: debugPort, root: reportRoot, device: 'desktop', logicalPath: '/secure-corporate', iteration: 1 });
+    manager.writeManifest(reportRoot, [record]);
+    const summary = await manager.generateSummary(reportRoot, [record], config);
+    if (summary.overview.totalAudits !== 1 || !Number.isFinite(summary.overview.accessibility)) throw new Error('Lighthouse smoke did not produce the configured accessibility score.');
+    if (!fs.existsSync(path.join(reportRoot, 'summary.html'))) throw new Error('Lighthouse smoke report was not generated.');
+    return { reportName, runStatus: record.status, completed: true, report: true, accessibility: summary.overview.accessibility, durationMs: Math.round(performance.now() - started) };
+  });
+} catch (error) {
+  result.environment.setupError = String(error?.stack || error?.message || error);
+  for (const tool of ['compliance', 'lighthouse', 'asset']) if (result[tool].reason === 'environment_not_checked') result[tool] = { status: 'failed', reason: 'environment_setup_failed', error: result.environment.setupError };
 } finally {
-  if (browserProcess && browserProcess.exitCode === null) browserProcess.kill('SIGTERM');
-  await lab.close();
+  for (const processHandle of browserProcesses) if (processHandle.exitCode === null) processHandle.kill('SIGTERM');
+  await lab?.close().catch(() => {});
+  console.log(JSON.stringify(result, null, 2));
   if (!keep) fs.rmSync(root, { recursive: true, force: true });
 }
+
+if (['compliance', 'lighthouse', 'asset'].some((tool) => result[tool].status === 'failed')) process.exitCode = 1;

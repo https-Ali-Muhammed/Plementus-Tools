@@ -6,7 +6,7 @@ import { detectLocale, discoverEvidencePages, extractComplianceEvidence, resolve
 import { detectBrowsers } from './environment-checker.js';
 import { sleep } from './utils.js';
 import { buildControlEvaluations, buildFindings, buildTestResults, mergeFindingsByFingerprint, resolveLocalJurisdictions } from './security-finding-model.js';
-import { MAPPING_CATALOG_VERSION } from './security-mapping-registry.js';
+import { MAPPING_CATALOG_VERSION, frameworkForControl } from './security-mapping-registry.js';
 import { TOOL_VERSION } from './tool-version.js';
 import { runZapScan } from './zap-runner.js';
 
@@ -1812,10 +1812,9 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   const controlEvaluations = buildControlEvaluations(filteredChecks, findings, frameworks, { frameworkApplicability, jurisdiction, evidenceLevel, paymentFlow });
   riskCount = findings.filter((finding) => !['informational'].includes(finding.severity)).length;
   overallStatus = findings.some((finding) => ['critical', 'high'].includes(finding.severity)) ? 'high-attention' : findings.some((finding) => finding.severity === 'medium') ? 'review' : 'good';
-  const frameworkPrefixes = { 'iso-27001': 'ISO27001:', gdpr: 'GDPR-', 'soc-2': 'SOC2-', hipaa: 'HIPAA-', 'pci-dss': 'PCI-DSS-', local: 'LOCAL-' };
   const frameworkResultsWithControls = frameworkResults.map((framework) => ({
     ...framework,
-    controlEvaluations: controlEvaluations.filter((control) => control.controlId.startsWith(frameworkPrefixes[framework.id] || '__none__'))
+    controlEvaluations: controlEvaluations.filter((control) => frameworkForControl(control.controlId) === framework.id)
   }));
   const runtimeConsistencyCheck = filteredChecks.find((check) => check.id === 'privacy-runtime-consistency');
   const runtimeVerificationCheck = filteredChecks.find((check) => check.id === 'privacy-runtime-verification');

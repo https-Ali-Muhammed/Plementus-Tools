@@ -24,11 +24,19 @@ function reportMimeType(file) {
 }
 
 function stripBrowserSecrets(browserScan = {}) {
-  const { screenshotBase64, ...safe } = browserScan;
+  const { screenshotBase64, sessionState, storageState, ...safe } = browserScan;
+  const storageMetadata = (storage = {}) => ({
+    localStorageKeys: [...(storage.localStorageKeys || [])],
+    sessionStorageKeys: [...(storage.sessionStorageKeys || [])],
+    ...(storage.detectedLocale ? { detectedLocale: storage.detectedLocale } : {}),
+    ...(typeof storage.consentInterfaceDetected === 'boolean' ? { consentInterfaceDetected: storage.consentInterfaceDetected } : {})
+  });
+  const cookieMetadata = ({ value, ...cookie }) => ({ ...cookie, value: '[REDACTED]' });
   safe.resources = (safe.resources || []).map(({ requestHeaders, responseHeaders, ...resource }) => resource);
-  safe.cookies = (safe.cookies || []).map(({ value, ...cookie }) => ({ ...cookie, value: '[REDACTED]' }));
+  safe.cookies = (safe.cookies || []).map(cookieMetadata);
+  safe.storage = storageMetadata(safe.storage || {});
   safe.authenticatedPages = (safe.authenticatedPages || []).map(({ headers, bodyText, screenshotBase64: pageScreenshot, ...page }) => page);
-  safe.consentScenarios = (safe.consentScenarios || []).map(({ screenshotBase64: scenarioScreenshot, ...scenario }) => scenario);
+  safe.consentScenarios = (safe.consentScenarios || []).map(({ screenshotBase64: scenarioScreenshot, cookies = [], storage = {}, ...scenario }) => ({ ...scenario, cookies: cookies.map(cookieMetadata), storage: storageMetadata(storage) }));
   return safe;
 }
 

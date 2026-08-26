@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import test from 'node:test';
+import nodeTest from 'node:test';
 import { extractComplianceEvidence } from '../lib/website-crawler.js';
 import { analyzeCsp, assessInitialTracking, assessPrivacyRuntimeConsistency, classifyCookie, normalizeFrameworkApplicability, parseHsts, scanWebsiteSecurity, serverDisclosureAssessment } from '../lib/security-scanner.js';
 import { buildControlEvaluations, buildFindings, resolveLocalJurisdictions } from '../lib/security-finding-model.js';
@@ -14,6 +14,24 @@ import { normalizeZapAlerts } from '../lib/zap-runner.js';
 import { EvidenceVault } from '../lib/evidence-vault.js';
 import { SecurityLifecycleManager } from '../lib/security-lifecycle-manager.js';
 import { startSecurityLab } from './fixtures/security-lab-server.js';
+import { browserSkipReason, detectBrowserCapabilities } from '../lib/browser-capability.js';
+
+const browserTestName = /^(?:strong PHI signals|outsourced payment-processing|local lab scan produces)/;
+function test(name, ...args) {
+  const taxonomy = process.env.WET_TEST_TAXONOMY || 'all';
+  if (taxonomy === 'core' && browserTestName.test(name)) return undefined;
+  if (taxonomy === 'browser' && !browserTestName.test(name)) return undefined;
+  return nodeTest(name, ...args);
+}
+
+async function requireBrowserCapability(t, fixtureUrl, { pdf = false } = {}) {
+  const capability = await detectBrowserCapabilities({ fixtureUrl });
+  const navigationReason = browserSkipReason(capability, 'navigation');
+  const pdfReason = pdf ? browserSkipReason(capability, 'pdf') : '';
+  const reason = navigationReason || pdfReason;
+  if (reason) t.skip(reason);
+  return !reason;
+}
 
 test('CSP analysis rejects a present but unsafe policy', () => {
   const analysis = analyzeCsp("default-src *; script-src * 'unsafe-inline' 'unsafe-eval'");
@@ -293,6 +311,7 @@ test('legacy overloaded lifecycle decisions migrate to the simplified review mod
 test('strong PHI signals produce only potential HIPAA scope and do not leak into other frameworks', async (t) => {
   const lab = await startSecurityLab();
   t.after(() => lab.close());
+  if (!await requireBrowserCapability(t, `${lab.baseUrl}/healthcare-phi`)) return;
   const scan = await scanWebsiteSecurity({
     projectName: 'Scope Lab',
     targetUrl: `${lab.baseUrl}/healthcare-phi`,
@@ -316,6 +335,7 @@ test('strong PHI signals produce only potential HIPAA scope and do not leak into
 test('outsourced payment-processing language requires PCI scope confirmation without declaring compliance', async (t) => {
   const lab = await startSecurityLab();
   t.after(() => lab.close());
+  if (!await requireBrowserCapability(t, `${lab.baseUrl}/payment`)) return;
   const scan = await scanWebsiteSecurity({
     projectName: 'Payment Scope Lab',
     targetUrl: `${lab.baseUrl}/payment`,
@@ -336,6 +356,7 @@ test('outsourced payment-processing language requires PCI scope confirmation wit
 test('local lab scan produces findings, coverage states, and a hashed evidence archive', async (t) => {
   const lab = await startSecurityLab();
   t.after(() => lab.close());
+  if (!await requireBrowserCapability(t, `${lab.baseUrl}/weak-cookies`, { pdf: true })) return;
   const scan = await scanWebsiteSecurity({
     projectName: 'Security Lab',
     targetUrl: `${lab.baseUrl}/weak-cookies`,

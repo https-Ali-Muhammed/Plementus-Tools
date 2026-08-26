@@ -248,6 +248,14 @@ Security API routes include:
 npm test
 ```
 
+Phase 1 validation is split into deterministic, browser, PDF, cross-format, packaging, and real smoke categories. Run the complete environment-aware validation with:
+
+```bash
+npm run validate:phase1
+```
+
+The command prints a concise status and a machine-readable JSON summary. Browser navigation blocked by administrator policy is reported as an explicit skip rather than a product pass or failure. See [`docs/PHASE1_VALIDATION.md`](docs/PHASE1_VALIDATION.md) for the controlled scenario matrix and category commands.
+
 Create a clean source-only ZIP (excluding dependencies, reports, runtime state, profiles, and evidence) with:
 
 ```bash
