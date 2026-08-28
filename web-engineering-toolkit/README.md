@@ -1,11 +1,11 @@
-# Web Engineering Toolkit v1.2
+# Web Engineering Toolkit v1.7.1
 
 A framework-free website engineering and QA workspace built with vanilla HTML, CSS, JavaScript, and Node.js.
 
 ## Tools included
 
 - **Lighthouse Reporter** — repeatable Performance, Accessibility, Best Practices and SEO audits with public/session modes, language-aware routing, mobile/desktop runs, grouped Lighthouse findings and HTML/CSV/XLSX reports.
-- **Security & Compliance Scanner** — checks visible website security controls and maps technical evidence to ISO 27001, GDPR, SOC 2, HIPAA, PCI DSS and Local Regulations without claiming certification.
+- **Compliance Mapping** — collects defensible HTTP, browser, TLS, crawl, and optional passive OWASP ZAP evidence; maps that evidence to framework controls and reviewer decisions without claiming certification.
 - **Asset & Page-Weight Analyzer** — measures transferred page weight and network requests across selected pages, including JavaScript, CSS, images, fonts, media, XHR/fetch, third-party resources and the largest assets.
 
 ## Shared Projects
@@ -22,7 +22,7 @@ A project profile can store:
 - available EN / AR languages
 - shared target pages
 
-Selecting **Use project** applies that configuration across Lighthouse Reporter, Security & Compliance, and Asset & Page-Weight Analyzer so the same website information does not need to be entered repeatedly.
+Selecting **Use project** applies that configuration across Lighthouse Reporter, Compliance Mapping, and Asset & Page-Weight Analyzer so the same website information does not need to be entered repeatedly.
 
 Project profiles are stored in:
 
@@ -85,7 +85,7 @@ The Excel workbook contains:
 Report History supports the current report types:
 
 - Lighthouse
-- Security Compliance
+- Compliance Mapping
 - Asset Page Weight
 
 Existing single-report deletion and multi-select report-folder deletion remain available.
@@ -130,9 +130,139 @@ APP_PORT=4180 npm start
 5. Run the selected analysis.
 6. Open **Report history** to view or export generated reports.
 
-## Security/compliance scope
+## Compliance Mapping scope
 
-The Security & Compliance Scanner evaluates technical website evidence only. It cannot verify internal policies, contracts, staff procedures, certifications, risk assessments or legal applicability, and therefore does not claim that a website or organization is compliant/certified.
+The Compliance Mapping subsystem produces a technical compliance pre-assessment. A public-URL scan evaluates technical website evidence and scope signals only; an authenticated scan adds bounded application evidence. Neither level can verify internal policies, contracts, staff procedures, certifications, risk assessments, full control satisfaction, or legal compliance.
+
+It separates:
+
+- technical checks completed, observed/partial evidence, not-assessed, and failed-to-test collection states
+- open security findings from successful test coverage
+- automated evidence from manual evidence and reviewer decisions
+- partial technical evidence from control satisfaction and framework-level compliance conclusions
+
+Framework selection and framework applicability are separate. GDPR, HIPAA, PCI DSS, and local-law scope can be marked applicable, not applicable, or unknown. An applicable/not-applicable selection is recorded as an unverified operator assertion. Unknown scope never becomes a not-applicable conclusion. Generic healthcare/payment marketing is contextual only; HIPAA and PCI scope require strong PHI/cardholder-data signals or operator evidence.
+
+Local Regulations requires a jurisdiction. Built-in mapping identifiers currently cover the UAE PDPL, Saudi PDPL, and Egypt PDPL plus its 2025 Executive Regulations. Other entered jurisdictions remain explicit manual legal-mapping work rather than receiving invented generic control citations.
+
+### Compliance mapping capabilities
+
+- browser retries with exponential backoff, timeout recovery, and partial evidence preservation
+- raw response headers, Set-Cookie values, browser cookies, network requests, console events, screenshots, TLS data, and crawl errors
+- SHA-256 evidence manifests and read-only report snapshots
+- atomic findings with severity, confidence, evidence, impact, recommendation, references, controls, first/last seen, test method, scanner version, and limitations
+- CSP, HSTS, cookie, consent-order, CORS, mixed-content, certificate, protocol, OCSP, DNS CAA, and forward-secrecy observations
+- fresh-browser detection of tracking both before a visible consent choice and where no consent interface exists
+- privacy-notice/runtime comparison for explicit no-advertising or no-tracking claims
+- opt-in bounded consent scenarios for accept, reject, preferences, withdrawal, reload persistence, and returning-user observations
+- public-policy template/draft quality detection with bounded excerpts, plus Arabic/English locale coverage
+- structured GDPR public-notice evidence coverage without legal sufficiency conclusions
+- bounded payment-flow architecture and provider observations without PCI applicability or SAQ conclusions
+- framework-specific evidence filtering so unrelated healthcare, payment, or privacy signals do not leak across frameworks
+- a versioned mapping registry with direct/supporting/contextual relationships, prerequisite states, and mapping limitations
+- evidence-strength-aware control evaluations that keep control satisfaction `not_determined` and coverage `partial`
+- deduplicated cookie findings that combine HTTP-header and browser-runtime evidence
+- structured login flows, role-scoped encrypted Playwright session reuse, and bounded authenticated crawling
+- OWASP ZAP passive and authenticated-passive evidence modes
+- immutable automated evidence provenance, reviewer decisions, and append-only audit events
+- finding comparison with separate finding status, review, scope, and mapping decisions
+- canonical HTML, JSON, native searchable PDF, findings CSV, and XLSX reports with metadata, workflow, evidence, and signed/hash manifests
+
+### Compliance report output
+
+Each new Compliance Mapping assessment writes:
+
+```text
+summary.html       interactive assessment report
+summary.json       canonical machine-readable assessment
+summary.pdf        native A4 text/vector PDF printed from summary.html
+findings.csv       normalized findings export
+summary.csv        backward-compatible alias of findings.csv
+summary.xlsx       structured spreadsheet export
+metadata.json
+workflow.json
+report-manifest.json
+evidence/manifest.json
+```
+
+The CSV files contain normalized findings only; they are not complete assessment exports. PDF generation uses the existing Playwright Core browser infrastructure and dedicated print styles. If Chromium PDF generation fails, the assessment and its other formats remain available, `pdfGeneration.status` is recorded as `failed`, and no PDF download is advertised.
+
+Raw evidence is stored below each report's `evidence/` directory and is intentionally blocked from the generic `/reports` static route because it can contain session identifiers or personal data. The metadata-only `evidence/manifest.json` remains downloadable so reviewers can verify artifact names, sizes, and hashes.
+
+Finding review decisions refresh the affected Report History HTML, JSON, PDF, findings CSV, and XLSX outputs plus `workflow.json` and `report-manifest.json`; the original raw evidence archive is not modified. New assessments do not generate duplicate audience-specific JSON projections or numbered workflow revisions. Existing historical files remain readable and are not deleted.
+
+### Schema compatibility
+
+Compliance report schema `2.2.0` includes mapping-catalog provenance, relationship/prerequisite records, evidence classification, statement-level traceability, policy quality, GDPR notice coverage, locale coverage, payment-flow observations, consent scenarios, and explicit check/observation/finding counts. Finding schema `1.2.0` retains classified evidence and structured control mappings. Evidence archive schema `1.1.0` retains consent-scenario artifacts and matching provenance. Evidence-vault and finding-lifecycle indexes use version `3`; workflow projections use version `2.0.0`, and report manifests use version `1.4.0` with filename, MIME type, size, and SHA-256 fields. Read-time migration maps historical approval/lifecycle fields to conservative legacy or reviewer-decision states. Existing `controls` arrays and prior report fields remain available. Historical reports receive conservative defaults (`controlSatisfaction = not_determined`, `coverage = partial`, and `mappingCatalogVersion = legacy-unversioned`) and raw historical evidence is not rewritten.
+
+### Authenticated sessions
+
+The compliance evidence collector accepts a structured login flow: login URL, username selector, password selector, submit selector, and optional success URL/selector. Credentials are used only for the current request and are excluded from reports and evidence.
+
+Successful Playwright storage state is encrypted with AES-256-GCM under `profiles/security-scanner/`. Set a stable secret to reuse sessions after a toolkit restart:
+
+```bash
+SECURITY_SESSION_KEY='replace-with-a-long-random-secret' npm start
+```
+
+Without this variable, an ephemeral process key is used and stored sessions are reusable only until the server restarts.
+
+### OWASP ZAP passive evidence
+
+ZAP integration uses the official stable container image. Docker must be installed and able to reach the target.
+
+- Passive mode uses `zap-baseline.py` and does not perform active attacks.
+- Authenticated passive mode requires a local ZAP context file and named context user.
+
+Active and API attack-testing support is not exposed by the normal Compliance Mapping UI or scan API. Any retained runner internals are reserved for a future separately authorized security-testing workflow.
+
+### Signing
+
+Configure an HMAC key to sign evidence and report manifests:
+
+```bash
+SECURITY_REPORT_SIGNING_KEY='replace-with-a-separate-random-secret' npm start
+```
+
+Without a configured key, manifests are still hashed and explicitly marked unsigned.
+
+### Security data and API
+
+Local toolkit state is created beneath `data/` when needed:
+
+- `security-evidence-vault.json`
+- `security-audit-log.jsonl`
+- `security-finding-lifecycle.json`
+
+Security API routes include:
+
+- `POST /api/security/scan`
+- `GET /api/security/evidence`
+- `GET /api/security/audit-log`
+- `GET /api/security/findings`
+- `POST /api/security/findings/:fingerprint`
+
+### Tests
+
+```bash
+npm test
+```
+
+Phase 1 validation is split into deterministic, browser, PDF, cross-format, packaging, and real smoke categories. Run the complete environment-aware validation with:
+
+```bash
+npm run validate:phase1
+```
+
+The command prints a concise status and a machine-readable JSON summary. Browser navigation blocked by administrator policy is reported as an explicit skip rather than a product pass or failure. See [`docs/PHASE1_VALIDATION.md`](docs/PHASE1_VALIDATION.md) for the controlled scenario matrix and category commands.
+
+Create a clean source-only ZIP (excluding dependencies, reports, runtime state, profiles, and evidence) with:
+
+```bash
+npm run package
+```
+
+The local security lab and expected results are documented in `test/EXPECTED_FINDINGS.md`. Active security testing must only be run against targets for which the operator has explicit permission.
 
 
 ## v1.3

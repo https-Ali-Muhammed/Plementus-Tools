@@ -11,6 +11,10 @@ import { SecurityReportManager } from './lib/security-report-manager.js';
 import { ProjectManager } from './lib/project-manager.js';
 import { analyzeWebsiteAssets } from './lib/asset-analyzer.js';
 import { AssetReportManager } from './lib/asset-report-manager.js';
+import { SecuritySessionStore } from './lib/security-session-store.js';
+import { EvidenceVault } from './lib/evidence-vault.js';
+import { SecurityLifecycleManager } from './lib/security-lifecycle-manager.js';
+import { contentTypeForFile } from './lib/mime-types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -23,20 +27,13 @@ const PORT = Number(process.env.APP_PORT || 4177);
 const browserManager = new BrowserManager({ profilesDir: PROFILES_DIR });
 const reportManager = new ReportManager({ reportsRoot: REPORTS_DIR });
 const runManager = new RunManager({ browserManager, reportManager, flowsDir: FLOWS_DIR });
-const securityReportManager = new SecurityReportManager({ reportsRoot: REPORTS_DIR });
+const evidenceVault = new EvidenceVault({ dataDir: DATA_DIR });
+const securityLifecycleManager = new SecurityLifecycleManager({ dataDir: DATA_DIR, audit: (event) => evidenceVault.audit(event) });
+const securityReportManager = new SecurityReportManager({ reportsRoot: REPORTS_DIR, evidenceVault, lifecycleManager: securityLifecycleManager });
 const projectManager = new ProjectManager({ dataDir: DATA_DIR });
 const assetReportManager = new AssetReportManager({ reportsRoot: REPORTS_DIR });
-
-const mime = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.csv': 'text/csv; charset=utf-8',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png'
-};
+const securitySessionStore = new SecuritySessionStore({ root: path.join(PROFILES_DIR, 'security-scanner') });
+const executeSecurityScan = async (config) => securityReportManager.save(securityLifecycleManager.reconcile(await scanWebsiteSecurity(config, { sessionStore: securitySessionStore })));
 
 function json(res, status, data) {
   const body = JSON.stringify(data);
@@ -64,7 +61,7 @@ function sendFile(res, file) {
   if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
     res.writeHead(404); res.end('Not found'); return;
   }
-  res.writeHead(200, { 'Content-Type': mime[path.extname(file)] || 'application/octet-stream' });
+  res.writeHead(200, { 'Content-Type': contentTypeForFile(file) });
   fs.createReadStream(file).pipe(res);
 }
 
@@ -87,8 +84,42 @@ const server = http.createServer(async (req, res) => {
       return json(res, 202, runManager.create(await readBody(req)));
     }
     if (req.method === 'POST' && url.pathname === '/api/security/scan') {
-      const result = await scanWebsiteSecurity(await readBody(req));
-      return json(res, 200, await securityReportManager.save(result));
+      const config = await readBody(req);
+      const zapMode = config.zap?.mode || 'none';
+      if (!['none', 'passive', 'authenticated-passive'].includes(zapMode)) {
+        return json(res, 400, { error: 'Compliance Mapping supports ZAP modes: none, passive, and authenticated-passive.' });
+      }
+      return json(res, 200, await executeSecurityScan(config));
+    }
+    if (req.method === 'GET' && url.pathname === '/api/security/evidence') {
+      return json(res, 200, evidenceVault.list({ projectName: url.searchParams.get('project') || '' }));
+    }
+    if (req.method === 'GET' && url.pathname === '/api/security/audit-log') {
+      return json(res, 200, evidenceVault.auditLog({ projectName: url.searchParams.get('project') || '', limit: url.searchParams.get('limit') || 250 }));
+    }
+    if (req.method === 'GET' && url.pathname === '/api/security/findings') {
+      return json(res, 200, securityLifecycleManager.list(url.searchParams.get('project') || ''));
+    }
+    if (req.method === 'GET' && url.pathname === '/api/security/review-workflow') {
+      return json(res, 200, securityLifecycleManager.snapshot(url.searchParams.get('project') || ''));
+    }
+    const findingReviewCollectionMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})\/reviews$/);
+    if (req.method === 'POST' && findingReviewCollectionMatch) {
+      const finding = securityLifecycleManager.addReview(findingReviewCollectionMatch[1], await readBody(req));
+      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
+      return json(res, 200, { ...finding, refreshedReports });
+    }
+    const findingReviewMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})\/reviews\/([a-f0-9-]+)$/);
+    if (['PUT', 'PATCH'].includes(req.method) && findingReviewMatch) {
+      const finding = securityLifecycleManager.updateReview(findingReviewMatch[1], findingReviewMatch[2], await readBody(req));
+      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
+      return json(res, 200, { ...finding, refreshedReports });
+    }
+    const findingLifecycleMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})$/);
+    if (req.method === 'POST' && findingLifecycleMatch) {
+      const finding = securityLifecycleManager.update(findingLifecycleMatch[1], await readBody(req));
+      const refreshedReports = await securityReportManager.refreshWorkflow({ projectName: finding.projectName });
+      return json(res, 200, { ...finding, refreshedReports });
     }
     if (req.method === 'POST' && url.pathname === '/api/assets/analyze') {
       const result = await analyzeWebsiteAssets(await readBody(req));
@@ -151,8 +182,14 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (url.pathname.startsWith('/api/')) return json(res, 404, { error: 'API route not found.' });
+
     if (url.pathname.startsWith('/reports/')) {
       const relative = url.pathname.slice('/reports/'.length);
+      const parts = decodeURIComponent(relative).split(/[\\/]+/);
+      const evidenceIndex = parts.indexOf('evidence');
+      const isEvidenceManifest = evidenceIndex === parts.length - 2 && parts.at(-1) === 'manifest.json';
+      if (evidenceIndex !== -1 && !isEvidenceManifest) return json(res, 403, { error: 'Raw security evidence is restricted to local filesystem access.' });
       return sendFile(res, safeFile(REPORTS_DIR, relative));
     }
 
@@ -161,7 +198,7 @@ const server = http.createServer(async (req, res) => {
     if (file && fs.existsSync(file) && fs.statSync(file).isFile()) return sendFile(res, file);
     return sendFile(res, path.join(PUBLIC_DIR, 'index.html'));
   } catch (error) {
-    return json(res, 500, { error: error.message });
+    return json(res, error.statusCode || 500, { error: error.message, ...(Number.isInteger(error.currentRevision) ? { currentRevision: error.currentRevision } : {}) });
   }
 });
 

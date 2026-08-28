@@ -573,10 +573,10 @@ export class ReportManager {
       const summary = readJson(path.join(full, 'summary.json')); const metadata = readJson(path.join(full, 'metadata.json'));
       const overview = summary && !Array.isArray(summary) ? summary.overview || null : null;
       const reportType = overview?.reportType || summary?.reportType || metadata?.reportType || (entry.name.includes('_lighthouse_') ? 'lighthouse' : 'unknown');
-      const hasHtml = fs.existsSync(path.join(full, 'summary.html')); const hasXlsx = fs.existsSync(path.join(full, 'summary.xlsx')); const hasCsv = fs.existsSync(path.join(full, 'summary.csv'));
+      const hasHtml = fs.existsSync(path.join(full, 'summary.html')); const hasXlsx = fs.existsSync(path.join(full, 'summary.xlsx')); const hasCsv = fs.existsSync(path.join(full, 'summary.csv')); const hasFindingsCsv = fs.existsSync(path.join(full, 'findings.csv')); const hasPdf = fs.existsSync(path.join(full, 'summary.pdf')); const hasJson = fs.existsSync(path.join(full, 'summary.json')); const hasEvidenceManifest = fs.existsSync(path.join(full, 'evidence', 'manifest.json'));
       return { name: entry.name, reportType, modifiedAt: stat.mtime.toISOString(), overview,
         summaryHref: hasHtml ? `/reports/${encodeURIComponent(entry.name)}/summary.html` : (hasCsv ? `/reports/${encodeURIComponent(entry.name)}/summary.csv` : ''),
-        csvHref: hasCsv ? `/reports/${encodeURIComponent(entry.name)}/summary.csv` : '', xlsxHref: hasXlsx ? `/reports/${encodeURIComponent(entry.name)}/summary.xlsx` : '' };
+        jsonHref: hasJson ? `/reports/${encodeURIComponent(entry.name)}/summary.json` : '', csvHref: hasFindingsCsv ? `/reports/${encodeURIComponent(entry.name)}/findings.csv` : hasCsv ? `/reports/${encodeURIComponent(entry.name)}/summary.csv` : '', xlsxHref: hasXlsx ? `/reports/${encodeURIComponent(entry.name)}/summary.xlsx` : '', pdfHref: hasPdf ? `/reports/${encodeURIComponent(entry.name)}/summary.pdf` : '', evidenceManifestHref: hasEvidenceManifest ? `/reports/${encodeURIComponent(entry.name)}/evidence/manifest.json` : '' };
     }).sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt));
   }
 

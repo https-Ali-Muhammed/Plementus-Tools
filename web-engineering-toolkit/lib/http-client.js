@@ -1,9 +1,41 @@
 import http from 'node:http';
 import https from 'node:https';
 import { URL } from 'node:url';
+import { SECURITY_SCANNER_USER_AGENT } from './tool-version.js';
 
 const DEFAULT_TIMEOUT = 12000;
 const MAX_BODY_BYTES = 2_500_000;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function certificateChain(peer) {
+  const chain = [];
+  const seen = new Set();
+  let current = peer;
+  while (current && Object.keys(current).length && chain.length < 10) {
+    const fingerprint = current.fingerprint256 || current.fingerprint || current.serialNumber || `${current.subject?.CN || ''}:${current.issuer?.CN || ''}`;
+    if (seen.has(fingerprint)) break;
+    seen.add(fingerprint);
+    chain.push({
+      subject: current.subject || {},
+      issuer: current.issuer || {},
+      subjectAltName: current.subjectaltname || '',
+      validFrom: current.valid_from || '',
+      validTo: current.valid_to || '',
+      fingerprint256: current.fingerprint256 || '',
+      serialNumber: current.serialNumber || '',
+      bits: current.bits || null,
+      exponent: current.exponent || '',
+      publicKeyType: current.asn1Curve || current.nistCurve || (current.bits ? 'RSA' : ''),
+      ca: Boolean(current.ca)
+    });
+    if (!current.issuerCertificate || current.issuerCertificate === current) break;
+    current = current.issuerCertificate;
+  }
+  return chain;
+}
 
 export function cleanHeaders(headers) {
   return Object.fromEntries(Object.entries(headers || {}).map(([key, value]) => [key.toLowerCase(), Array.isArray(value) ? value.join(', ') : String(value || '')]));
@@ -21,7 +53,7 @@ export function cleanHeaders(headers) {
  * no connection" in reports. Capturing at handshake time ties the TLS record
  * to the connection that actually served this request.
  */
-export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET', rejectUnauthorized = true, maxBodyBytes = MAX_BODY_BYTES } = {}) {
+export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET', rejectUnauthorized = true, maxBodyBytes = MAX_BODY_BYTES, headers = {} } = {}) {
   return new Promise((resolve, reject) => {
     const parsed = new URL(target);
     const transport = parsed.protocol === 'https:' ? https : http;
@@ -35,26 +67,39 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
       // diagnostic client, and a fresh connection per request guarantees the
       // TLS handshake we observe belongs to the request we're reporting on.
       agent: false,
+      requestOCSP: parsed.protocol === 'https:',
       headers: {
-        'User-Agent': 'Web-Engineering-Toolkit-Security-Scanner/1.4',
+        'User-Agent': SECURITY_SCANNER_USER_AGENT,
         'Accept': 'text/html,application/xhtml+xml,application/json;q=0.8,*/*;q=0.5',
-        'Connection': 'close'
+        'Connection': 'close',
+        ...headers
       }
     };
     if (parsed.protocol === 'https:') options.rejectUnauthorized = rejectUnauthorized;
 
     let tls = null;
+    let ocspResponse = null;
     const captureTls = (socket) => {
       if (tls || !socket || !socket.encrypted) return;
-      const cert = typeof socket.getPeerCertificate === 'function' ? socket.getPeerCertificate() : null;
+      const cert = typeof socket.getPeerCertificate === 'function' ? socket.getPeerCertificate(true) : null;
       tls = {
         protocol: typeof socket.getProtocol === 'function' ? socket.getProtocol() : '',
+        cipher: typeof socket.getCipher === 'function' ? socket.getCipher() : null,
+        alpnProtocol: socket.alpnProtocol || '',
+        ephemeralKey: typeof socket.getEphemeralKeyInfo === 'function' ? socket.getEphemeralKeyInfo() : null,
+        sessionReused: typeof socket.isSessionReused === 'function' ? socket.isSessionReused() : false,
         authorized: Boolean(socket.authorized),
         authorizationError: socket.authorizationError || '',
         validFrom: cert?.valid_from || '',
         validTo: cert?.valid_to || '',
         issuer: cert?.issuer?.O || cert?.issuer?.CN || '',
         subject: cert?.subject?.CN || '',
+        subjectAltName: cert?.subjectaltname || '',
+        fingerprint256: cert?.fingerprint256 || '',
+        serialNumber: cert?.serialNumber || '',
+        certificateChain: certificateChain(cert),
+        ocspStapled: Boolean(ocspResponse),
+        ocspResponseBase64: ocspResponse ? ocspResponse.toString('base64') : '',
         capturedAt: 'handshake'
       };
     };
@@ -80,6 +125,7 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
           url: target,
           status: res.statusCode || 0,
           headers: cleanHeaders(res.headers),
+          rawHeaders: [...(res.rawHeaders || [])],
           setCookies: rawCookies,
           body: Buffer.concat(chunks).toString('utf8'),
           truncated,
@@ -90,6 +136,13 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
 
     req.on('socket', (socket) => {
       if (parsed.protocol !== 'https:') return;
+      socket.once('OCSPResponse', (response) => {
+        ocspResponse = response || null;
+        if (tls) {
+          tls.ocspStapled = Boolean(ocspResponse);
+          tls.ocspResponseBase64 = ocspResponse ? ocspResponse.toString('base64') : '';
+        }
+      });
       // Do NOT check socket.encrypted here to short-circuit capture: it is
       // true the instant a TLSSocket object is created, well before the
       // handshake completes, so reading it here previously captured an
@@ -106,17 +159,47 @@ export function requestOnce(target, { timeout = DEFAULT_TIMEOUT, method = 'GET',
   });
 }
 
-export async function requestWithRedirects(target, { maxRedirects = 6, ...options } = {}) {
+export async function requestWithRedirects(target, { maxRedirects = 6, retries = 1, ...options } = {}) {
   const chain = [];
+  const attempts = [];
   let current = target;
   for (let i = 0; i <= maxRedirects; i += 1) {
-    const response = await requestOnce(current, options);
+    let response;
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      const attemptStartedAt = new Date().toISOString();
+      const attemptStartedMs = Date.now();
+      try {
+        response = await requestOnce(current, options);
+        attempts.push({
+          url: current,
+          attempt: attempt + 1,
+          startedAt: attemptStartedAt,
+          durationMs: Date.now() - attemptStartedMs,
+          outcome: 'completed',
+          status: response.status
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+        attempts.push({
+          url: current,
+          attempt: attempt + 1,
+          startedAt: attemptStartedAt,
+          durationMs: Date.now() - attemptStartedMs,
+          outcome: 'failed_to_test',
+          error: error?.message || String(error)
+        });
+        if (attempt < retries) await sleep(300 * (attempt + 1));
+      }
+    }
+    if (!response) throw lastError;
     chain.push({ url: current, status: response.status, location: response.headers.location || '' });
     if ([301, 302, 303, 307, 308].includes(response.status) && response.headers.location) {
       current = new URL(response.headers.location, current).href;
       continue;
     }
-    return { ...response, finalUrl: current, redirectChain: chain };
+    return { ...response, finalUrl: current, redirectChain: chain, attempts };
   }
   throw new Error(`Too many redirects while requesting ${target}.`);
 }
