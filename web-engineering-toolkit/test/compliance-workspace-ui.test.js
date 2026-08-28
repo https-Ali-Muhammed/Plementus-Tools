@@ -55,6 +55,8 @@ test('workspace presents coverage and source density as traceable provenance', (
   assert.match(app, /provenance breadth, not assurance strength/);
   assert.match(app, /coverageQualifiers/);
   assert.match(app, /finding\.evidenceConfidence \|\| evidence\.evidenceConfidence \|\| evidence\.confidence/);
+  assert.match(app, /result\.collectionCoverage/);
+  assert.match(app, /Collector states describe bounded execution only/);
   assert.doesNotMatch(app, /confidence score|mapping score|readiness percentage|partially compliant/i);
 });
 

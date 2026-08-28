@@ -22,7 +22,7 @@ test('source package is deterministic, complete, and excludes runtime state', ()
   const listing = spawnSync('unzip', ['-Z1', archive], { encoding: 'utf8' });
   assert.equal(listing.status, 0, listing.stderr);
   const entries = listing.stdout.trim().split(/\r?\n/);
-  for (const required of ['README.md', 'package.json', 'package-lock.json', 'lib/security-scanner.js', 'test/phase1-core.test.js', 'scripts/package-source.js', 'scripts/smoke-all-tools.js']) {
+  for (const required of ['README.md', 'package.json', 'package-lock.json', 'lib/security-scanner.js', 'lib/security-collection-model.js', 'docs/PHASE3_EVIDENCE_COLLECTION_AUDIT.md', 'docs/PHASE3_IMPLEMENTATION.md', 'test/phase1-core.test.js', 'test/phase3-evidence-collection.test.js', 'test/phase3-browser-collection.test.js', 'scripts/package-source.js', 'scripts/smoke-all-tools.js', 'scripts/validate-phase3.js']) {
     assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
   }
   const forbidden = /(?:^|\/)(?:node_modules|reports|data|profiles\/security-scanner|dist|revisions|audit|screenshots?|tmp)(?:\/|$)|\.pdf$/i;

@@ -171,7 +171,9 @@ test('native PDF projection excludes restricted browser and consent values', { t
   const summary = createComplianceSummary();
   summary.browserScan = {
     state: 'confirmed',
-    resources: [{ url: 'https://example.test/api', requestHeaders: { authorization: 'Bearer SECRET_PDF_TOKEN' }, responseHeaders: { 'set-cookie': 'session=SECRET_PDF_COOKIE' } }],
+    networkCollection: { state: 'completed', recordsCaptured: 1, recordLimit: 25, limitations: [] },
+    resources: [{ url: 'https://example.test/api', sourcePageUrl: 'https://example.test/', destinationHost: 'example.test', requestHeaders: { authorization: 'Bearer SECRET_PDF_TOKEN' }, responseHeaders: { 'set-cookie': 'session=SECRET_PDF_COOKIE' }, requestBody: 'SECRET_PDF_BODY' }],
+    apiObservations: [{ url: 'https://api.example.test/v1', method: 'GET', status: 200, sourcePageUrl: 'https://example.test/', destinationHost: 'api.example.test', destinationOrigin: 'https://api.example.test', category: 'fetch', requestBody: 'SECRET_PDF_BODY' }],
     cookies: [{ name: 'session', value: 'SECRET_PDF_COOKIE', secure: true }],
     sessionState: { cookies: [{ name: 'session', value: 'SECRET_PDF_SESSION_STATE' }], origins: [] },
     storage: { localStorageKeys: ['session'], sessionStorageKeys: [], values: ['SECRET_PDF_STORAGE'] },
@@ -185,6 +187,9 @@ test('native PDF projection excludes restricted browser and consent values', { t
   assert.equal(extracted.status, 0, extracted.stderr);
   const pdfText = fs.readFileSync(textPath, 'utf8');
   for (const secret of secretValues) assert.equal(pdfText.includes(secret), false, `summary.pdf leaked ${secret}`);
+  assert.match(pdfText, /Runtime network \/ API evidence/i);
+  assert.match(pdfText, /api\.example\.test/);
+  assert.match(pdfText, /Passive\s+metadata\s+only/i);
   assert.equal(saved.complianceConclusion, 'not_determined');
   assert.equal(saved.coverage, 'partial');
 });

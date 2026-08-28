@@ -14,6 +14,7 @@
     "test:cross-format": "node --test test/phase1-report-consistency.test.js",
     "test:package": "node --test test/phase1-package.test.js",
     "validate:phase1": "node scripts/validate-phase1.js",
+    "validate:phase3": "node scripts/validate-phase3.js",
     "package": "node scripts/package-source.js",
     "smoke:all": "node scripts/smoke-all-tools.js"
   },

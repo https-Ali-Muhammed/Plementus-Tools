@@ -371,7 +371,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
     browserRetryCount: 0,
     browserTimeoutMs: 5000
   });
-  assert.equal(scan.schemaVersion, '2.4.0');
+  assert.equal(scan.schemaVersion, '2.5.0');
   assert.equal(scan.scannerVersion, '1.7.1');
   assert.equal(scan.toolVersion, '1.7.1');
   assert.match(scan.mappingCatalogVersion, /^\d{4}\.\d{2}\.\d{2}\.\d+$/);

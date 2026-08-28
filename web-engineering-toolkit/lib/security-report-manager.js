@@ -71,11 +71,13 @@ function stripBrowserSecrets(browserScan = {}) {
     ...(typeof storage.consentInterfaceDetected === 'boolean' ? { consentInterfaceDetected: storage.consentInterfaceDetected } : {})
   });
   const cookieMetadata = ({ value, ...cookie }) => ({ ...cookie, value: '[REDACTED]' });
-  safe.resources = (safe.resources || []).map(({ requestHeaders, responseHeaders, ...resource }) => resource);
+  const networkMetadata = ({ requestHeaders, responseHeaders, requestBody, responseBody, body, postData, authorization, headers, cookieHeader, ...record }) => record;
+  safe.resources = (safe.resources || []).map(networkMetadata);
+  safe.apiObservations = (safe.apiObservations || []).map(networkMetadata);
   safe.cookies = (safe.cookies || []).map(cookieMetadata);
   safe.storage = storageMetadata(safe.storage || {});
   safe.authenticatedPages = (safe.authenticatedPages || []).map(({ headers, bodyText, screenshotBase64: pageScreenshot, ...page }) => page);
-  safe.consentScenarios = (safe.consentScenarios || []).map(({ screenshotBase64: scenarioScreenshot, cookies = [], storage = {}, ...scenario }) => ({ ...scenario, cookies: cookies.map(cookieMetadata), storage: storageMetadata(storage) }));
+  safe.consentScenarios = (safe.consentScenarios || []).map(({ screenshotBase64: scenarioScreenshot, cookies = [], storage = {}, networkObservations = [], ...scenario }) => ({ ...scenario, cookies: cookies.map(cookieMetadata), storage: storageMetadata(storage), networkObservations: networkObservations.map(networkMetadata) }));
   return safe;
 }
 
@@ -149,6 +151,7 @@ export function normalizeLegacySummary(summary) {
     frameworkDefinitions: summary.frameworkDefinitions || FRAMEWORK_DISPLAY_NAMES,
     reviewReasonDefinitions: summary.reviewReasonDefinitions || REVIEW_REASON_DEFINITIONS,
     scopeEvidence: Array.isArray(summary.scopeEvidence) ? summary.scopeEvidence : [],
+    collectionCoverage: summary.collectionCoverage || {},
     findings: Array.isArray(summary.findings) ? summary.findings.map((finding) => ({ ...finding, evidenceItems: (finding.evidenceItems || (finding.evidence ? [finding.evidence] : [])).map(normalizeLegacyEvidence) })) : [],
     testResults: Array.isArray(summary.testResults) ? summary.testResults.map(normalizeLegacyEvidence) : [],
     controlEvaluations: Array.isArray(summary.controlEvaluations) ? summary.controlEvaluations.map((control) => {
@@ -283,6 +286,12 @@ async function writeXlsx(root, summary) {
   overview.getCell('D13').value='Compliance evidence';overview.getCell('D13').font={bold:true,color:{argb:muted}};
   summary.frameworkResults.forEach((fw,i)=>{const r=14+i;overview.getCell(r,4).value=frameworkDisplayName(fw.id);overview.getCell(r,4).font={bold:true,color:{argb:text}};overview.getCell(r,5).value=fw.applicabilityLabel||applicabilityPresentation(fw.applicability,{inputState:fw.applicabilityInput}).label;overview.getCell(r,6).value=`${(fw.publicEvidence||[]).length + (fw.technicalControls||[]).length} observed`;overview.getCell(r,7).value=`${(fw.missingEvidence||[]).length} missing/manual`;});
 
+  const collection = workbook.addWorksheet('Collection Coverage', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
+  collection.columns=[{header:'Collector',width:24},{header:'Collection State',width:22},{header:'Limitations',width:90}];
+  collection.getRow(1).height=34;collection.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
+  for(const [collector,item] of Object.entries(summary.collectionCoverage||{})){const row=collection.addRow([humanize(collector),humanize(item.state||'not_tested'),(item.limitations||[]).join('\n')]);row.height=38;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
+  collection.getCell('A11').value='Collector states describe bounded execution only. They are not a score or compliance conclusion.';collection.mergeCells('A11:C11');collection.getCell('A11').font={italic:true,color:{argb:muted}};
+
   const guidance = workbook.addWorksheet('Mapping Guidance', { views: [{ showGridLines: false }] });
   guidance.columns = [{ width: 24 }, { width: 92 }];
   guidance.getCell('A1').value = 'Mapping relationships'; guidance.getCell('A1').font = { size: 18, bold: true, color: { argb: text } }; guidance.mergeCells('A1:B1');
@@ -368,8 +377,8 @@ export class SecurityReportManager {
       summary = { ...summary, pdfGeneration: { status: 'failed', method: 'playwright_chromium_print_to_pdf', reason: error.message } };
     }
     summary = { ...summary, reportGeneration: { ...(summary.reportGeneration || {}), htmlGenerationMs, pdfGenerationMs: summary.pdfGeneration.durationMs ?? null } };
-    const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 1, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, pdfGeneration:summary.pdfGeneration };
-    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
+    const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 1, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, pdfGeneration:summary.pdfGeneration };
+    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
     fs.writeFileSync(path.join(root,'metadata.json'),JSON.stringify(metadata,null,2));
     fs.writeFileSync(path.join(root,'summary.json'),JSON.stringify({ ...summary, overview },null,2));
     fs.writeFileSync(path.join(root,'workflow.json'),`${JSON.stringify(summary.workflow || {},null,2)}\n`);

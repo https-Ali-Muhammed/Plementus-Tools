@@ -11,6 +11,13 @@ import { classifyNegativeObservation, normalizeCollectionMethod, normalizeCollec
 import { TOOL_VERSION } from './tool-version.js';
 import { buildZapEvidenceMetadata, runZapScan } from './zap-runner.js';
 import {
+  buildCollectionCoverage,
+  canonicalizeObservedUrl,
+  classifyObservedDestination,
+  compareConsentSnapshots,
+  normalizeSafeFormMetadata
+} from './security-collection-model.js';
+import {
   applicabilityPresentation,
   FRAMEWORK_DISPLAY_NAMES,
   frameworkManualReviewReasons,
@@ -650,6 +657,18 @@ async function runConsentScenarioSuite(browser, targetUrl, input, navigationTime
   const run = async (scenario, url = targetUrl) => {
     const context = await browser.newContext({ ignoreHTTPSErrors: false, serviceWorkers: 'block' });
     const page = await context.newPage();
+    const networkObservations = [];
+    const seenNetwork = new Set();
+    page.on('request', (request) => {
+      if (networkObservations.length >= 100) return;
+      const key = `${request.method()}|${request.url()}`;
+      if (seenNetwork.has(key) || !/^https?:/i.test(request.url())) return;
+      seenNetwork.add(key);
+      const relation = classifyObservedDestination(request.url(), page.url() || url);
+      let destinationHost = '';
+      try { destinationHost = new URL(request.url()).hostname; } catch {}
+      networkObservations.push({ url: request.url(), method: request.method(), resourceType: request.resourceType(), sourcePageUrl: page.url() || url, destinationHost, partyClassification: relation.classification, classificationConfidence: relation.confidence, observedAt: new Date().toISOString() });
+    });
     const observedAt = new Date().toISOString();
     let action = 'none';
     let actionSucceeded = false;
@@ -679,10 +698,10 @@ async function runConsentScenarioSuite(browser, targetUrl, input, navigationTime
         sessionStorageKeys: Object.keys(sessionStorage || {})
       }));
       const cookies = await context.cookies();
-      return { scenario, state: 'observed', action, actionSucceeded, testedLocale: snapshot.detectedLocale, visitorContext: scenario === 'returning_user' ? 'returning' : 'fresh', route: snapshot.route, cookies: cookies.map((cookie) => ({ name: cookie.name, domain: cookie.domain, secure: cookie.secure, httpOnly: cookie.httpOnly, sameSite: cookie.sameSite })), storage: { localStorageKeys: snapshot.localStorageKeys, sessionStorageKeys: snapshot.sessionStorageKeys }, consentInterfaceDetected: snapshot.consentInterfaceDetected, observedAt, screenshotBase64: await page.screenshot({ type: 'png', fullPage: true, timeout: 5000 }).then((buffer) => buffer.toString('base64')).catch(() => ''), limitations: ['Button matching is heuristic; the action result does not determine consent validity or legal sufficiency.'] };
+      return { scenario, state: 'observed', action, actionSucceeded, actionState: action === 'none' ? 'not_applicable' : actionSucceeded ? 'completed' : 'requires_manual_confirmation', testedLocale: snapshot.detectedLocale, visitorContext: scenario === 'returning_user' ? 'returning' : 'fresh', route: snapshot.route, cookies: cookies.map((cookie) => ({ name: cookie.name, domain: cookie.domain, secure: cookie.secure, httpOnly: cookie.httpOnly, sameSite: cookie.sameSite })), storage: { localStorageKeys: snapshot.localStorageKeys, sessionStorageKeys: snapshot.sessionStorageKeys }, networkObservations, consentInterfaceDetected: snapshot.consentInterfaceDetected, observedAt, screenshotBase64: await page.screenshot({ type: 'png', fullPage: true, timeout: 5000 }).then((buffer) => buffer.toString('base64')).catch(() => ''), limitations: ['Button matching is heuristic; the action result does not determine consent validity or legal sufficiency.', ...(networkObservations.length >= 100 ? ['Consent scenario network record limit reached (100).'] : []), ...(!actionSucceeded && action !== 'none' ? ['The intended consent control was not matched with sufficient confidence; manual confirmation is required.'] : [])] };
     } catch (caught) {
       error = caught.message;
-      return { scenario, state: 'failed_to_test', action, actionSucceeded, testedLocale: 'unknown', visitorContext: scenario === 'returning_user' ? 'returning' : 'fresh', route: page.url() || url, cookies: [], storage: { localStorageKeys: [], sessionStorageKeys: [] }, consentInterfaceDetected: false, observedAt, screenshotBase64: '', error, limitations: ['The selected consent scenario did not complete.'] };
+      return { scenario, state: 'failed_to_test', action, actionSucceeded, actionState: 'requires_manual_confirmation', testedLocale: 'unknown', visitorContext: scenario === 'returning_user' ? 'returning' : 'fresh', route: page.url() || url, cookies: [], storage: { localStorageKeys: [], sessionStorageKeys: [] }, networkObservations, consentInterfaceDetected: false, observedAt, screenshotBase64: '', error, limitations: ['The selected consent scenario did not complete.'] };
     } finally {
       await context.close().catch(() => {});
     }
@@ -698,6 +717,7 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
   const requestedRetryCount = Number(options.retryCount);
   const retryCount = Math.max(0, Math.min(4, Number.isFinite(requestedRetryCount) ? requestedRetryCount : 2));
   const navigationTimeout = Math.max(5000, Math.min(90000, Number(options.navigationTimeout) || 30000));
+  const maxNetworkRecords = Math.max(25, Math.min(2000, Number(options.maxNetworkRecords) || 500));
   const backoffMs = Array.isArray(options.backoffMs) && options.backoffMs.length
     ? options.backoffMs.map((value) => Math.max(0, Number(value) || 0))
     : [2000, 5000, 10000, 20000];
@@ -723,20 +743,26 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
       const context = await browser.newContext({ ignoreHTTPSErrors: false, serviceWorkers: 'block', ...(options.storageState ? { storageState: options.storageState } : {}) });
       const page = await context.newPage();
       const resources = new Map();
+      let networkRecordLimitReached = false;
       const consoleMessages = [];
 
       page.on('request', (request) => {
+        if (!resources.has(request) && resources.size >= maxNetworkRecords) { networkRecordLimitReached = true; return; }
         resources.set(request, {
-          url: request.url(), method: request.method(), resourceType: request.resourceType(), requestHeaders: request.headers(), failed: false
+          url: request.url(), method: request.method(), resourceType: request.resourceType(), requestHeaders: request.headers(), failed: false,
+          sourcePageUrl: (() => { try { return request.frame()?.url() || page.url() || targetUrl; } catch { return page.url() || targetUrl; } })(),
+          initiatorType: request.resourceType() || 'unknown', observedAt: new Date().toISOString()
         });
       });
       page.on('response', (response) => {
         const request = response.request();
+        if (!resources.has(request) && resources.size >= maxNetworkRecords) { networkRecordLimitReached = true; return; }
         const responseHeaders = response.headers();
         const existing = resources.get(request) || { url: response.url(), method: request.method(), resourceType: request.resourceType(), requestHeaders: request.headers() };
         resources.set(request, { ...existing, url: response.url(), status: response.status(), responseHeaders, mimeType: responseHeaders['content-type'] || '' });
       });
       page.on('requestfailed', (request) => {
+        if (!resources.has(request) && resources.size >= maxNetworkRecords) { networkRecordLimitReached = true; return; }
         const existing = resources.get(request) || { url: request.url(), method: request.method(), resourceType: request.resourceType(), requestHeaders: request.headers() };
         resources.set(request, { ...existing, failed: true, failure: request.failure()?.errorText || 'request failed' });
       });
@@ -792,20 +818,30 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
         sessionStorageKeys: Object.keys(sessionStorage || {}),
         consentInterfaceDetected: /cookie.{0,80}(consent|preferences|settings|accept|reject)|(consent|preferences).{0,80}cookie/is.test(document.body?.innerText || ''),
         links: [...document.querySelectorAll('a[href]')].map((anchor) => anchor.href).filter(Boolean).slice(0, 200),
-        forms: [...document.forms].map((form) => ({ action: form.action || location.href, method: (form.method || 'get').toUpperCase(), inputTypes: [...form.elements].map((element) => element.type || element.tagName.toLowerCase()).filter(Boolean), fieldNames: [...form.elements].map((element) => element.name || element.id || element.autocomplete || '').filter(Boolean) })).slice(0, 50),
+        forms: [...document.forms].map((form) => ({ action: form.action || location.href, method: (form.method || 'get').toUpperCase(), enctype: form.enctype || '', fields: [...form.elements].map((element) => ({ type: element.type || element.tagName.toLowerCase(), name: element.name || '', id: element.id || '', autocomplete: element.autocomplete || '' })) })).slice(0, 50),
         frames: [...document.querySelectorAll('iframe[src]')].map((frame) => ({ url: frame.src, title: frame.title || '' })).slice(0, 30),
         detectedLocale: document.documentElement.lang || navigator.language || 'unknown'
-      })).catch(() => ({ title: '', localStorageKeys: [], sessionStorageKeys: [] }));
+      })).catch(() => ({ title: '', localStorageKeys: [], sessionStorageKeys: [], links: [], forms: [], frames: [] }));
+      storage.forms = (storage.forms || []).map((form) => normalizeSafeFormMetadata(form, finalUrl));
       const authenticatedPages = [];
+      let authenticatedCollection = { state: 'not_tested', pageLimit: 0, depthLimit: 0, queueLimit: 0, runtimeLimitMs: 0, pagesVisited: 0, queuedRoutesRemaining: 0, limitations: [] };
       if (options.authentication?.enabled && ['confirmed', 'observed'].includes(authentication.state)) {
         const crawlLimit = Math.max(1, Math.min(25, Number(options.authenticatedCrawlMaxPages) || 10));
+        const depthLimit = Math.max(1, Math.min(5, Number(options.authenticatedCrawlMaxDepth) || 2));
+        const queueLimit = Math.max(crawlLimit, Math.min(200, Number(options.authenticatedCrawlMaxQueue) || 50));
+        const runtimeLimitMs = Math.max(5_000, Math.min(120_000, Number(options.authenticatedCrawlMaxRuntimeMs) || 30_000));
+        const authenticatedStartedMs = Date.now();
         const targetOrigin = new URL(finalUrl).origin;
-        const queue = [...new Set((storage.links || []).filter((href) => {
+        const queue = [...new Map((storage.links || []).filter((href) => {
           try { return new URL(href).origin === targetOrigin; } catch { return false; }
-        }))];
-        const seen = new Set([finalUrl.split('#')[0]]);
+        }).map((href) => [canonicalizeObservedUrl(href), { url: canonicalizeObservedUrl(href), depth: 1 }])).values()].slice(0, queueLimit);
+        const seen = new Set([canonicalizeObservedUrl(finalUrl)]);
+        let runtimeLimitReached = false;
+        let queueLimitReached = false;
         while (queue.length && authenticatedPages.length < crawlLimit) {
-          const candidate = queue.shift().split('#')[0];
+          if (Date.now() - authenticatedStartedMs >= runtimeLimitMs) { runtimeLimitReached = true; break; }
+          const queued = queue.shift();
+          const candidate = canonicalizeObservedUrl(queued.url);
           if (seen.has(candidate)) continue;
           seen.add(candidate);
           const crawlPage = await context.newPage();
@@ -815,30 +851,52 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
               title: document.title || '',
               bodyText: (document.body?.innerText || '').slice(0, 50000),
               links: [...document.querySelectorAll('a[href]')].map((anchor) => anchor.href).filter(Boolean).slice(0, 200),
-              forms: [...document.forms].map((form) => ({ action: form.action || location.href, method: (form.method || 'get').toUpperCase(), inputTypes: [...form.elements].map((element) => element.type || element.tagName.toLowerCase()).filter(Boolean) })).slice(0, 50)
+              forms: [...document.forms].map((form) => ({ action: form.action || location.href, method: (form.method || 'get').toUpperCase(), enctype: form.enctype || '', fields: [...form.elements].map((element) => ({ type: element.type || element.tagName.toLowerCase(), name: element.name || '', id: element.id || '', autocomplete: element.autocomplete || '' })) })).slice(0, 50)
             }));
-            for (const href of snapshot.links) {
-              try { if (new URL(href).origin === targetOrigin && !seen.has(href.split('#')[0])) queue.push(href); } catch {}
+            if (queued.depth < depthLimit) for (const href of snapshot.links) {
+              try {
+                const normalized = canonicalizeObservedUrl(href);
+                if (new URL(normalized).origin !== targetOrigin || seen.has(normalized) || queue.some((entry) => entry.url === normalized)) continue;
+                if (queue.length >= queueLimit) { queueLimitReached = true; break; }
+                queue.push({ url: normalized, depth: queued.depth + 1 });
+              } catch {}
             }
             const pageScreenshot = authenticatedPages.length < 3 ? await crawlPage.screenshot({ type: 'png', fullPage: true, timeout: 5000 }).then((buffer) => buffer.toString('base64')).catch(() => '') : '';
-            authenticatedPages.push({ url: candidate, finalUrl: crawlPage.url(), status: crawlResponse?.status() || 0, title: snapshot.title, headers: crawlResponse?.headers() || {}, bodyText: snapshot.bodyText, forms: snapshot.forms, discoveredLinkCount: snapshot.links.length, screenshotBase64: pageScreenshot, state: 'confirmed', error: '' });
+            authenticatedPages.push({ url: candidate, finalUrl: crawlPage.url(), depth: queued.depth, status: crawlResponse?.status() || 0, title: snapshot.title, headers: crawlResponse?.headers() || {}, bodyText: snapshot.bodyText, forms: snapshot.forms.map((form) => normalizeSafeFormMetadata(form, crawlPage.url() || candidate)), discoveredLinkCount: snapshot.links.length, screenshotBase64: pageScreenshot, state: 'confirmed', error: '' });
           } catch (error) {
             authenticatedPages.push({ url: candidate, finalUrl: crawlPage.url() || candidate, status: 0, title: '', headers: {}, bodyText: '', forms: [], discoveredLinkCount: 0, screenshotBase64: '', state: 'failed_to_test', error: error.message });
           } finally {
             await crawlPage.close().catch(() => {});
           }
         }
+        const pageLimitReached = authenticatedPages.length >= crawlLimit && queue.length > 0;
+        const limitations = [
+          ...(pageLimitReached ? [`Authenticated page limit reached (${crawlLimit}).`] : []),
+          ...(runtimeLimitReached ? [`Authenticated runtime limit reached (${runtimeLimitMs} ms).`] : []),
+          ...(queueLimitReached ? [`Authenticated queue limit reached (${queueLimit}).`] : [])
+        ];
+        authenticatedCollection = { state: limitations.length || authenticatedPages.some((item) => item.state === 'failed_to_test') ? 'partial' : 'completed', pageLimit: crawlLimit, depthLimit, queueLimit, runtimeLimitMs, pagesVisited: authenticatedPages.length, queuedRoutesRemaining: queue.length, limitations };
       }
       const cookies = await context.cookies().catch(() => []);
       const sessionState = await context.storageState().catch(() => null);
       const resourceList = [...resources.values()].filter((resource) => /^https?:/i.test(resource.url || '')).map((resource) => {
         const category = classifyResourceType(resource.resourceType, resource.mimeType);
+        const relation = classifyObservedDestination(resource.url, resource.sourcePageUrl || finalUrl);
+        let destinationHost = '', destinationOrigin = '';
+        try { const destination = new URL(resource.url); destinationHost = destination.hostname; destinationOrigin = destination.origin; } catch {}
         return {
           url: resource.url,
+          sourcePageUrl: resource.sourcePageUrl || finalUrl,
+          destinationHost,
+          destinationOrigin,
           method: resource.method || 'GET',
           status: resource.status || 0,
           category,
           resourceType: resource.resourceType || '',
+          initiatorType: resource.initiatorType || resource.resourceType || 'unknown',
+          observedAt: resource.observedAt || attemptStartedAt,
+          partyClassification: relation.classification,
+          classificationConfidence: relation.confidence,
           firstParty: isFirstParty(resource.url, finalUrl),
           failed: Boolean(resource.failed),
           failure: resource.failure || '',
@@ -854,6 +912,7 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
       }).filter(Boolean))].sort();
       const externalScripts = resourceList.filter((resource) => resource.category === 'script' && !resource.firstParty).map((resource) => resource.url);
       const apiCalls = resourceList.filter((resource) => ['xhr', 'fetch', 'api'].includes(resource.category)).map((resource) => resource.url);
+      const apiObservations = resourceList.filter((resource) => ['xhr', 'fetch', 'api'].includes(resource.category)).map(({ requestHeaders, responseHeaders, failure, ...resource }) => resource).slice(0, 100);
       const mixedContent = resourceList.filter((resource) => finalUrl.startsWith('https:') && resource.url.startsWith('http:'));
       const trackingRequests = resourceList.filter((resource) => {
         try { return TRACKING_HOST_PATTERN.test(new URL(resource.url).hostname); } catch { return false; }
@@ -872,9 +931,11 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
         status: navigationResponse?.status() || 0,
         title: storage.title,
         resources: resourceList,
+        networkCollection: { state: networkRecordLimitReached ? 'partial' : 'completed', recordLimit: maxNetworkRecords, recordsCaptured: resourceList.length, truncated: networkRecordLimitReached, limitations: networkRecordLimitReached ? [`Browser network record limit reached (${maxNetworkRecords}).`] : [] },
         thirdPartyHosts,
         externalScripts: externalScripts.slice(0, 50),
         apiCalls: [...new Set(apiCalls)].slice(0, 50),
+        apiObservations,
         mixedContent: mixedContent.slice(0, 50),
         trackingRequests: trackingRequests.slice(0, 50),
         ...trackingConsent,
@@ -885,6 +946,7 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
         sessionState,
         authentication,
         authenticatedPages,
+        authenticatedCollection,
         limitations: navigationCompleted ? ['Service workers were blocked for scan repeatability.'] : [navigationError, 'Runtime evidence is partial because navigation did not reach the configured readiness state.', 'Service workers were blocked for scan repeatability.'].filter(Boolean)
       };
       attemptResults.push(attemptResult);
@@ -899,6 +961,8 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
     const best = ranked[0];
     if (!best) return { available: false, completed: false, browser: browserInfo, state: 'failed_to_test', stateLabel: RESULT_STATES.failed_to_test, attempts: [], error: 'Browser scan produced no attempt result.' };
     const advancedConsentScenarios = await runConsentScenarioSuite(browser, targetUrl, options.consentTesting, navigationTimeout);
+    const freshScenario = { scenario: 'fresh_load', state: best.state, action: 'none', actionSucceeded: false, actionState: 'not_applicable', testedLocale: best.storage?.detectedLocale || 'unknown', visitorContext: options.storageState ? 'returning' : 'fresh', route: best.finalUrl, cookies: (best.cookies || []).map((cookie) => ({ name: cookie.name, domain: cookie.domain, secure: cookie.secure, httpOnly: cookie.httpOnly, sameSite: cookie.sameSite })), storage: { localStorageKeys: best.storage?.localStorageKeys || [], sessionStorageKeys: best.storage?.sessionStorageKeys || [] }, networkObservations: (best.resources || []).map(({ requestHeaders, responseHeaders, failure, ...resource }) => resource).slice(0, 100), consentInterfaceDetected: Boolean(best.storage?.consentInterfaceDetected), observedAt: best.startedAt, screenshotBase64: best.screenshotBase64 || '', limitations: best.limitations || [] };
+    const consentScenarios = [freshScenario, ...advancedConsentScenarios.map((scenario) => ({ ...scenario, deltaFromFreshLoad: compareConsentSnapshots(freshScenario, scenario) }))];
     return {
       ...best,
       available: best.state !== 'failed_to_test',
@@ -922,7 +986,7 @@ async function runBrowserSecurityScan(targetUrl, options = {}) {
       })),
       retryCount,
       consentTesting: normalizeConsentTestingConfig(options.consentTesting),
-      consentScenarios: [{ scenario: 'fresh_load', state: best.state, action: 'none', actionSucceeded: false, testedLocale: best.storage?.detectedLocale || 'unknown', visitorContext: options.storageState ? 'returning' : 'fresh', route: best.finalUrl, cookies: (best.cookies || []).map((cookie) => ({ name: cookie.name, domain: cookie.domain, secure: cookie.secure, httpOnly: cookie.httpOnly, sameSite: cookie.sameSite })), storage: { localStorageKeys: best.storage?.localStorageKeys || [], sessionStorageKeys: best.storage?.sessionStorageKeys || [] }, consentInterfaceDetected: Boolean(best.storage?.consentInterfaceDetected), observedAt: best.startedAt, screenshotBase64: best.screenshotBase64 || '', limitations: best.limitations || [] }, ...advancedConsentScenarios],
+      consentScenarios,
       error: best.error || ''
     };
   } catch (error) {
@@ -1409,6 +1473,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     authentication,
     storageState: storedSession?.storageState || null,
     authenticatedCrawlMaxPages: maxCrawlPages,
+    authenticatedCrawlMaxDepth: config.authenticatedCrawlMaxDepth,
+    authenticatedCrawlMaxQueue: config.authenticatedCrawlMaxQueue,
+    authenticatedCrawlMaxRuntimeMs: config.authenticatedCrawlMaxRuntimeMs,
+    maxNetworkRecords: config.maxNetworkRecords,
     consentTesting: config.consentTesting
   });
   let savedSession = null;
@@ -1813,6 +1881,8 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       }
       crawl = {
         pagesScanned: evidencePages.length,
+        state: pages.collectionMetadata?.state || 'completed',
+        collectionMetadata: pages.collectionMetadata || { state: 'completed', limitations: [] },
         pages: evidencePages.map((p) => ({ url: p.finalUrl || p.url, status: p.status, found: p.found, groups: p.groups, title: p.title || '', source: p.source || '', detectedLocale: p.detectedLocale || 'unknown', error: p.error || '' })),
         linkedEvidence,
         ...evidence
@@ -1866,7 +1936,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
         recommendation: 'A text mention is not proof of certification. Verify any certification claim against a current, signed certificate or audit report before relying on it.'
       }));
     } catch (error) {
-      crawl = { error: describeError(error), pagesScanned: 0, pages: [] };
+      crawl = { error: describeError(error), state: 'failed_to_test', collectionMetadata: { state: 'failed_to_test', limitations: [describeError(error)] }, pagesScanned: 0, pages: [] };
       checks.push(result({ id: 'public-evidence-crawl', title: 'Public evidence crawl', category: 'Compliance evidence', status: 'info', summary: 'Failed to test public evidence discovery; no public-document absence was asserted.', details: crawl.error, affectedUrl: response.finalUrl, testState: 'failed_to_test', collectionState: 'failed_to_test', collectionMethod: 'crawl', negativeObservation: classifyNegativeObservation({ collectionState: 'failed_to_test' }), limitations: ['Crawl failure does not establish that a public policy, security, compliance, or terms document is absent.'] }));
     }
   }
@@ -1996,9 +2066,10 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
     limitations: ['Consent observations are bounded by tested route, locale, visitor context, cookies/storage state, and scenario configuration; legal sufficiency is not determined.']
   };
   const scopeEvidence = buildOperatorScopeEvidence({ frameworkApplicability: frameworkApplicabilityInput, jurisdiction, sourceUrl: response.finalUrl, observedAt: generatedAt });
+  const collectionCoverage = buildCollectionCoverage({ response, tlsAnalysis, crawlEnabled, crawl, browserScan, zapResult });
 
   return {
-    schemaVersion: '2.4.0',
+    schemaVersion: '2.5.0',
     scannerVersion: SCANNER_VERSION,
     toolVersion: TOOL_VERSION,
     mappingCatalogVersion: MAPPING_CATALOG_VERSION,
@@ -2030,6 +2101,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
       operatorInput: framework.applicabilityInput
     }])),
     scopeEvidence,
+    collectionCoverage,
     responseStatus: response.status,
     redirectChain: response.redirectChain,
     overallStatus,

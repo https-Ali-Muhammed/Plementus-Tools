@@ -68,6 +68,7 @@ function handler(req, res) {
     body = page(`${requestedRole} workspace`, `<h1>${requestedRole} workspace</h1><p>Bounded role-specific fixture content. This does not validate RBAC.</p>`);
   }
   if (url.pathname === '/dashboard') body = page('Dashboard', '<nav><a href="/account">Account</a><a href="/admin">Admin</a></nav><h1>User dashboard</h1>');
+  if (url.pathname === '/account') body = page('Account', '<h1>Account</h1><a href="/dashboard?view=full&utm_source=fixture#top">Dashboard</a><form action="/account/upload" method="post" enctype="multipart/form-data"><input name="password" type="password" autocomplete="current-password"><input name="document" type="file"><input name="card_number" autocomplete="cc-number"><button>Save</button></form>');
   if (url.pathname === '/admin') {
     if (!/role=admin/.test(req.headers.cookie || '')) {
       res.writeHead(403, headers);
@@ -88,7 +89,12 @@ function handler(req, res) {
   if (url.pathname === '/privacy-fragment') body = page('Privacy signal', '<a href="#privacy">Privacy policy</a><section id="privacy"><p>Short dynamically revealed privacy signal.</p></section>');
   if (url.pathname === '/no-policy') body = page('No policy', '<h1>Company</h1><p>No legal-document navigation is present.</p>');
   if (url.pathname === '/consent-none') body = page('No tracking', '<h1>Welcome</h1><p>No tracker and no consent banner.</p>');
-  if (url.pathname === '/consent-banner') body = page('Consent', '<button>Accept cookies</button><button>Reject cookies</button><script src="https://www.googletagmanager.com/gtag/js?id=G-CONSENT"></script>');
+  if (url.pathname === '/consent-banner') body = page('Consent', '<button id="accept">Accept cookies</button><button id="reject">Reject cookies</button><script>accept.onclick=()=>{document.cookie="analytics=yes; Path=/";localStorage.setItem("analytics_id","redacted");fetch("/api/consent-accepted")};reject.onclick=()=>{sessionStorage.setItem("consent","rejected");fetch("/api/consent-rejected")}</script><script src="https://www.googletagmanager.com/gtag/js?id=G-CONSENT"></script>');
+  if (url.pathname === '/phase3-runtime') body = page('Runtime', `<h1>Runtime</h1><script>for(let i=0;i<35;i++)fetch('/api/runtime?id='+i+'&utm_source=fixture').catch(()=>{});fetch('http://127.0.0.1:${url.port}/api/related').catch(()=>{})</script>`);
+  if (url.pathname.startsWith('/api/')) {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end('{"ok":true}');
+  }
   if (url.pathname === '/consent-policy-claim') body = page('Consent claim', '<a href="/privacy/complete">Privacy policy</a><p>Use the cookie banner to manage preferences.</p>');
   if (url.pathname === '/en' || url.pathname === '/en/') body = page('English', '<html lang="en"><link rel="alternate" hreflang="ar" href="/ar"><a href="/en/privacy">Privacy</a><a href="/ar/privacy">العربية</a></html>');
   if (url.pathname === '/ar' || url.pathname === '/ar/') body = page('Arabic', '<html lang="ar" dir="rtl"><link rel="alternate" hreflang="en" href="/en"><a href="/ar/privacy">الخصوصية</a><a href="/en/privacy">English</a></html>');

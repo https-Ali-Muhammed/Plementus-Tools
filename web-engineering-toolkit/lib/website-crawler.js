@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { URL } from 'node:url';
 import { requestWithRedirects } from './http-client.js';
 import { SECURITY_SCANNER_USER_AGENT } from './tool-version.js';
+import { canonicalizeObservedUrl } from './security-collection-model.js';
 
 // Well-known paths worth probing directly even if the homepage doesn't link
 // to them plainly (many sites keep these pages but bury or omit the link).
@@ -137,14 +138,7 @@ function extractLocaleVariantLinks(html, baseUrl) {
   return [...new Map(found.map((item) => [`${item.locale}|${normalizeForDedupe(item.url)}`, item])).values()].slice(0, 4);
 }
 
-function normalizeForDedupe(href) {
-  try {
-    const u = new URL(href);
-    return `${u.origin}${(u.pathname || '/').replace(/\/$/, '') || '/'}`;
-  } catch {
-    return href;
-  }
-}
+const normalizeForDedupe = canonicalizeObservedUrl;
 
 function pageLooksRelevant({ html, finalUrl, groups = [] }) {
   if (!groups.length) return true;
@@ -186,6 +180,69 @@ async function fetchPageWithRedirects(target, { timeout = 8000, maxBodyBytes = 9
   };
 }
 
+function xmlLocations(xml, baseUrl) {
+  return [...String(xml || '').matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)].map((match) => {
+    const value = decodeEntities(match[1]).trim();
+    try { return new URL(value, baseUrl).href; } catch { return ''; }
+  }).filter(Boolean);
+}
+
+async function discoverSitemapUrls(homepageUrl, { timeoutPerPage, maxSitemapDocuments, maxSitemapUrls }) {
+  const origin = new URL(homepageUrl).origin;
+  const sitemapQueue = [];
+  const seenDocuments = new Set();
+  const discoveredUrls = [];
+  const limitations = [];
+  const errors = [];
+  const addSitemap = (value, source) => {
+    try {
+      const url = new URL(value, origin);
+      if (url.origin !== origin || seenDocuments.has(canonicalizeObservedUrl(url.href)) || sitemapQueue.some((entry) => canonicalizeObservedUrl(entry.url) === canonicalizeObservedUrl(url.href))) return;
+      sitemapQueue.push({ url: url.href, source });
+    } catch {}
+  };
+  try {
+    const robots = await fetchPageWithRedirects(new URL('/robots.txt', origin).href, { timeout: timeoutPerPage, maxBodyBytes: 100_000 });
+    for (const match of String(robots.body || '').matchAll(/^\s*Sitemap:\s*(\S+)\s*$/gim)) addSitemap(match[1], 'robots');
+  } catch (error) {
+    errors.push(`robots.txt: ${describeError(error)}`);
+  }
+  addSitemap(new URL('/sitemap.xml', origin).href, 'default');
+  while (sitemapQueue.length && seenDocuments.size < maxSitemapDocuments && discoveredUrls.length < maxSitemapUrls) {
+    const entry = sitemapQueue.shift();
+    const key = canonicalizeObservedUrl(entry.url);
+    if (seenDocuments.has(key)) continue;
+    seenDocuments.add(key);
+    try {
+      const response = await fetchPageWithRedirects(entry.url, { timeout: timeoutPerPage, maxBodyBytes: 500_000 });
+      if (response.status < 200 || response.status >= 400) continue;
+      const locations = xmlLocations(response.body, response.finalUrl);
+      if (/<sitemapindex\b/i.test(response.body || '')) {
+        for (const location of locations) addSitemap(location, 'sitemap-index');
+      } else {
+        for (const location of locations) {
+          if (discoveredUrls.length >= maxSitemapUrls) break;
+          try {
+            const url = new URL(location);
+            if (url.origin === origin) discoveredUrls.push(url.href);
+          } catch {}
+        }
+      }
+      if (response.truncated) limitations.push(`Sitemap document was truncated: ${response.finalUrl}`);
+    } catch (error) {
+      errors.push(`${entry.url}: ${describeError(error)}`);
+    }
+  }
+  if (sitemapQueue.length) limitations.push(`Sitemap document limit reached (${maxSitemapDocuments}).`);
+  if (discoveredUrls.length >= maxSitemapUrls) limitations.push(`Sitemap URL limit reached (${maxSitemapUrls}).`);
+  return {
+    urls: [...new Map(discoveredUrls.map((url) => [canonicalizeObservedUrl(url), url])).values()],
+    documentsRequested: seenDocuments.size,
+    errors,
+    limitations
+  };
+}
+
 /**
  * Crawls a small, targeted set of pages beyond the homepage to find
  * compliance-relevant evidence (privacy policy, terms, security/trust pages,
@@ -195,7 +252,7 @@ async function fetchPageWithRedirects(target, { timeout = 8000, maxBodyBytes = 9
  * This is a shallow, bounded crawl (homepage + well-known paths + homepage
  * links matching compliance keywords) — not a general-purpose site crawler.
  */
-export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPages = 10, timeoutPerPage = 8000 } = {}) {
+export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPages = 10, timeoutPerPage = 8000, maxSitemapDocuments = 3, maxSitemapUrls = 100 } = {}) {
   const origin = new URL(homepageUrl);
   const candidates = new Map();
 
@@ -223,11 +280,20 @@ export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPage
   }
   for (const variant of extractLocaleVariantLinks(homepageHtml, homepageUrl)) addCandidate(variant.url, 'locale', 'homepage-locale-link');
 
-  // Prefer links the site actually surfaces over guessed well-known paths.
-  const ordered = [...candidates.values()].sort((a, b) => {
-    if (a.source === b.source) return 0;
-    return a.source === 'homepage-link' ? -1 : 1;
+  const sitemapDiscovery = await discoverSitemapUrls(homepageUrl, {
+    timeoutPerPage: Math.max(500, Math.min(15_000, Number(timeoutPerPage) || 8000)),
+    maxSitemapDocuments: Math.max(1, Math.min(10, Number(maxSitemapDocuments) || 3)),
+    maxSitemapUrls: Math.max(1, Math.min(500, Number(maxSitemapUrls) || 100))
   });
+  for (const sitemapUrl of sitemapDiscovery.urls) {
+    const groups = extractLinks(`<a href="${sitemapUrl}">${sitemapUrl}</a>`, homepageUrl).flatMap((item) => item.groups);
+    if (groups.length) for (const group of groups) addCandidate(sitemapUrl, group, 'sitemap');
+    else if (LINK_KEYWORD_PATTERN.test(sitemapUrl)) addCandidate(sitemapUrl, null, 'sitemap');
+  }
+
+  // Prefer links the site actually surfaces over guessed well-known paths.
+  const priority = { 'homepage-link': 0, 'homepage-locale-link': 0, sitemap: 1, 'locale-well-known-path': 2, 'well-known-path': 3 };
+  const ordered = [...candidates.values()].sort((a, b) => (priority[a.source] ?? 4) - (priority[b.source] ?? 4));
   const selected = ordered.slice(0, Math.max(1, Math.min(25, maxPages)));
 
   const pages = [];
@@ -282,6 +348,23 @@ export async function discoverEvidencePages(homepageUrl, homepageHtml, { maxPage
       pages.push({ url: candidate.url, finalUrl: candidate.url, status: 0, groups: [...candidate.groups], source: candidate.source, html: '', found: false, detectedLocale: detectLocale({ finalUrl: candidate.url }), collectedAt: new Date().toISOString(), error: describeError(error) });
     }
   }
+  const pageFailures = pages.filter((page) => page.status === 0).length;
+  const budgetReached = ordered.length > selected.length;
+  const limitations = [...sitemapDiscovery.limitations];
+  if (budgetReached) limitations.push(`Crawl page limit reached (${selected.length}).`);
+  if (pageFailures) limitations.push(`${pageFailures} selected page request(s) failed.`);
+  Object.defineProperty(pages, 'collectionMetadata', {
+    value: {
+      state: pageFailures || budgetReached || limitations.length ? 'partial' : 'completed',
+      selectedPageCount: selected.length,
+      candidateCount: ordered.length,
+      pageFailures,
+      sitemapDocumentsRequested: sitemapDiscovery.documentsRequested,
+      sitemapErrors: sitemapDiscovery.errors,
+      limitations
+    },
+    enumerable: false
+  });
   return pages;
 }
 
