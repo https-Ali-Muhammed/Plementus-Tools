@@ -45,7 +45,7 @@ test('scan output exposes non-scored collector coverage and keeps conservative i
   const reason = browserSkipReason(capability, 'navigation');
   if (reason) return t.skip(reason);
   const scan = await scanWebsiteSecurity({ projectName: 'Phase 3 coverage', targetUrl: `${lab.baseUrl}/secure-corporate`, frameworks: ['iso-27001'], crawl: true, maxCrawlPages: 2, browserRetryCount: 0, browserTimeoutMs: 8_000 });
-  assert.equal(scan.schemaVersion, '2.5.0');
+  assert.equal(scan.schemaVersion, '2.6.0');
   assert.deepEqual(Object.keys(scan.collectionCoverage), ['http', 'tls', 'dns', 'crawl', 'browser', 'authenticated', 'consent', 'zapPassive']);
   assert.equal(scan.collectionCoverage.crawl.state, 'partial');
   assert.equal(scan.assessmentType, 'compliance_pre_assessment');

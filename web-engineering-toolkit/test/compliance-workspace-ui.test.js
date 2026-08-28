@@ -72,11 +72,15 @@ test('workspace presents canonical relationship, applicability, and manual-revie
 });
 
 test('finding filters are display-only, reset with each rendered result, and keep findings one-column', () => {
-  for (const id of ['securityFindingSearch', 'securityFindingSeverity', 'securityFindingCategory', 'securityFindingReview', 'securityFindingFramework']) {
+  for (const id of ['securityFindingSearch', 'securityFindingSeverity', 'securityFindingCategory', 'securityFindingReview', 'securityFindingDisposition', 'securityFindingCollection', 'securityFindingManualReason', 'securityFindingFramework', 'securityFindingSort']) {
     assert.match(app, new RegExp(`id="${id}"`));
   }
   assert.match(app, /function applySecurityFindingFilters\(\)/);
   assert.match(app, /card\.classList\.toggle\('hidden', !matches\)/);
+  assert.match(app, /expectedWorkflowRevision/);
+  assert.match(app, /security-scope-decision/);
+  assert.match(app, /security-mapping-id/);
+  assert.match(app, /Save review/);
   assert.match(app, /refs\.securityResults\.innerHTML =/);
   assert.match(css, /#securitySection \.security-findings \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
 });

@@ -2069,7 +2069,7 @@ export async function scanWebsiteSecurity(config = {}, dependencies = {}) {
   const collectionCoverage = buildCollectionCoverage({ response, tlsAnalysis, crawlEnabled, crawl, browserScan, zapResult });
 
   return {
-    schemaVersion: '2.5.0',
+    schemaVersion: '2.6.0',
     scannerVersion: SCANNER_VERSION,
     toolVersion: TOOL_VERSION,
     mappingCatalogVersion: MAPPING_CATALOG_VERSION,

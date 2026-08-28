@@ -39,6 +39,37 @@ function statusFill(status) { return ({ pass: 'FFE5F7EF', warning: 'FFFFF1DD', f
 
 function sha256(buffer) { return crypto.createHash('sha256').update(buffer).digest('hex'); }
 
+export function spreadsheetSafeReviewText(value = '') {
+  const text = String(value || '');
+  return /^[\s\u0000-\u001f]*[=+\-@]/u.test(text) ? `'${text}` : text;
+}
+
+export function buildReviewSummary(findings = [], workflow = {}) {
+  const decisions = (workflow.findingDecisions || []).length
+    ? workflow.findingDecisions
+    : findings.map((finding) => finding.decision || finding);
+  const byFingerprint = new Map(decisions.map((decision) => [decision.fingerprint, decision]));
+  const relevant = findings.map((finding) => byFingerprint.get(finding.fingerprint) || finding.decision || finding);
+  const reviewed = relevant.filter((item) => item.findingStatus === 'reviewed' || item.status === 'reviewed' || item.reviewDecision || item.scopeDecision || item.mappingDecision);
+  const count = (field, value) => relevant.filter((item) => item[field] === value || (item.reviews || []).some((review) => review[field] === value)).length;
+  return {
+    label: 'Review progress',
+    state: reviewed.length === 0 ? 'not_started' : reviewed.length === findings.length ? 'reviewed' : 'in_progress',
+    totalFindings: findings.length,
+    reviewedFindings: reviewed.length,
+    unreviewedFindings: Math.max(0, findings.length - reviewed.length),
+    acceptedObservations: count('reviewDecision', 'accepted_as_observation'),
+    falsePositives: count('reviewDecision', 'false_positive'),
+    requiresMoreEvidence: count('reviewDecision', 'requires_more_evidence'),
+    mappingConfirmed: count('mappingDecision', 'confirmed'),
+    mappingRejected: count('mappingDecision', 'rejected'),
+    scopeConfirmed: count('scopeDecision', 'confirmed'),
+    scopeNotConfirmed: count('scopeDecision', 'not_confirmed'),
+    complianceConclusion: 'not_determined',
+    controlSatisfaction: 'not_determined'
+  };
+}
+
 export function describeIntegrityMetadata({ evidenceManifest = {}, reportManifest = {} } = {}) {
   const artifacts = evidenceManifest.artifacts || [];
   const validHashCount = artifacts.filter((artifact) => /^[a-f0-9]{64}$/i.test(String(artifact.sha256 || ''))).length;
@@ -88,23 +119,30 @@ function publicSummary(summary) {
 
 function reportWorkflow({ summary, reportName, lifecycleManager, revision = 1 }) {
   const fingerprints = new Set((summary.findings || []).map((finding) => finding.fingerprint).filter(Boolean));
+  const snapshot = lifecycleManager ? lifecycleManager.snapshot(summary.projectName) : null;
   const findingDecisions = lifecycleManager
-    ? lifecycleManager.list(summary.projectName).filter((item) => fingerprints.has(item.fingerprint)).map((item) => ({
+    ? snapshot.findings.filter((item) => fingerprints.has(item.fingerprint)).map((item) => ({
       fingerprint: item.fingerprint,
       findingId: item.findingId,
       findingStatus: item.findingStatus || item.status || 'open',
       reviewDecision: item.reviewDecision || '',
       scopeDecision: item.scopeDecision || '',
       mappingDecision: item.mappingDecision || '',
+      mappingId: item.mappingId || '',
+      scopeFramework: item.scopeFramework || '',
       reason: item.reason || '',
       reviewer: item.reviewer || item.actor || '',
       role: item.role || 'reviewer',
       updatedAt: item.updatedAt || '',
       evidenceRefs: [...(item.evidenceRefs || [])],
-      reviews: (item.reviews || []).map((review) => ({ reviewId: review.reviewId, reviewer: review.reviewer || '', role: review.role || 'reviewer', reviewDecision: review.reviewDecision || '', scopeDecision: review.scopeDecision || '', mappingDecision: review.mappingDecision || '', reason: review.reason || '', createdAt: review.createdAt || '', updatedAt: review.updatedAt || '', evidenceRefs: [...(review.evidenceRefs || [])] }))
+      reviews: (item.reviews || []).map((review) => ({ reviewId: review.reviewId, reviewer: review.reviewer || '', role: review.role || 'reviewer', reviewDecision: review.reviewDecision || '', scopeDecision: review.scopeDecision || '', mappingDecision: review.mappingDecision || '', mappingId: review.mappingId || '', scopeFramework: review.scopeFramework || '', reason: review.reason || '', createdAt: review.createdAt || '', updatedAt: review.updatedAt || '', revision: review.revision ?? null, evidenceRefs: [...(review.evidenceRefs || [])] }))
     }))
     : (summary.findings || []).map((finding) => ({ fingerprint: finding.fingerprint, findingId: finding.id, findingStatus: finding.findingStatus || finding.status || 'open', reviewDecision: finding.reviewDecision || '', scopeDecision: finding.scopeDecision || '', mappingDecision: finding.mappingDecision || '', reason: '', reviewer: '', role: 'reviewer', updatedAt: '', evidenceRefs: [], reviews: finding.decision?.reviews || [] }));
-  return { schemaVersion: '2.0.0', revision, reportName, projectName: summary.projectName, updatedAt: new Date().toISOString(), state: findingDecisions.some((item) => item.findingStatus === 'reviewed') ? 'reviewed' : 'review_required', findingDecisions };
+  const workflow = { schemaVersion: '3.0.0', revision: snapshot?.revision ?? revision, reportName, projectName: summary.projectName, scanGeneratedAt: summary.generatedAt, updatedAt: snapshot?.updatedAt || summary.generatedAt, state: 'review_required', history: (snapshot?.history || []).filter((entry) => fingerprints.has(entry.fingerprint)).slice(-100), findingDecisions };
+  const reviewSummary = buildReviewSummary(summary.findings || [], workflow);
+  workflow.state = reviewSummary.state;
+  workflow.reviewSummary = reviewSummary;
+  return workflow;
 }
 
 function applyWorkflow(summary, workflow) {
@@ -117,7 +155,8 @@ function applyWorkflow(summary, workflow) {
       if (!decision) return finding;
       const findingStatus = decision.findingStatus || decision.status || 'open';
       return { ...finding, status: findingStatus, findingStatus, reviewDecision: decision.reviewDecision || '', scopeDecision: decision.scopeDecision || '', mappingDecision: decision.mappingDecision || '', decision };
-    })
+    }),
+    reviewSummary: workflow.reviewSummary || buildReviewSummary(summary.findings || [], workflow)
   };
 }
 
@@ -251,7 +290,7 @@ function writeSignedReportManifest(root, summary, files) {
     return { file, filename: file, mimeType: reportMimeType(file), bytes: buffer.length, size: buffer.length, sha256: sha256(buffer) };
   });
   const signingKey = process.env.SECURITY_REPORT_SIGNING_KEY || '';
-  const signedPayload = { schemaVersion: '1.4.0', reportType: summary.reportType, toolVersion: summary.toolVersion || summary.scannerVersion, scannerVersion: summary.scannerVersion, mappingCatalogVersion: summary.mappingCatalogVersion, projectName: summary.projectName, generatedAt: summary.generatedAt, workflowRevision: summary.workflow?.revision || 1, workflowUpdatedAt: summary.workflow?.updatedAt || summary.generatedAt, immutableEvidenceSnapshot: true, files: entries };
+  const signedPayload = { schemaVersion: '1.4.0', reportType: summary.reportType, toolVersion: summary.toolVersion || summary.scannerVersion, scannerVersion: summary.scannerVersion, mappingCatalogVersion: summary.mappingCatalogVersion, projectName: summary.projectName, generatedAt: summary.generatedAt, workflowRevision: summary.workflow?.revision || 0, workflowUpdatedAt: summary.workflow?.updatedAt || summary.generatedAt, reviewSummary: summary.reviewSummary || buildReviewSummary(summary.findings || [], summary.workflow || {}), immutableEvidenceSnapshot: true, files: entries };
   const manifest = { ...signedPayload, signature: signingKey ? { algorithm: 'hmac-sha256', value: crypto.createHmac('sha256', signingKey).update(JSON.stringify(signedPayload)).digest('hex') } : { algorithm: 'none', value: '', reason: 'SECURITY_REPORT_SIGNING_KEY is not configured.' } };
   fs.writeFileSync(path.join(root, 'report-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   for (const file of [...files, 'report-manifest.json']) { try { fs.chmodSync(path.join(root, file), 0o444); } catch {} }
@@ -261,7 +300,7 @@ function writeSignedReportManifest(root, summary, files) {
 function writeCsv(root, summary) {
   const rows = [['Finding ID','Title','Severity','Legacy Confidence','Collection State','Evidence Confidence','Collection Method','Normalized Evidence Strength','Finding Status','Review Decision','Scope Decision','Mapping Decision','Decision Reason','Reviewed By','Reviewer Role','Review Date','Affected URL','Evidence Type','Evidence Strength','Source Method','Evidence','Impact','Recommendation','References','Controls','Mapping Relationships','Mapping Prerequisites','Mapping Applicability','Assessment Type','Evidence Level','Compliance Conclusion','Coverage','First Seen','Last Seen','Test Method','Tool Version','Scanner Version','Mapping Catalog Version','Limitations']];
   for (const item of summary.findings || []) {
-    rows.push([item.id,item.title,item.severity,item.confidence,item.evidence?.collectionState||'',item.evidence?.confidence||item.evidence?.evidenceConfidence||'',item.evidence?.collectionMethod||'',item.evidence?.normalizedEvidenceStrength||'',item.findingStatus||item.status,item.decision?.reviewDecision||'',item.decision?.scopeDecision||'',item.decision?.mappingDecision||'',item.decision?.reason||'',item.decision?.reviewer||item.decision?.actor||'',item.decision?.role||'',item.decision?.updatedAt||'',item.affectedUrl||'',item.evidence?.evidenceType||item.evidence?.type||'',item.evidence?.evidenceStrength||'',item.evidence?.sourceMethod||'',item.evidence?.raw||'',item.impact,item.recommendation,(item.references||[]).join(' | '),(item.controls||[]).join(' | '),(item.controlMappings||[]).map((mapping)=>`${mappingFrameworkLabel(mapping)} ${mapping.controlId}: ${mapping.relationship}`).join(' | '),(item.controlMappings||[]).flatMap((mapping)=>mapping.prerequisiteResults||[]).map((entry)=>`${entry.prerequisite}: ${entry.state}`).join(' | '),Object.entries(item.mappingApplicability||{}).map(([framework,state])=>`${framework}: ${state}`).join(' | '),summary.assessmentType,summary.evidenceLevel,summary.complianceConclusion,'partial',item.firstSeen,item.lastSeen,item.testMethod,item.toolVersion,summary.scannerVersion,summary.mappingCatalogVersion,(item.limitations||[]).join(' | ')]);
+    rows.push([item.id,item.title,item.severity,item.confidence,item.evidence?.collectionState||'',item.evidence?.confidence||item.evidence?.evidenceConfidence||'',item.evidence?.collectionMethod||'',item.evidence?.normalizedEvidenceStrength||'',item.findingStatus||item.status,item.decision?.reviewDecision||'',item.decision?.scopeDecision||'',item.decision?.mappingDecision||'',spreadsheetSafeReviewText(item.decision?.reason||''),spreadsheetSafeReviewText(item.decision?.reviewer||item.decision?.actor||''),spreadsheetSafeReviewText(item.decision?.role||''),item.decision?.updatedAt||'',item.affectedUrl||'',item.evidence?.evidenceType||item.evidence?.type||'',item.evidence?.evidenceStrength||'',item.evidence?.sourceMethod||'',item.evidence?.raw||'',item.impact,item.recommendation,(item.references||[]).join(' | '),(item.controls||[]).join(' | '),(item.controlMappings||[]).map((mapping)=>`${mappingFrameworkLabel(mapping)} ${mapping.controlId}: ${mapping.relationship}`).join(' | '),(item.controlMappings||[]).flatMap((mapping)=>mapping.prerequisiteResults||[]).map((entry)=>`${entry.prerequisite}: ${entry.state}`).join(' | '),Object.entries(item.mappingApplicability||{}).map(([framework,state])=>`${framework}: ${state}`).join(' | '),summary.assessmentType,summary.evidenceLevel,summary.complianceConclusion,'partial',item.firstSeen,item.lastSeen,item.testMethod,item.toolVersion,summary.scannerVersion,summary.mappingCatalogVersion,(item.limitations||[]).join(' | ')]);
   }
   const csv = `\uFEFF${rows.map(row=>row.map(csvEscape).join(',')).join('\n')}\n`;
   fs.writeFileSync(path.join(root,'findings.csv'),csv,'utf8');
@@ -301,8 +340,15 @@ async function writeXlsx(root, summary) {
   const findings = workbook.addWorksheet('Findings', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
   findings.columns=[{header:'Finding ID',width:38},{header:'Title',width:38},{header:'Severity',width:14},{header:'Legacy Confidence',width:18},{header:'Collection State',width:18},{header:'Evidence Confidence',width:18},{header:'Collection Method',width:22},{header:'Evidence Strength',width:22},{header:'Finding Status',width:18},{header:'Review Decision',width:28},{header:'Scope Decision',width:22},{header:'Mapping Decision',width:22},{header:'Decision Reason',width:48},{header:'Reviewed By',width:24},{header:'Reviewer Role',width:24},{header:'Review Date',width:24},{header:'Affected URL',width:50},{header:'Evidence Type',width:24},{header:'Evidence',width:72},{header:'Impact',width:58},{header:'Recommendation',width:62},{header:'Controls',width:52},{header:'Mapping Applicability',width:44},{header:'Test Method',width:36},{header:'First Seen',width:24},{header:'Last Seen',width:24},{header:'Tool Version',width:16},{header:'Limitations',width:60}];
   findings.getRow(1).height=34;findings.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const item of summary.findings || []){const row=findings.addRow([item.id,item.title,item.severity,item.confidence,item.evidence?.collectionState||'',item.evidence?.confidence||item.evidence?.evidenceConfidence||'',item.evidence?.collectionMethod||'',item.evidence?.normalizedEvidenceStrength||'',item.findingStatus||item.status,item.decision?.reviewDecision||'',item.decision?.scopeDecision||'',item.decision?.mappingDecision||'',item.decision?.reason||'',item.decision?.reviewer||item.decision?.actor||'',item.decision?.role||'',item.decision?.updatedAt||'',item.affectedUrl,item.evidence?.type||'',item.evidence?.raw||'',item.impact,item.recommendation,(item.controls||[]).join('\n'),Object.entries(item.mappingApplicability||{}).map(([framework,state])=>`${framework}: ${state}`).join('\n'),item.testMethod,item.firstSeen,item.lastSeen,item.toolVersion,(item.limitations||[]).join('\n')]);row.height=58;row.alignment={vertical:'top',wrapText:true};row.getCell(3).fill={type:'pattern',pattern:'solid',fgColor:{argb:statusFill(['critical','high'].includes(item.severity)?'fail':item.severity==='medium'?'warning':'info')}};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
+  for(const item of summary.findings || []){const row=findings.addRow([item.id,item.title,item.severity,item.confidence,item.evidence?.collectionState||'',item.evidence?.confidence||item.evidence?.evidenceConfidence||'',item.evidence?.collectionMethod||'',item.evidence?.normalizedEvidenceStrength||'',item.findingStatus||item.status,item.decision?.reviewDecision||'',item.decision?.scopeDecision||'',item.decision?.mappingDecision||'',spreadsheetSafeReviewText(item.decision?.reason||''),spreadsheetSafeReviewText(item.decision?.reviewer||item.decision?.actor||''),spreadsheetSafeReviewText(item.decision?.role||''),item.decision?.updatedAt||'',item.affectedUrl,item.evidence?.type||'',item.evidence?.raw||'',item.impact,item.recommendation,(item.controls||[]).join('\n'),Object.entries(item.mappingApplicability||{}).map(([framework,state])=>`${framework}: ${state}`).join('\n'),item.testMethod,item.firstSeen,item.lastSeen,item.toolVersion,(item.limitations||[]).join('\n')]);row.height=58;row.alignment={vertical:'top',wrapText:true};row.getCell(3).fill={type:'pattern',pattern:'solid',fgColor:{argb:statusFill(['critical','high'].includes(item.severity)?'fail':item.severity==='medium'?'warning':'info')}};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
   findings.autoFilter={from:'A1',to:'AB1'};
+
+  const reviewQueue = workbook.addWorksheet('Review Queue', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
+  reviewQueue.columns=[{header:'Finding ID',width:38},{header:'Severity',width:14},{header:'Review Status',width:18},{header:'Finding Disposition',width:28},{header:'Mapping Decision',width:22},{header:'Mapping ID',width:44},{header:'Scope Decision',width:22},{header:'Scope Framework',width:24},{header:'Frameworks',width:32},{header:'Control IDs',width:44},{header:'Source URL',width:52},{header:'Manual Review Reasons',width:52},{header:'Reviewer Note',width:60},{header:'Reviewer Label',width:28},{header:'Updated At',width:26},{header:'Revision',width:12}];
+  reviewQueue.getRow(1).height=34;reviewQueue.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
+  const reasonByControl = new Map((summary.controlEvaluations||[]).map(control=>[control.controlId,manualReviewReasonLabels(control.manualReviewReasons||[])]));
+  for(const item of summary.findings||[]){const decision=item.decision||{};const frameworks=[...new Set((item.controlMappings||[]).map(mapping=>mapping.framework).filter(Boolean))];const reasons=[...new Set((item.controls||[]).flatMap(controlId=>reasonByControl.get(controlId)||[]))];const row=reviewQueue.addRow([item.id,item.severity,(item.findingStatus||item.status)==='reviewed'?'Reviewed':'Unreviewed',decision.reviewDecision||'',decision.mappingDecision||'',decision.mappingId||'',decision.scopeDecision||'',decision.scopeFramework||'',frameworks.join('\n'),(item.controls||[]).join('\n'),item.affectedUrl||'',reasons.join('\n'),spreadsheetSafeReviewText(decision.reason||''),spreadsheetSafeReviewText(decision.reviewer||decision.actor||''),decision.updatedAt||'',decision.workflowRevision||item.workflowRevision||'']);row.height=54;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
+  reviewQueue.autoFilter={from:'A1',to:'P1'};
 
   const coverage = workbook.addWorksheet('Test Coverage', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
   coverage.columns=[{header:'Test ID',width:30},{header:'Title',width:38},{header:'Category',width:28},{header:'Outcome',width:18},{header:'Legacy State',width:18},{header:'Collection State',width:20},{header:'Evidence Confidence',width:18},{header:'Collection Method',width:22},{header:'Affected URL',width:50},{header:'Test Method',width:38},{header:'Summary',width:60},{header:'Limitations',width:62}];
@@ -377,8 +423,8 @@ export class SecurityReportManager {
       summary = { ...summary, pdfGeneration: { status: 'failed', method: 'playwright_chromium_print_to_pdf', reason: error.message } };
     }
     summary = { ...summary, reportGeneration: { ...(summary.reportGeneration || {}), htmlGenerationMs, pdfGenerationMs: summary.pdfGeneration.durationMs ?? null } };
-    const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 1, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, pdfGeneration:summary.pdfGeneration };
-    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
+    const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 0, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), pdfGeneration:summary.pdfGeneration };
+    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, generatedAt:summary.generatedAt, workflowRevision:summary.workflow?.revision||0, workflowUpdatedAt:summary.workflow?.updatedAt||summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
     fs.writeFileSync(path.join(root,'metadata.json'),JSON.stringify(metadata,null,2));
     fs.writeFileSync(path.join(root,'summary.json'),JSON.stringify({ ...summary, overview },null,2));
     fs.writeFileSync(path.join(root,'workflow.json'),`${JSON.stringify(summary.workflow || {},null,2)}\n`);
@@ -420,7 +466,7 @@ export class SecurityReportManager {
       if (!fs.existsSync(summaryFile)) continue;
       let summary;
       try { summary = normalizeLegacySummary(JSON.parse(fs.readFileSync(summaryFile, 'utf8'))); } catch { continue; }
-      const workflowIsCurrent = summary.workflow?.schemaVersion === '2.0.0';
+      const workflowIsCurrent = summary.workflow?.schemaVersion === '3.0.0';
       if (summary.overview?.reportType !== 'security-compliance' || (projectName && summary.projectName !== projectName) || (legacyOnly && workflowIsCurrent)) continue;
       const workflow = reportWorkflow({ summary, reportName: entry.name, lifecycleManager: this.lifecycleManager, revision: (summary.workflow?.revision || 0) + 1 });
       summary = applyWorkflow(summary, workflow);

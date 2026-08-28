@@ -283,7 +283,7 @@ test('multiple reviewers can add roles and edit their own review records indepen
   assert.equal(edited.reviews.find((review) => review.reviewId === secondId).scopeDecision, 'not_confirmed');
   assert.equal(edited.decisionHistory.at(-1).outcome, 'review_updated');
   assert.deepEqual(events.map((event) => event.action), ['finding_review_added', 'finding_review_added', 'finding_review_updated']);
-  assert.equal(manager.read().version, 4);
+  assert.equal(manager.read().version, 5);
 });
 
 test('review records are archived and cleared when a resolved finding recurs', (t) => {
@@ -371,7 +371,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
     browserRetryCount: 0,
     browserTimeoutMs: 5000
   });
-  assert.equal(scan.schemaVersion, '2.5.0');
+  assert.equal(scan.schemaVersion, '2.6.0');
   assert.equal(scan.scannerVersion, '1.7.1');
   assert.equal(scan.toolVersion, '1.7.1');
   assert.match(scan.mappingCatalogVersion, /^\d{4}\.\d{2}\.\d{2}\.\d+$/);
@@ -438,9 +438,9 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   const refreshedHtml = fs.readFileSync(path.join(reportRoot, 'summary.html'), 'utf8');
   const refreshedManifest = JSON.parse(fs.readFileSync(path.join(reportRoot, 'report-manifest.json'), 'utf8'));
   assert.equal(refreshedSummary.workflow.revision, 2);
-  assert.equal(refreshedSummary.workflow.schemaVersion, '2.0.0');
+  assert.equal(refreshedSummary.workflow.schemaVersion, '3.0.0');
   assert.equal(vault.read().version, 4);
-  assert.equal(lifecycle.read().version, 4);
+  assert.equal(lifecycle.read().version, 5);
   assert.match(refreshedHtml, /Bob Reviewer/);
   assert.match(refreshedHtml, /Compensating edge control verified/);
   assert.equal(fs.existsSync(path.join(reportRoot, 'revisions')), false);

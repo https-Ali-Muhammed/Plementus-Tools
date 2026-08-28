@@ -100,6 +100,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/security/findings') {
       return json(res, 200, securityLifecycleManager.list(url.searchParams.get('project') || ''));
     }
+    if (req.method === 'GET' && url.pathname === '/api/security/review-workflow') {
+      return json(res, 200, securityLifecycleManager.snapshot(url.searchParams.get('project') || ''));
+    }
     const findingReviewCollectionMatch = url.pathname.match(/^\/api\/security\/findings\/([a-f0-9]{64})\/reviews$/);
     if (req.method === 'POST' && findingReviewCollectionMatch) {
       const finding = securityLifecycleManager.addReview(findingReviewCollectionMatch[1], await readBody(req));
@@ -195,7 +198,7 @@ const server = http.createServer(async (req, res) => {
     if (file && fs.existsSync(file) && fs.statSync(file).isFile()) return sendFile(res, file);
     return sendFile(res, path.join(PUBLIC_DIR, 'index.html'));
   } catch (error) {
-    return json(res, 500, { error: error.message });
+    return json(res, error.statusCode || 500, { error: error.message, ...(Number.isInteger(error.currentRevision) ? { currentRevision: error.currentRevision } : {}) });
   }
 });
 

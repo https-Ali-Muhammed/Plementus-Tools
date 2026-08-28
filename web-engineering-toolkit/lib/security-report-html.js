@@ -141,7 +141,8 @@ function reviewSummary(review = {}) {
 function reviewRecordCard(review = {}) {
   const updated = new Date(review.updatedAt || review.createdAt || '');
   const updatedLabel = Number.isNaN(updated.getTime()) ? String(review.updatedAt || review.createdAt || '') : updated.toLocaleString();
-  return `<article class="report-review-record" data-report-review-id="${escapeHtml(review.reviewId || '')}"><div><strong>${escapeHtml(review.reviewer || 'Unnamed reviewer')}</strong><span>${escapeHtml(humanize(review.role || 'reviewer'))}</span></div><p>${escapeHtml(reviewSummary(review) || 'Review decision not recorded')}</p><p>${escapeHtml(review.reason || '')}</p>${updatedLabel ? `<small>${escapeHtml(updatedLabel)}</small>` : ''}<button type="button" class="report-review-edit" data-review-id="${escapeHtml(review.reviewId || '')}">Edit review</button></article>`;
+  const targets = [review.mappingId ? `Mapping ID: ${review.mappingId}` : '', review.scopeFramework ? `Scope framework: ${frameworkLabel(review.scopeFramework)}` : ''].filter(Boolean).join(' · ');
+  return `<article class="report-review-record" data-report-review-id="${escapeHtml(review.reviewId || '')}"><div><strong>${escapeHtml(review.reviewer || 'Unnamed reviewer')}</strong><span>${escapeHtml(humanize(review.role || 'reviewer'))}</span></div><p>${escapeHtml(reviewSummary(review) || 'Review decision not recorded')}</p>${targets ? `<p class="machine-text">${escapeMachine(targets)}</p>` : ''}<p>${escapeHtml(review.reason || '')}</p>${updatedLabel ? `<small>${escapeHtml(updatedLabel)}${review.revision != null ? ` · Revision ${escapeHtml(review.revision)}` : ''}</small>` : ''}<button type="button" class="report-review-edit" data-review-id="${escapeHtml(review.reviewId || '')}">Edit review</button></article>`;
 }
 
 function findingCard(finding) {
@@ -160,6 +161,8 @@ function findingCard(finding) {
     const framework = /^EPRIVACY-|^GDPR-EPRIVACY-/i.test(mapping.controlId || '') ? 'eprivacy' : mapping.framework || '';
     return `${frameworkLabel(framework)} ${mapping.controlId} — ${humanize(mapping.relationship)}`.trim();
   });
+  const mappingTargets = [...new Map((finding.controlMappings || []).filter((mapping) => mapping.mappingId).map((mapping) => [mapping.mappingId, mapping])).values()];
+  const scopeTargets = [...new Set((finding.controlMappings || []).map((mapping) => mapping.framework).filter(Boolean))];
   const evidence = finding.evidence?.raw || finding.evidence?.evidenceText || '';
   const evidenceTrace = finding.evidence || finding.evidenceItems?.[0] || {};
   const normalizedConfidence = finding.evidenceConfidence || evidenceTrace.evidenceConfidence || evidenceTrace.confidence || 'unknown';
@@ -192,7 +195,7 @@ function findingCard(finding) {
           <label><span>Review decision</span><select name="reviewDecision" disabled><option value="">Review required</option><option value="accepted_as_observation">Accepted as observation</option><option value="false_positive">False positive</option><option value="requires_more_evidence">Requires more evidence</option></select></label>
           <label class="report-review-note"><span>Review note</span><textarea name="reason" rows="3" placeholder="Explain the evidence-based decision" disabled></textarea></label>
         </div>
-        <details class="report-review-advanced"><summary>Scope and mapping review</summary><div class="report-review-fields"><label><span>Scope decision</span><select name="scopeDecision" disabled><option value="">No scope decision</option><option value="confirmed">Confirmed for review scope</option><option value="not_confirmed">Not confirmed</option></select></label><label><span>Mapping decision</span><select name="mappingDecision" disabled><option value="">No mapping decision</option><option value="confirmed">Candidate mapping confirmed</option><option value="rejected">Candidate mapping rejected</option></select></label></div></details>
+        <details class="report-review-advanced"><summary>Scope and mapping review</summary><div class="report-review-fields"><label><span>Scope decision</span><select name="scopeDecision" disabled><option value="">No scope decision</option><option value="confirmed">Confirmed for review scope</option><option value="not_confirmed">Not confirmed</option></select></label><label><span>Scope framework</span><select name="scopeFramework" disabled><option value="">Select framework</option>${scopeTargets.map((framework) => `<option value="${escapeHtml(framework)}">${escapeHtml(frameworkLabel(framework))}</option>`).join('')}</select></label><label><span>Mapping decision</span><select name="mappingDecision" disabled><option value="">No mapping decision</option><option value="confirmed">Candidate mapping confirmed</option><option value="rejected">Candidate mapping rejected</option></select></label><label><span>Mapping ID</span><select name="mappingId" disabled><option value="">Select candidate mapping</option>${mappingTargets.map((mapping) => `<option value="${escapeHtml(mapping.mappingId)}">${escapeHtml(mapping.mappingId)} — ${escapeHtml(mapping.controlId || '')}</option>`).join('')}</select></label></div></details>
         <div class="report-review-actions"><button type="submit" disabled>Add review</button><button type="button" class="report-review-cancel" hidden>Cancel edit</button><span class="report-review-message" role="status" aria-live="polite"></span></div>
       </form>
     </details>` : ''}
@@ -295,6 +298,10 @@ export function buildComplianceHtml(summary) {
   const pdfLink = summary.pdfGeneration?.status === 'generated' ? `<a href="summary.pdf" download="${escapeHtml(pdfName)}">PDF</a>` : '';
   const generated = new Date(summary.generatedAt);
   const generatedLabel = Number.isNaN(generated.getTime()) ? String(summary.generatedAt || '') : generated.toLocaleString();
+  const workflowUpdated = new Date(summary.workflow?.updatedAt || '');
+  const workflowUpdatedLabel = Number.isNaN(workflowUpdated.getTime()) ? String(summary.workflow?.updatedAt || 'No review activity') : workflowUpdated.toLocaleString();
+  const hasReviewWorkflow = summary.workflow?.schemaVersion === '3.0.0' || Boolean(summary.reviewSummary || summary.workflow?.reviewSummary);
+  const progress = summary.reviewSummary || summary.workflow?.reviewSummary || { totalFindings: findings.length, reviewedFindings: reviewed.length, unreviewedFindings: Math.max(0, findings.length - reviewed.length), state: reviewed.length ? 'in_progress' : 'not_started' };
   const collectionCoverage = Object.entries(summary.collectionCoverage || {});
   const collectionCoverageCards = collectionCoverage.map(([collector, entry]) => `<article class="structured-card avoid-break"><span>${escapeHtml(humanize(collector))}</span><strong>${escapeHtml(humanize(entry.state || 'not_tested'))}</strong>${(entry.limitations || []).length ? list(entry.limitations) : '<p class="muted">No collection limitation recorded.</p>'}</article>`).join('');
 
@@ -331,9 +338,9 @@ export function buildComplianceHtml(summary) {
     .excerpt blockquote{background:#f5f3ff;border-color:#5747c7}.footer{border-color:#d7dce5}.section-count{position:static;width:auto;height:auto;clip:auto;overflow:visible;color:#5f6879;font-size:9pt;margin-bottom:2mm}
   }
   </style></head><body><main class="wrap" data-finding-count="${findings.length}" data-check-count="${summary.counts?.checks ?? summary.checks?.length ?? 0}">
-  <section class="cover"><div class="eyebrow">Web Engineering Toolkit · Compliance Mapping</div><h1>Technical Compliance<br>Pre-Assessment</h1><p class="lead">A professional portable representation of the same canonical assessment used by the HTML, JSON, findings CSV, and XLSX exports.</p><div class="cover-meta"><div><span>Project</span><strong>${escapeHtml(summary.projectName)}</strong></div><div><span>Target URL</span><strong class="machine-text">${escapeMachine(summary.finalUrl || summary.requestedUrl)}</strong></div><div><span>Environment</span><strong>${escapeHtml(summary.environment || 'Not specified')}</strong></div><div><span>Assessment date/time</span><strong>${escapeHtml(generatedLabel)}</strong></div><div><span>Toolkit version</span><strong class="machine-text">${escapeMachine(summary.toolVersion || summary.scannerVersion || 'Unknown')}</strong></div><div><span>Compliance scanner</span><strong class="machine-text">${escapeMachine(summary.scannerVersion || 'Unknown')}</strong></div><div><span>Mapping catalog</span><strong class="machine-text">${escapeMachine(summary.mappingCatalogVersion || 'legacy-unversioned')}</strong></div><div><span>Report schema</span><strong class="machine-text">${escapeMachine(summary.schemaVersion || 'Unknown')}</strong></div><div><span>Evidence level</span><strong>${escapeHtml(humanize(summary.evidenceLevel || 'public_url'))}</strong></div></div><div class="conclusion"><span>Compliance conclusion: <strong>Not determined</strong></span><span>Coverage: <strong>Partial</strong></span></div><div class="notice"><strong>This report is a technical compliance pre-assessment.</strong> It is not legal advice, certification, or an audit opinion.</div><nav class="actions screen-only" aria-label="Report downloads"><a href="summary.html">HTML</a><a href="summary.json" download>JSON</a><a href="findings.csv" download>Findings CSV</a><a href="summary.xlsx" download>XLSX</a>${pdfLink}<a href="evidence/manifest.json" download>Evidence Manifest</a></nav></section>
+  <section class="cover"><div class="eyebrow">Web Engineering Toolkit · Compliance Mapping</div><h1>Technical Compliance<br>Pre-Assessment</h1><p class="lead">A professional portable representation of the same canonical assessment used by the HTML, JSON, findings CSV, and XLSX exports.</p><div class="cover-meta"><div><span>Project</span><strong>${escapeHtml(summary.projectName)}</strong></div><div><span>Target URL</span><strong class="machine-text">${escapeMachine(summary.finalUrl || summary.requestedUrl)}</strong></div><div><span>Environment</span><strong>${escapeHtml(summary.environment || 'Not specified')}</strong></div><div><span>${hasReviewWorkflow ? 'Scan evidence collected' : 'Assessment date/time'}</span><strong>${escapeHtml(generatedLabel)}</strong></div>${hasReviewWorkflow ? `<div><span>Review overlay updated</span><strong>${escapeHtml(workflowUpdatedLabel)}</strong></div><div><span>Workflow revision</span><strong class="machine-text">${escapeMachine(summary.workflow?.revision ?? 0)}</strong></div>` : ''}<div><span>Toolkit version</span><strong class="machine-text">${escapeMachine(summary.toolVersion || summary.scannerVersion || 'Unknown')}</strong></div><div><span>Compliance scanner</span><strong class="machine-text">${escapeMachine(summary.scannerVersion || 'Unknown')}</strong></div><div><span>Mapping catalog</span><strong class="machine-text">${escapeMachine(summary.mappingCatalogVersion || 'legacy-unversioned')}</strong></div><div><span>Report schema</span><strong class="machine-text">${escapeMachine(summary.schemaVersion || 'Unknown')}</strong></div><div><span>Evidence level</span><strong>${escapeHtml(humanize(summary.evidenceLevel || 'public_url'))}</strong></div></div><div class="conclusion"><span>Compliance conclusion: <strong>Not determined</strong></span><span>Coverage: <strong>Partial</strong></span>${hasReviewWorkflow ? `<span>Review progress: <strong>${progress.reviewedFindings} of ${progress.totalFindings} findings reviewed</strong></span>` : ''}</div><div class="notice"><strong>This report is a technical compliance pre-assessment.</strong>${hasReviewWorkflow ? ' Human review is a separate overlay;' : ''} It is not legal advice, certification, or an audit opinion.</div><nav class="actions screen-only" aria-label="Report downloads"><a href="summary.html">HTML</a><a href="summary.json" download>JSON</a><a href="findings.csv" download>Findings CSV</a><a href="summary.xlsx" download>XLSX</a>${pdfLink}<a href="evidence/manifest.json" download>Evidence Manifest</a></nav></section>
   <nav class="report-nav screen-only" aria-label="Report sections"><a href="#overview">Overview</a><a href="#scope">Scope</a><a href="#quality">Quality</a><a href="#evidence">Evidence</a><a href="#observations">Observations</a><a href="#findings">Findings</a><a href="#mappings">Mappings</a><a href="#integrity">Integrity</a><a href="#review">Review</a></nav>
-  <section id="overview"><h2>1. Assessment Overview</h2><div class="stats"><div class="stat"><span>Checks executed</span><strong>${summary.counts?.checks ?? summary.checks?.length ?? 0}</strong></div><div class="stat"><span>Recorded observations</span><strong>${summary.counts?.observations ?? summary.testResults?.length ?? 0}</strong></div><div class="stat"><span>Normalized findings</span><strong>${findings.length}</strong></div><div class="stat"><span>Candidate control evaluations</span><strong>${summary.controlEvaluations?.length || 0}</strong></div></div></section>
+  <section id="overview"><h2>1. Assessment Overview</h2><div class="stats"><div class="stat"><span>Checks executed</span><strong>${summary.counts?.checks ?? summary.checks?.length ?? 0}</strong></div><div class="stat"><span>Recorded observations</span><strong>${summary.counts?.observations ?? summary.testResults?.length ?? 0}</strong></div><div class="stat"><span>Normalized findings</span><strong>${findings.length}</strong></div><div class="stat"><span>Candidate control evaluations</span><strong>${summary.controlEvaluations?.length || 0}</strong></div></div>${hasReviewWorkflow ? `<h3>Human review overlay</h3><div class="stats review-grid"><div class="stat"><span>Review state</span><strong>${escapeHtml(humanize(progress.state))}</strong></div><div class="stat"><span>Reviewed findings</span><strong>${progress.reviewedFindings}</strong></div><div class="stat"><span>Unreviewed findings</span><strong>${progress.unreviewedFindings}</strong></div><div class="stat"><span>Requires more evidence</span><strong>${progress.requiresMoreEvidence || 0}</strong></div></div><p class="lead">Review progress is workflow progress only. It is not a compliance, readiness, certification, or control-coverage score.</p>` : ''}</section>
   <section id="scope"><h2>2. Scope and Applicability</h2><div class="cards">${frameworks || '<p>No framework scope cards were produced.</p>'}</div></section>
   <section id="quality"><h2>3. Assessment Quality / Coverage</h2><div class="stats"><div class="stat"><span>Technical checks completed</span><strong>${testStateCounts.confirmed || 0}</strong></div><div class="stat"><span>Observed / partial evidence</span><strong>${testStateCounts.observed || 0}</strong></div><div class="stat"><span>Not assessed</span><strong>${testStateCounts.not_tested || 0}</strong></div><div class="stat"><span>Failed to test</span><strong>${testStateCounts.failed_to_test || 0}</strong></div></div><p class="lead">These totals describe technical collection state. They do not confirm framework requirements or control satisfaction.</p>${collectionCoverage.length ? `<h3>Collection Coverage</h3><div class="structured-grid">${collectionCoverageCards}</div><p class="lead">Collector states describe bounded execution only. They are not a score or a compliance conclusion.</p>` : ''}</section>
   <section id="evidence"><h2>4. Structured Evidence</h2><div class="structured-grid"><article class="structured-card avoid-break"><span>Payment-flow evidence</span><strong>${escapeHtml(payment.paymentFlowObserved ? 'Observed / partial evidence' : 'Not determined')}</strong><table><tr><th>Payment/card terminology</th><td>${payment.cardTerminologyObserved ? 'Observed' : 'Not observed'}</td></tr><tr><th>Payment provider evidence</th><td>${payment.providerHosts?.length ? `Observed — ${escapeHtml(payment.providerHosts.join(', '))}` : 'Not observed'}</td></tr><tr><th>Merchant-managed scripts</th><td>${payment.merchantManagedScriptsObserved ? 'Observed' : 'Not observed'}</td></tr><tr><th>Payment architecture</th><td>${escapeHtml(humanize(payment.architecture || 'unknown'))}</td></tr><tr><th>Tested origin participation</th><td>${payment.testedOriginParticipatesInPaymentFlow === true ? 'Observed' : 'Unknown'}</td></tr><tr><th>Card-data handling</th><td>Not determined</td></tr></table></article>${runtimeEvidenceCard}<article class="structured-card avoid-break"><span>Locale coverage</span><strong>${escapeHtml(humanize(summary.localeCoverage?.state || 'locale_parity_not_assessed'))}</strong><table><tr><th>Detected content locales</th><td>${escapeHtml(availableLocales.join(', ') || 'None detected')}</td></tr><tr><th>Tested locales</th><td>${escapeHtml(testedLocales.join(', ') || 'None')}</td></tr><tr><th>Untested content locales</th><td>${escapeHtml(untestedLocales.join(', ') || 'None')}</td></tr><tr><th>Language signals</th><td>${escapeHtml(languageSignals.join(', ') || 'None')}</td></tr></table></article><article class="structured-card avoid-break"><span>Public policy evidence</span><strong>${policyDocuments.length} document(s) assessed</strong><table>${policyDocuments.map((item) => `<tr><th><a class="machine-text" href="${escapeMachine(item.sourceUrl)}">${escapeMachine(item.sourceUrl)}</a></th><td>${escapeHtml(humanize(item.policyDocumentQuality))}<br><small>Locale ${escapeHtml(item.detectedLocale || 'unknown')} · Extraction ${item.policyDocumentQuality === 'failed_to_extract' ? 'failed' : 'successful'}</small></td></tr>`).join('') || '<tr><td>Not assessed</td></tr>'}</table></article><article class="structured-card avoid-break"><span>GDPR public-notice evidence</span><strong>${escapeHtml(humanize(gdprAggregate(summary)))}</strong><p>${gdprAggregate(summary) === 'not_assessed' ? 'All public-notice elements are not assessed.' : gdprAggregate(summary) === 'no_public_evidence_observed' ? 'Pages were assessed but no matching public evidence was observed.' : gdprAggregate(summary) === 'failed_to_assess' ? 'Extraction or testing failed.' : 'At least one element was observed or partially observed.'}</p></article></div>
@@ -353,6 +360,7 @@ export function buildComplianceHtml(summary) {
     const reviewerInput = workspace.querySelector('[name="reportReviewer"]');
     const roleInput = workspace.querySelector('[name="reportReviewerRole"]');
     const controls = Array.from(document.querySelectorAll('[data-report-review-finding]'));
+    let workflowRevision = Number(${JSON.stringify(summary.workflow?.revision ?? 0)});
     const humanizeValue = (value) => String(value || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
     const reviewedRecord = (record) => Boolean(record && (record.reviewDecision || record.scopeDecision || record.mappingDecision));
     const reviewsFor = (record = {}) => Array.isArray(record.reviews) && record.reviews.length ? record.reviews : reviewedRecord(record) ? [{ reviewId: record.primaryReviewId || '', reviewer: record.reviewer || '', role: record.role || 'reviewer', reviewDecision: record.reviewDecision || '', scopeDecision: record.scopeDecision || '', mappingDecision: record.mappingDecision || '', reason: record.reason || '', createdAt: record.updatedAt || '', updatedAt: record.updatedAt || '' }] : [];
@@ -376,6 +384,8 @@ export function buildComplianceHtml(summary) {
       form.elements.reviewDecision.value = '';
       form.elements.scopeDecision.value = '';
       form.elements.mappingDecision.value = '';
+      form.elements.mappingId.value = '';
+      form.elements.scopeFramework.value = '';
       form.elements.reason.value = '';
       form.querySelector('.report-review-form-title').textContent = 'Add reviewer decision';
       form.querySelector('button[type="submit"]').textContent = 'Add review';
@@ -466,6 +476,8 @@ export function buildComplianceHtml(summary) {
       form.elements.reviewDecision.value = review.reviewDecision || '';
       form.elements.scopeDecision.value = review.scopeDecision || '';
       form.elements.mappingDecision.value = review.mappingDecision || '';
+      form.elements.mappingId.value = review.mappingId || '';
+      form.elements.scopeFramework.value = review.scopeFramework || '';
       form.elements.reason.value = review.reason || '';
       reviewerInput.value = review.reviewer || '';
       roleInput.value = review.role || 'reviewer';
@@ -478,8 +490,9 @@ export function buildComplianceHtml(summary) {
     const connect = async () => {
       try {
         if (!/^https?:$/.test(window.location.protocol)) throw new Error('Open this report through the Web Engineering Toolkit server to add or edit reviews.');
-        const records = await readResponse(await fetch('/api/security/findings?project=' + encodeURIComponent(projectName), { headers: { Accept: 'application/json' } }));
-        const byFingerprint = new Map((Array.isArray(records) ? records : []).map((record) => [record.fingerprint, record]));
+        const workflow = await readResponse(await fetch('/api/security/review-workflow?project=' + encodeURIComponent(projectName), { headers: { Accept: 'application/json' } }));
+        workflowRevision = Number(workflow.revision || 0);
+        const byFingerprint = new Map((workflow.findings || []).map((record) => [record.fingerprint, record]));
         controls.forEach((control) => {
           const record = byFingerprint.get(control.dataset.fingerprint);
           if (record) applyRecord(control, record);
@@ -502,6 +515,8 @@ export function buildComplianceHtml(summary) {
       const reviewDecision = form.elements.reviewDecision.value;
       const scopeDecision = form.elements.scopeDecision.value;
       const mappingDecision = form.elements.mappingDecision.value;
+      const mappingId = form.elements.mappingId.value;
+      const scopeFramework = form.elements.scopeFramework.value;
       const message = form.querySelector('.report-review-message');
       const button = form.querySelector('button[type="submit"]');
       message.className = 'report-review-message';
@@ -531,8 +546,9 @@ export function buildComplianceHtml(summary) {
         const record = await readResponse(await fetch(reviewEndpoint, {
           method: reviewId ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ projectName, findingStatus: 'reviewed', reviewDecision, scopeDecision, mappingDecision, reason, reviewer, role: roleInput.value })
+          body: JSON.stringify({ projectName, expectedWorkflowRevision: workflowRevision, findingStatus: 'reviewed', reviewDecision, scopeDecision, mappingDecision, mappingId, scopeFramework, reason, reviewer, role: roleInput.value })
         }));
+        workflowRevision = Number(record.workflowRevision || workflowRevision + 1);
         applyRecord(control, record);
         updateCounts();
         const refreshed = Array.isArray(record.refreshedReports) ? record.refreshedReports.length : 0;
@@ -542,6 +558,7 @@ export function buildComplianceHtml(summary) {
       } catch (error) {
         message.textContent = error.message || 'Unable to save this review.';
         message.className = 'report-review-message error';
+        if (/updated by another client/i.test(message.textContent)) setConnection('Review workflow changed elsewhere. Reload the report before saving again.', 'error');
       } finally {
         button.disabled = false;
       }
