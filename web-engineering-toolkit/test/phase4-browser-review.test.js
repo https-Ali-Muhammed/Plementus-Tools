@@ -148,6 +148,18 @@ test('workspace Run path renders and filters manual-review reasons without lexic
         await page.locator('#securityFindingManualReason').selectOption('scope_confirmation_required');
         assert.equal(await page.locator('[data-security-finding]:not(.hidden)').count(), 1);
         assert.match(await page.locator('#securityFindingManualReason option:checked').innerText(), /Scope confirmation required/);
+        const reviewPanel = page.locator('.security-review-panel').first();
+        await reviewPanel.locator('summary').click();
+        assert.equal(await reviewPanel.locator('.security-review-group').count(), 4);
+        assert.deepEqual(await reviewPanel.locator('.security-review-group-title').allTextContents(), [
+          'Finding disposition',
+          'Scope review',
+          'Mapping review',
+          'Reviewer note'
+        ]);
+        assert.equal(await reviewPanel.locator('.security-lifecycle-save').isVisible(), true);
+        const reviewLayout = await reviewPanel.evaluate((element) => ({ scrollWidth: element.scrollWidth, clientWidth: element.clientWidth }));
+        assert.ok(reviewLayout.scrollWidth <= reviewLayout.clientWidth, `${viewport.width}px review form overflow`);
       }
       await page.locator('[data-security-edit-config]').click();
     }
