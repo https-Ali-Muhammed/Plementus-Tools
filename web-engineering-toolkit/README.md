@@ -7,6 +7,7 @@ A framework-free website engineering and QA workspace built with vanilla HTML, C
 - **Lighthouse Reporter** — repeatable Performance, Accessibility, Best Practices and SEO audits with public/session modes, language-aware routing, mobile/desktop runs, grouped Lighthouse findings and HTML/CSV/XLSX reports.
 - **Compliance Mapping** — collects defensible HTTP, browser, TLS, crawl, and optional passive OWASP ZAP evidence; maps that evidence to framework controls and reviewer decisions without claiming certification.
 - **Asset & Page-Weight Analyzer** — measures transferred page weight and network requests across selected pages, including JavaScript, CSS, images, fonts, media, XHR/fetch, third-party resources and the largest assets.
+- **Broken Links & Resources Checker** — renders selected pages, discovers links and page resources, checks bounded unique HTTP(S) targets, validates in-scope fragments, and preserves every source occurrence without treating restricted or timed-out targets as definitive broken links.
 
 ## Shared Projects
 
@@ -22,7 +23,7 @@ A project profile can store:
 - available EN / AR languages
 - shared target pages
 
-Selecting **Use project** applies that configuration across Lighthouse Reporter, Compliance Mapping, and Asset & Page-Weight Analyzer so the same website information does not need to be entered repeatedly.
+Selecting **Use project** applies that configuration across Lighthouse Reporter, Compliance Mapping, Asset & Page-Weight Analyzer, and Broken Links & Resources Checker so the same website information does not need to be entered repeatedly.
 
 Project profiles are stored in:
 
@@ -80,6 +81,26 @@ The Excel workbook contains:
 - Largest Assets
 - Findings
 
+## Broken Links & Resources Checker
+
+The checker uses a detected Chrome/Chromium/Brave browser to discover references after each selected page renders. It can inspect explicit pages only or follow same-origin page links within strict page, target, timeout, concurrency, and redirect limits. External targets can be status-checked but are never recursively crawled.
+
+Primary inputs are project name, Base URL, starting pages, scan scope, and browser. Check options cover external links, rendered-page fragments, and page resources. Advanced options expose bounded limits and simple ignore patterns. If starting pages are empty, `/` is used as the visible safe default.
+
+Outcomes remain factual and distinct: `healthy`, `redirected`, `broken` (404/410), `client_error`, `restricted` (401/403), `rate_limited` (429), `server_error`, `unreachable`, `fragment_missing`, `failed_to_check`, and `skipped`. Redirects, authorization responses, rate limits, timeouts, and checker failures are not labelled broken.
+
+Each run writes:
+
+```text
+summary.html
+summary.json
+summary.csv
+summary.xlsx
+metadata.json
+```
+
+The CSV contains one row per unique target. The workbook contains Summary, Broken & Unavailable, Redirects, All Checks, and Occurrences sheets. Reports do not archive response bodies, request bodies, credentials, cookies, or browser storage.
+
 ## Unified report history
 
 Report History supports the current report types:
@@ -87,6 +108,7 @@ Report History supports the current report types:
 - Lighthouse
 - Compliance Mapping
 - Asset Page Weight
+- Broken Links & Resources
 
 Existing single-report deletion and multi-select report-folder deletion remain available.
 

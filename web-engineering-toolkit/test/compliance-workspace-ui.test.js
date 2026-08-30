@@ -82,7 +82,7 @@ test('finding filters are display-only, reset with each rendered result, and kee
   assert.match(app, /security-mapping-id/);
   assert.match(app, /Save review/);
   assert.match(app, /refs\.securityResults\.innerHTML =/);
-  assert.match(css, /#securitySection \.security-findings\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,1fr\)/);
+  assert.match(css, /#securitySection \.security-findings\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
 });
 
 test('workspace exports preserve report PDF semantics and show only available artifacts', () => {

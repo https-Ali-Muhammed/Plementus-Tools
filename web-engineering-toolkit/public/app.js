@@ -13,6 +13,14 @@ const state = {
   projects: [],
   activeProjectId: '',
   assetDevice: 'desktop',
+  linksScope: 'selected',
+  linksResult: null,
+  linksResultView: 'attention',
+  linksResultPage: 1,
+  linksResultPageSize: 25,
+  linksResultSort: 'priority',
+  linksResultFilters: { search: '', outcome: 'all', type: 'all', scope: 'all', status: 'all', source: 'all' },
+  linksExpandedOccurrences: new Set(),
   pendingProjectDeleteId: '',
   securityResult: null,
   securityProjectOverride: false,
@@ -49,6 +57,7 @@ const refs = {
   projectEnvironment: $('#projectEnvironment'), projectDefaultLanguage: $('#projectDefaultLanguage'), projectLangEn: $('#projectLangEn'), projectLangAr: $('#projectLangAr'), projectPaths: $('#projectPaths'), saveProjectBtn: $('#saveProjectBtn'), cancelProjectEditBtn: $('#cancelProjectEditBtn'),
   assetProjectName: $('#assetProjectName'), assetProjectField: $('#assetProjectField'), assetProjectError: $('#assetProjectError'), assetBaseUrl: $('#assetBaseUrl'), assetBaseUrlField: $('#assetBaseUrlField'), assetBaseUrlError: $('#assetBaseUrlError'),
   assetPaths: $('#assetPaths'), assetPathsField: $('#assetPathsField'), assetPathsError: $('#assetPathsError'), assetBrowserSelect: $('#assetBrowserSelect'), startAssetAnalysisBtn: $('#startAssetAnalysisBtn'), assetScanState: $('#assetScanState'), assetResultsCard: $('#assetResultsCard'), assetResults: $('#assetResults'), assetResultActions: $('#assetResultActions'),
+  linksProjectName: $('#linksProjectName'), linksProjectField: $('#linksProjectField'), linksProjectError: $('#linksProjectError'), linksBaseUrl: $('#linksBaseUrl'), linksBaseUrlField: $('#linksBaseUrlField'), linksBaseUrlError: $('#linksBaseUrlError'), linksPages: $('#linksPages'), linksPagesField: $('#linksPagesField'), linksPagesMeta: $('#linksPagesMeta'), linksPagesError: $('#linksPagesError'), linksCheckExternal: $('#linksCheckExternal'), linksCheckFragments: $('#linksCheckFragments'), linksCheckResources: $('#linksCheckResources'), linksBrowserSelect: $('#linksBrowserSelect'), linksMaxPages: $('#linksMaxPages'), linksMaxTargets: $('#linksMaxTargets'), linksTimeout: $('#linksTimeout'), linksConcurrency: $('#linksConcurrency'), linksMaxRedirects: $('#linksMaxRedirects'), linksIgnorePatterns: $('#linksIgnorePatterns'), linksAdvancedSummary: $('#linksAdvancedSummary'), linksRunSummary: $('#linksRunSummary'), startLinksCheckBtn: $('#startLinksCheckBtn'), linksCheckState: $('#linksCheckState'), linksResultsCard: $('#linksResultsCard'), linksResults: $('#linksResults'), linksResultActions: $('#linksResultActions'),
   projectDeleteModal: $('#projectDeleteModal'), projectDeleteModalCloseBtn: $('#projectDeleteModalCloseBtn'), projectDeleteModalMessage: $('#projectDeleteModalMessage'), cancelProjectDeleteBtn: $('#cancelProjectDeleteBtn'), confirmProjectDeleteBtn: $('#confirmProjectDeleteBtn')
 };
 
@@ -353,6 +362,7 @@ async function checkEnvironment() {
     const browserOptions = '<option value="">Auto-detect</option>' + data.browsers.map((browser) => `<option value="${escapeHtml(browser.path)}">${escapeHtml(browser.name)} — ${escapeHtml(browser.version)}</option>`).join('');
     refs.browserSelect.innerHTML = browserOptions;
     if (refs.assetBrowserSelect) refs.assetBrowserSelect.innerHTML = browserOptions;
+    if (refs.linksBrowserSelect) refs.linksBrowserSelect.innerHTML = browserOptions;
     toast(data.ready ? (warnings ? `Environment is ready with ${warnings} warning${warnings === 1 ? '' : 's'}.` : 'Environment is ready.') : `Environment needs ${errors} required fix${errors === 1 ? '' : 'es'}.`, !data.ready);
   } catch (error) {
     refs.environmentDot.className = 'status-dot error';
@@ -511,6 +521,7 @@ function humanize(value) {
 
 function reportTypeLabel(reportType) {
   if (reportType === 'security-compliance') return 'Compliance Mapping';
+  if (reportType === 'broken-links-resources') return 'Broken Links & Resources';
   return humanize(reportType);
 }
 
@@ -802,6 +813,12 @@ async function loadHistory() {
         if (overview.assetAverageBytes != null) scoreParts.push(`Avg ${formatBytes(overview.assetAverageBytes)}`);
         if (overview.assetAverageRequests != null) scoreParts.push(`${Math.round(Number(overview.assetAverageRequests))} req/page`);
       }
+      if (reportType === 'broken-links-resources') {
+        if (overview.pages != null) scoreParts.push(`${overview.pages} page${overview.pages === 1 ? '' : 's'}`);
+        if (overview.targets != null) scoreParts.push(`${overview.targets} target${overview.targets === 1 ? '' : 's'}`);
+        if (overview.broken != null) scoreParts.push(`${overview.broken} broken`);
+        if (overview.redirected != null) scoreParts.push(`${overview.redirected} redirected`);
+      }
       const scoreText = scoreParts.join(' · ');
       return `
         <div class="history-item upgraded" data-report-name="${escapeHtml(report.name)}">
@@ -813,6 +830,7 @@ async function loadHistory() {
           <div class="history-actions">
             ${report.summaryHref ? `<a href="${report.summaryHref}" target="_blank" rel="noopener">View report ${externalLinkIcon()}</a>` : ''}
             ${reportType === 'security-compliance' && report.jsonHref ? `<a href="${report.jsonHref}" download>JSON</a>` : ''}
+            ${reportType === 'broken-links-resources' && report.jsonHref ? `<a href="${report.jsonHref}" download>JSON</a>` : ''}
             ${report.csvHref ? `<a href="${report.csvHref}" download>${reportType === 'security-compliance' ? 'Findings CSV' : 'CSV'}</a>` : ''}
             ${report.xlsxHref ? `<a class="primary" href="${report.xlsxHref}" download>Excel</a>` : ''}
             ${reportType === 'security-compliance' && report.pdfHref ? `<a class="primary" href="${report.pdfHref}" download="${escapeHtml(report.name)}.pdf">PDF</a>` : ''}
@@ -902,9 +920,14 @@ function syncSharedProjectToTools(project, { overwrite = true } = {}) {
   set(refs.assetBaseUrl, baseUrl);
   if (overwrite || paths) set(refs.assetPaths, paths);
 
+  set(refs.linksProjectName, project.name);
+  set(refs.linksBaseUrl, baseUrl);
+  if (refs.linksPages && (overwrite || !refs.linksPages.value.trim() || refs.linksPages.value.trim() === '/')) refs.linksPages.value = paths || '/';
+
   updateEstimate();
   updateRoutingPreview();
   renderSecurityConfigurationContext();
+  updateLinksRunSummary();
 }
 
 function renderProjectWorkspace() {
@@ -1179,6 +1202,243 @@ async function runAssetAnalysis() {
   } finally {
     refs.startAssetAnalysisBtn.disabled = false;
     refs.startAssetAnalysisBtn.textContent = 'Analyze page weight';
+  }
+}
+
+function linksStartingPages() {
+  const pages = refs.linksPages.value.split('\n').map((value) => value.trim()).filter(Boolean);
+  return pages.length ? pages : ['/'];
+}
+
+function updateLinksRunSummary() {
+  if (!refs.linksRunSummary) return;
+  const pageCount = linksStartingPages().length;
+  const maxPages = Number(refs.linksMaxPages?.value) || 25;
+  const maxTargets = Number(refs.linksMaxTargets?.value) || 2000;
+  const timeoutMs = Number(refs.linksTimeout?.value) || 10000;
+  const checks = [refs.linksCheckExternal?.checked && 'external', refs.linksCheckFragments?.checked && 'fragments', refs.linksCheckResources?.checked && 'resources'].filter(Boolean);
+  refs.linksRunSummary.innerHTML = `<div><span>Scope</span><strong>${state.linksScope === 'crawl' ? 'Selected + bounded internal crawl' : 'Selected pages only'} · ${pageCount} start${pageCount === 1 ? '' : 's'}</strong></div><div><span>Bounds</span><strong>${maxPages} pages · ${maxTargets.toLocaleString()} targets · ${Number(refs.linksConcurrency?.value) || 6} concurrent</strong></div><div><span>Checks</span><strong>${checks.length ? checks.map(humanize).join(' · ') : 'Internal links only'}</strong></div>`;
+  if (refs.linksPagesMeta) refs.linksPagesMeta.textContent = `${pageCount} starting page${pageCount === 1 ? '' : 's'} · one path or URL per line`;
+  if (refs.linksAdvancedSummary) refs.linksAdvancedSummary.textContent = `${maxPages} pages · ${maxTargets.toLocaleString()} targets · ${Math.round(timeoutMs / 100) / 10}s timeout`;
+}
+
+function validateLinksForm() {
+  const project = refs.linksProjectName.value.trim();
+  const base = refs.linksBaseUrl.value.trim();
+  const pages = linksStartingPages();
+  const projectMessage = !project ? 'Project name is required.' : project.length < 2 ? 'Project name must contain at least 2 characters.' : '';
+  let baseMessage = '';
+  let parsedBase;
+  if (!base) baseMessage = 'Base URL is required.';
+  else {
+    try {
+      parsedBase = new URL(base);
+      if (!['http:', 'https:'].includes(parsedBase.protocol)) baseMessage = 'Use http:// or https://.';
+      else if (parsedBase.username || parsedBase.password) baseMessage = 'URL credentials are not supported.';
+    } catch { baseMessage = 'Enter a valid Base URL.'; }
+  }
+  let pagesMessage = '';
+  if (pages.length > 100) pagesMessage = 'Add up to 100 explicit starting pages.';
+  else if (parsedBase) {
+    const bad = pages.findIndex((value) => {
+      try { const url = new URL(value, parsedBase); return !['http:', 'https:'].includes(url.protocol) || Boolean(url.username || url.password); } catch { return true; }
+    });
+    if (bad >= 0) pagesMessage = `Line ${bad + 1} must be a credential-free HTTP(S) path or URL.`;
+  }
+  const bounds = [
+    [refs.linksMaxPages, 1, 100, 'Maximum pages'], [refs.linksMaxTargets, 1, 5000, 'Maximum targets'],
+    [refs.linksTimeout, 100, 30000, 'Timeout'], [refs.linksConcurrency, 1, 12, 'Concurrency'], [refs.linksMaxRedirects, 0, 12, 'Redirect limit']
+  ];
+  const invalidBound = bounds.find(([input, minimum, maximum]) => !Number.isInteger(Number(input.value)) || Number(input.value) < minimum || Number(input.value) > maximum);
+  const ignorePatterns = refs.linksIgnorePatterns.value.split('\n').map((value) => value.trim()).filter(Boolean);
+  const advancedMessage = invalidBound ? `${invalidBound[3]} must be from ${invalidBound[1]} to ${invalidBound[2]}.` : ignorePatterns.length > 20 ? 'Use up to 20 ignore patterns.' : ignorePatterns.some((value) => value.length > 200) ? 'Ignore patterns are limited to 200 characters.' : '';
+  setFieldError(refs.linksProjectField, refs.linksProjectError, projectMessage);
+  setFieldError(refs.linksBaseUrlField, refs.linksBaseUrlError, baseMessage);
+  setFieldError(refs.linksPagesField, refs.linksPagesError, pagesMessage);
+  if (advancedMessage) toast(advancedMessage, true);
+  return !projectMessage && !baseMessage && !pagesMessage && !advancedMessage;
+}
+
+const LINKS_ATTENTION_OUTCOMES = new Set(['broken', 'fragment_missing', 'server_error', 'unreachable', 'failed_to_check', 'client_error']);
+const LINKS_REVIEW_OUTCOMES = new Set(['redirected', 'restricted', 'rate_limited']);
+const LINKS_PRIORITY = { broken: 0, fragment_missing: 1, server_error: 2, unreachable: 3, failed_to_check: 4, client_error: 5, redirected: 6, restricted: 7, rate_limited: 8, skipped: 9, healthy: 10 };
+
+function linksViewForOutcome(outcome) {
+  if (LINKS_ATTENTION_OUTCOMES.has(outcome)) return 'attention';
+  if (LINKS_REVIEW_OUTCOMES.has(outcome)) return 'review';
+  if (outcome === 'healthy') return 'healthy';
+  return 'all';
+}
+
+function linksPresentationCounts(targets) {
+  return {
+    attention: targets.filter((target) => LINKS_ATTENTION_OUTCOMES.has(target.outcome)).length,
+    review: targets.filter((target) => LINKS_REVIEW_OUTCOMES.has(target.outcome)).length,
+    healthy: targets.filter((target) => target.outcome === 'healthy').length,
+    all: targets.length
+  };
+}
+
+function linksReadableUrl(value) {
+  try {
+    const url = new URL(value);
+    return { primary: `${url.pathname}${url.search}${url.hash}` || '/', secondary: url.host };
+  } catch { return { primary: value || 'Unknown target', secondary: '' }; }
+}
+
+function linksCanOpen(value) {
+  return /^https?:\/\//i.test(value || '') && !/%5Bredacted%5D|\[redacted\]/i.test(value);
+}
+
+function linksSearchValue(target) {
+  return [target.targetUrl, target.finalUrl, target.httpStatus, target.failureReason, ...(target.referenceTypes || []), ...(target.sourcePages || [])].join(' ').toLowerCase();
+}
+
+function linksFilteredTargets() {
+  const targets = state.linksResult?.targets || [];
+  const filters = state.linksResultFilters;
+  const viewed = targets.filter((target) => state.linksResultView === 'all' || linksViewForOutcome(target.outcome) === state.linksResultView);
+  const filtered = viewed.filter((target) => (!filters.search || linksSearchValue(target).includes(filters.search))
+    && (filters.outcome === 'all' || target.outcome === filters.outcome)
+    && (filters.type === 'all' || (target.referenceTypes || []).includes(filters.type))
+    && (filters.scope === 'all' || (target.internal ? 'internal' : 'external') === filters.scope)
+    && (filters.status === 'all' || String(target.httpStatus || 0) === filters.status)
+    && (filters.source === 'all' || (target.sourcePages || []).includes(filters.source)));
+  return filtered.sort((left, right) => {
+    if (state.linksResultSort === 'outcome') return String(left.outcome).localeCompare(String(right.outcome)) || String(left.targetUrl).localeCompare(String(right.targetUrl));
+    if (state.linksResultSort === 'status') return (Number(left.httpStatus) || 9999) - (Number(right.httpStatus) || 9999) || String(left.targetUrl).localeCompare(String(right.targetUrl));
+    if (state.linksResultSort === 'target') return String(left.targetUrl).localeCompare(String(right.targetUrl));
+    if (state.linksResultSort === 'occurrences') return (right.occurrenceCount || 0) - (left.occurrenceCount || 0) || String(left.targetUrl).localeCompare(String(right.targetUrl));
+    return (LINKS_PRIORITY[left.outcome] ?? 99) - (LINKS_PRIORITY[right.outcome] ?? 99) || String(left.targetUrl).localeCompare(String(right.targetUrl));
+  });
+}
+
+function renderLinksOccurrence(occurrence) {
+  return `<div class="links-occurrence-item"><strong>${escapeHtml(occurrence.sourcePageUrl || 'Unknown source')}</strong><span>${escapeHtml(humanize(occurrence.referenceType))} · ${escapeHtml(occurrence.attribute || 'reference')}${occurrence.fragment ? ` · #${escapeHtml(occurrence.fragment)}` : ''}${occurrence.linkText ? ` · ${escapeHtml(occurrence.linkText)}` : ''}</span></div>`;
+}
+
+function renderLinksTarget(target) {
+  const readable = linksReadableUrl(target.targetUrl);
+  const expanded = state.linksExpandedOccurrences.has(target.targetUrl);
+  const occurrences = target.occurrences || [];
+  const visibleOccurrences = expanded ? occurrences : occurrences.slice(0, 5);
+  const redirectChain = (target.redirectChain || []).map((hop) => `<li><span>${hop.status || '—'}</span><strong>${escapeHtml(hop.url || '')}</strong>${hop.location ? `<small>to ${escapeHtml(hop.location)}</small>` : ''}</li>`).join('');
+  return `<article class="links-target-card ${escapeHtml(linksViewForOutcome(target.outcome))}" data-links-target>
+    <div class="links-target-primary"><div class="links-target-status"><span class="links-outcome ${escapeHtml(target.outcome)}">${escapeHtml(humanize(target.outcome))}</span><strong>${target.httpStatus || '—'}</strong></div><div class="links-target-identity"><strong class="links-target-path" title="${escapeHtml(target.targetUrl)}">${escapeHtml(readable.primary)}</strong><span>${escapeHtml(readable.secondary)}</span></div><div class="links-target-facts"><span>${escapeHtml((target.referenceTypes || []).map(humanize).join(', ') || 'Other resource')}</span><span>${target.internal ? 'Internal' : 'External'}</span><span>Found ${target.occurrenceCount || 0} time${target.occurrenceCount === 1 ? '' : 's'}</span></div></div>
+    ${target.failureReason ? `<p class="links-target-reason">${escapeHtml(target.failureReason)}</p>` : ''}
+    <details class="links-target-detail"><summary>View details</summary><div class="links-detail-body"><dl><div><dt>Full safe target</dt><dd>${escapeHtml(target.targetUrl)}</dd></div><div><dt>Final URL</dt><dd>${escapeHtml(target.finalUrl || '—')}</dd></div><div><dt>Check method</dt><dd>${escapeHtml(humanize(target.checkMethod))}</dd></div><div><dt>Reference types</dt><dd>${escapeHtml((target.referenceTypes || []).map(humanize).join(', ') || '—')}</dd></div><div><dt>Scope</dt><dd>${target.internal ? 'Internal' : 'External'}</dd></div><div><dt>Fragment</dt><dd>${escapeHtml(target.fragment || '—')}</dd></div></dl>${redirectChain ? `<div class="links-redirect-chain"><strong>Redirect chain</strong><ol>${redirectChain}</ol></div>` : ''}<div class="links-detail-actions"><button class="button button-ghost small" type="button" data-copy-links-target="${escapeHtml(target.targetUrl)}">Copy URL</button>${linksCanOpen(target.targetUrl) ? `<a class="button button-ghost small" href="${escapeHtml(target.targetUrl)}" target="_blank" rel="noopener noreferrer">Open target ↗</a>` : ''}</div><section class="links-occurrence-panel"><h5>Found on ${target.occurrenceCount || 0} occurrence${target.occurrenceCount === 1 ? '' : 's'}</h5><div class="links-occurrence-list">${visibleOccurrences.map(renderLinksOccurrence).join('') || '<span>No source occurrence metadata was retained.</span>'}</div>${!expanded && occurrences.length > 5 ? `<button class="button button-ghost small" type="button" data-show-all-occurrences="${escapeHtml(target.targetUrl)}">Show all ${occurrences.length} occurrences</button>` : ''}</section></div></details>
+  </article>`;
+}
+
+function renderLinksTargetPage() {
+  const filtered = linksFilteredTargets();
+  const pageCount = Math.max(1, Math.ceil(filtered.length / state.linksResultPageSize));
+  state.linksResultPage = Math.min(Math.max(1, state.linksResultPage), pageCount);
+  const start = (state.linksResultPage - 1) * state.linksResultPageSize;
+  const pageTargets = filtered.slice(start, start + state.linksResultPageSize);
+  const list = $('#linksTargetList');
+  if (list) list.innerHTML = pageTargets.map(renderLinksTarget).join('');
+  const empty = $('#linksResultEmpty');
+  if (empty) {
+    empty.classList.toggle('hidden', filtered.length > 0);
+    const description = empty.querySelector('p');
+    if (description) description.textContent = `No ${state.linksResultView === 'all' ? 'references' : state.linksResultView.replace('_', ' ')} match the current filters.`;
+  }
+  const visible = $('#linksVisibleCount');
+  if (visible) visible.textContent = filtered.length ? `Showing ${start + 1}–${Math.min(start + state.linksResultPageSize, filtered.length)} of ${filtered.length}` : '0 matches';
+  const pageStatus = $('#linksResultPageStatus');
+  if (pageStatus) pageStatus.textContent = `Page ${state.linksResultPage} of ${pageCount}`;
+  const previous = $('#linksResultPrevious');
+  const next = $('#linksResultNext');
+  if (previous) previous.disabled = state.linksResultPage <= 1;
+  if (next) next.disabled = state.linksResultPage >= pageCount;
+}
+
+function applyLinksFilters({ resetPage = true } = {}) {
+  state.linksResultFilters = {
+    search: ($('#linksResultSearch')?.value || '').trim().toLowerCase(),
+    outcome: $('#linksResultOutcome')?.value || 'all',
+    type: $('#linksResultType')?.value || 'all',
+    scope: $('#linksResultScope')?.value || 'all',
+    status: $('#linksResultStatus')?.value || 'all',
+    source: $('#linksResultSource')?.value || 'all'
+  };
+  state.linksResultSort = $('#linksResultSort')?.value || 'priority';
+  if (resetPage) state.linksResultPage = 1;
+  renderLinksTargetPage();
+}
+
+function setLinksResultView(view, outcome = 'all') {
+  state.linksResultView = view;
+  state.linksResultPage = 1;
+  state.linksResultFilters.outcome = outcome;
+  $$('#linksResults [data-links-view]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.linksView === view)));
+  const outcomeSelect = $('#linksResultOutcome');
+  if (outcomeSelect) outcomeSelect.value = outcome;
+  renderLinksTargetPage();
+}
+
+function clearLinksFilters() {
+  state.linksResultFilters = { search: '', outcome: 'all', type: 'all', scope: 'all', status: 'all', source: 'all' };
+  state.linksResultSort = 'priority';
+  for (const [id, value] of [['linksResultSearch', ''], ['linksResultOutcome', 'all'], ['linksResultType', 'all'], ['linksResultScope', 'all'], ['linksResultStatus', 'all'], ['linksResultSource', 'all'], ['linksResultSort', 'priority']]) {
+    const control = $(`#${id}`);
+    if (control) control.value = value;
+  }
+  state.linksResultPage = 1;
+  renderLinksTargetPage();
+}
+
+function renderLinksResults(result) {
+  state.linksResult = result;
+  state.linksResultPage = 1;
+  state.linksResultPageSize = 25;
+  state.linksResultSort = 'priority';
+  state.linksResultFilters = { search: '', outcome: 'all', type: 'all', scope: 'all', status: 'all', source: 'all' };
+  state.linksExpandedOccurrences = new Set();
+  const targets = result.targets || [];
+  const summary = result.summary || {};
+  const counts = linksPresentationCounts(targets);
+  state.linksResultView = counts.attention ? 'attention' : counts.review ? 'review' : counts.healthy ? 'healthy' : 'all';
+  const outcomeCounts = Object.fromEntries([...new Set(targets.map((target) => target.outcome))].sort().map((outcome) => [outcome, targets.filter((target) => target.outcome === outcome).length]));
+  const types = [...new Set(targets.flatMap((target) => target.referenceTypes || []))].sort();
+  const statuses = [...new Set(targets.map((target) => Number(target.httpStatus) || 0).filter(Boolean))].sort((a, b) => a - b);
+  const sourcePages = [...new Set(targets.flatMap((target) => target.sourcePages || []))].sort();
+  refs.linksResults.innerHTML = `<div class="links-result-header"><div><span class="eyebrow mini">Check complete</span><h4>${escapeHtml(result.projectName)}</h4><span>${counts.attention} reference${counts.attention === 1 ? '' : 's'} need attention · ${counts.review} to review · ${counts.healthy} healthy</span><small>${escapeHtml(result.baseUrl)} · ${escapeHtml(humanize(result.scope?.mode))} · ${Math.round(Number(result.durationMs) || 0).toLocaleString()} ms</small></div><span id="linksVisibleCount" class="pill" aria-live="polite"></span></div>
+    <div class="links-summary-grid"><div class="links-summary-card info"><span>Pages scanned</span><strong>${summary.pagesScanned || 0}</strong><small>Rendered pages</small></div><div class="links-summary-card info"><span>Targets checked</span><strong>${summary.uniqueTargets || 0}</strong><small>${summary.occurrences || 0} occurrences</small></div><button class="links-summary-card attention" type="button" data-links-view="attention" aria-pressed="${state.linksResultView === 'attention'}"><span>Needs attention</span><strong>${counts.attention}</strong><small>Remediation first</small></button><button class="links-summary-card review" type="button" data-links-view="review" aria-pressed="${state.linksResultView === 'review'}"><span>Review</span><strong>${counts.review}</strong><small>Redirected or restricted</small></button><button class="links-summary-card healthy" type="button" data-links-view="healthy" data-links-summary-outcome="healthy" aria-pressed="${state.linksResultView === 'healthy'}"><span>Healthy</span><strong>${counts.healthy}</strong><small>Direct 2xx inventory</small></button></div>
+    <div class="links-outcome-shortcuts" aria-label="Outcome shortcuts">${Object.entries(outcomeCounts).map(([outcome, count]) => `<button type="button" data-links-summary-outcome="${escapeHtml(outcome)}"><span class="links-outcome ${escapeHtml(outcome)}">${escapeHtml(humanize(outcome))}</span><strong>${count}</strong></button>`).join('')}</div>
+    <section class="links-result-workspace" aria-label="Checked references"><div class="links-result-toolbar"><div class="links-view-tabs" role="group" aria-label="Result groups">${[['attention', 'Needs attention'], ['review', 'Review'], ['healthy', 'Healthy'], ['all', 'All']].map(([view, label]) => `<button type="button" data-links-view="${view}" aria-pressed="${state.linksResultView === view}"><span>${label}</span><strong>${counts[view]}</strong></button>`).join('')}</div><div class="links-filter-grid"><label class="field links-search-field"><span>Search results</span><input id="linksResultSearch" type="search" placeholder="Target, source, status, type, failure…"></label><label class="field"><span>Outcome</span><select id="linksResultOutcome"><option value="all">All outcomes</option>${Object.entries(outcomeCounts).map(([value, count]) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))} (${count})</option>`).join('')}</select></label><label class="field"><span>Reference type</span><select id="linksResultType"><option value="all">All types</option>${types.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))}</option>`).join('')}</select></label><label class="field"><span>Scope</span><select id="linksResultScope"><option value="all">Internal + external</option><option value="internal">Internal</option><option value="external">External</option></select></label><label class="field"><span>HTTP status</span><select id="linksResultStatus"><option value="all">All statuses</option>${statuses.map((value) => `<option value="${value}">${value}</option>`).join('')}</select></label><label class="field"><span>Source page</span><select id="linksResultSource"><option value="all">All source pages</option>${sourcePages.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}</select></label><label class="field"><span>Sort</span><select id="linksResultSort"><option value="priority">Action priority</option><option value="outcome">Outcome</option><option value="status">HTTP status</option><option value="target">Target</option><option value="occurrences">Occurrences</option></select></label><button id="linksClearFilters" class="button button-ghost small" type="button">Clear filters</button></div></div>
+      <div id="linksTargetList" class="links-target-list"></div><div id="linksResultEmpty" class="links-empty-state hidden"><strong>No matching references</strong><p>Adjust the result view or clear the current filters.</p><button class="button button-secondary small" type="button" data-links-clear-filters>Clear filters</button></div>
+      <div class="links-pagination"><label>Rows per page <select id="linksResultPageSize"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><div><button id="linksResultPrevious" class="button button-ghost small" type="button">Previous</button><span id="linksResultPageStatus">Page 1 of 1</span><button id="linksResultNext" class="button button-ghost small" type="button">Next</button></div></div></section>`;
+  refs.linksResultActions.innerHTML = `<a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a><a class="button button-ghost small" href="${result.csvHref}" download>CSV</a><a class="button button-secondary small" href="${result.xlsxHref}" download>Excel</a><a class="button button-ghost small" href="${result.jsonHref}" download>JSON</a>`;
+  refs.linksResultsCard.classList.remove('hidden');
+  $('#linksSection')?.classList.add('links-has-results');
+  renderLinksTargetPage();
+  refs.linksResultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function runLinksCheck() {
+  if (!validateLinksForm()) { toast('Fix the highlighted fields before running the checker.', true); return; }
+  if (!refs.linksPages.value.trim()) refs.linksPages.value = '/';
+  refs.startLinksCheckBtn.disabled = true;
+  refs.startLinksCheckBtn.textContent = 'Checking…';
+  refs.linksCheckState.className = 'security-scan-state running';
+  refs.linksCheckState.innerHTML = '<span class="security-spinner"></span><div><strong>Discovering references…</strong><small>Rendering bounded pages, then checking unique HTTP targets.</small></div>';
+  try {
+    const result = await api('/api/broken-links/check', { method: 'POST', body: JSON.stringify({ projectName: refs.linksProjectName.value.trim(), baseUrl: refs.linksBaseUrl.value.trim(), startingPages: linksStartingPages(), scanScope: state.linksScope, checkExternal: refs.linksCheckExternal.checked, checkFragments: refs.linksCheckFragments.checked, checkResources: refs.linksCheckResources.checked, preferredBrowserPath: refs.linksBrowserSelect.value || undefined, maxPages: Number(refs.linksMaxPages.value), maxTargets: Number(refs.linksMaxTargets.value), timeoutMs: Number(refs.linksTimeout.value), concurrency: Number(refs.linksConcurrency.value), maxRedirects: Number(refs.linksMaxRedirects.value), ignorePatterns: refs.linksIgnorePatterns.value.split('\n').map((value) => value.trim()).filter(Boolean) }) });
+    renderLinksResults(result);
+    refs.linksCheckState.className = 'security-scan-state success';
+    const counts = linksPresentationCounts(result.targets || []);
+    refs.linksCheckState.innerHTML = `<span class="security-state-dot"></span><div><strong>Last check completed</strong><small>${counts.attention} need attention · ${counts.review} to review · ${counts.healthy} healthy.</small></div>`;
+    toast('Broken links & resources report generated.');
+    loadHistory();
+  } catch (error) {
+    refs.linksCheckState.className = 'security-scan-state error';
+    refs.linksCheckState.innerHTML = `<span class="security-state-dot"></span><div><strong>Check failed</strong><small>${escapeHtml(error.message)}</small></div>`;
+    toast(error.message, true);
+  } finally {
+    refs.startLinksCheckBtn.disabled = false;
+    refs.startLinksCheckBtn.textContent = state.linksResult ? 'Run check again' : 'Check links & resources';
   }
 }
 
@@ -1583,6 +1843,10 @@ setSegment('#languageSelector .segment', 'en', (value) => {
 setSegment('#assetDeviceSelector .segment', 'desktop', (value) => {
   state.assetDevice = value;
 });
+setSegment('#linksScopeSelector .segment', 'selected', (value) => {
+  state.linksScope = value;
+  updateLinksRunSummary();
+});
 
 const savedDefaultLanguage = localStorage.getItem('lighthouseReporter.websiteDefaultLanguage');
 if (savedDefaultLanguage && ['en', 'ar'].includes(savedDefaultLanguage)) {
@@ -1746,6 +2010,30 @@ refs.startAssetAnalysisBtn?.addEventListener('click', runAssetAnalysis);
 refs.assetProjectName?.addEventListener('blur', validateAssetForm);
 refs.assetBaseUrl?.addEventListener('blur', validateAssetForm);
 refs.assetPaths?.addEventListener('blur', validateAssetForm);
+refs.linksProjectName?.addEventListener('blur', validateLinksForm);
+refs.linksBaseUrl?.addEventListener('blur', validateLinksForm);
+refs.linksPages?.addEventListener('blur', () => { if (!refs.linksPages.value.trim()) refs.linksPages.value = '/'; validateLinksForm(); updateLinksRunSummary(); });
+[refs.linksProjectName, refs.linksBaseUrl, refs.linksPages, refs.linksMaxPages, refs.linksMaxTargets, refs.linksTimeout, refs.linksConcurrency, refs.linksMaxRedirects, refs.linksIgnorePatterns].forEach((element) => element?.addEventListener('input', updateLinksRunSummary));
+[refs.linksCheckExternal, refs.linksCheckFragments, refs.linksCheckResources].forEach((element) => element?.addEventListener('change', updateLinksRunSummary));
+refs.startLinksCheckBtn?.addEventListener('click', runLinksCheck);
+refs.linksResults?.addEventListener('input', (event) => { if (event.target.matches('#linksResultSearch')) applyLinksFilters(); });
+refs.linksResults?.addEventListener('change', (event) => {
+  if (event.target.matches('#linksResultOutcome, #linksResultType, #linksResultScope, #linksResultStatus, #linksResultSource, #linksResultSort')) applyLinksFilters();
+  if (event.target.matches('#linksResultPageSize')) { state.linksResultPageSize = Number(event.target.value) || 25; state.linksResultPage = 1; renderLinksTargetPage(); }
+});
+refs.linksResults?.addEventListener('click', (event) => {
+  const view = event.target.closest('[data-links-view]');
+  if (view) { setLinksResultView(view.dataset.linksView); return; }
+  const shortcut = event.target.closest('[data-links-summary-outcome]');
+  if (shortcut) { const outcome = shortcut.dataset.linksSummaryOutcome; setLinksResultView(linksViewForOutcome(outcome), outcome === 'healthy' ? 'all' : outcome); return; }
+  if (event.target.closest('#linksClearFilters, [data-links-clear-filters]')) { clearLinksFilters(); return; }
+  if (event.target.closest('#linksResultPrevious')) { state.linksResultPage -= 1; renderLinksTargetPage(); return; }
+  if (event.target.closest('#linksResultNext')) { state.linksResultPage += 1; renderLinksTargetPage(); return; }
+  const showAll = event.target.closest('[data-show-all-occurrences]');
+  if (showAll) { state.linksExpandedOccurrences.add(showAll.dataset.showAllOccurrences); renderLinksTargetPage(); return; }
+  const copy = event.target.closest('[data-copy-links-target]');
+  if (copy) copyText(copy.dataset.copyLinksTarget || '', 'Target URL copied.');
+});
 
 refs.healthDetails.addEventListener('click', (event) => {
   const button = event.target.closest('.copy-command-btn');
@@ -1790,7 +2078,7 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
   $$('.page-section').forEach((section) => section.classList.remove('active'));
   $(`#${button.dataset.section}Section`).classList.add('active');
   const active = currentProject();
-  if (active && ['runner', 'security', 'assets'].includes(button.dataset.section)) syncSharedProjectToTools(active, { overwrite: false });
+  if (active && ['runner', 'security', 'assets', 'links'].includes(button.dataset.section)) syncSharedProjectToTools(active, { overwrite: false });
   if (button.dataset.section === 'security') {
     if (!refs.securityProjectName.value.trim() && refs.projectName.value.trim()) refs.securityProjectName.value = refs.projectName.value.trim();
     if (!refs.securityTargetUrl.value.trim() && refs.baseUrl.value.trim()) refs.securityTargetUrl.value = refs.baseUrl.value.trim();
@@ -1800,11 +2088,18 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
     if (!refs.assetBaseUrl.value.trim() && refs.baseUrl.value.trim()) refs.assetBaseUrl.value = refs.baseUrl.value.trim();
     if (!refs.assetPaths.value.trim() && refs.urls.value.trim()) refs.assetPaths.value = refs.urls.value.trim();
   }
+  if (button.dataset.section === 'links') {
+    if (!refs.linksProjectName.value.trim() && refs.projectName.value.trim()) refs.linksProjectName.value = refs.projectName.value.trim();
+    if (!refs.linksBaseUrl.value.trim() && refs.baseUrl.value.trim()) refs.linksBaseUrl.value = refs.baseUrl.value.trim();
+    if ((!refs.linksPages.value.trim() || refs.linksPages.value.trim() === '/') && refs.urls.value.trim()) refs.linksPages.value = refs.urls.value.trim();
+    updateLinksRunSummary();
+  }
   if (button.dataset.section === 'projects') loadProjects();
   if (button.dataset.section === 'history') loadHistory();
 }));
 
 syncSecurityFrameworks();
+updateLinksRunSummary();
 updateEstimate();
 refreshBrowserStatus();
 loadProjects({ sync: true });

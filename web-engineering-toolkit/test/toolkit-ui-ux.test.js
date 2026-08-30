@@ -9,6 +9,7 @@ import { createComplianceSummary } from './fixtures/compliance-summary-fixture.j
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const normalizeCssValue = (value) => String(value).replace(/\s+/g, '').replace(/0\.(\d+)/g, '.$1');
 
 test('toolkit CSS has one shared owner and one isolated stylesheet per tool', () => {
   const entry = read('public/styles.css');
@@ -16,7 +17,8 @@ test('toolkit CSS has one shared owner and one isolated stylesheet per tool', ()
     './styles/shared.css',
     './styles/lighthouse.css',
     './styles/compliance.css',
-    './styles/asset-analyzer.css'
+    './styles/asset-analyzer.css',
+    './styles/broken-links.css'
   ];
 
   for (const stylesheet of expectedImports) {
@@ -28,6 +30,7 @@ test('toolkit CSS has one shared owner and one isolated stylesheet per tool', ()
   assert.match(read('public/styles/lighthouse.css'), /#runnerSection/);
   assert.match(read('public/styles/compliance.css'), /#securitySection/);
   assert.match(read('public/styles/asset-analyzer.css'), /#assetsSection/);
+  assert.match(read('public/styles/broken-links.css'), /#linksSection/);
 });
 
 test('toolkit shell preserves functional roots and loads only the compatibility entry point', () => {
@@ -36,6 +39,7 @@ test('toolkit shell preserves functional roots and loads only the compatibility 
   assert.match(html, /id="runnerSection"/);
   assert.match(html, /id="securitySection"/);
   assert.match(html, /id="assetsSection"/);
+  assert.match(html, /id="linksSection"/);
   assert.match(html, /id="historySection"/);
   assert.doesNotMatch(html, /class="security-select-all" style=/);
 });
@@ -54,7 +58,7 @@ test('generated Compliance reports remain isolated from interactive toolkit styl
     schemaVersion: '2.6.0',
     projectName: 'Toolkit CSS isolation fixture'
   }));
-  assert.doesNotMatch(html, /(?:shared|compliance|lighthouse|asset-analyzer|styles)\.css/i);
+  assert.doesNotMatch(html, /(?:shared|compliance|lighthouse|asset-analyzer|broken-links|styles)\.css/i);
   assert.match(html, /@media print/);
 });
 
@@ -77,6 +81,8 @@ test('shared stylesheet preserves the approved canonical palette values', () => 
     '--danger': '#ff6b7a'
   };
   for (const [token, value] of Object.entries(expected)) {
-    assert.match(shared, new RegExp(`${token}:\\s*${escapeRegExp(value)}`));
+    const declaration = shared.match(new RegExp(`${escapeRegExp(token)}:\\s*([^;]+)`));
+    assert.ok(declaration, `${token} must remain declared`);
+    assert.equal(normalizeCssValue(declaration[1]), normalizeCssValue(value), `${token} must preserve its approved value`);
   }
 });

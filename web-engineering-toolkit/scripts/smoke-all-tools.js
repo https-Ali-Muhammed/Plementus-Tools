@@ -4,6 +4,8 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { analyzeWebsiteAssets } from '../lib/asset-analyzer.js';
 import { AssetReportManager } from '../lib/asset-report-manager.js';
+import { checkBrokenLinksAndResources } from '../lib/broken-links-checker.js';
+import { BrokenLinksReportManager } from '../lib/broken-links-report-manager.js';
 import { browserSkipCode, browserSkipReason, detectBrowserCapabilities } from '../lib/browser-capability.js';
 import { runSingleLighthouse } from '../lib/lighthouse-runner.js';
 import { ReportManager } from '../lib/report-manager.js';
@@ -11,12 +13,14 @@ import { SecurityReportManager } from '../lib/security-report-manager.js';
 import { scanWebsiteSecurity } from '../lib/security-scanner.js';
 import { ensureDir, findFreePort } from '../lib/utils.js';
 import { startSecurityLab } from '../test/fixtures/security-lab-server.js';
+import { startBrokenLinksLab } from '../test/fixtures/broken-links-lab-server.js';
 
 const keep = process.argv.includes('--keep');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'web-toolkit-smoke-'));
 const reportsRoot = ensureDir(path.join(root, 'reports'));
 const browserProcesses = [];
 let lab;
+let linksLab;
 
 async function startCdpBrowser(executablePath) {
   const port = await findFreePort(9333);
@@ -48,16 +52,29 @@ async function captureTool(name, operation) {
   }
 }
 
+async function stopBrowserProcess(processHandle) {
+  if (!processHandle || processHandle.exitCode !== null) return;
+  const exited = new Promise((resolve) => processHandle.once('exit', resolve));
+  processHandle.kill('SIGTERM');
+  await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 2000))]);
+  if (processHandle.exitCode === null) {
+    processHandle.kill('SIGKILL');
+    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 1000))]);
+  }
+}
+
 const result = {
   outputRoot: root,
   environment: { browserDetected: false, browserLaunch: 'not_tested', navigation: 'not_tested', pdfRendering: 'not_tested' },
   compliance: skipped('environment_not_checked'),
   lighthouse: skipped('environment_not_checked'),
-  asset: skipped('environment_not_checked')
+  asset: skipped('environment_not_checked'),
+  links: skipped('environment_not_checked')
 };
 
 try {
   lab = await startSecurityLab();
+  linksLab = await startBrokenLinksLab();
   const capability = await detectBrowserCapabilities({ fixtureUrl: `${lab.baseUrl}/secure-corporate` });
   result.environment = {
     browserDetected: capability.browserDetected,
@@ -99,6 +116,17 @@ try {
     return { reportName: asset.reportName, pages: assessment.pages.length, metrics: true, report: true, xlsx: true, durationMs: Math.round(performance.now() - started) };
   });
 
+  result.links = navigationReason ? skipped(navigationReasonCode) : await captureTool('links', async () => {
+    const started = performance.now();
+    const assessment = await checkBrokenLinksAndResources({ projectName: 'Toolkit Broken Links Smoke', baseUrl: linksLab.baseUrl, startingPages: ['/', '/page-two'], scanScope: 'selected', maxPages: 5, maxTargets: 200, timeoutMs: 150, concurrency: 4, maxRedirects: 4, preferredBrowserPath: browserPath });
+    const saved = await new BrokenLinksReportManager({ reportsRoot }).save(assessment);
+    const reportRoot = path.join(reportsRoot, saved.reportName);
+    const required = ['summary.html', 'summary.json', 'summary.csv', 'summary.xlsx', 'metadata.json'];
+    if (!required.every((file) => fs.existsSync(path.join(reportRoot, file)))) throw new Error('Broken Links smoke report is missing a required export.');
+    if (!assessment.targets.length || assessment.summary.broken < 1 || !assessment.targets.some((target) => target.outcome === 'redirected')) throw new Error('Broken Links smoke did not exercise broken and redirected classifications.');
+    return { reportName: saved.reportName, pages: assessment.summary.pagesScanned, targets: assessment.summary.uniqueTargets, broken: assessment.summary.broken, redirected: assessment.summary.redirected, report: true, csv: true, xlsx: true, durationMs: Math.round(performance.now() - started) };
+  });
+
   result.lighthouse = navigationReason ? skipped(navigationReasonCode) : await captureTool('lighthouse', async () => {
     const started = performance.now();
     const debugPort = await startCdpBrowser(browserPath);
@@ -115,12 +143,13 @@ try {
   });
 } catch (error) {
   result.environment.setupError = String(error?.stack || error?.message || error);
-  for (const tool of ['compliance', 'lighthouse', 'asset']) if (result[tool].reason === 'environment_not_checked') result[tool] = { status: 'failed', reason: 'environment_setup_failed', error: result.environment.setupError };
+  for (const tool of ['compliance', 'lighthouse', 'asset', 'links']) if (result[tool].reason === 'environment_not_checked') result[tool] = { status: 'failed', reason: 'environment_setup_failed', error: result.environment.setupError };
 } finally {
-  for (const processHandle of browserProcesses) if (processHandle.exitCode === null) processHandle.kill('SIGTERM');
+  await Promise.all(browserProcesses.map(stopBrowserProcess));
   await lab?.close().catch(() => {});
+  await linksLab?.close().catch(() => {});
   console.log(JSON.stringify(result, null, 2));
-  if (!keep) fs.rmSync(root, { recursive: true, force: true });
+  if (!keep) fs.rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
 
-if (['compliance', 'lighthouse', 'asset'].some((tool) => result[tool].status === 'failed')) process.exitCode = 1;
+if (['compliance', 'lighthouse', 'asset', 'links'].some((tool) => result[tool].status === 'failed')) process.exitCode = 1;
