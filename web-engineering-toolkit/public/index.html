@@ -1,712 +1,1014 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web Engineering Toolkit</title>
-  <link rel="icon" type="image/png" href="/assets/mark-color.png" />
-  <link rel="apple-touch-icon" href="/assets/mark-color.png" />
-  <link rel="stylesheet" href="/styles.css" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Web Engineering Toolkit</title>
+    <link rel="icon" type="image/png" href="/assets/mark-color.png"/>
+    <link rel="apple-touch-icon" href="/assets/mark-color.png"/>
+    <link rel="stylesheet" href="/styles.css"/>
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
 
-  <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu">
-  <span></span><span></span><span></span>
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu">
+    <span></span><span></span><span></span>
 </button>
 <div class="menu-overlay" id="menuOverlay"></div>
 
 <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark"><img src="/assets/mark-color.png" alt="" /></div>
-        <div>
-          <h1>Web Engineering Toolkit</h1>
-          <p>Performance, security &amp; quality tools</p>
+        <div class="brand">
+            <div class="brand-mark"><img src="/assets/mark-color.png" alt=""/></div>
+            <div>
+                <h1>Web Engineering Toolkit</h1>
+                <p>Performance, security &amp; quality tools</p>
+            </div>
         </div>
-      </div>
 
-      <nav class="nav-stack">
-        <div class="nav-label">Projects</div>
-        <button class="nav-item" data-section="projects"><span class="nav-glyph nav-projects"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6l2 2h8v10H4z"/><path d="M4 7V5h6l2 2"/></svg></span><span>Project workspace</span></button>
-        <div id="activeProjectMini" class="active-project-mini"><span>No active project</span><small>Create or select a shared project</small></div>
+        <nav class="nav-stack">
+            <div class="nav-label">Projects</div>
+            <button class="nav-item" data-section="projects"><span class="nav-glyph nav-projects"><svg
+                    viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6l2 2h8v10H4z"/><path d="M4 7V5h6l2 2"/></svg></span><span>Project workspace</span>
+            </button>
+            <div id="activeProjectMini" class="active-project-mini"><span>No active project</span><small>Create or
+                select a shared project</small></div>
 
-        <div class="nav-label nav-label-spaced">Tools</div>
-        <button class="nav-item active" data-section="runner"><span class="nav-glyph nav-lighthouse"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 4-3 4 3"/><path d="M9 9h6l2 11H7L9 9Z"/><path d="M9.8 13h4.4"/><path d="M6 7 3.5 5.8"/><path d="m18 7 2.5-1.2"/><path d="M12 3v2"/><path d="M4 20h16"/></svg></span><span>Lighthouse Reporter</span></button>
-        <button class="nav-item" data-section="security"><span class="nav-glyph nav-shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="m9 12 2 2 4-5"/></svg></span><span>Compliance Mapping</span></button>
-        <button class="nav-item" data-section="assets"><span class="nav-glyph nav-assets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8M9 18V4M14 18v-7M19 18V6"/><path d="M3 20h18"/></svg></span><span>Asset & Page Weight</span></button>
-        <button class="nav-item" data-section="links"><span class="nav-glyph nav-links"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a4 4 0 0 0 5.7.1l2.4-2.4a4 4 0 0 0-5.7-5.7L11 6.4"/><path d="M14 11a4 4 0 0 0-5.7-.1l-2.4 2.4A4 4 0 0 0 11.6 19l1.4-1.4"/><path d="m4 4 3 3M17 17l3 3"/></svg></span><span>Broken Links &amp; Resources</span></button>
+            <div class="nav-label nav-label-spaced">Tools</div>
+            <button class="nav-item active" data-section="runner"><span class="nav-glyph nav-lighthouse"><svg
+                    viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 4-3 4 3"/><path d="M9 9h6l2 11H7L9 9Z"/><path
+                    d="M9.8 13h4.4"/><path d="M6 7 3.5 5.8"/><path d="m18 7 2.5-1.2"/><path d="M12 3v2"/><path
+                    d="M4 20h16"/></svg></span><span>Lighthouse Reporter</span></button>
+            <button class="nav-item" data-section="security"><span class="nav-glyph nav-shield"><svg viewBox="0 0 24 24"
+                                                                                                     aria-hidden="true"><path
+                    d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path
+                    d="m9 12 2 2 4-5"/></svg></span><span>Compliance Mapping</span></button>
+            <button class="nav-item" data-section="assets"><span class="nav-glyph nav-assets"><svg viewBox="0 0 24 24"
+                                                                                                   aria-hidden="true"><path
+                    d="M4 18V8M9 18V4M14 18v-7M19 18V6"/><path
+                    d="M3 20h18"/></svg></span><span>Asset & Page Weight</span></button>
+            <button class="nav-item" data-section="links"><span class="nav-glyph nav-links"><svg viewBox="0 0 24 24"
+                                                                                                 aria-hidden="true"><path
+                    d="M10 13a4 4 0 0 0 5.7.1l2.4-2.4a4 4 0 0 0-5.7-5.7L11 6.4"/><path
+                    d="M14 11a4 4 0 0 0-5.7-.1l-2.4 2.4A4 4 0 0 0 11.6 19l1.4-1.4"/><path d="m4 4 3 3M17 17l3 3"/></svg></span><span>Broken Links &amp; Resources</span>
+            </button>
 
-        <div class="nav-label nav-label-spaced">Reports</div>
-        <button class="nav-item" data-section="history"><span class="nav-glyph">◴</span><span>Report history</span></button>
-      </nav>
+            <div class="nav-label nav-label-spaced">Reports</div>
+            <button class="nav-item" data-section="history"><span class="nav-glyph">◴</span><span>Report history</span>
+            </button>
+        </nav>
 
-      <div class="sidebar-card">
-        <div class="sidebar-card-label">Environment</div>
-        <div class="status-row"><span id="environmentDot" class="status-dot neutral"></span><span id="environmentSummary">Not checked</span></div>
-        <button id="checkEnvironmentBtn" class="button button-ghost full">Run health check</button>
-      </div>
+        <div class="sidebar-card">
+            <div class="sidebar-card-label">Environment</div>
+            <div class="status-row"><span id="environmentDot" class="status-dot neutral"></span><span
+                    id="environmentSummary">Not checked</span></div>
+            <button id="checkEnvironmentBtn" class="button button-ghost full">Run health check</button>
+        </div>
 
-      <div class="sidebar-footer">
-        <span>v1.7.1</span>
-      </div>
+        <div class="sidebar-footer">
+            <span>v1.7.1</span>
+        </div>
     </aside>
 
     <main class="main-content">
-      <section id="projectsSection" class="page-section">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Shared workspace</div>
-            <h2>Projects</h2>
-            <p>Save website environments, languages and common target pages once, then reuse them across Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources reports.</p>
-          </div>
-          <button id="newProjectBtn" class="button button-primary" type="button">New project</button>
-        </header>
-
-        <div class="projects-layout">
-          <div class="content-column">
-            <section class="card project-active-card">
-              <div class="card-heading">
-                <div><span class="step-number">01</span><h3>Active project</h3></div>
-                <span class="muted">Shared across tools</span>
-              </div>
-              <div id="activeProjectCard" class="active-project-card empty">
-                <div><strong>No active project</strong><span>Create a project profile or select one from the list below.</span></div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="card-heading">
-                <div><span class="step-number">02</span><h3>Saved projects</h3></div>
-                <span id="projectCount" class="pill">0 projects</span>
-              </div>
-              <div id="projectsList" class="projects-list"><div class="empty-state">No projects yet.</div></div>
-            </section>
-          </div>
-
-          <aside class="action-column">
-            <section id="projectEditorCard" class="card sticky-card project-editor-card">
-              <div class="card-heading slim"><div><span class="step-number">03</span><h3 id="projectEditorTitle">Create project</h3></div></div>
-              <input id="projectEditId" type="hidden" />
-              <label class="field" id="sharedProjectNameField"><span>Project name</span><input id="sharedProjectName" type="text" placeholder="Enter project name" autocomplete="off" /><small id="sharedProjectNameError" class="field-error"></small></label>
-              <label class="field compact-top" id="projectTestingUrlField"><span>Testing URL <em>optional</em></span><input id="projectTestingUrl" type="url" placeholder="https://test.example.com" /><small id="projectTestingUrlError" class="field-error"></small></label>
-              <label class="field compact-top" id="projectProductionUrlField"><span>Production URL <em>optional</em></span><input id="projectProductionUrl" type="url" placeholder="https://example.com" /><small id="projectProductionUrlError" class="field-error"></small></label>
-              <div class="project-mini-grid compact-top">
-                <label class="field"><span>Default environment</span><select id="projectEnvironment"><option value="testing">Testing</option><option value="production">Production</option></select></label>
-                <label class="field"><span>Default language</span><select id="projectDefaultLanguage"><option value="en">English (EN)</option><option value="ar">Arabic (AR)</option></select></label>
-              </div>
-              <div class="field compact-top"><span>Available languages</span><div class="checkbox-row"><label class="check"><input id="projectLangEn" type="checkbox" checked /><span>EN</span></label><label class="check"><input id="projectLangAr" type="checkbox" /><span>AR</span></label></div></div>
-              <label class="field compact-top"><span>Shared target pages</span><textarea id="projectPaths" rows="7" spellcheck="false" placeholder="/&#10;/events&#10;/about-us"></textarea><small>One path or full URL per line. These pages can be reused by multiple tools.</small></label>
-              <div class="button-stack compact-top"><button id="saveProjectBtn" class="button button-primary" type="button">Save project</button><button id="cancelProjectEditBtn" class="button button-ghost hidden" type="button">Cancel editing</button></div>
-            </section>
-          </aside>
-        </div>
-      </section>
-
-      <section id="runnerSection" class="page-section active">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Lighthouse Reporter</div>
-            <h2>Create Lighthouse report</h2>
-            <p>Configure the target, prepare the browser session, and run repeatable audits from one place.</p>
-          </div>
-          <div id="browserBadge" class="browser-badge offline">
-            <span class="pulse"></span>
-            <span id="browserBadgeText">Browser offline</span>
-          </div>
-        </header>
-
-        <div class="layout-grid">
-          <div class="content-column">
-            <section class="card">
-              <div class="card-heading">
+        <section id="projectsSection" class="page-section">
+            <header class="page-header">
                 <div>
-                  <span class="step-number">01</span>
-                  <h3>Project setup</h3>
+                    <div class="eyebrow">Shared workspace</div>
+                    <h2>Projects</h2>
+                    <p>Save website environments, languages and common target pages once, then reuse them across
+                        Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources
+                        reports.</p>
                 </div>
-                <span class="muted">Naming & target</span>
-              </div>
+                <button id="newProjectBtn" class="button button-primary" type="button">New project</button>
+            </header>
 
-              <div class="project-setup-grid">
-                <label class="field" id="projectNameField">
-                  <span>Project name</span>
-                  <input id="projectName" type="text" placeholder="Enter project name" autocomplete="off" required />
-                  <small id="projectNameError" class="field-error" aria-live="polite"></small>
-                </label>
+            <div class="projects-layout">
+                <div class="content-column">
+                    <section class="card project-active-card">
+                        <div class="card-heading">
+                            <div><span class="step-number">01</span>
+                                <h3>Active project</h3></div>
+                            <span class="muted">Shared across tools</span>
+                        </div>
+                        <div id="activeProjectCard" class="active-project-card empty">
+                            <div><strong>No active project</strong><span>Create a project profile or select one from the list below.</span>
+                            </div>
+                        </div>
+                    </section>
 
-                <label class="field" id="baseUrlField">
-                  <span>Base URL</span>
-                  <input id="baseUrl" type="url" placeholder="https://example.com" autocomplete="url" required />
-                  <small id="baseUrlError" class="field-error" aria-live="polite"></small>
-                </label>
-
-                <div class="field">
-                  <span>Test type</span>
-                  <div class="segmented" id="modeSelector">
-                    <button class="segment active" data-value="public" type="button">Public URLs</button>
-                    <button class="segment" data-value="session" type="button">Session-based</button>
-                  </div>
+                    <section class="card">
+                        <div class="card-heading">
+                            <div><span class="step-number">02</span>
+                                <h3>Saved projects</h3></div>
+                            <span id="projectCount" class="pill">0 projects</span>
+                        </div>
+                        <div id="projectsList" class="projects-list">
+                            <div class="empty-state">No projects yet.</div>
+                        </div>
+                    </section>
                 </div>
 
-                <div class="field">
-                  <span>Language to test</span>
-                  <div class="segmented" id="languageSelector">
-                    <button class="segment active" data-value="en" type="button">EN</button>
-                    <button class="segment" data-value="ar" type="button">AR</button>
-                  </div>
-                </div>
-
-                <label class="field" id="defaultLanguageField">
-                  <span>Website default language</span>
-                  <select id="defaultLanguage" required>
-                    <option value="en" selected>English (EN)</option>
-                    <option value="ar">Arabic (AR)</option>
-                  </select>
-                </label>
-
-                <label class="field" id="runsPerPageField">
-                  <span>Runs per page</span>
-                  <input id="runsPerPage" type="number" min="1" max="10" value="3" inputmode="numeric" required />
-                  <small id="runsPerPageError" class="field-error" aria-live="polite"></small>
-                </label>
-              </div>
-
-              <div class="routing-preview">
-                <div>
-                  <span class="routing-label">URL routing preview</span>
-                  <strong id="routingPreview">/about-us</strong>
-                </div>
-                <span id="routingExplanation">EN is the website default, so no /en prefix will be added.</span>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="card-heading">
-                <div>
-                  <span class="step-number">02</span>
-                  <h3>Target pages</h3>
-                </div>
-                <span id="urlCount" class="pill">10 URLs</span>
-              </div>
-
-              <label class="field" id="urlsField">
-                <span>One path or full URL per line</span>
-                <textarea id="urls" rows="10" spellcheck="false" placeholder="/about-us&#10;/events&#10;https://example.com/contact" required></textarea>
-                <small id="urlsError" class="field-error" aria-live="polite"></small>
-              </label>
-
-              <div class="audit-category-block" id="categoriesField">
-                <div class="audit-category-head">
-                  <div>
-                    <span class="field-title">Lighthouse categories</span>
-                    <small>Choose exactly what Lighthouse should audit. You can run one category or all four.</small>
-                  </div>
-                  <label class="category-select-all" title="Select or clear all Lighthouse categories">
-                    <input id="allCategories" type="checkbox" checked />
-                    <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                    <span class="select-all-copy"><strong>Select all</strong><small>4 categories</small></span>
-                  </label>
-                </div>
-                <div class="audit-category-grid">
-                  <label class="audit-category-option">
-                    <input class="categoryCheck" type="checkbox" value="performance" checked />
-                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 9-13h-6z"/></svg></span>
-                    <span class="category-copy"><strong>Performance</strong><small>Speed, loading and runtime insights</small></span>
-                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span>
-                  </label>
-                  <label class="audit-category-option">
-                    <input class="categoryCheck" type="checkbox" value="accessibility" checked />
-                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8h14M12 7.5v5M8.5 21l3.5-8.5L15.5 21M8.5 12.5 5.5 17M15.5 12.5l3 4.5"/></svg></span>
-                    <span class="category-copy"><strong>Accessibility</strong><small>Contrast, names, labels, media and more</small></span>
-                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span>
-                  </label>
-                  <label class="audit-category-option">
-                    <input class="categoryCheck" type="checkbox" value="best-practices" checked />
-                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="m9 12 2 2 4-5"/></svg></span>
-                    <span class="category-copy"><strong>Best Practices</strong><small>Security, browser and code quality checks</small></span>
-                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span>
-                  </label>
-                  <label class="audit-category-option">
-                    <input class="categoryCheck" type="checkbox" value="seo" checked />
-                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 5 5M7.5 10.5h6M10.5 7.5v6"/></svg></span>
-                    <span class="category-copy"><strong>SEO</strong><small>Discoverability and search best practices</small></span>
-                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span>
-                  </label>
-                </div>
-                <small id="categoriesError" class="field-error" aria-live="polite"></small>
-              </div>
-
-              <div class="inline-controls">
-                <div class="field grow">
-                  <span>Devices</span>
-                  <div class="checkbox-row" id="devicesField">
-                    <label class="check"><input id="mobileDevice" type="checkbox" checked /><span>Mobile</span></label>
-                    <label class="check"><input id="desktopDevice" type="checkbox" checked /><span>Desktop</span></label>
-                  </div>
-                  <small id="devicesError" class="field-error" aria-live="polite"></small>
-                </div>
-                <div class="run-estimate">
-                  <span>Estimated audits</span>
-                  <strong id="auditCount">60</strong>
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="card-heading">
-                <div>
-                  <span class="step-number">03</span>
-                  <h3>Session setup flow</h3>
-                </div>
-                <label class="switch-label">
-                  <input id="flowEnabled" type="checkbox" />
-                  <span class="switch"></span>
-                  <span>Enable</span>
-                </label>
-              </div>
-
-              <div id="flowPanel" class="flow-panel disabled">
-                <div class="warning-box">
-                  <strong>Advanced local script</strong>
-                  <span>This code runs in a separate Node process and has local-machine privileges. Only run scripts you trust.</span>
-                </div>
-                <label class="field">
-                  <span>Playwright setup code</span>
-                  <textarea id="flowScript" class="code-editor" rows="12" spellcheck="false" placeholder="// page, context and browser are available.&#10;await page.goto('https://example.com/events');" disabled></textarea>
-                  <small id="flowScriptError" class="field-error" aria-live="polite"></small>
-                </label>
-              </div>
-            </section>
-          </div>
-
-          <aside class="action-column">
-            <section class="card sticky-card">
-              <div class="card-heading slim">
-                <div>
-                  <span class="step-number">04</span>
-                  <h3>Run control</h3>
-                </div>
-              </div>
-
-              <div class="health-mini" id="healthMini">
-                <div><span>Node</span><strong>—</strong></div>
-                <div><span>Lighthouse</span><strong>—</strong></div>
-                <div><span>Browser</span><strong>—</strong></div>
-                <div><span>Target</span><strong>—</strong></div>
-              </div>
-
-              <div class="health-detail-panel compact-top">
-                <div class="health-detail-head">
-                  <div>
-                    <span class="health-detail-label">Environment details</span>
-                    <strong id="healthActionSummary">Run the health check to see setup requirements.</strong>
-                  </div>
-                  <button id="copyAllFixesBtn" class="button button-ghost tiny hidden" type="button">Copy fix commands</button>
-                </div>
-                <div id="healthDetails" class="health-details">
-                  <div class="health-placeholder">Required installs and commands will appear here.</div>
-                </div>
-              </div>
-
-              <label class="field compact-top">
-                <span>Browser</span>
-                <select id="browserSelect">
-                  <option value="">Auto-detect</option>
-                </select>
-              </label>
-
-              <div class="button-stack compact-top">
-                <button id="launchBrowserBtn" class="button button-secondary">Launch browser</button>
-                <button id="stopBrowserBtn" class="button button-ghost" disabled>Stop browser</button>
-                <button id="startRunBtn" class="button button-primary" disabled>Start Lighthouse report</button>
-              </div>
-
-              <div class="divider"></div>
-
-              <div id="runPanel" class="run-panel idle">
-                <div class="run-panel-top">
-                  <span id="runState">Ready when browser is launched</span>
-                  <strong id="progressPercent">0%</strong>
-                </div>
-                <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
-                <div class="metric-grid">
-                  <div><span>Valid</span><strong id="validCount">0</strong></div>
-                  <div><span>Redirected</span><strong id="redirectCount">0</strong></div>
-                  <div><span>Failed</span><strong id="failedCount">0</strong></div>
-                </div>
-                <div id="currentRun" class="current-run">No active run</div>
-                <button id="cancelRunBtn" class="button button-danger full hidden">Cancel run</button>
-              </div>
-            </section>
-          </aside>
-        </div>
-
-        <section id="liveSection" class="card live-card hidden">
-          <div class="card-heading">
-            <div>
-              <span class="step-number">05</span>
-              <h3>Live execution</h3>
+                <aside class="action-column">
+                    <section id="projectEditorCard" class="card sticky-card project-editor-card">
+                        <div class="card-heading slim">
+                            <div><span class="step-number">03</span>
+                                <h3 id="projectEditorTitle">Create project</h3></div>
+                        </div>
+                        <input id="projectEditId" type="hidden"/>
+                        <label class="field" id="sharedProjectNameField"><span>Project name</span><input
+                                id="sharedProjectName" type="text" placeholder="Enter project name" autocomplete="off"/><small
+                                id="sharedProjectNameError" class="field-error"></small></label>
+                        <label class="field compact-top" id="projectTestingUrlField"><span>Testing URL <em>optional</em></span><input
+                                id="projectTestingUrl" type="url" placeholder="https://test.example.com"/><small
+                                id="projectTestingUrlError" class="field-error"></small></label>
+                        <label class="field compact-top" id="projectProductionUrlField"><span>Production URL <em>optional</em></span><input
+                                id="projectProductionUrl" type="url" placeholder="https://example.com"/><small
+                                id="projectProductionUrlError" class="field-error"></small></label>
+                        <div class="project-mini-grid compact-top">
+                            <label class="field"><span>Default environment</span><select id="projectEnvironment">
+                                <option value="testing">Testing</option>
+                                <option value="production">Production</option>
+                            </select></label>
+                            <label class="field"><span>Default language</span><select id="projectDefaultLanguage">
+                                <option value="en">English (EN)</option>
+                                <option value="ar">Arabic (AR)</option>
+                            </select></label>
+                        </div>
+                        <div class="field compact-top"><span>Available languages</span>
+                            <div class="checkbox-row"><label class="check"><input id="projectLangEn" type="checkbox"
+                                                                                  checked/><span>EN</span></label><label
+                                    class="check"><input id="projectLangAr" type="checkbox"/><span>AR</span></label>
+                            </div>
+                        </div>
+                        <label class="field compact-top"><span>Shared target pages</span><textarea id="projectPaths"
+                                                                                                   rows="7"
+                                                                                                   spellcheck="false"
+                                                                                                   placeholder="/&#10;/events&#10;/about-us"></textarea><small>One
+                            path or full URL per line. These pages can be reused by multiple tools.</small></label>
+                        <div class="button-stack compact-top">
+                            <button id="saveProjectBtn" class="button button-primary" type="button">Save project
+                            </button>
+                            <button id="cancelProjectEditBtn" class="button button-ghost hidden" type="button">Cancel
+                                editing
+                            </button>
+                        </div>
+                    </section>
+                </aside>
             </div>
-            <button id="clearLogsBtn" class="button button-ghost small">Clear logs</button>
-          </div>
-          <div id="liveLog" class="live-log"></div>
-          <div id="resultSummary" class="result-summary hidden"></div>
         </section>
-      </section>
 
-      <section id="securitySection" class="page-section">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Compliance Mapping Tool</div>
-            <h2>Turn website evidence into a reviewable control map</h2>
-            <p>Collect technical evidence, connect it to selected framework controls, and surface gaps that need manual review—without presenting the result as certification.</p>
-          </div>
-          <div class="browser-badge security-scope-badge"><span class="pulse"></span><span>Evidence-based mapping</span></div>
-        </header>
-
-        <div class="security-workflow-strip" aria-label="Compliance mapping workflow">
-          <div><span>01</span><strong>Collect evidence</strong><small>Inspect public and authenticated website controls.</small></div>
-          <i aria-hidden="true">→</i>
-          <div><span>02</span><strong>Map controls</strong><small>Link observed signals to selected frameworks.</small></div>
-          <i aria-hidden="true">→</i>
-          <div><span>03</span><strong>Review gaps</strong><small>Separate automated evidence from manual work.</small></div>
-        </div>
-
-        <div class="security-workspace">
-          <section id="securityConfigSummary" class="security-config-summary hidden" aria-live="polite"></section>
-
-          <div id="securityConfigPanel" class="security-setup-container">
-            <div class="security-setup-grid">
-              <div class="security-setup-main">
-            <section class="card security-scope-card">
-              <div class="card-heading">
-                <div><span class="step-number">01</span><h3>Evidence scope</h3></div>
-                <span class="muted">Project &amp; target</span>
-              </div>
-              <div id="securityProjectContext" class="security-project-context hidden"></div>
-              <div id="securityProjectOverrideFields" class="project-setup-grid">
-                <label class="field" id="securityProjectField">
-                  <span>Project name</span>
-                  <input id="securityProjectName" type="text" placeholder="Enter project name" autocomplete="off" />
-                  <small id="securityProjectError" class="field-error" aria-live="polite"></small>
-                </label>
-                <label class="field" id="securityUrlField">
-                  <span>Website URL</span>
-                  <input id="securityTargetUrl" type="url" placeholder="https://example.com" autocomplete="url" />
-                  <small id="securityUrlError" class="field-error" aria-live="polite"></small>
-                </label>
-              </div>
-              <div class="security-crawl-toggle">
-                <label class="security-select-all security-select-all-top">
-                  <input id="securityCrawlEnabled" type="checkbox" checked />
-                  <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                  <span>Crawl for compliance evidence pages<br><small class="muted">Looks for privacy, terms, security and compliance pages beyond the homepage.</small></span>
-                </label>
-              </div>
-              <details id="securityAdvancedOptions" class="security-advanced-options">
-                <summary><span><strong>Advanced scan settings &amp; evidence sources</strong><small id="securityAdvancedSummary">Crawl limit: 10 pages · Authenticated: Off · Consent scenarios: Off · ZAP: None</small></span><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary>
-                <div class="security-advanced-body">
-                  <div class="security-auth-section">
-                    <label class="field" id="securityMaxPagesField">
-                      <span>Max pages to crawl</span>
-                      <input id="securityMaxPages" type="number" min="1" max="25" value="10" />
-                      <small>Safe default: 10 candidate pages.</small>
-                    </label>
-                  </div>
-                  <div class="security-auth-section">
-                    <label class="security-select-all">
-                      <input id="securityAuthEnabled" type="checkbox" />
-                      <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                      <span>Collect authenticated browser evidence</span>
-                    </label>
-                    <div id="securityAuthConfig" class="security-auth-config hidden">
-                      <div class="project-setup-grid">
-                        <label class="field"><span>Test role / Evidence profile</span><select id="securityAuthRole"><option value="normal-user">Normal user</option><option value="privileged-user">Privileged user</option><option value="administrator">Administrator</option><option value="custom">Custom</option></select><small>Describes the authenticated perspective tested; it does not validate role-based access control.</small></label>
-                        <label id="securityAuthCustomRoleField" class="field hidden"><span>Custom evidence profile</span><input id="securityAuthCustomRole" type="text" maxlength="80" placeholder="Example: Billing operator" autocomplete="off" /></label>
-                        <label class="field"><span>Login URL</span><input id="securityLoginUrl" type="url" placeholder="https://example.com/login" autocomplete="url" /></label>
-                        <label class="field"><span>Success URL pattern <em>optional</em></span><input id="securitySuccessUrl" type="text" placeholder="**/dashboard" autocomplete="off" /></label>
-                      </div>
-                      <div class="project-setup-grid">
-                        <label class="field"><span>Username selector</span><input id="securityUsernameSelector" type="text" placeholder="input[name=username]" autocomplete="off" /></label>
-                        <label class="field"><span>Password selector</span><input id="securityPasswordSelector" type="text" placeholder="input[type=password]" autocomplete="off" /></label>
-                        <label class="field"><span>Submit selector</span><input id="securitySubmitSelector" type="text" placeholder="button[type=submit]" autocomplete="off" /></label>
-                      </div>
-                      <div class="project-setup-grid">
-                        <label class="field"><span>Username</span><input id="securityAuthUsername" type="text" autocomplete="username" /></label>
-                        <label class="field"><span>Password</span><input id="securityAuthPassword" type="password" autocomplete="current-password" /></label>
-                        <label class="security-select-all security-auth-reuse"><input id="securityReuseSession" type="checkbox" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span><span>Reuse encrypted role session</span></label>
-                      </div>
-                      <small id="securityAuthError" class="field-error" aria-live="polite"></small>
-                    </div>
-                  </div>
-                  <div class="security-auth-section">
-                    <label class="security-select-all">
-                      <input id="securityAdvancedConsent" type="checkbox" />
-                      <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                      <span>Run bounded advanced consent scenarios<br><small class="muted">Opt-in tests accept, reject, preferences, withdrawal, reload persistence, and returning-user behavior.</small></span>
-                    </label>
-                  </div>
-                  <div class="security-auth-section">
-                    <label class="field"><span>Additional security evidence — ZAP</span><select id="securityZapMode"><option value="none">None</option><option value="passive">Passive</option><option value="authenticated-passive">Authenticated passive</option></select><small>Passive modes add observations without exposing active attack testing in the compliance workflow.</small></label>
-                    <div id="securityZapConfig" class="security-auth-config hidden">
-                      <div id="securityZapContextFields" class="project-setup-grid hidden">
-                        <label class="field"><span>ZAP context file</span><input id="securityZapContextFile" type="text" placeholder="/absolute/path/application.context" autocomplete="off" /></label>
-                        <label class="field"><span>ZAP context user</span><input id="securityZapContextUser" type="text" autocomplete="off" /></label>
-                      </div>
-                      <div class="project-setup-grid">
-                        <label class="field"><span>ZAP timeout (minutes)</span><input id="securityZapTimeout" type="number" min="2" max="60" value="10" /></label>
-                      </div>
-                      <small id="securityZapError" class="field-error" aria-live="polite"></small>
-                    </div>
-                  </div>
-                </div>
-              </details>
-            </section>
-
-            <section class="card security-framework-scope-card">
-              <div class="card-heading">
-                <div><span class="step-number">02</span><h3>Framework scope</h3></div>
-                <span id="securityFrameworkCount" class="pill">6 selected</span>
-              </div>
-              <div class="security-framework-head">
+        <section id="runnerSection" class="page-section active">
+            <header class="page-header">
                 <div>
-                  <strong>Frameworks and regulations to map</strong>
-                  <span>Each mapping distinguishes observed evidence, missing evidence, and manual-review requirements.</span>
+                    <div class="eyebrow">Lighthouse Reporter</div>
+                    <h2>Create Lighthouse report</h2>
+                    <p>Configure the target, prepare the browser session, and run repeatable audits from one place.</p>
                 </div>
-                <label class="security-select-all">
-                  <input id="allSecurityFrameworks" type="checkbox" checked />
-                  <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-                  <span>Select all</span>
-                </label>
-              </div>
-              <div class="security-framework-grid" id="securityFrameworksField">
-                <article class="security-framework-option" data-framework-card="iso-27001">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="iso-27001" checked /><span class="framework-symbol">ISO</span><span><strong>ISO/IEC 27001</strong><small>Information-security control mapping</small></span><span class="framework-check">✓</span></label>
-                </article>
-                <article class="security-framework-option" data-framework-card="gdpr">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="gdpr" checked /><span class="framework-symbol">GD</span><span><strong>GDPR</strong><small>Privacy, transparency and data-security signals</small></span><span class="framework-check">✓</span></label>
-                  <label class="field security-framework-applicability" data-framework-input="gdpr"><span>Applicability</span><select id="securityGdprApplicability"><option value="unknown">Unknown — confirm scope</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
-                </article>
-                <article class="security-framework-option" data-framework-card="soc-2">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="soc-2" checked /><span class="framework-symbol">S2</span><span><strong>SOC 2</strong><small>Security and trust-control signals</small></span><span class="framework-check">✓</span></label>
-                </article>
-                <article class="security-framework-option" data-framework-card="hipaa">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="hipaa" checked /><span class="framework-symbol">HI</span><span><strong>HIPAA</strong><small>Technical safeguards when applicable</small></span><span class="framework-check">✓</span></label>
-                  <label class="field security-framework-applicability" data-framework-input="hipaa"><span>Applicability</span><select id="securityHipaaApplicability"><option value="unknown">Unknown — detect scope signals</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
-                </article>
-                <article class="security-framework-option" data-framework-card="pci-dss">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="pci-dss" checked /><span class="framework-symbol">PCI</span><span><strong>PCI DSS</strong><small>Payment-environment security signals</small></span><span class="framework-check">✓</span></label>
-                  <label class="field security-framework-applicability" data-framework-input="pci-dss"><span>Applicability</span><select id="securityPciApplicability"><option value="unknown">Unknown — detect scope signals</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
-                </article>
-                <article class="security-framework-option" data-framework-card="local">
-                  <label><input class="securityFrameworkCheck" type="checkbox" value="local" checked /><span class="framework-symbol">LR</span><span><strong>Local Regulations</strong><small>Jurisdiction-dependent technical indicators</small></span><span class="framework-check">✓</span></label>
-                  <div class="security-framework-applicability" data-framework-input="local">
-                    <label class="field"><span>Applicability</span><select id="securityLocalApplicability"><option value="unknown">Unknown — confirm scope</option><option value="applicable">Operator-confirmed applicable</option><option value="not_applicable">Operator-confirmed not applicable</option></select></label>
-                    <label class="field security-jurisdiction-field"><span>Jurisdiction <em>optional</em></span><input id="securityJurisdiction" type="text" placeholder="Example: Egypt" autocomplete="country-name" /><small>Context only for Local Regulations.</small></label>
-                  </div>
-                </article>
-              </div>
-              <small class="muted">Selecting applicable is an operator assertion, not an automated conclusion. Unknown never means not applicable; HIPAA and PCI DSS remain unconfirmed unless strong PHI/cardholder-data signals or operator evidence supports scope.</small>
-              <small id="securityFrameworkError" class="field-error" aria-live="polite"></small>
-            </section>
-              </div>
+                <div id="browserBadge" class="browser-badge offline">
+                    <span class="pulse"></span>
+                    <span id="browserBadgeText">Browser offline</span>
+                </div>
+            </header>
+            <div class="lighthouse-workspace-container">
+                <div class="lighthouse-workspace">
+                    <section class="card lighthouse-project-step">
+                        <div class="card-heading">
+                            <div>
+                                <span class="step-number">01</span>
+                                <h3>Project setup</h3>
+                            </div>
+                            <span class="muted">Naming & target</span>
+                        </div>
 
-              <aside class="security-run-column">
-            <section class="card sticky-card security-run-card">
-              <div class="card-heading slim"><div><span class="step-number">03</span><h3>Run assessment</h3></div></div>
-              <div id="securityRunSummary" class="security-run-summary"></div>
-              <div class="security-scan-preview">
-                <span>Checks include</span>
-                <div><b>HTTPS & TLS</b><b>Security headers</b><b>Cookie attributes</b><b>CORS</b><b>Mixed content</b><b>Privacy signals</b><b>Third-party scripts</b><b>security.txt</b></div>
-              </div>
-              <div class="security-action-disclaimer"><strong>Technical pre-assessment only.</strong><span>Results do not determine compliance, certification, legal applicability, or complete control satisfaction.</span></div>
-              <button id="startSecurityScanBtn" class="button button-primary full">Run technical pre-assessment</button>
-              <div id="securityScanState" class="security-scan-state idle"><span class="security-spinner"></span><div><strong>Ready to map</strong><small>Evidence is collected in a managed browser session.</small></div></div>
-            </section>
-              </aside>
+                        <div class="project-setup-grid">
+                            <label class="field" id="projectNameField">
+                                <span>Project name</span>
+                                <input id="projectName" type="text" placeholder="Enter project name" autocomplete="off"
+                                       required/>
+                                <small id="projectNameError" class="field-error" aria-live="polite"></small>
+                            </label>
+
+                            <label class="field" id="baseUrlField">
+                                <span>Base URL</span>
+                                <input id="baseUrl" type="url" placeholder="https://example.com" autocomplete="url"
+                                       required/>
+                                <small id="baseUrlError" class="field-error" aria-live="polite"></small>
+                            </label>
+
+                            <div class="field">
+                                <span>Test type</span>
+                                <div class="segmented" id="modeSelector">
+                                    <button class="segment active" data-value="public" type="button">Public URLs
+                                    </button>
+                                    <button class="segment" data-value="session" type="button">Session-based</button>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <span>Language to test</span>
+                                <div class="segmented" id="languageSelector">
+                                    <button class="segment active" data-value="en" type="button">EN</button>
+                                    <button class="segment" data-value="ar" type="button">AR</button>
+                                </div>
+                            </div>
+
+                            <label class="field" id="defaultLanguageField">
+                                <span>Website default language</span>
+                                <select id="defaultLanguage" required>
+                                    <option value="en" selected>English (EN)</option>
+                                    <option value="ar">Arabic (AR)</option>
+                                </select>
+                            </label>
+
+                            <label class="field" id="runsPerPageField">
+                                <span>Runs per page</span>
+                                <input id="runsPerPage" type="number" min="1" max="10" value="3" inputmode="numeric"
+                                       required/>
+                                <small id="runsPerPageError" class="field-error" aria-live="polite"></small>
+                            </label>
+                        </div>
+
+                        <div class="routing-preview">
+                            <div>
+                                <span class="routing-label">URL routing preview</span>
+                                <strong id="routingPreview">/about-us</strong>
+                            </div>
+                            <span id="routingExplanation">EN is the website default, so no /en prefix will be added.</span>
+                        </div>
+                    </section>
+
+                    <section class="card lighthouse-target-step">
+                        <div class="card-heading">
+                            <div>
+                                <span class="step-number">02</span>
+                                <h3>Target pages</h3>
+                            </div>
+                            <span id="urlCount" class="pill">10 URLs</span>
+                        </div>
+
+                        <label class="field" id="urlsField">
+                            <span>One path or full URL per line</span>
+                            <textarea id="urls" rows="10" spellcheck="false"
+                                      placeholder="/about-us&#10;/events&#10;https://example.com/contact"
+                                      required></textarea>
+                            <small id="urlsError" class="field-error" aria-live="polite"></small>
+                        </label>
+
+                        <div class="audit-category-block" id="categoriesField">
+                            <div class="audit-category-head">
+                                <div>
+                                    <span class="field-title">Lighthouse categories</span>
+                                    <small>Choose exactly what Lighthouse should audit. You can run one category or all
+                                        four.</small>
+                                </div>
+                                <label class="category-select-all" title="Select or clear all Lighthouse categories">
+                                    <input id="allCategories" type="checkbox" checked/>
+                                    <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                            d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                                    <span class="select-all-copy"><strong>Select all</strong><small>4 categories</small></span>
+                                </label>
+                            </div>
+                            <div class="audit-category-grid">
+                                <label class="audit-category-option">
+                                    <input class="categoryCheck" type="checkbox" value="performance" checked/>
+                                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path
+                                            d="M13 2 5 14h6l-1 8 9-13h-6z"/></svg></span>
+                                    <span class="category-copy"><strong>Performance</strong><small>Speed, loading and runtime insights</small></span>
+                                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                            d="m5 10 3 3 7-7"/></svg></span>
+                                </label>
+                                <label class="audit-category-option">
+                                    <input class="categoryCheck" type="checkbox" value="accessibility" checked/>
+                                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle
+                                            cx="12"
+                                            cy="4.5"
+                                            r="2"/><path
+                                            d="M5 8h14M12 7.5v5M8.5 21l3.5-8.5L15.5 21M8.5 12.5 5.5 17M15.5 12.5l3 4.5"/></svg></span>
+                                    <span class="category-copy"><strong>Accessibility</strong><small>Contrast, names, labels, media and more</small></span>
+                                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                            d="m5 10 3 3 7-7"/></svg></span>
+                                </label>
+                                <label class="audit-category-option">
+                                    <input class="categoryCheck" type="checkbox" value="best-practices" checked/>
+                                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path
+                                            d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path
+                                            d="m9 12 2 2 4-5"/></svg></span>
+                                    <span class="category-copy"><strong>Best Practices</strong><small>Security, browser and code quality checks</small></span>
+                                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                            d="m5 10 3 3 7-7"/></svg></span>
+                                </label>
+                                <label class="audit-category-option">
+                                    <input class="categoryCheck" type="checkbox" value="seo" checked/>
+                                    <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle
+                                            cx="10.5" cy="10.5" r="5.5"/><path
+                                            d="m15 15 5 5M7.5 10.5h6M10.5 7.5v6"/></svg></span>
+                                    <span class="category-copy"><strong>SEO</strong><small>Discoverability and search best practices</small></span>
+                                    <span class="category-check-ui" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                            d="m5 10 3 3 7-7"/></svg></span>
+                                </label>
+                            </div>
+                            <small id="categoriesError" class="field-error" aria-live="polite"></small>
+                        </div>
+
+                        <div class="inline-controls">
+                            <div class="field grow">
+                                <span>Devices</span>
+                                <div class="checkbox-row" id="devicesField">
+                                    <label class="check"><input id="mobileDevice" type="checkbox"
+                                                                checked/><span>Mobile</span></label>
+                                    <label class="check"><input id="desktopDevice" type="checkbox"
+                                                                checked/><span>Desktop</span></label>
+                                </div>
+                                <small id="devicesError" class="field-error" aria-live="polite"></small>
+                            </div>
+                            <div class="run-estimate">
+                                <span>Estimated audits</span>
+                                <strong id="auditCount">60</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card lighthouse-session-step">
+                        <div class="card-heading">
+                            <div>
+                                <span class="step-number">03</span>
+                                <h3>Session setup flow</h3>
+                            </div>
+                            <label class="switch-label">
+                                <input id="flowEnabled" type="checkbox"/>
+                                <span class="switch"></span>
+                                <span>Enable</span>
+                            </label>
+                        </div>
+
+                        <div id="flowPanel" class="flow-panel disabled hidden">
+                            <div class="warning-box">
+                                <strong>Advanced local script</strong>
+                                <span>This code runs in a separate Node process and has local-machine privileges. Only run scripts you trust.</span>
+                            </div>
+                            <label class="field">
+                                <span>Playwright setup code</span>
+                                <textarea id="flowScript" class="code-editor" rows="12" spellcheck="false"
+                                          placeholder="// page, context and browser are available.&#10;await page.goto('https://example.com/events');"
+                                          disabled></textarea>
+                                <small id="flowScriptError" class="field-error" aria-live="polite"></small>
+                            </label>
+                        </div>
+                    </section>
+
+                </div>
+                <section class="card lighthouse-run-step">
+                    <div class="card-heading slim">
+                        <div>
+                            <span class="step-number">04</span>
+                            <h3>Run report</h3>
+                        </div>
+                        <span class="muted">Browser session &amp; progress</span>
+                    </div>
+                    <div class="lighthouse-run-layout">
+                        <div class="lighthouse-browser-setup">
+                            <label class="field">
+                                <span>Browser</span>
+                                <select id="browserSelect">
+                                    <option value="">Auto-detect</option>
+                                </select>
+                            </label>
+                            <div class="lighthouse-browser-actions" aria-label="Browser controls">
+                                <button id="launchBrowserBtn" class="button button-secondary">Launch browser</button>
+                                <button id="stopBrowserBtn" class="button button-ghost" disabled>Stop browser</button>
+                            </div>
+                            <p class="lighthouse-run-help">Launch the managed browser, then start the configured audits.
+                                Session-based runs keep the browser available for any required preparation.</p>
+                        </div>
+                        <div id="runPanel" class="run-panel lighthouse-progress-panel idle">
+                            <div class="run-panel-top">
+                                <span id="runState">Ready when browser is launched</span>
+                                <strong id="progressPercent">0%</strong>
+                            </div>
+                            <div class="progress-track">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+                            <div class="metric-grid">
+                                <div><span>Valid</span><strong id="validCount">0</strong></div>
+                                <div><span>Redirected</span><strong id="redirectCount">0</strong></div>
+                                <div><span>Failed</span><strong id="failedCount">0</strong></div>
+                            </div>
+                            <div id="currentRun" class="current-run">No active run</div>
+                        </div>
+                        <div class="lighthouse-primary-actions">
+                            <button id="startRunBtn" class="button button-primary" disabled>Start Lighthouse report
+                            </button>
+                            <button id="cancelRunBtn" class="button button-danger hidden">Cancel run</button>
+                        </div>
+                    </div>
+                </section>
             </div>
-          </div>
 
-          <section id="securityResultsCard" class="card security-results-card hidden">
-            <div class="card-heading security-results-heading">
-              <div><span class="step-number">04</span><h3>Assessment workspace</h3></div>
-              <div id="securityResultActions" class="security-result-actions"></div>
-            </div>
-            <div id="securityResults" class="security-results"></div>
-          </section>
-        </div>
-      </section>
 
-      <section id="assetsSection" class="page-section">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Asset & Page-Weight Analyzer</div>
-            <h2>Find what makes pages heavy</h2>
-            <p>Measure transferred page weight, request counts, JavaScript, CSS, images, fonts, media, third-party resources and the largest individual assets across selected pages.</p>
-          </div>
-          <div class="browser-badge asset-scope-badge"><span class="pulse"></span><span>Headless browser analysis</span></div>
-        </header>
-
-        <div class="asset-layout">
-          <div class="content-column">
-            <section class="card">
-              <div class="card-heading"><div><span class="step-number">01</span><h3>Analysis target</h3></div><span class="muted">Page scope</span></div>
-              <div class="project-setup-grid">
-                <label class="field" id="assetProjectField"><span>Project name</span><input id="assetProjectName" type="text" placeholder="Enter project name" /><small id="assetProjectError" class="field-error"></small></label>
-                <label class="field" id="assetBaseUrlField"><span>Base URL</span><input id="assetBaseUrl" type="url" placeholder="https://example.com" /><small id="assetBaseUrlError" class="field-error"></small></label>
-              </div>
-              <label class="field compact-top" id="assetPathsField"><span>Pages to analyze</span><textarea id="assetPaths" rows="9" spellcheck="false" placeholder="/&#10;/events&#10;/about-us"></textarea><small id="assetPathsError" class="field-error"></small></label>
-              <div class="asset-options-row">
-                <div class="field"><span>Viewport</span><div class="segmented" id="assetDeviceSelector"><button class="segment active" data-value="desktop" type="button">Desktop</button><button class="segment" data-value="mobile" type="button">Mobile</button></div></div>
-                <label class="field"><span>Browser</span><select id="assetBrowserSelect"><option value="">Auto-detect</option></select></label>
-              </div>
+            <section id="liveSection" class="card live-card hidden">
+                <div class="card-heading">
+                    <div>
+                        <span class="step-number">05</span>
+                        <h3>Execution &amp; results</h3>
+                    </div>
+                    <button id="clearLogsBtn" class="button button-ghost small">Clear logs</button>
+                </div>
+                <details id="liveLogDetails" class="lighthouse-log-panel" open>
+                    <summary>Live execution log <span>Progress and runner messages</span></summary>
+                    <div id="liveLog" class="live-log"></div>
+                </details>
+                <div id="resultSummary" class="result-summary hidden"></div>
             </section>
+        </section>
+
+        <section id="securitySection" class="page-section">
+            <header class="page-header">
+                <div>
+                    <div class="eyebrow">Compliance Mapping Tool</div>
+                    <h2>Turn website evidence into a reviewable control map</h2>
+                    <p>Collect technical evidence, connect it to selected framework controls, and surface gaps that need
+                        manual review—without presenting the result as certification.</p>
+                </div>
+                <div class="browser-badge security-scope-badge"><span
+                        class="pulse"></span><span>Evidence-based mapping</span></div>
+            </header>
+
+            <div class="security-workflow-strip" aria-label="Compliance mapping workflow">
+                <div><span>01</span><strong>Collect evidence</strong><small>Inspect public and authenticated website
+                    controls.</small></div>
+                <i aria-hidden="true">→</i>
+                <div><span>02</span><strong>Map controls</strong><small>Link observed signals to selected
+                    frameworks.</small></div>
+                <i aria-hidden="true">→</i>
+                <div><span>03</span><strong>Review gaps</strong><small>Separate automated evidence from manual
+                    work.</small></div>
+            </div>
+
+            <div class="security-workspace">
+                <section id="securityConfigSummary" class="security-config-summary hidden" aria-live="polite"></section>
+
+                <div id="securityConfigPanel" class="security-setup-container">
+                    <div class="security-setup-grid">
+                        <div class="security-setup-main">
+                            <section class="card security-scope-card">
+                                <div class="card-heading">
+                                    <div><span class="step-number">01</span>
+                                        <h3>Evidence scope</h3></div>
+                                    <span class="muted">Project &amp; target</span>
+                                </div>
+                                <div id="securityProjectContext" class="security-project-context hidden"></div>
+                                <div id="securityProjectOverrideFields" class="project-setup-grid">
+                                    <label class="field" id="securityProjectField">
+                                        <span>Project name</span>
+                                        <input id="securityProjectName" type="text" placeholder="Enter project name"
+                                               autocomplete="off"/>
+                                        <small id="securityProjectError" class="field-error" aria-live="polite"></small>
+                                    </label>
+                                    <label class="field" id="securityUrlField">
+                                        <span>Website URL</span>
+                                        <input id="securityTargetUrl" type="url" placeholder="https://example.com"
+                                               autocomplete="url"/>
+                                        <small id="securityUrlError" class="field-error" aria-live="polite"></small>
+                                    </label>
+                                </div>
+                                <div class="security-crawl-toggle">
+                                    <label class="security-select-all security-select-all-top">
+                                        <input id="securityCrawlEnabled" type="checkbox" checked/>
+                                        <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                                d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                                        <span>Crawl for compliance evidence pages<br><small class="muted">Looks for privacy, terms, security and compliance pages beyond the homepage.</small></span>
+                                    </label>
+                                </div>
+                                <details id="securityAdvancedOptions" class="security-advanced-options">
+                                    <summary><span><strong>Advanced scan settings &amp; evidence sources</strong><small
+                                            id="securityAdvancedSummary">Crawl limit: 10 pages · Authenticated: Off · Consent scenarios: Off · ZAP: None</small></span><span
+                                            class="security-chevron"><svg viewBox="0 0 20 20"><path
+                                            d="m6 8 4 4 4-4"/></svg></span></summary>
+                                    <div class="security-advanced-body">
+                                        <div class="security-auth-section">
+                                            <label class="field" id="securityMaxPagesField">
+                                                <span>Max pages to crawl</span>
+                                                <input id="securityMaxPages" type="number" min="1" max="25" value="10"/>
+                                                <small>Safe default: 10 candidate pages.</small>
+                                            </label>
+                                        </div>
+                                        <div class="security-auth-section">
+                                            <label class="security-select-all">
+                                                <input id="securityAuthEnabled" type="checkbox"/>
+                                                <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                                        d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                                                <span>Collect authenticated browser evidence</span>
+                                            </label>
+                                            <div id="securityAuthConfig" class="security-auth-config hidden">
+                                                <div class="project-setup-grid">
+                                                    <label class="field"><span>Test role / Evidence profile</span><select
+                                                            id="securityAuthRole">
+                                                        <option value="normal-user">Normal user</option>
+                                                        <option value="privileged-user">Privileged user</option>
+                                                        <option value="administrator">Administrator</option>
+                                                        <option value="custom">Custom</option>
+                                                    </select><small>Describes the authenticated perspective tested; it
+                                                        does not validate role-based access control.</small></label>
+                                                    <label id="securityAuthCustomRoleField" class="field hidden"><span>Custom evidence profile</span><input
+                                                            id="securityAuthCustomRole" type="text" maxlength="80"
+                                                            placeholder="Example: Billing operator" autocomplete="off"/></label>
+                                                    <label class="field"><span>Login URL</span><input
+                                                            id="securityLoginUrl" type="url"
+                                                            placeholder="https://example.com/login" autocomplete="url"/></label>
+                                                    <label class="field"><span>Success URL pattern <em>optional</em></span><input
+                                                            id="securitySuccessUrl" type="text"
+                                                            placeholder="**/dashboard" autocomplete="off"/></label>
+                                                </div>
+                                                <div class="project-setup-grid">
+                                                    <label class="field"><span>Username selector</span><input
+                                                            id="securityUsernameSelector" type="text"
+                                                            placeholder="input[name=username]"
+                                                            autocomplete="off"/></label>
+                                                    <label class="field"><span>Password selector</span><input
+                                                            id="securityPasswordSelector" type="text"
+                                                            placeholder="input[type=password]"
+                                                            autocomplete="off"/></label>
+                                                    <label class="field"><span>Submit selector</span><input
+                                                            id="securitySubmitSelector" type="text"
+                                                            placeholder="button[type=submit]"
+                                                            autocomplete="off"/></label>
+                                                </div>
+                                                <div class="project-setup-grid">
+                                                    <label class="field"><span>Username</span><input
+                                                            id="securityAuthUsername" type="text"
+                                                            autocomplete="username"/></label>
+                                                    <label class="field"><span>Password</span><input
+                                                            id="securityAuthPassword" type="password"
+                                                            autocomplete="current-password"/></label>
+                                                    <label class="security-select-all security-auth-reuse"><input
+                                                            id="securityReuseSession" type="checkbox"/><span
+                                                            class="ui-checkbox" aria-hidden="true"><svg
+                                                            viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span
+                                                            class="mixed-mark"></span></span><span>Reuse encrypted role session</span></label>
+                                                </div>
+                                                <small id="securityAuthError" class="field-error"
+                                                       aria-live="polite"></small>
+                                            </div>
+                                        </div>
+                                        <div class="security-auth-section">
+                                            <label class="security-select-all">
+                                                <input id="securityAdvancedConsent" type="checkbox"/>
+                                                <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                                        d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                                                <span>Run bounded advanced consent scenarios<br><small class="muted">Opt-in tests accept, reject, preferences, withdrawal, reload persistence, and returning-user behavior.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="security-auth-section">
+                                            <label class="field"><span>Additional security evidence — ZAP</span><select
+                                                    id="securityZapMode">
+                                                <option value="none">None</option>
+                                                <option value="passive">Passive</option>
+                                                <option value="authenticated-passive">Authenticated passive</option>
+                                            </select><small>Passive modes add observations without exposing active
+                                                attack testing in the compliance workflow.</small></label>
+                                            <div id="securityZapConfig" class="security-auth-config hidden">
+                                                <div id="securityZapContextFields" class="project-setup-grid hidden">
+                                                    <label class="field"><span>ZAP context file</span><input
+                                                            id="securityZapContextFile" type="text"
+                                                            placeholder="/absolute/path/application.context"
+                                                            autocomplete="off"/></label>
+                                                    <label class="field"><span>ZAP context user</span><input
+                                                            id="securityZapContextUser" type="text" autocomplete="off"/></label>
+                                                </div>
+                                                <div class="project-setup-grid">
+                                                    <label class="field"><span>ZAP timeout (minutes)</span><input
+                                                            id="securityZapTimeout" type="number" min="2" max="60"
+                                                            value="10"/></label>
+                                                </div>
+                                                <small id="securityZapError" class="field-error"
+                                                       aria-live="polite"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </details>
+                            </section>
+
+                            <section class="card security-framework-scope-card">
+                                <div class="card-heading">
+                                    <div><span class="step-number">02</span>
+                                        <h3>Framework scope</h3></div>
+                                    <span id="securityFrameworkCount" class="pill">6 selected</span>
+                                </div>
+                                <div class="security-framework-head">
+                                    <div>
+                                        <strong>Frameworks and regulations to map</strong>
+                                        <span>Each mapping distinguishes observed evidence, missing evidence, and manual-review requirements.</span>
+                                    </div>
+                                    <label class="security-select-all">
+                                        <input id="allSecurityFrameworks" type="checkbox" checked/>
+                                        <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path
+                                                d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
+                                        <span>Select all</span>
+                                    </label>
+                                </div>
+                                <div class="security-framework-grid" id="securityFrameworksField">
+                                    <article class="security-framework-option" data-framework-card="iso-27001">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="iso-27001"
+                                                      checked/><span class="framework-symbol">ISO</span><span><strong>ISO/IEC 27001</strong><small>Information-security control mapping</small></span><span
+                                                class="framework-check">✓</span></label>
+                                    </article>
+                                    <article class="security-framework-option" data-framework-card="gdpr">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="gdpr"
+                                                      checked/><span class="framework-symbol">GD</span><span><strong>GDPR</strong><small>Privacy, transparency and data-security signals</small></span><span
+                                                class="framework-check">✓</span></label>
+                                        <label class="field security-framework-applicability"
+                                               data-framework-input="gdpr"><span>Applicability</span><select
+                                                id="securityGdprApplicability">
+                                            <option value="unknown">Unknown — confirm scope</option>
+                                            <option value="applicable">Operator-confirmed applicable</option>
+                                            <option value="not_applicable">Operator-confirmed not applicable</option>
+                                        </select></label>
+                                    </article>
+                                    <article class="security-framework-option" data-framework-card="soc-2">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="soc-2"
+                                                      checked/><span class="framework-symbol">S2</span><span><strong>SOC 2</strong><small>Security and trust-control signals</small></span><span
+                                                class="framework-check">✓</span></label>
+                                    </article>
+                                    <article class="security-framework-option" data-framework-card="hipaa">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="hipaa"
+                                                      checked/><span class="framework-symbol">HI</span><span><strong>HIPAA</strong><small>Technical safeguards when applicable</small></span><span
+                                                class="framework-check">✓</span></label>
+                                        <label class="field security-framework-applicability"
+                                               data-framework-input="hipaa"><span>Applicability</span><select
+                                                id="securityHipaaApplicability">
+                                            <option value="unknown">Unknown — detect scope signals</option>
+                                            <option value="applicable">Operator-confirmed applicable</option>
+                                            <option value="not_applicable">Operator-confirmed not applicable</option>
+                                        </select></label>
+                                    </article>
+                                    <article class="security-framework-option" data-framework-card="pci-dss">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="pci-dss"
+                                                      checked/><span class="framework-symbol">PCI</span><span><strong>PCI DSS</strong><small>Payment-environment security signals</small></span><span
+                                                class="framework-check">✓</span></label>
+                                        <label class="field security-framework-applicability"
+                                               data-framework-input="pci-dss"><span>Applicability</span><select
+                                                id="securityPciApplicability">
+                                            <option value="unknown">Unknown — detect scope signals</option>
+                                            <option value="applicable">Operator-confirmed applicable</option>
+                                            <option value="not_applicable">Operator-confirmed not applicable</option>
+                                        </select></label>
+                                    </article>
+                                    <article class="security-framework-option" data-framework-card="local">
+                                        <label><input class="securityFrameworkCheck" type="checkbox" value="local"
+                                                      checked/><span class="framework-symbol">LR</span><span><strong>Local Regulations</strong><small>Jurisdiction-dependent technical indicators</small></span><span
+                                                class="framework-check">✓</span></label>
+                                        <div class="security-framework-applicability" data-framework-input="local">
+                                            <label class="field"><span>Applicability</span><select
+                                                    id="securityLocalApplicability">
+                                                <option value="unknown">Unknown — confirm scope</option>
+                                                <option value="applicable">Operator-confirmed applicable</option>
+                                                <option value="not_applicable">Operator-confirmed not applicable
+                                                </option>
+                                            </select></label>
+                                            <label class="field security-jurisdiction-field"><span>Jurisdiction <em>optional</em></span><input
+                                                    id="securityJurisdiction" type="text" placeholder="Example: Egypt"
+                                                    autocomplete="country-name"/><small>Context only for Local
+                                                Regulations.</small></label>
+                                        </div>
+                                    </article>
+                                </div>
+                                <small class="muted">Selecting applicable is an operator assertion, not an automated
+                                    conclusion. Unknown never means not applicable; HIPAA and PCI DSS remain unconfirmed
+                                    unless strong PHI/cardholder-data signals or operator evidence supports
+                                    scope.</small>
+                                <small id="securityFrameworkError" class="field-error" aria-live="polite"></small>
+                            </section>
+                        </div>
+
+                        <aside class="security-run-column">
+                            <section class="card sticky-card security-run-card">
+                                <div class="card-heading slim">
+                                    <div><span class="step-number">03</span>
+                                        <h3>Run assessment</h3></div>
+                                </div>
+                                <div id="securityRunSummary" class="security-run-summary"></div>
+                                <div class="security-scan-preview">
+                                    <span>Checks include</span>
+                                    <div><b>HTTPS & TLS</b><b>Security headers</b><b>Cookie attributes</b><b>CORS</b><b>Mixed
+                                        content</b><b>Privacy signals</b><b>Third-party scripts</b><b>security.txt</b>
+                                    </div>
+                                </div>
+                                <div class="security-action-disclaimer"><strong>Technical pre-assessment
+                                    only.</strong><span>Results do not determine compliance, certification, legal applicability, or complete control satisfaction.</span>
+                                </div>
+                                <button id="startSecurityScanBtn" class="button button-primary full">Run technical
+                                    pre-assessment
+                                </button>
+                                <div id="securityScanState" class="security-scan-state idle"><span
+                                        class="security-spinner"></span>
+                                    <div><strong>Ready to map</strong><small>Evidence is collected in a managed browser
+                                        session.</small></div>
+                                </div>
+                            </section>
+                        </aside>
+                    </div>
+                </div>
+
+                <section id="securityResultsCard" class="card security-results-card hidden">
+                    <div class="card-heading security-results-heading">
+                        <div><span class="step-number">04</span>
+                            <h3>Assessment workspace</h3></div>
+                        <div id="securityResultActions" class="security-result-actions"></div>
+                    </div>
+                    <div id="securityResults" class="security-results"></div>
+                </section>
+            </div>
+        </section>
+
+        <section id="assetsSection" class="page-section">
+            <header class="page-header">
+                <div>
+                    <div class="eyebrow">Asset & Page-Weight Analyzer</div>
+                    <h2>Find what makes pages heavy</h2>
+                    <p>Measure transferred page weight, request counts, JavaScript, CSS, images, fonts, media,
+                        third-party resources and the largest individual assets across selected pages.</p>
+                </div>
+                <div class="browser-badge asset-scope-badge"><span
+                        class="pulse"></span><span>Headless browser analysis</span></div>
+            </header>
+
+            <div class="asset-workspace-container">
+                <div class="asset-workspace">
+                    <section class="card asset-target-step">
+                    <div class="card-heading">
+                        <div><span class="step-number">01</span>
+                            <h3>Analysis target</h3></div>
+                        <span class="muted">Page scope</span></div>
+                    <div class="project-setup-grid">
+                        <label class="field" id="assetProjectField"><span>Project name</span><input
+                                id="assetProjectName" type="text" placeholder="Enter project name"/><small
+                                id="assetProjectError" class="field-error"></small></label>
+                        <label class="field" id="assetBaseUrlField"><span>Base URL</span><input id="assetBaseUrl"
+                                                                                                type="url"
+                                                                                                placeholder="https://example.com"/><small
+                                id="assetBaseUrlError" class="field-error"></small></label>
+                    </div>
+                    <label class="field compact-top" id="assetPathsField"><span>Pages to analyze</span><textarea
+                            id="assetPaths" rows="9" spellcheck="false"
+                            placeholder="/&#10;/events&#10;/about-us"></textarea><small id="assetPathsError"
+                                                                                        class="field-error"></small></label>
+                    <div class="asset-options-row">
+                        <div class="field"><span>Viewport</span>
+                            <div class="segmented" id="assetDeviceSelector">
+                                <button class="segment active" data-value="desktop" type="button">Desktop</button>
+                                <button class="segment" data-value="mobile" type="button">Mobile</button>
+                            </div>
+                        </div>
+                        <label class="field"><span>Browser</span><select id="assetBrowserSelect">
+                            <option value="">Auto-detect</option>
+                        </select></label>
+                    </div>
+                    <div class="asset-note compact-top"><strong>Clean measurement</strong><span>Each page is loaded in a fresh headless browser context with cache disabled so transferred asset weight can be measured consistently.</span>
+                    </div>
+                    </section>
+                </div>
+
+                <section class="card asset-run-step">
+                    <div class="card-heading slim">
+                        <div><span class="step-number">02</span>
+                            <h3>Run analysis</h3></div>
+                        <span class="muted">Fresh browser context per page</span></div>
+                    <div class="asset-run-layout">
+                        <div class="asset-scan-preview">
+                            <span>Measures</span>
+                            <div><b>Total
+                                transfer</b><b>Requests</b><b>JavaScript</b><b>CSS</b><b>Images</b><b>Fonts</b><b>Third-party</b><b>Largest
+                                assets</b></div>
+                        </div>
+                        <div id="assetScanState" class="security-scan-state idle"><span class="security-spinner"></span>
+                            <div><strong>Ready to analyze</strong><small>No manual browser launch is required.</small>
+                            </div>
+                        </div>
+                        <button id="startAssetAnalysisBtn" class="button button-primary">Analyze page weight</button>
+                    </div>
+                </section>
+            </div>
 
             <section id="assetResultsCard" class="card hidden">
-              <div class="card-heading"><div><span class="step-number">03</span><h3>Page-weight report</h3></div><div id="assetResultActions" class="security-result-actions"></div></div>
-              <div id="assetResults" class="asset-results"></div>
-            </section>
-          </div>
-
-          <aside class="action-column">
-            <section class="card sticky-card asset-run-card">
-              <div class="card-heading slim"><div><span class="step-number">02</span><h3>Run analysis</h3></div></div>
-              <div class="asset-scan-preview">
-                <span>Measures</span>
-                <div><b>Total transfer</b><b>Requests</b><b>JavaScript</b><b>CSS</b><b>Images</b><b>Fonts</b><b>Third-party</b><b>Largest assets</b></div>
-              </div>
-              <div class="asset-note"><strong>Clean measurement</strong><span>Each page is loaded in a fresh headless browser context with cache disabled so transferred asset weight can be measured consistently.</span></div>
-              <button id="startAssetAnalysisBtn" class="button button-primary full">Analyze page weight</button>
-              <div id="assetScanState" class="security-scan-state idle"><span class="security-spinner"></span><div><strong>Ready to analyze</strong><small>No manual browser launch is required.</small></div></div>
-            </section>
-          </aside>
-        </div>
-      </section>
-
-      <section id="linksSection" class="page-section">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Broken Links &amp; Resources Checker</div>
-            <h2>Find unavailable references with source context</h2>
-            <p>Render selected pages, discover hyperlinks and resources, then check each unique HTTP target once while preserving every source occurrence.</p>
-          </div>
-          <div class="browser-badge links-scope-badge"><span class="pulse"></span><span>Bounded rendered discovery</span></div>
-        </header>
-
-        <div class="links-layout">
-          <div class="content-column">
-            <section class="card">
-              <div class="card-heading"><div><span class="step-number">01</span><h3>Analysis target</h3></div><span class="muted">Explicit pages</span></div>
-              <div class="project-setup-grid">
-                <label class="field" id="linksProjectField"><span>Project name</span><input id="linksProjectName" type="text" placeholder="Enter project name" autocomplete="off" /><small id="linksProjectError" class="field-error" aria-live="polite"></small></label>
-                <label class="field" id="linksBaseUrlField"><span>Base URL</span><input id="linksBaseUrl" type="url" placeholder="https://example.com" autocomplete="url" /><small id="linksBaseUrlError" class="field-error" aria-live="polite"></small></label>
-              </div>
-              <label class="field compact-top" id="linksPagesField"><span>Starting pages</span><textarea id="linksPages" rows="4" spellcheck="false" placeholder="/&#10;/docs&#10;/about-us">/</textarea><small id="linksPagesMeta">1 starting page · one path or URL per line</small><small id="linksPagesError" class="field-error" aria-live="polite"></small></label>
-            </section>
-
-            <section class="card">
-              <div class="card-heading"><div><span class="step-number">02</span><h3>Check configuration</h3></div><span class="muted">Safe bounds</span></div>
-              <div class="field"><span>Scan scope</span><div class="segmented links-scope-selector" id="linksScopeSelector"><button class="segment active" data-value="selected" type="button">Selected pages only</button><button class="segment" data-value="crawl" type="button">Selected + internal crawl</button></div></div>
-              <div class="links-check-options compact-top" role="group" aria-label="Reference checks">
-                <label class="check"><input id="linksCheckExternal" type="checkbox" checked /><span>Check external links</span></label>
-                <label class="check"><input id="linksCheckFragments" type="checkbox" checked /><span>Check page fragments</span></label>
-                <label class="check"><input id="linksCheckResources" type="checkbox" checked /><span>Check page resources</span></label>
-              </div>
-              <label class="field compact-top"><span>Browser</span><select id="linksBrowserSelect"><option value="">Auto-detect</option></select></label>
-              <details class="links-advanced compact-top">
-                <summary>Advanced limits <span id="linksAdvancedSummary">25 pages · 2,000 targets · 10s timeout</span></summary>
-                <div class="links-limit-grid">
-                  <label class="field"><span>Maximum pages</span><input id="linksMaxPages" type="number" min="1" max="100" value="25" /></label>
-                  <label class="field"><span>Maximum unique targets</span><input id="linksMaxTargets" type="number" min="1" max="5000" value="2000" /></label>
-                  <label class="field"><span>Request timeout (ms)</span><input id="linksTimeout" type="number" min="100" max="30000" value="10000" /></label>
-                  <label class="field"><span>Concurrency</span><input id="linksConcurrency" type="number" min="1" max="12" value="6" /></label>
-                  <label class="field"><span>Maximum redirects</span><input id="linksMaxRedirects" type="number" min="0" max="12" value="8" /></label>
+                <div class="card-heading">
+                    <div><span class="step-number">03</span>
+                        <h3>Page-weight report</h3></div>
+                    <div id="assetResultActions" class="security-result-actions"></div>
                 </div>
-                <label class="field compact-top"><span>Ignore URL patterns <em>optional</em></span><textarea id="linksIgnorePatterns" rows="4" spellcheck="false" placeholder="*/logout&#10;*/preview/*"></textarea><small>Up to 20 bounded wildcard patterns, one per line.</small></label>
-              </details>
+                <div id="assetResults" class="asset-results"></div>
             </section>
-
-          </div>
-
-          <aside class="action-column">
-            <section class="card sticky-card links-run-card">
-              <div class="card-heading slim"><div><span class="step-number">03</span><h3>Run check</h3></div></div>
-              <div id="linksRunSummary" class="links-run-summary"><div><span>Scope</span><strong>Selected pages</strong></div><div><span>Bounds</span><strong>25 pages · 2,000 targets</strong></div><div><span>Checks</span><strong>Links · fragments · resources</strong></div></div>
-              <div class="links-note"><strong>Diagnostic boundary</strong><span>Only GET/HEAD requests are used. Forms and state-changing controls are never activated.</span></div>
-              <button id="startLinksCheckBtn" class="button button-primary full" type="button">Check links &amp; resources</button>
-              <div id="linksCheckState" class="security-scan-state idle" aria-live="polite"><span class="security-spinner"></span><div><strong>Ready to check</strong><small>Add explicit pages or use the safe / default.</small></div></div>
-            </section>
-          </aside>
-        </div>
-        <section id="linksResultsCard" class="card links-results-card hidden">
-          <div class="card-heading"><div><span class="step-number">04</span><h3>Checker results</h3></div><div id="linksResultActions" class="security-result-actions"></div></div>
-          <div id="linksResults" class="links-results"></div>
         </section>
-      </section>
 
-      <section id="historySection" class="page-section">
-        <header class="page-header">
-          <div>
-            <div class="eyebrow">Report library</div>
-            <h2>Report history</h2>
-            <p>Open Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources summaries, then download the available exports.</p>
-          </div>
-          <button id="refreshHistoryBtn" class="button button-secondary">Refresh</button>
-        </header>
-        <section class="card">
-          <div class="history-toolbar">
-            <label class="history-select-all" title="Select all reports">
-              <input id="selectAllReports" type="checkbox" />
-              <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span class="mixed-mark"></span></span>
-              <span class="history-select-text">Select all reports</span>
-            </label>
-            <div class="history-bulk-actions">
-              <span id="selectedReportsCount">0 selected</span>
-              <button id="deleteSelectedReportsBtn" class="button button-danger small" type="button" disabled>Delete selected</button>
+        <section id="linksSection" class="page-section">
+            <header class="page-header">
+                <div>
+                    <div class="eyebrow">Broken Links &amp; Resources Checker</div>
+                    <h2>Find unavailable references with source context</h2>
+                    <p>Render selected pages, discover hyperlinks and resources, then check each unique HTTP target once
+                        while preserving every source occurrence.</p>
+                </div>
+                <div class="browser-badge links-scope-badge"><span
+                        class="pulse"></span><span>Bounded rendered discovery</span></div>
+            </header>
+
+            <div class="links-layout">
+                <div class="content-column">
+                    <section class="card links-target-step">
+                        <div class="card-heading">
+                            <div><span class="step-number">01</span>
+                                <h3>Analysis target</h3></div>
+                            <span class="muted">Explicit pages</span></div>
+                        <div class="project-setup-grid">
+                            <label class="field" id="linksProjectField"><span>Project name</span><input
+                                    id="linksProjectName" type="text" placeholder="Enter project name"
+                                    autocomplete="off"/><small id="linksProjectError" class="field-error"
+                                                               aria-live="polite"></small></label>
+                            <label class="field" id="linksBaseUrlField"><span>Base URL</span><input id="linksBaseUrl"
+                                                                                                    type="url"
+                                                                                                    placeholder="https://example.com"
+                                                                                                    autocomplete="url"/><small
+                                    id="linksBaseUrlError" class="field-error" aria-live="polite"></small></label>
+                        </div>
+                        <label class="field compact-top" id="linksPagesField"><span>Starting pages</span><textarea
+                                id="linksPages" rows="4" spellcheck="false"
+                                placeholder="/&#10;/docs&#10;/about-us">/</textarea><small id="linksPagesMeta">1
+                            starting page · one path or URL per line</small><small id="linksPagesError"
+                                                                                   class="field-error"
+                                                                                   aria-live="polite"></small></label>
+                    </section>
+
+                    <section class="card links-config-step">
+                        <div class="card-heading">
+                            <div><span class="step-number">02</span>
+                                <h3>Check configuration</h3></div>
+                            <span class="muted">Safe bounds</span></div>
+                        <div class="field"><span>Scan scope</span>
+                            <div class="segmented links-scope-selector" id="linksScopeSelector">
+                                <button class="segment active" data-value="selected" type="button">Selected pages only
+                                </button>
+                                <button class="segment" data-value="crawl" type="button">Selected + internal crawl
+                                </button>
+                            </div>
+                        </div>
+                        <div class="links-check-options compact-top" role="group" aria-label="Reference checks">
+                            <label class="check"><input id="linksCheckExternal" type="checkbox" checked/><span>Check external links</span></label>
+                            <label class="check"><input id="linksCheckFragments" type="checkbox" checked/><span>Check page fragments</span></label>
+                            <label class="check"><input id="linksCheckResources" type="checkbox" checked/><span>Check page resources</span></label>
+                        </div>
+                        <label class="field compact-top"><span>Browser</span><select id="linksBrowserSelect">
+                            <option value="">Auto-detect</option>
+                        </select></label>
+                        <details class="links-advanced compact-top">
+                            <summary>Advanced limits <span id="linksAdvancedSummary">25 pages · 2,000 targets · 10s timeout</span>
+                            </summary>
+                            <div class="links-limit-grid">
+                                <label class="field"><span>Maximum pages</span><input id="linksMaxPages" type="number"
+                                                                                      min="1" max="100"
+                                                                                      value="25"/></label>
+                                <label class="field"><span>Maximum unique targets</span><input id="linksMaxTargets"
+                                                                                               type="number" min="1"
+                                                                                               max="5000" value="2000"/></label>
+                                <label class="field"><span>Request timeout (ms)</span><input id="linksTimeout"
+                                                                                             type="number" min="100"
+                                                                                             max="30000" value="10000"/></label>
+                                <label class="field"><span>Concurrency</span><input id="linksConcurrency" type="number"
+                                                                                    min="1" max="12" value="6"/></label>
+                                <label class="field"><span>Maximum redirects</span><input id="linksMaxRedirects"
+                                                                                          type="number" min="0" max="12"
+                                                                                          value="8"/></label>
+                            </div>
+                            <label class="field compact-top"><span>Ignore URL patterns <em>optional</em></span><textarea
+                                    id="linksIgnorePatterns" rows="4" spellcheck="false"
+                                    placeholder="*/logout&#10;*/preview/*"></textarea><small>Up to 20 bounded wildcard
+                                patterns, one per line.</small></label>
+                        </details>
+                    </section>
+
+                </div>
+
+                <aside class="action-column">
+                    <section class="card sticky-card links-run-card">
+                        <div class="card-heading slim">
+                            <div><span class="step-number">03</span>
+                                <h3>Run check</h3></div>
+                        </div>
+                        <div id="linksRunSummary" class="links-run-summary">
+                            <div><span>Scope</span><strong>Selected pages</strong></div>
+                            <div><span>Bounds</span><strong>25 pages · 2,000 targets</strong></div>
+                            <div><span>Checks</span><strong>Links · fragments · resources</strong></div>
+                        </div>
+                        <div class="links-note"><strong>Diagnostic boundary</strong><span>Only GET/HEAD requests are used. Forms and state-changing controls are never activated.</span>
+                        </div>
+                        <button id="startLinksCheckBtn" class="button button-primary full" type="button">Check links
+                            &amp; resources
+                        </button>
+                        <div id="linksCheckState" class="security-scan-state idle" aria-live="polite"><span
+                                class="security-spinner"></span>
+                            <div><strong>Ready to check</strong><small>Add explicit pages or use the safe /
+                                default.</small></div>
+                        </div>
+                    </section>
+                </aside>
             </div>
-          </div>
-          <div id="historyList" class="history-list">
-            <div class="empty-state">No reports loaded yet.</div>
-          </div>
+            <section id="linksResultsCard" class="card links-results-card hidden">
+                <div class="card-heading">
+                    <div><span class="step-number">04</span>
+                        <h3>Checker results</h3></div>
+                    <div id="linksResultActions" class="security-result-actions"></div>
+                </div>
+                <div id="linksResults" class="links-results"></div>
+            </section>
         </section>
-      </section>
+
+        <section id="historySection" class="page-section">
+            <header class="page-header">
+                <div>
+                    <div class="eyebrow">Report library</div>
+                    <h2>Report history</h2>
+                    <p>Open Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources
+                        summaries, then download the available exports.</p>
+                </div>
+                <button id="refreshHistoryBtn" class="button button-secondary">Refresh</button>
+            </header>
+            <section class="card">
+                <div class="history-toolbar">
+                    <label class="history-select-all" title="Select all reports">
+                        <input id="selectAllReports" type="checkbox"/>
+                        <span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg><span
+                                class="mixed-mark"></span></span>
+                        <span class="history-select-text">Select all reports</span>
+                    </label>
+                    <div class="history-bulk-actions">
+                        <span id="selectedReportsCount">0 selected</span>
+                        <button id="deleteSelectedReportsBtn" class="button button-danger small" type="button" disabled>
+                            Delete selected
+                        </button>
+                    </div>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div class="empty-state">No reports loaded yet.</div>
+                </div>
+            </section>
+        </section>
     </main>
-  </div>
+</div>
 
 
-  <div id="deleteModal" class="modal-backdrop" aria-hidden="true">
-    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalMessage">
-      <button id="deleteModalCloseBtn" class="modal-close" type="button" aria-label="Close dialog">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
-      </button>
-      <div class="modal-danger-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
-      </div>
-      <div class="modal-copy">
-        <span class="modal-eyebrow">Permanent action</span>
-        <h3 id="deleteModalTitle">Delete report?</h3>
-        <p id="deleteModalMessage">The complete report folder will be permanently removed.</p>
-      </div>
-      <div class="modal-warning"><strong>This cannot be undone.</strong><span>HTML, JSON, logs, CSV, Excel and every file inside the selected report folder will be deleted.</span></div>
-      <div class="modal-actions">
-        <button id="cancelDeleteBtn" class="button button-secondary" type="button">Cancel</button>
-        <button id="confirmDeleteBtn" class="button button-danger" type="button">Delete report</button>
-      </div>
+<div id="deleteModal" class="modal-backdrop" aria-hidden="true">
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle"
+             aria-describedby="deleteModalMessage">
+        <button id="deleteModalCloseBtn" class="modal-close" type="button" aria-label="Close dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m7 7 10 10M17 7 7 17"/>
+            </svg>
+        </button>
+        <div class="modal-danger-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>
+            </svg>
+        </div>
+        <div class="modal-copy">
+            <span class="modal-eyebrow">Permanent action</span>
+            <h3 id="deleteModalTitle">Delete report?</h3>
+            <p id="deleteModalMessage">The complete report folder will be permanently removed.</p>
+        </div>
+        <div class="modal-warning"><strong>This cannot be undone.</strong><span>HTML, JSON, logs, CSV, Excel and every file inside the selected report folder will be deleted.</span>
+        </div>
+        <div class="modal-actions">
+            <button id="cancelDeleteBtn" class="button button-secondary" type="button">Cancel</button>
+            <button id="confirmDeleteBtn" class="button button-danger" type="button">Delete report</button>
+        </div>
     </section>
-  </div>
+</div>
 
-  <div id="projectDeleteModal" class="modal-backdrop" aria-hidden="true">
+<div id="projectDeleteModal" class="modal-backdrop" aria-hidden="true">
     <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="projectDeleteModalTitle">
-      <button id="projectDeleteModalCloseBtn" class="modal-close" type="button" aria-label="Close dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
-      <div class="modal-danger-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></div>
-      <div class="modal-copy"><span class="modal-eyebrow">Project configuration</span><h3 id="projectDeleteModalTitle">Delete project?</h3><p id="projectDeleteModalMessage">This removes the saved project profile from the shared workspace.</p></div>
-      <div class="modal-warning"><strong>Generated reports will not be deleted.</strong><span>Only the saved project configuration is removed. Existing report folders stay in Report History.</span></div>
-      <div class="modal-actions"><button id="cancelProjectDeleteBtn" class="button button-secondary" type="button">Cancel</button><button id="confirmProjectDeleteBtn" class="button button-danger" type="button">Delete project</button></div>
+        <button id="projectDeleteModalCloseBtn" class="modal-close" type="button" aria-label="Close dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m7 7 10 10M17 7 7 17"/>
+            </svg>
+        </button>
+        <div class="modal-danger-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>
+            </svg>
+        </div>
+        <div class="modal-copy"><span class="modal-eyebrow">Project configuration</span>
+            <h3 id="projectDeleteModalTitle">Delete project?</h3>
+            <p id="projectDeleteModalMessage">This removes the saved project profile from the shared workspace.</p>
+        </div>
+        <div class="modal-warning"><strong>Generated reports will not be deleted.</strong><span>Only the saved project configuration is removed. Existing report folders stay in Report History.</span>
+        </div>
+        <div class="modal-actions">
+            <button id="cancelProjectDeleteBtn" class="button button-secondary" type="button">Cancel</button>
+            <button id="confirmProjectDeleteBtn" class="button button-danger" type="button">Delete project</button>
+        </div>
     </section>
-  </div>
+</div>
 
-  <div id="toast" class="toast"></div>
-  <script type="module" src="/app.js"></script>
+<div id="toast" class="toast"></div>
+<script type="module" src="/app.js"></script>
 </body>
 </html>

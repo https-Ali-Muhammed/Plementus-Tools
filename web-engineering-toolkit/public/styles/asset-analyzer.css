@@ -1,10 +1,48 @@
 /* Asset & Page-Weight Analyzer interactive workspace. */
 
-#assetsSection .asset-layout {
+#assetsSection .asset-workspace {
+  display: contents;
+}
+
+#assetsSection .asset-workspace-container {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  grid-template-areas: "target run";
+  gap: var(--space-5);
   align-items: start;
+}
+
+#assetsSection .asset-target-step {
+  grid-area: target;
+}
+
+#assetsSection .asset-workspace > .card {
+  min-width: 0;
+}
+
+#assetsSection .asset-run-step {
+  grid-area: run;
+  min-width: 0;
+  align-self: start;
+}
+
+#assetsSection .asset-run-step .card-heading > div:first-child {
+  flex: 0 0 auto;
+}
+
+#assetsSection .asset-run-step .card-heading > .muted {
+  flex: 1 1 120px;
+}
+
+#assetsSection #assetResultsCard {
+  min-width: 0;
+  margin-top: var(--space-5);
+}
+
+#assetsSection #assetPaths {
+  min-height: 130px;
+  overflow-y: hidden;
+  resize: none;
 }
 
 #assetsSection .asset-options-row {
@@ -14,9 +52,16 @@
   margin-top: 14px;
 }
 
-#assetsSection .asset-run-card {
-  position: sticky;
-  top: 18px;
+#assetsSection .asset-run-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+#assetsSection .asset-run-layout > .button {
+  width: 100%;
+  min-width: 0;
 }
 
 #assetsSection .asset-scope-badge .pulse {
@@ -24,7 +69,7 @@
 }
 
 #assetsSection .asset-scan-preview {
-  margin-bottom: 15px;
+  margin: 0;
 }
 
 #assetsSection .asset-scan-preview > span {
@@ -59,7 +104,7 @@
   border: 1px solid rgba(79, 156, 255, 0.14);
   background: rgba(79, 156, 255, 0.04);
   border-radius: 11px;
-  margin-bottom: 14px;
+  margin-bottom: 0;
 }
 
 #assetsSection .asset-note strong {
@@ -347,12 +392,17 @@
 }
 
 @media (max-width: 1100px) {
-  #assetsSection .asset-layout {
+  #assetsSection .asset-workspace-container {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "target"
+      "run";
   }
 
-  #assetsSection .asset-run-card {
-    position: static;
+  #assetsSection .asset-run-layout > .button {
+    width: auto;
+    align-self: flex-end;
+    min-width: 190px;
   }
 
   #assetsSection .asset-summary-grid {
@@ -361,6 +411,30 @@
 }
 
 @media (max-width: 760px) {
+  #assetsSection .asset-run-step .card-heading > .muted {
+    display: none;
+  }
+
+  #assetsSection #assetResultsCard > .card-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #assetsSection #assetResultActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  #assetsSection .asset-run-layout {
+    align-items: stretch;
+  }
+
+  #assetsSection .asset-run-layout > .button {
+    align-self: stretch;
+    min-width: 0;
+    width: 100%;
+  }
+
   #assetsSection .asset-options-row {
     grid-template-columns: 1fr;
   }

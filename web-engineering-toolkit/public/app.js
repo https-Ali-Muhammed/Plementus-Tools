@@ -39,7 +39,7 @@ const refs = {
   launchBrowserBtn: $('#launchBrowserBtn'), stopBrowserBtn: $('#stopBrowserBtn'), startRunBtn: $('#startRunBtn'), cancelRunBtn: $('#cancelRunBtn'),
   environmentDot: $('#environmentDot'), environmentSummary: $('#environmentSummary'), healthMini: $('#healthMini'), healthDetails: $('#healthDetails'), healthActionSummary: $('#healthActionSummary'), copyAllFixesBtn: $('#copyAllFixesBtn'), browserBadge: $('#browserBadge'), browserBadgeText: $('#browserBadgeText'),
   runState: $('#runState'), progressPercent: $('#progressPercent'), progressBar: $('#progressBar'), validCount: $('#validCount'), redirectCount: $('#redirectCount'), failedCount: $('#failedCount'),
-  currentRun: $('#currentRun'), liveSection: $('#liveSection'), liveLog: $('#liveLog'), resultSummary: $('#resultSummary'), clearLogsBtn: $('#clearLogsBtn'), toast: $('#toast'), historyList: $('#historyList'),
+  currentRun: $('#currentRun'), liveSection: $('#liveSection'), liveLogDetails: $('#liveLogDetails'), liveLog: $('#liveLog'), resultSummary: $('#resultSummary'), clearLogsBtn: $('#clearLogsBtn'), toast: $('#toast'), historyList: $('#historyList'),
   selectAllReports: $('#selectAllReports'), selectedReportsCount: $('#selectedReportsCount'), deleteSelectedReportsBtn: $('#deleteSelectedReportsBtn'),
   deleteModal: $('#deleteModal'), deleteModalTitle: $('#deleteModalTitle'), deleteModalMessage: $('#deleteModalMessage'), deleteModalCloseBtn: $('#deleteModalCloseBtn'), cancelDeleteBtn: $('#cancelDeleteBtn'), confirmDeleteBtn: $('#confirmDeleteBtn'),
   securityProjectName: $('#securityProjectName'), securityProjectField: $('#securityProjectField'), securityProjectError: $('#securityProjectError'),
@@ -73,6 +73,18 @@ async function api(url, options = {}) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
+}
+
+function autoSizePageList(textarea) {
+  if (!textarea) return;
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+function autoSizeToolPageLists() {
+  autoSizePageList(refs.urls);
+  autoSizePageList(refs.assetPaths);
+  autoSizePageList(refs.linksPages);
 }
 
 function parseUrls() {
@@ -260,6 +272,7 @@ function setSegment(selector, value, callback) {
 }
 
 function setHealthMini(key, text, status = '') {
+  if (!refs.healthMini) return;
   const cells = [...refs.healthMini.children];
   const cell = cells.find((item) => item.querySelector('span')?.textContent.toLowerCase() === key.toLowerCase());
   if (!cell) return;
@@ -276,6 +289,7 @@ function healthStatusIcon(status) {
 }
 
 function renderEnvironmentDetails(data) {
+  if (!refs.healthActionSummary || !refs.copyAllFixesBtn || !refs.healthDetails) return;
   const checks = data?.checks || [];
   const errors = data?.summary?.errors ?? checks.filter((item) => item.status === 'error').length;
   const warnings = data?.summary?.warnings ?? checks.filter((item) => item.status === 'warning').length;
@@ -367,9 +381,9 @@ async function checkEnvironment() {
   } catch (error) {
     refs.environmentDot.className = 'status-dot error';
     refs.environmentSummary.textContent = 'Check failed';
-    refs.healthActionSummary.textContent = 'The health check could not complete.';
-    refs.healthDetails.innerHTML = `<div class="health-check-row error"><div class="health-check-main"><span class="health-check-icon">×</span><div class="health-check-copy"><div class="health-check-title"><strong>Health check failed</strong><span class="health-status-badge error">error</span></div><span>${escapeHtml(error.message)}</span></div></div></div>`;
-    refs.copyAllFixesBtn.classList.add('hidden');
+    if (refs.healthActionSummary) refs.healthActionSummary.textContent = 'The health check could not complete.';
+    if (refs.healthDetails) refs.healthDetails.innerHTML = `<div class="health-check-row error"><div class="health-check-main"><span class="health-check-icon">×</span><div class="health-check-copy"><div class="health-check-title"><strong>Health check failed</strong><span class="health-status-badge error">error</span></div><span>${escapeHtml(error.message)}</span></div></div></div>`;
+    refs.copyAllFixesBtn?.classList.add('hidden');
     toast(error.message, true);
   } finally {
     refs.checkEnvironmentBtn.disabled = false;
@@ -454,6 +468,7 @@ function resetRunUi() {
   refs.resultSummary.classList.add('hidden');
   refs.resultSummary.innerHTML = '';
   refs.liveLog.innerHTML = '';
+  if (refs.liveLogDetails) refs.liveLogDetails.open = true;
 }
 
 function addLog(message, type = '') {
@@ -691,6 +706,7 @@ function connectEvents(runId) {
       setProgress(1, 1);
       addLog(`Run ${event.status}.`, event.status === 'completed' ? 'success' : 'warning');
       if (event.summary) renderSummary(event.summary, event.reportName);
+      if (event.status === 'completed' && refs.liveLogDetails) refs.liveLogDetails.open = false;
       source.close();
       loadHistory();
     } else if (event.type === 'error') {
@@ -926,6 +942,7 @@ function syncSharedProjectToTools(project, { overwrite = true } = {}) {
 
   updateEstimate();
   updateRoutingPreview();
+  autoSizeToolPageLists();
   renderSecurityConfigurationContext();
   updateLinksRunSummary();
 }
@@ -1859,6 +1876,7 @@ refs.defaultLanguage.addEventListener('change', () => {
 });
 
 [refs.urls, refs.runsPerPage, refs.mobileDevice, refs.desktopDevice].forEach((element) => element.addEventListener('input', updateEstimate));
+refs.urls.addEventListener('input', () => autoSizePageList(refs.urls));
 
 refs.projectName.addEventListener('blur', validateProjectName);
 refs.projectName.addEventListener('input', () => { if (refs.projectNameField.classList.contains('has-error')) validateProjectName(); });
@@ -1884,6 +1902,7 @@ refs.flowScript.addEventListener('input', () => { if (refs.flowScript.closest('.
 refs.flowEnabled.addEventListener('change', () => {
   refs.flowScript.disabled = !refs.flowEnabled.checked;
   refs.flowPanel.classList.toggle('disabled', !refs.flowEnabled.checked);
+  refs.flowPanel.classList.toggle('hidden', !refs.flowEnabled.checked);
   validateFlowScript();
 });
 refs.allSecurityFrameworks?.addEventListener('change', () => {
@@ -2010,6 +2029,7 @@ refs.startAssetAnalysisBtn?.addEventListener('click', runAssetAnalysis);
 refs.assetProjectName?.addEventListener('blur', validateAssetForm);
 refs.assetBaseUrl?.addEventListener('blur', validateAssetForm);
 refs.assetPaths?.addEventListener('blur', validateAssetForm);
+refs.assetPaths?.addEventListener('input', () => autoSizePageList(refs.assetPaths));
 refs.linksProjectName?.addEventListener('blur', validateLinksForm);
 refs.linksBaseUrl?.addEventListener('blur', validateLinksForm);
 refs.linksPages?.addEventListener('blur', () => { if (!refs.linksPages.value.trim()) refs.linksPages.value = '/'; validateLinksForm(); updateLinksRunSummary(); });
@@ -2035,12 +2055,12 @@ refs.linksResults?.addEventListener('click', (event) => {
   if (copy) copyText(copy.dataset.copyLinksTarget || '', 'Target URL copied.');
 });
 
-refs.healthDetails.addEventListener('click', (event) => {
+refs.healthDetails?.addEventListener('click', (event) => {
   const button = event.target.closest('.copy-command-btn');
   if (!button) return;
   copyText(button.dataset.command || '', 'Command copied.');
 });
-refs.copyAllFixesBtn.addEventListener('click', () => copyText(refs.copyAllFixesBtn.dataset.commands || '', 'Fix commands copied.'));
+refs.copyAllFixesBtn?.addEventListener('click', () => copyText(refs.copyAllFixesBtn.dataset.commands || '', 'Fix commands copied.'));
 refs.checkEnvironmentBtn.addEventListener('click', checkEnvironment);
 refs.launchBrowserBtn.addEventListener('click', launchBrowser);
 refs.stopBrowserBtn.addEventListener('click', stopBrowser);
@@ -2087,6 +2107,7 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
     if (!refs.assetProjectName.value.trim() && refs.projectName.value.trim()) refs.assetProjectName.value = refs.projectName.value.trim();
     if (!refs.assetBaseUrl.value.trim() && refs.baseUrl.value.trim()) refs.assetBaseUrl.value = refs.baseUrl.value.trim();
     if (!refs.assetPaths.value.trim() && refs.urls.value.trim()) refs.assetPaths.value = refs.urls.value.trim();
+    autoSizePageList(refs.assetPaths);
   }
   if (button.dataset.section === 'links') {
     if (!refs.linksProjectName.value.trim() && refs.projectName.value.trim()) refs.linksProjectName.value = refs.projectName.value.trim();
@@ -2101,6 +2122,7 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
 syncSecurityFrameworks();
 updateLinksRunSummary();
 updateEstimate();
+autoSizeToolPageLists();
 refreshBrowserStatus();
 loadProjects({ sync: true });
 loadHistory();
