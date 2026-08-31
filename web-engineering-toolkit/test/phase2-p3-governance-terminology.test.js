@@ -153,7 +153,7 @@ test('P3 PDF and HTML provide compact mapping guidance and structured review rea
   assert.match(html, /Mapping relationships/i);
   assert.match(html, /No relationship type determines control satisfaction or compliance/i);
   assert.match(html, /Failed collection present/i);
-  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), false);
+  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), true);
 });
 
 test('legacy reports gain conservative presentation defaults without rewriting input', () => {

@@ -31,7 +31,7 @@ test('source package is deterministic, complete, and excludes runtime state', ()
   for (const required of ['docs/LIGHTHOUSE_ASSET_UX_AUDIT.md', 'docs/LIGHTHOUSE_ASSET_UX_IMPLEMENTATION.md', 'test/lighthouse-asset-ux.test.js']) {
     assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
   }
-  for (const required of ['lib/pdf-report-renderer.js', 'lib/tool-pdf-reports.js', 'lib/report-downloads.js', 'docs/UNIFIED_PDF_REPORTING_AUDIT.md', 'docs/UNIFIED_PDF_REPORTING_IMPLEMENTATION.md', 'test/unified-reporting.test.js']) {
+  for (const required of ['lib/pdf-report-renderer.js', 'lib/tool-pdf-reports.js', 'lib/xlsx-reports.js', 'lib/report-downloads.js', 'docs/UNIFIED_PDF_REPORTING_AUDIT.md', 'docs/UNIFIED_PDF_REPORTING_IMPLEMENTATION.md', 'docs/PDF_VISUAL_AND_REPORT_CTA_AUDIT.md', 'docs/PDF_VISUAL_AND_REPORT_CTA_IMPLEMENTATION.md', 'test/unified-reporting.test.js', 'test/pdf-visual-unification.test.js', 'test/report-actions.test.js']) {
     assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
   }
   const forbidden = /(?:^|\/)(?:node_modules|reports|data|profiles\/security-scanner|dist|revisions|audit|screenshots?|tmp)(?:\/|$)|\.pdf$/i;

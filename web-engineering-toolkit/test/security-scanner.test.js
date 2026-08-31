@@ -403,7 +403,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   assert.ok(manifest.artifacts.every((artifact) => /^[a-f0-9]{64}$/.test(artifact.sha256)));
   assert.equal('evidenceArchive' in saved, false);
   assert.equal('screenshotBase64' in saved.browserScan, false);
-  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
+  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), true);
   assert.ok(fs.existsSync(path.join(reportRoot, 'summary.pdf')));
   assert.ok(fs.existsSync(path.join(reportRoot, 'findings.csv')));
   const pdf = fs.readFileSync(path.join(reportRoot, 'summary.pdf'));
@@ -440,7 +440,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   assert.match(refreshedHtml, /Bob Reviewer/);
   assert.match(refreshedHtml, /Compensating edge control verified/);
   assert.equal(fs.existsSync(path.join(reportRoot, 'revisions')), false);
-  assert.deepEqual(refreshedManifest.files.map((entry) => entry.file).sort(), ['evidence/manifest.json', 'findings.csv', 'metadata.json', 'summary.csv', 'summary.html', 'summary.json', 'summary.pdf', 'workflow.json']);
+  assert.deepEqual(refreshedManifest.files.map((entry) => entry.file).sort(), ['evidence/manifest.json', 'findings.csv', 'metadata.json', 'summary.csv', 'summary.html', 'summary.json', 'summary.pdf', 'summary.xlsx', 'workflow.json']);
   for (const entry of refreshedManifest.files) {
     const file = fs.readFileSync(path.join(reportRoot, entry.file));
     const digest = crypto.createHash('sha256').update(file).digest('hex');

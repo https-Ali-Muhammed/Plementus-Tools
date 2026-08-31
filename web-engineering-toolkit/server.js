@@ -164,7 +164,7 @@ const server = http.createServer(async (req, res) => {
       if (blocked.length) return json(res, 409, { error: `Cannot delete an active report: ${blocked.join(', ')}` });
       return json(res, 200, reportManager.deleteReports(names));
     }
-    const reportDownloadMatch = url.pathname.match(/^\/api\/reports\/([^/]+)\/download\/(pdf|csv)$/);
+    const reportDownloadMatch = url.pathname.match(/^\/api\/reports\/([^/]+)\/download\/(pdf|csv|xlsx)$/);
     if (req.method === 'GET' && reportDownloadMatch) {
       const download = resolveReportDownload({ reportsRoot: REPORTS_DIR, reportName: decodeURIComponent(reportDownloadMatch[1]), format: reportDownloadMatch[2] });
       res.writeHead(200, {

@@ -5,6 +5,7 @@ import { ensureDir, slugify, timestamp, csvEscape } from './utils.js';
 import { buildComplianceHtml } from './security-report-html.js';
 import { generateCompliancePdf } from './security-pdf.js';
 import { reportDownloadHref } from './report-downloads.js';
+import { writeReportXlsx } from './xlsx-reports.js';
 import { validateFindingProvenance, validateSummaryTraceability } from './security-finding-model.js';
 import { normalizeCollectionMethod, normalizeCollectionState, normalizeEvidenceConfidence, normalizeEvidenceStrength } from './security-evidence-semantics.js';
 import {
@@ -318,7 +319,7 @@ export class SecurityReportManager {
   }
 
   makeReportWritable(root) {
-    for (const file of ['metadata.json','summary.json','summary.csv','findings.csv','summary.html','summary.pdf','workflow.json','report-manifest.json']) {
+    for (const file of ['metadata.json','summary.json','summary.csv','findings.csv','summary.html','summary.xlsx','summary.pdf','workflow.json','report-manifest.json']) {
       try { fs.chmodSync(path.join(root, file), 0o644); } catch {}
     }
   }
@@ -342,13 +343,14 @@ export class SecurityReportManager {
     }
     summary = { ...summary, reportGeneration: { ...(summary.reportGeneration || {}), htmlGenerationMs, pdfGenerationMs: summary.pdfGeneration.durationMs ?? null } };
     const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 0, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), pdfGeneration:summary.pdfGeneration };
-    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, generatedAt:summary.generatedAt, workflowRevision:summary.workflow?.revision||0, workflowUpdatedAt:summary.workflow?.updatedAt||summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
+    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, generatedAt:summary.generatedAt, workflowRevision:summary.workflow?.revision||0, workflowUpdatedAt:summary.workflow?.updatedAt||summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
     fs.writeFileSync(path.join(root,'metadata.json'),JSON.stringify(metadata,null,2));
     fs.writeFileSync(path.join(root,'summary.json'),JSON.stringify({ ...summary, overview },null,2));
     fs.writeFileSync(path.join(root,'workflow.json'),`${JSON.stringify(summary.workflow || {},null,2)}\n`);
     writeCsv(root,summary);
+    await writeReportXlsx({ root, reportType: 'security-compliance', data: summary });
     fs.writeFileSync(path.join(root,'summary.html'),buildComplianceHtml(summary),'utf8');
-    const files = ['metadata.json','summary.json','findings.csv','summary.csv','summary.html','workflow.json'];
+    const files = ['metadata.json','summary.json','findings.csv','summary.csv','summary.html','summary.xlsx','workflow.json'];
     if (summary.pdfGeneration.status === 'generated' && fs.existsSync(finalPdf)) files.push('summary.pdf');
     if (fs.existsSync(path.join(root, 'evidence', 'manifest.json'))) files.push('evidence/manifest.json');
     return { reportManifest: writeSignedReportManifest(root, summary, files), summary };
@@ -370,7 +372,7 @@ export class SecurityReportManager {
     const written = await this.writeReportFiles(root, summary);
     summary = written.summary;
     const pdfHref = summary.pdfGeneration.status === 'generated' ? reportDownloadHref(runName, 'pdf') : '';
-    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:`/reports/${encodeURIComponent(runName)}/summary.json`, csvHref:reportDownloadHref(runName, 'csv'), legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, pdfHref, evidenceManifestHref:`/reports/${encodeURIComponent(runName)}/evidence/manifest.json` };
+    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:`/reports/${encodeURIComponent(runName)}/summary.json`, csvHref:reportDownloadHref(runName, 'csv'), legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, xlsxHref:reportDownloadHref(runName, 'xlsx'), pdfHref, evidenceManifestHref:`/reports/${encodeURIComponent(runName)}/evidence/manifest.json` };
   }
 
   async refreshWorkflow({ projectName = '', reportName = '', legacyOnly = false } = {}) {

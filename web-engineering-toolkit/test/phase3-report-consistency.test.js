@@ -79,7 +79,7 @@ test('Phase 3 collection metadata survives public formats without leaking restri
     for (const value of forbidden) assert.equal(content.includes(value), false, `${file} leaked ${value}`);
   }
   for (const file of ['summary.json', 'summary.html', 'summary.pdf', 'metadata.json']) assert.ok(manifest.files.some((entry) => entry.file === file), `${file} missing from report manifest`);
-  assert.equal(manifest.files.some((entry) => entry.file === 'summary.xlsx'), false);
+  assert.equal(manifest.files.some((entry) => entry.file === 'summary.xlsx'), true);
 
   const restrictedNetwork = fs.readFileSync(path.join(root, 'evidence', 'browser', 'network.json'), 'utf8');
   assert.match(restrictedNetwork, /SECRET_PHASE3_AUTH/);

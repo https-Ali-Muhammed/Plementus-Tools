@@ -32,8 +32,7 @@ test('dedicated report manager writes safe HTML, JSON, CSV, PDF, and metadata pr
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'broken-links-report-'));
   const saved = await new BrokenLinksReportManager({ reportsRoot: root }).save(fixtureResult());
   const reportRoot = path.join(root, saved.reportName);
-  for (const file of ['summary.html', 'summary.json', 'summary.csv', 'summary.pdf', 'metadata.json']) assert.equal(fs.existsSync(path.join(reportRoot, file)), true, file);
-  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
+  for (const file of ['summary.html', 'summary.json', 'summary.csv', 'summary.xlsx', 'summary.pdf', 'metadata.json']) assert.equal(fs.existsSync(path.join(reportRoot, file)), true, file);
   const json = JSON.parse(fs.readFileSync(path.join(reportRoot, 'summary.json'), 'utf8'));
   const metadata = JSON.parse(fs.readFileSync(path.join(reportRoot, 'metadata.json'), 'utf8'));
   const html = fs.readFileSync(path.join(reportRoot, 'summary.html'), 'utf8');
@@ -111,6 +110,6 @@ test('generic Report History discovers the fourth report type and artifacts', as
   assert.match(report.summaryHref, /summary\.html$/);
   assert.match(report.csvHref, /\/download\/csv$/);
   assert.match(report.pdfHref, /\/download\/pdf$/);
-  assert.equal('xlsxHref' in report, false);
+  assert.match(report.xlsxHref, /\/download\/xlsx$/);
   assert.match(report.jsonHref, /summary\.json$/);
 });

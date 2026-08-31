@@ -66,7 +66,7 @@ test('review overlay is consistent and safely separated across JSON, HTML, PDF, 
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
   assert.match(csv, /'=HYPERLINK/);
-  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
+  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), true);
   const publicText = [fs.readFileSync(path.join(reportRoot, 'summary.json'), 'utf8'), html, csv].join('\n');
   for (const secret of ['Authorization: Bearer', 'session-token-secret', 'password=']) assert.doesNotMatch(publicText, new RegExp(secret, 'i'));
 });

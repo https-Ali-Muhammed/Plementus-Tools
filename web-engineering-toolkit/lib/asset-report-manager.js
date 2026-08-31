@@ -4,6 +4,7 @@ import { ensureDir, slugify, timestamp, csvEscape } from './utils.js';
 import { generateToolPdf } from './pdf-report-renderer.js';
 import { assetPdfHtml } from './tool-pdf-reports.js';
 import { reportDownloadHref } from './report-downloads.js';
+import { writeReportXlsx } from './xlsx-reports.js';
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
@@ -55,12 +56,14 @@ export class AssetReportManager {
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify({ reportType:'asset-page-weight', generatedAt:result.generatedAt, overview, ...result }, null, 2));
     fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ reportType:'asset-page-weight', generatedAt:result.generatedAt, projectName:result.projectName, baseUrl:result.baseUrl, device:result.device }, null, 2));
     writeCsv(root, result);
+    await writeReportXlsx({ root, reportType: 'asset-page-weight', data: result });
     writeHtml(root, result);
-    const pdfGeneration = await generateToolPdf({ html: assetPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Asset & Page-Weight Analyzer', projectName: result.projectName });
+    const pdfGeneration = await generateToolPdf({ html: assetPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Asset & Page-Weight Analyzer', reportTitle: 'Asset & Page-Weight Analysis', projectName: result.projectName, target: result.baseUrl });
     return {
       ...result, reportName, overview, pdfGeneration,
       summaryHref:`/reports/${encodeURIComponent(reportName)}/summary.html`,
       csvHref:reportDownloadHref(reportName, 'csv'),
+      xlsxHref:reportDownloadHref(reportName, 'xlsx'),
       pdfHref:reportDownloadHref(reportName, 'pdf'),
       assetsCsvHref:`/reports/${encodeURIComponent(reportName)}/assets.csv`
     };

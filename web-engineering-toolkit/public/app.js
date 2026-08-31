@@ -523,6 +523,27 @@ function externalLinkIcon() {
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></svg>`;
 }
 
+function reportActionControls({ openHref = '', pdfHref = '', csvHref = '', xlsxHref = '', extraExports = [], label = 'Report actions' } = {}) {
+  const exports = [[csvHref, 'Download CSV'], [xlsxHref, 'Download Excel'], ...extraExports].filter(([href]) => Boolean(href));
+  return `<div class="report-action-controls" role="group" aria-label="${escapeHtml(label)}">
+    ${openHref ? `<a class="report-action report-action-open" href="${escapeHtml(openHref)}" target="_blank" rel="noopener">Open Report</a>` : ''}
+    ${pdfHref ? `<a class="report-action report-action-pdf" href="${escapeHtml(pdfHref)}" download data-report-download>Download PDF</a>` : ''}
+    ${exports.length ? `<div class="report-export-menu"><button class="report-action report-action-more" type="button" aria-haspopup="menu" aria-expanded="false">More Exports <span aria-hidden="true">⌄</span></button><div class="report-export-popover" role="menu" hidden>${exports.map(([href, exportLabel]) => `<a role="menuitem" tabindex="-1" href="${escapeHtml(href)}" download data-report-download>${escapeHtml(exportLabel)}</a>`).join('')}</div></div>` : ''}
+  </div>`;
+}
+
+function closeReportExportMenus({ except = null, restoreFocus = false } = {}) {
+  $$('.report-export-menu').forEach((menu) => {
+    if (menu === except) return;
+    const trigger = menu.querySelector('.report-action-more');
+    const popover = menu.querySelector('.report-export-popover');
+    if (!trigger || !popover || popover.hidden) return;
+    trigger.setAttribute('aria-expanded', 'false');
+    popover.hidden = true;
+    if (restoreFocus) trigger.focus();
+  });
+}
+
 const CATEGORY_META = {
   performance: { label: 'Performance', key: 'performance' },
   accessibility: { label: 'Accessibility', key: 'accessibility' },
@@ -617,11 +638,7 @@ function renderSummary(summary, reportName) {
         <h4>${escapeHtml(overview.projectName || 'Report completed')}</h4>
         <div class="muted">${escapeHtml(reportName || '')} · ${escapeHtml(categories.map((id) => CATEGORY_META[id]?.label || humanize(id)).join(', '))}</div>
       </div>
-      <div class="summary-actions">
-        <a class="button button-ghost small" href="${base}/summary.html" target="_blank" rel="noopener">View full summary ${externalLinkIcon()}</a>
-        <a class="button button-secondary small" href="/api/reports/${encodeURIComponent(reportName)}/download/pdf" download>Download PDF</a>
-        <a class="button button-ghost small" href="/api/reports/${encodeURIComponent(reportName)}/download/csv" download>Download CSV</a>
-      </div>
+      <div class="summary-actions">${reportActionControls({ openHref: `${base}/summary.html`, pdfHref: `/api/reports/${encodeURIComponent(reportName)}/download/pdf`, csvHref: `/api/reports/${encodeURIComponent(reportName)}/download/csv`, xlsxHref: `/api/reports/${encodeURIComponent(reportName)}/download/xlsx`, label: 'Lighthouse report actions' })}</div>
     </div>
 
     <div class="final-score-grid dynamic" style="--score-columns:${Math.min(categories.length, 4)}">${categories.map(scoreCard).join('')}</div>
@@ -844,10 +861,7 @@ async function loadHistory() {
             <span>${reportType === 'security-compliance' && overview.generatedAt ? `Scan ${escapeHtml(new Date(overview.generatedAt).toLocaleString())} · Review revision ${escapeHtml(overview.workflowRevision ?? 0)} updated ${escapeHtml(new Date(overview.workflowUpdatedAt || overview.generatedAt).toLocaleString())}` : new Date(report.modifiedAt).toLocaleString()}${scoreText ? ` · ${escapeHtml(scoreText)}` : ''}</span>
           </div>
           <div class="history-actions">
-            ${report.summaryHref ? `<a href="${report.summaryHref}" target="_blank" rel="noopener">View report ${externalLinkIcon()}</a>` : ''}
-            ${report.csvHref ? `<a href="${report.csvHref}" download>${reportType === 'security-compliance' ? 'Findings CSV' : 'CSV'}</a>` : ''}
-            ${report.pdfHref ? `<a class="primary" href="${report.pdfHref}" download>PDF</a>` : ''}
-            ${reportType === 'security-compliance' && report.evidenceManifestHref ? `<a href="${report.evidenceManifestHref}" download>Evidence manifest</a>` : ''}
+            ${reportActionControls({ openHref: report.summaryHref, pdfHref: report.pdfHref, csvHref: report.csvHref, xlsxHref: report.xlsxHref, extraExports: reportType === 'security-compliance' && report.evidenceManifestHref ? [[report.evidenceManifestHref, 'Evidence Manifest']] : [], label: `${reportTypeLabel(reportType)} report actions` })}
             <button class="history-delete-btn" type="button" data-delete-report="${escapeHtml(report.name)}" title="Delete report folder">Delete</button>
           </div>
         </div>`;
@@ -1179,11 +1193,7 @@ function renderAssetResults(result) {
     <div class="asset-section-title"><div><h4>Largest transferred assets</h4><span>The heaviest individual resources across all analyzed pages.</span></div></div>
     <div class="asset-table-wrap"><table class="asset-table"><thead><tr><th>Type</th><th>Asset</th><th>Size</th><th>Host</th><th>Page</th></tr></thead><tbody>${largest.slice(0, 15).map((asset) => `<tr><td><span class="asset-type-pill">${escapeHtml(humanize(asset.category))}</span></td><td><strong title="${escapeHtml(asset.url)}">${escapeHtml(asset.url.split('/').pop() || asset.url)}</strong><span title="${escapeHtml(asset.url)}">${escapeHtml(asset.url)}</span></td><td><strong>${escapeHtml(formatBytes(asset.transferBytes))}</strong></td><td>${escapeHtml(asset.host)}</td><td><span title="${escapeHtml(asset.pageUrl)}">${escapeHtml(new URL(asset.pageUrl).pathname || '/')}</span></td></tr>`).join('')}</tbody></table></div>`;
 
-  refs.assetResultActions.innerHTML = `
-    <a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a>
-    <a class="button button-secondary small" href="${result.pdfHref}" download>PDF</a>
-    <a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>
-    `;
+  refs.assetResultActions.innerHTML = reportActionControls({ openHref: result.summaryHref, pdfHref: result.pdfHref, csvHref: result.csvHref, xlsxHref: result.xlsxHref, label: 'Asset report actions' });
   refs.assetResultsCard.classList.remove('hidden');
   refs.assetResultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1425,7 +1435,7 @@ function renderLinksResults(result) {
     <section class="links-result-workspace" aria-label="Checked references"><div class="links-result-toolbar"><div class="links-view-tabs" role="group" aria-label="Result groups">${[['attention', 'Needs attention'], ['review', 'Review'], ['healthy', 'Healthy'], ['all', 'All']].map(([view, label]) => `<button type="button" data-links-view="${view}" aria-pressed="${state.linksResultView === view}"><span>${label}</span><strong>${counts[view]}</strong></button>`).join('')}</div><div class="links-filter-grid"><label class="field links-search-field"><span>Search results</span><input id="linksResultSearch" type="search" placeholder="Target, source, status, type, failure…"></label><label class="field"><span>Outcome</span><select id="linksResultOutcome"><option value="all">All outcomes</option>${Object.entries(outcomeCounts).map(([value, count]) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))} (${count})</option>`).join('')}</select></label><label class="field"><span>Reference type</span><select id="linksResultType"><option value="all">All types</option>${types.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))}</option>`).join('')}</select></label><label class="field"><span>Scope</span><select id="linksResultScope"><option value="all">Internal + external</option><option value="internal">Internal</option><option value="external">External</option></select></label><label class="field"><span>HTTP status</span><select id="linksResultStatus"><option value="all">All statuses</option>${statuses.map((value) => `<option value="${value}">${value}</option>`).join('')}</select></label><label class="field"><span>Source page</span><select id="linksResultSource"><option value="all">All source pages</option>${sourcePages.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}</select></label><label class="field"><span>Sort</span><select id="linksResultSort"><option value="priority">Action priority</option><option value="outcome">Outcome</option><option value="status">HTTP status</option><option value="target">Target</option><option value="occurrences">Occurrences</option></select></label><button id="linksClearFilters" class="button button-ghost small" type="button">Clear filters</button></div></div>
       <div id="linksTargetList" class="links-target-list"></div><div id="linksResultEmpty" class="links-empty-state hidden"><strong>No matching references</strong><p>Adjust the result view or clear the current filters.</p><button class="button button-secondary small" type="button" data-links-clear-filters>Clear filters</button></div>
       <div class="links-pagination"><label>Rows per page <select id="linksResultPageSize"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><div><button id="linksResultPrevious" class="button button-ghost small" type="button">Previous</button><span id="linksResultPageStatus">Page 1 of 1</span><button id="linksResultNext" class="button button-ghost small" type="button">Next</button></div></div></section>`;
-  refs.linksResultActions.innerHTML = `<a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a><a class="button button-secondary small" href="${result.pdfHref}" download>PDF</a><a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>`;
+  refs.linksResultActions.innerHTML = reportActionControls({ openHref: result.summaryHref, pdfHref: result.pdfHref, csvHref: result.csvHref, xlsxHref: result.xlsxHref, label: 'Broken Links report actions' });
   refs.linksResultsCard.classList.remove('hidden');
   $('#linksSection')?.classList.add('links-has-results');
   renderLinksTargetPage();
@@ -1769,9 +1779,7 @@ function renderSecurityResults(result) {
 
     <section id="securityCrawl" class="security-workspace-section"><div class="security-section-title"><div><h4>Crawl results</h4><span>Successful evidence pages first; discovery failures remain available as diagnostics.</span></div></div>${crawlPages.length ? `<div class="security-crawl-metrics"><div><span>Successful pages</span><strong>${successfulPages.length}</strong></div><div><span>Redirects</span><strong>${redirectPages.length}</strong></div><div><span>Candidate paths tested</span><strong>${crawlPages.length}</strong></div><div><span>Not found</span><strong>${notFoundPages.length}</strong></div></div><div class="security-crawl-success">${successfulPages.map((page) => `<article><span class="security-crawl-badge status-${page.status}">${page.status || 200}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><strong>${escapeHtml(page.url)}</strong></article>`).join('') || '<div class="empty-state">No successful evidence pages were discovered.</div>'}</div>${unsuccessfulPages.length ? `<details class="security-summary-details security-crawl-failures"><summary><div><strong>Show ${unsuccessfulPages.length} unsuccessful discovery attempt${unsuccessfulPages.length === 1 ? '' : 's'}</strong><span>${notFoundPages.length} not found · ${failedPages.length} failed or skipped</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-crawl-diagnostics">${unsuccessfulPages.map((page) => `<article><span class="security-crawl-badge ${page.status === 404 ? 'status-404' : 'status-failed'}">${page.status || 'Failed'}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><div><strong>${escapeHtml(page.url)}</strong>${page.error ? `<small>${escapeHtml(page.error)}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : `<div class="empty-state">${escapeHtml(result.crawl?.error || 'Crawl evidence was not collected for this assessment.')}</div>`}</section>`;
 
-  const primaryDownloads = [[result.summaryHref, 'Open Report', false], [result.pdfHref, 'Download PDF', true]].filter(([href]) => Boolean(href));
-  const secondaryDownloads = [[result.csvHref, 'Findings CSV', true], [result.evidenceManifestHref, 'Evidence Manifest', true]].filter(([href]) => Boolean(href));
-  refs.securityResultActions.innerHTML = `${primaryDownloads.map(([href, label, download, filename]) => `<a class="button ${label === 'Open Report' ? 'button-secondary' : 'button-primary'} small" href="${escapeHtml(href)}" ${download ? 'download' : 'target="_blank" rel="noopener"'}>${label}</a>`).join('')}${secondaryDownloads.length ? `<details class="security-export-menu"><summary class="button button-ghost small">More Exports</summary><div>${secondaryDownloads.map(([href, label]) => `<a href="${escapeHtml(href)}" download>${label}</a>`).join('')}</div></details>` : ''}`;
+  refs.securityResultActions.innerHTML = reportActionControls({ openHref: result.summaryHref, pdfHref: result.pdfHref, csvHref: result.csvHref, xlsxHref: result.xlsxHref, extraExports: result.evidenceManifestHref ? [[result.evidenceManifestHref, 'Evidence Manifest']] : [], label: 'Compliance Mapping report actions' });
   refs.securityResultsCard.classList.remove('hidden');
   setSecurityConfigurationCollapsed(true, result);
   updateSecurityReviewProgress();
@@ -2089,7 +2097,54 @@ refs.cancelDeleteBtn.addEventListener('click', closeDeleteModal);
 refs.deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
 refs.confirmDeleteBtn.addEventListener('click', confirmDeleteReports);
 refs.deleteModal.addEventListener('click', (event) => { if (event.target === refs.deleteModal) closeDeleteModal(); });
-document.addEventListener('keydown', (event) => { if (event.key !== 'Escape') return; if (refs.deleteModal.classList.contains('show')) closeDeleteModal(); if (refs.projectDeleteModal?.classList.contains('show')) closeProjectDeleteModal(); });
+document.addEventListener('click', (event) => {
+  const trigger = event.target.closest('.report-action-more');
+  if (trigger) {
+    const menu = trigger.closest('.report-export-menu');
+    const popover = menu?.querySelector('.report-export-popover');
+    if (!menu || !popover) return;
+    const opening = popover.hidden;
+    closeReportExportMenus({ except: menu });
+    popover.hidden = !opening;
+    trigger.setAttribute('aria-expanded', String(opening));
+    if (opening) popover.querySelector('[role="menuitem"]')?.focus();
+    return;
+  }
+  const download = event.target.closest('[data-report-download]');
+  if (download) {
+    const original = download.dataset.downloadLabel || download.textContent;
+    download.dataset.downloadLabel = original;
+    download.classList.add('is-loading');
+    download.setAttribute('aria-busy', 'true');
+    download.textContent = 'Downloading…';
+    closeReportExportMenus();
+    setTimeout(() => { download.classList.remove('is-loading'); download.removeAttribute('aria-busy'); download.textContent = original; }, 1400);
+    return;
+  }
+  if (!event.target.closest('.report-export-menu')) closeReportExportMenus();
+});
+document.addEventListener('keydown', (event) => {
+  const trigger = event.target.closest('.report-action-more');
+  if (trigger && event.key === 'ArrowDown') {
+    event.preventDefault();
+    if (trigger.getAttribute('aria-expanded') !== 'true') trigger.click();
+    else trigger.closest('.report-export-menu')?.querySelector('[role="menuitem"]')?.focus();
+    return;
+  }
+  const item = event.target.closest('.report-export-popover [role="menuitem"]');
+  if (item && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+    event.preventDefault();
+    const items = [...item.closest('[role="menu"]').querySelectorAll('[role="menuitem"]')];
+    const index = items.indexOf(item);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : event.key === 'ArrowDown' ? (index + 1) % items.length : (index - 1 + items.length) % items.length;
+    items[next]?.focus();
+    return;
+  }
+  if (event.key !== 'Escape') return;
+  closeReportExportMenus({ restoreFocus: true });
+  if (refs.deleteModal.classList.contains('show')) closeDeleteModal();
+  if (refs.projectDeleteModal?.classList.contains('show')) closeProjectDeleteModal();
+});
 
 $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
   $$('.nav-item').forEach((item) => item.classList.remove('active'));

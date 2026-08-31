@@ -11,7 +11,8 @@ const REPORT_SLUGS = Object.freeze({
 
 const ARTIFACTS = Object.freeze({
   pdf: { file: 'summary.pdf', mimeType: 'application/pdf' },
-  csv: { file: 'summary.csv', complianceFile: 'findings.csv', mimeType: 'text/csv; charset=utf-8' }
+  csv: { file: 'summary.csv', complianceFile: 'findings.csv', mimeType: 'text/csv; charset=utf-8' },
+  xlsx: { file: 'summary.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
 });
 
 function timestampPart(value) {

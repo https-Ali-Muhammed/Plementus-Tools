@@ -7,6 +7,7 @@ export const MIME_TYPES = Object.freeze({
   '.json': 'application/json; charset=utf-8',
   '.csv': 'text/csv; charset=utf-8',
   '.pdf': 'application/pdf',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.svg': 'image/svg+xml',
   '.png': 'image/png'
 });

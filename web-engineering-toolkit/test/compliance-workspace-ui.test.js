@@ -86,9 +86,10 @@ test('finding filters are display-only, reset with each rendered result, and kee
 });
 
 test('workspace exports preserve report PDF semantics and show only available artifacts', () => {
-  assert.match(app, /\[result\.pdfHref, 'Download PDF'/);
-  assert.match(app, /primaryDownloads.*filter\(\(\[href\]\) => Boolean\(href\)\)/);
-  assert.match(app, /\[result\.csvHref, 'Findings CSV'/);
+  assert.match(app, /function reportActionControls/);
+  assert.match(app, /openHref: result\.summaryHref, pdfHref: result\.pdfHref, csvHref: result\.csvHref, xlsxHref: result\.xlsxHref/);
+  assert.match(app, /Download CSV/);
+  assert.match(app, /Download Excel/);
   assert.match(app, /More Exports/);
   assert.doesNotMatch(app, /workspace.*pdf|screenshot.*pdf/i);
 });

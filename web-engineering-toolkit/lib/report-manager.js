@@ -4,6 +4,7 @@ import { csvEscape, ensureDir, median, slugify, timestamp } from './utils.js';
 import { generateToolPdf } from './pdf-report-renderer.js';
 import { lighthousePdfHtml } from './tool-pdf-reports.js';
 import { reportDownloadHref } from './report-downloads.js';
+import { writeReportXlsx } from './xlsx-reports.js';
 
 const CATEGORY_META = {
   performance: { label: 'Performance', key: 'performance' },
@@ -397,10 +398,11 @@ export class ReportManager {
     csvColumns.push(['Important Findings', (row) => row.findingCount || 0]);
     const csv = [csvColumns.map(([label]) => csvEscape(label)).join(','), ...rows.map((row) => csvColumns.map(([, getter]) => csvEscape(getter(row))).join(','))].join('\n');
     fs.writeFileSync(path.join(root, 'summary.csv'), `\uFEFF${csv}\n`, 'utf8');
-    overview.exports = { csv: true, html: true, pdf: true };
+    overview.exports = { csv: true, html: true, pdf: true, xlsx: true };
+    await writeReportXlsx({ root, reportType: 'lighthouse', data: summary });
     fs.writeFileSync(path.join(root, 'summary.html'), buildSummaryHtml(summary));
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(summary, null, 2));
-    summary.pdfGeneration = await generateToolPdf({ html: lighthousePdfHtml(summary), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Lighthouse Reporter', projectName: overview.projectName });
+    summary.pdfGeneration = await generateToolPdf({ html: lighthousePdfHtml(summary), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Lighthouse Reporter', reportTitle: 'Lighthouse Technical Report', projectName: overview.projectName, target: overview.baseUrl });
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(summary, null, 2));
     return summary;
   }
@@ -412,10 +414,10 @@ export class ReportManager {
       const summary = readJson(path.join(full, 'summary.json')); const metadata = readJson(path.join(full, 'metadata.json'));
       const overview = summary && !Array.isArray(summary) ? summary.overview || null : null;
       const reportType = overview?.reportType || summary?.reportType || metadata?.reportType || (entry.name.includes('_lighthouse_') ? 'lighthouse' : 'unknown');
-      const hasHtml = fs.existsSync(path.join(full, 'summary.html')); const hasCsv = fs.existsSync(path.join(full, 'summary.csv')); const hasFindingsCsv = fs.existsSync(path.join(full, 'findings.csv')); const hasPdf = fs.existsSync(path.join(full, 'summary.pdf')); const hasJson = fs.existsSync(path.join(full, 'summary.json')); const hasEvidenceManifest = fs.existsSync(path.join(full, 'evidence', 'manifest.json'));
+      const hasHtml = fs.existsSync(path.join(full, 'summary.html')); const hasCsv = fs.existsSync(path.join(full, 'summary.csv')); const hasFindingsCsv = fs.existsSync(path.join(full, 'findings.csv')); const hasPdf = fs.existsSync(path.join(full, 'summary.pdf')); const hasXlsx = fs.existsSync(path.join(full, 'summary.xlsx')); const hasJson = fs.existsSync(path.join(full, 'summary.json')); const hasEvidenceManifest = fs.existsSync(path.join(full, 'evidence', 'manifest.json'));
       return { name: entry.name, reportType, modifiedAt: stat.mtime.toISOString(), overview,
         summaryHref: hasHtml ? `/reports/${encodeURIComponent(entry.name)}/summary.html` : (hasCsv ? `/reports/${encodeURIComponent(entry.name)}/summary.csv` : ''),
-        jsonHref: hasJson ? `/reports/${encodeURIComponent(entry.name)}/summary.json` : '', csvHref: hasFindingsCsv || hasCsv ? reportDownloadHref(entry.name, 'csv') : '', pdfHref: hasPdf ? reportDownloadHref(entry.name, 'pdf') : '', evidenceManifestHref: hasEvidenceManifest ? `/reports/${encodeURIComponent(entry.name)}/evidence/manifest.json` : '' };
+        jsonHref: hasJson ? `/reports/${encodeURIComponent(entry.name)}/summary.json` : '', csvHref: hasFindingsCsv || hasCsv ? reportDownloadHref(entry.name, 'csv') : '', pdfHref: hasPdf ? reportDownloadHref(entry.name, 'pdf') : '', xlsxHref: hasXlsx ? reportDownloadHref(entry.name, 'xlsx') : '', evidenceManifestHref: hasEvidenceManifest ? `/reports/${encodeURIComponent(entry.name)}/evidence/manifest.json` : '' };
     }).sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt));
   }
 

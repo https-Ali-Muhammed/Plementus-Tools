@@ -284,7 +284,7 @@ test('report download content types include the PDF and CSV export contract', ()
   assert.equal(contentTypeForFile('summary.pdf'), 'application/pdf');
   assert.equal(contentTypeForFile('summary.html'), 'text/html; charset=utf-8');
   assert.equal(contentTypeForFile('findings.csv'), 'text/csv; charset=utf-8');
-  assert.equal(contentTypeForFile('summary.xlsx'), 'application/octet-stream');
+  assert.equal(contentTypeForFile('summary.xlsx'), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 });
 
 test('Compliance HTML report uses responsive report-only navigation and readable layouts', () => {
@@ -393,7 +393,7 @@ test('Asset report manager smoke test preserves page-weight report identity and 
   assert.equal(summary.overview.pages, 1);
   assert.ok(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.pdf')));
   assert.ok(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.csv')));
-  assert.equal(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.xlsx')), false);
+  assert.equal(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.xlsx')), true);
 });
 
 test('legacy compliance summaries receive conservative defaults without rewriting historical evidence', async (t) => {

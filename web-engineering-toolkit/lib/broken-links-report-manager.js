@@ -4,6 +4,7 @@ import { csvEscape, ensureDir, slugify, timestamp } from './utils.js';
 import { generateToolPdf } from './pdf-report-renderer.js';
 import { brokenLinksPdfHtml } from './tool-pdf-reports.js';
 import { reportDownloadHref } from './report-downloads.js';
+import { writeReportXlsx } from './xlsx-reports.js';
 
 const ATTENTION_OUTCOMES = new Set(['broken', 'fragment_missing', 'server_error', 'unreachable', 'failed_to_check', 'client_error', 'restricted', 'rate_limited']);
 
@@ -120,8 +121,9 @@ export class BrokenLinksReportManager {
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify({ ...result, overview }, null, 2));
     fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ schemaVersion: result.schemaVersion, reportType: 'broken-links-resources', generatedAt: result.generatedAt, projectName: result.projectName, baseUrl: result.baseUrl, overview }, null, 2));
     writeCsv(root, result);
+    await writeReportXlsx({ root, reportType: 'broken-links-resources', data: result });
     writeHtml(root, result);
-    const pdfGeneration = await generateToolPdf({ html: brokenLinksPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Broken Links & Resources Checker', projectName: result.projectName });
+    const pdfGeneration = await generateToolPdf({ html: brokenLinksPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Broken Links & Resources Checker', reportTitle: 'Broken Links & Resources Report', projectName: result.projectName, target: result.baseUrl });
     return {
       ...result, pdfGeneration,
       reportName,
@@ -129,6 +131,7 @@ export class BrokenLinksReportManager {
       summaryHref: `/reports/${encodeURIComponent(reportName)}/summary.html`,
       jsonHref: `/reports/${encodeURIComponent(reportName)}/summary.json`,
       csvHref: reportDownloadHref(reportName, 'csv'),
+      xlsxHref: reportDownloadHref(reportName, 'xlsx'),
       pdfHref: reportDownloadHref(reportName, 'pdf')
     };
   }

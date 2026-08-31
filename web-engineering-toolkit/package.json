@@ -20,7 +20,9 @@
     "smoke:all": "node scripts/smoke-all-tools.js"
   },
   "dependencies": {
+    "exceljs": "4.4.0",
     "lighthouse": "12.8.2",
+    "pdf-lib": "1.17.1",
     "playwright-core": "1.54.2"
   },
   "engines": {

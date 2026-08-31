@@ -85,7 +85,7 @@ test('canonical assessment stays consistent across public formats and excludes r
   }
   const pdf = fs.readFileSync(path.join(root, 'summary.pdf'));
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
-  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), false);
+  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), true);
 
   const html = fs.readFileSync(path.join(root, 'summary.html'), 'utf8');
   const findingsRows = fs.readFileSync(path.join(root, 'findings.csv'), 'utf8').trim().split(/\r?\n/).length - 1;
