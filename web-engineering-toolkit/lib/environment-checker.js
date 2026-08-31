@@ -169,7 +169,6 @@ export async function runEnvironmentCheck({ targetUrl, reportsDir }) {
   const browsers = await detectBrowsers();
   const lighthouse = dependencyInstalled('lighthouse');
   const playwright = dependencyInstalled('playwright-core');
-  const exceljs = dependencyInstalled('exceljs');
   const npmVersion = await commandVersion(process.platform === 'win32' ? 'npm.cmd' : 'npm');
   const checks = [];
 
@@ -213,20 +212,6 @@ export async function runEnvironmentCheck({ targetUrl, reportsDir }) {
 
   checks.push({ key: 'lighthouse', label: 'Lighthouse', status: lighthouse ? 'ready' : 'error', detail: lighthouse ? `v${lighthouse}` : 'Not installed', ...(!lighthouse ? { action: dependencyAction } : {}) });
   checks.push({ key: 'playwright', label: 'Playwright Core', status: playwright ? 'ready' : 'error', detail: playwright ? `v${playwright}` : 'Not installed', ...(!playwright ? { action: dependencyAction } : {}) });
-  checks.push({
-    key: 'excel',
-    label: 'Styled Excel export',
-    status: exceljs ? 'ready' : 'warning',
-    detail: exceljs ? `ExcelJS v${exceljs}` : 'ExcelJS not installed',
-    ...(!exceljs ? {
-      action: {
-        title: 'Enable styled Excel summaries',
-        description: 'Install the project dependencies. Lighthouse can still run without this optional export, but summary.xlsx will not be generated.',
-        commands: [{ label: 'Project folder', command: 'npm install' }]
-      }
-    } : {})
-  });
-
   checks.push({
     key: 'browser',
     label: 'Browser',

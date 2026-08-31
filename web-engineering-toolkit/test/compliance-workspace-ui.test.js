@@ -95,6 +95,7 @@ test('workspace exports preserve report PDF semantics and show only available ar
 
 test('Compliance layout rules are scoped and cover desktop, tablet, and mobile breakpoints', () => {
   assert.match(css, /#securitySection \.security-setup-grid\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) 300px/);
+  assert.match(css, /grid-template-areas:\s*"scope run"\s*"framework run"/s);
   assert.match(css, /@media \(max-width: 1000px\)[\s\S]*?#securitySection \.security-setup-grid/);
   assert.match(css, /@media \(max-width: 768px\)[\s\S]*?#securitySection \.security-score-grid/);
   assert.match(css, /@media \(max-width: 600px\)[\s\S]*?#securitySection \.security-framework-grid/);

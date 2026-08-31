@@ -17,10 +17,11 @@ import { SecuritySessionStore } from './lib/security-session-store.js';
 import { EvidenceVault } from './lib/evidence-vault.js';
 import { SecurityLifecycleManager } from './lib/security-lifecycle-manager.js';
 import { contentTypeForFile } from './lib/mime-types.js';
+import { resolveReportDownload } from './lib/report-downloads.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const REPORTS_DIR = path.join(__dirname, 'reports');
+const REPORTS_DIR = path.resolve(process.env.TOOLKIT_REPORTS_DIR || path.join(__dirname, 'reports'));
 const PROFILES_DIR = path.join(__dirname, 'profiles');
 const FLOWS_DIR = path.join(__dirname, 'flows');
 const DATA_DIR = path.join(__dirname, 'data');
@@ -162,6 +163,17 @@ const server = http.createServer(async (req, res) => {
       const blocked = names.filter((name) => active.has(name));
       if (blocked.length) return json(res, 409, { error: `Cannot delete an active report: ${blocked.join(', ')}` });
       return json(res, 200, reportManager.deleteReports(names));
+    }
+    const reportDownloadMatch = url.pathname.match(/^\/api\/reports\/([^/]+)\/download\/(pdf|csv)$/);
+    if (req.method === 'GET' && reportDownloadMatch) {
+      const download = resolveReportDownload({ reportsRoot: REPORTS_DIR, reportName: decodeURIComponent(reportDownloadMatch[1]), format: reportDownloadMatch[2] });
+      res.writeHead(200, {
+        'Content-Type': download.mimeType,
+        'Content-Length': fs.statSync(download.file).size,
+        'Content-Disposition': `attachment; filename="${download.filename}"`
+      });
+      fs.createReadStream(download.file).pipe(res);
+      return;
     }
     const runMatch = url.pathname.match(/^\/api\/runs\/([^/]+)$/);
     if (req.method === 'GET' && runMatch) {

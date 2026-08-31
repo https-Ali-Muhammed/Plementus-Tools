@@ -22,10 +22,16 @@ test('source package is deterministic, complete, and excludes runtime state', ()
   const listing = spawnSync('unzip', ['-Z1', archive], { encoding: 'utf8' });
   assert.equal(listing.status, 0, listing.stderr);
   const entries = listing.stdout.trim().split(/\r?\n/);
-  for (const required of ['README.md', 'package.json', 'package-lock.json', 'lib/security-scanner.js', 'lib/security-collection-model.js', 'docs/PHASE3_EVIDENCE_COLLECTION_AUDIT.md', 'docs/PHASE3_IMPLEMENTATION.md', 'test/phase1-core.test.js', 'test/phase3-evidence-collection.test.js', 'test/phase3-browser-collection.test.js', 'scripts/package-source.js', 'scripts/smoke-all-tools.js', 'scripts/validate-phase3.js']) {
+  for (const required of ['README.md', 'package.json', 'package-lock.json', 'server.js', '.gitignore', 'lib/security-scanner.js', 'lib/security-collection-model.js', 'docs/PHASE3_EVIDENCE_COLLECTION_AUDIT.md', 'docs/PHASE3_IMPLEMENTATION.md', 'test/phase1-core.test.js', 'test/phase3-evidence-collection.test.js', 'test/phase3-browser-collection.test.js', 'scripts/package-source.js', 'scripts/smoke-all-tools.js', 'scripts/validate-phase3.js']) {
     assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
   }
   for (const required of ['lib/broken-links-checker.js', 'lib/broken-links-report-manager.js', 'public/styles/broken-links.css', 'docs/BROKEN_LINKS_RESOURCES_CHECKER_AUDIT.md', 'docs/BROKEN_LINKS_RESOURCES_CHECKER_IMPLEMENTATION.md', 'docs/BROKEN_LINKS_RESOURCES_UX_AUDIT.md', 'docs/BROKEN_LINKS_RESOURCES_UX_IMPLEMENTATION.md', 'test/broken-links-checker.test.js', 'test/broken-links-reporting.test.js', 'test/broken-links-ui.test.js', 'test/fixtures/broken-links-lab-server.js', 'test/fixtures/broken-links-presentation-fixture.js']) {
+    assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
+  }
+  for (const required of ['docs/LIGHTHOUSE_ASSET_UX_AUDIT.md', 'docs/LIGHTHOUSE_ASSET_UX_IMPLEMENTATION.md', 'test/lighthouse-asset-ux.test.js']) {
+    assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
+  }
+  for (const required of ['lib/pdf-report-renderer.js', 'lib/tool-pdf-reports.js', 'lib/report-downloads.js', 'docs/UNIFIED_PDF_REPORTING_AUDIT.md', 'docs/UNIFIED_PDF_REPORTING_IMPLEMENTATION.md', 'test/unified-reporting.test.js']) {
     assert.ok(entries.includes(`web-engineering-toolkit/${required}`), `missing ${required}`);
   }
   const forbidden = /(?:^|\/)(?:node_modules|reports|data|profiles\/security-scanner|dist|revisions|audit|screenshots?|tmp)(?:\/|$)|\.pdf$/i;

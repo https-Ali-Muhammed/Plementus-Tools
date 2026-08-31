@@ -403,14 +403,14 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   assert.ok(manifest.artifacts.every((artifact) => /^[a-f0-9]{64}$/.test(artifact.sha256)));
   assert.equal('evidenceArchive' in saved, false);
   assert.equal('screenshotBase64' in saved.browserScan, false);
-  assert.ok(fs.existsSync(path.join(reportRoot, 'summary.xlsx')));
+  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
   assert.ok(fs.existsSync(path.join(reportRoot, 'summary.pdf')));
   assert.ok(fs.existsSync(path.join(reportRoot, 'findings.csv')));
   const pdf = fs.readFileSync(path.join(reportRoot, 'summary.pdf'));
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
   assert.ok(pdf.length > 10_000);
   assert.equal(saved.pdfGeneration.status, 'generated');
-  assert.equal(saved.pdfHref, `/reports/${encodeURIComponent(saved.reportName)}/summary.pdf`);
+  assert.equal(saved.pdfHref, `/api/reports/${encodeURIComponent(saved.reportName)}/download/pdf`);
   assert.match(fs.readFileSync(path.join(reportRoot, 'summary.csv'), 'utf8'), /Evidence Level/);
   const publicReportText = fs.readFileSync(path.join(reportRoot, 'summary.json'), 'utf8');
   const canonicalReport = JSON.parse(publicReportText);
@@ -418,10 +418,6 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   const findingsCsvRows = fs.readFileSync(path.join(reportRoot, 'findings.csv'), 'utf8').trim().split(/\r?\n/).length - 1;
   assert.equal(findingsCsvRows, canonicalReport.findings.length);
   assert.match(htmlReport, new RegExp(`data-finding-count="${canonicalReport.findings.length}"`));
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(reportRoot, 'summary.xlsx'));
-  assert.equal(workbook.getWorksheet('Findings').rowCount - 1, canonicalReport.findings.length);
   const qualityCounts = canonicalReport.testResults.reduce((counts, item) => { counts[item.state] = (counts[item.state] || 0) + 1; return counts; }, {});
   assert.match(htmlReport, new RegExp(`Technical checks completed</span><strong>${qualityCounts.confirmed || 0}</strong>`));
   assert.equal(publicReportText.includes('test-secret'), false);
@@ -444,7 +440,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   assert.match(refreshedHtml, /Bob Reviewer/);
   assert.match(refreshedHtml, /Compensating edge control verified/);
   assert.equal(fs.existsSync(path.join(reportRoot, 'revisions')), false);
-  assert.deepEqual(refreshedManifest.files.map((entry) => entry.file).sort(), ['evidence/manifest.json', 'findings.csv', 'metadata.json', 'summary.csv', 'summary.html', 'summary.json', 'summary.pdf', 'summary.xlsx', 'workflow.json']);
+  assert.deepEqual(refreshedManifest.files.map((entry) => entry.file).sort(), ['evidence/manifest.json', 'findings.csv', 'metadata.json', 'summary.csv', 'summary.html', 'summary.json', 'summary.pdf', 'workflow.json']);
   for (const entry of refreshedManifest.files) {
     const file = fs.readFileSync(path.join(reportRoot, entry.file));
     const digest = crypto.createHash('sha256').update(file).digest('hex');

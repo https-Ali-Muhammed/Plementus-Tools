@@ -83,11 +83,9 @@ test('canonical assessment stays consistent across public formats and excludes r
     const content = fs.readFileSync(path.join(root, file), 'utf8');
     for (const secret of secrets) assert.equal(content.includes(secret), false, `${file} leaked ${secret}`);
   }
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(root, 'summary.xlsx'));
-  const workbookText = workbook.worksheets.flatMap((worksheet) => worksheet.getSheetValues()).flat(4).filter((value) => typeof value === 'string').join('\n');
-  for (const secret of secrets) assert.equal(workbookText.includes(secret), false, `summary.xlsx leaked ${secret}`);
+  const pdf = fs.readFileSync(path.join(root, 'summary.pdf'));
+  assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
+  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), false);
 
   const html = fs.readFileSync(path.join(root, 'summary.html'), 'utf8');
   const findingsRows = fs.readFileSync(path.join(root, 'findings.csv'), 'utf8').trim().split(/\r?\n/).length - 1;
@@ -96,8 +94,6 @@ test('canonical assessment stays consistent across public formats and excludes r
   assert.deepEqual(alias, fs.readFileSync(path.join(root, 'findings.csv')));
   assert.match(html, new RegExp(`data-finding-count="${canonical.findings.length}"`));
   assert.match(html, new RegExp(`data-check-count="${canonical.counts.checks}"`));
-  assert.equal(workbook.getWorksheet('Findings').rowCount - 1, canonical.findings.length);
-  assert.equal(workbook.getWorksheet('Control Evidence').rowCount - 1, canonical.controlEvaluations.length);
   const csvText = fs.readFileSync(path.join(root, 'findings.csv'), 'utf8');
   assert.match(csvText, /Collection State,Evidence Confidence,Collection Method/);
   assert.match(csvText, /completed,medium,browser_runtime/);
@@ -106,9 +102,6 @@ test('canonical assessment stays consistent across public formats and excludes r
   assert.match(html, /Evidence coverage: Partial/i);
   assert.match(html, /provenance breadth, not assurance strength/i);
   assert.match(html, /Collection method: Browser Runtime/i);
-  assert.match(workbookText, /ePrivacy Directive/);
-  assert.match(workbookText, /Failed Evidence Present/i);
-  assert.match(workbookText, /browser_runtime/i);
   assert.ok(canonical.frameworkResults.some((framework) => framework.id === 'eprivacy' && framework.label === 'ePrivacy Directive'));
   assert.deepEqual(canonical.controlEvaluations[0].coverageQualifiers, ['failed_evidence_present', 'coverage_incomplete']);
   assert.equal(canonical.controlEvaluations[0].provenanceSummary.sourceCheckCount, 2);

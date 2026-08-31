@@ -12,7 +12,7 @@ const stagingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'web-toolkit-package-'
 const stagingPackage = path.join(stagingRoot, packageName);
 const fixedTime = new Date('1980-01-01T00:00:00.000Z');
 const sourceRoots = ['flows', 'lib', 'public', 'test', 'docs', 'scripts'];
-const sourceFiles = ['package.json', 'package-lock.json', 'README.md'];
+const sourceFiles = ['package.json', 'package-lock.json', 'README.md', 'server.js', '.gitignore'];
 
 function collect(directory, relative = '') {
   if (!fs.existsSync(directory)) return [];

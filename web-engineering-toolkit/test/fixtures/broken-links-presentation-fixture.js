@@ -87,6 +87,6 @@ export function createBrokenLinksPresentationFixture(targetCount = 320) {
     summaryHref: '/reports/fixture/summary.html',
     jsonHref: '/reports/fixture/summary.json',
     csvHref: '/reports/fixture/summary.csv',
-    xlsxHref: '/reports/fixture/summary.xlsx'
+    pdfHref: '/api/reports/fixture/download/pdf'
   };
 }

@@ -6,7 +6,6 @@ export const MIME_TYPES = Object.freeze({
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.csv': 'text/csv; charset=utf-8',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.pdf': 'application/pdf',
   '.svg': 'image/svg+xml',
   '.png': 'image/png'

@@ -52,6 +52,11 @@ async function captureTool(name, operation) {
   }
 }
 
+function assertExportSet(reportRoot, required) {
+  if (!required.every((file) => fs.existsSync(path.join(reportRoot, file)))) throw new Error(`Report exports are incomplete: ${required.join(', ')}.`);
+  if (fs.existsSync(path.join(reportRoot, 'summary.xlsx'))) throw new Error('Deprecated XLSX artifact was generated.');
+}
+
 async function stopBrowserProcess(processHandle) {
   if (!processHandle || processHandle.exitCode !== null) return;
   const exited = new Promise((resolve) => processHandle.once('exit', resolve));
@@ -101,9 +106,9 @@ try {
     const reportRoot = path.join(reportsRoot, compliance.reportName);
     const pdfPath = path.join(reportRoot, 'summary.pdf');
     const manifest = JSON.parse(fs.readFileSync(path.join(reportRoot, 'report-manifest.json'), 'utf8'));
-    const required = ['summary.html', 'summary.json', 'findings.csv', 'summary.xlsx', 'summary.pdf'];
-    if (!required.every((file) => fs.existsSync(path.join(reportRoot, file)))) throw new Error('Compliance smoke report is missing a required export.');
-    return { reportName: compliance.reportName, findings: compliance.findings.length, html: true, json: true, findingsCsv: true, xlsx: true, pdf: true, pdfBytes: fs.statSync(pdfPath).size, manifest: manifest.files.some((entry) => entry.file === 'summary.pdf'), evidenceAccess: compliance.evidenceManifest.access, assessmentMs: Math.round(reportStarted - assessmentStarted), reportMs, htmlMs: compliance.reportGeneration?.htmlGenerationMs, pdfMs: compliance.pdfGeneration?.durationMs };
+    const required = ['summary.html', 'summary.json', 'findings.csv', 'summary.pdf'];
+    assertExportSet(reportRoot, required);
+    return { reportName: compliance.reportName, findings: compliance.findings.length, html: true, json: true, csv: true, pdf: true, pdfBytes: fs.statSync(pdfPath).size, manifest: manifest.files.some((entry) => entry.file === 'summary.pdf'), evidenceAccess: compliance.evidenceManifest.access, assessmentMs: Math.round(reportStarted - assessmentStarted), reportMs, htmlMs: compliance.reportGeneration?.htmlGenerationMs, pdfMs: compliance.pdfGeneration?.durationMs };
   });
 
   result.asset = navigationReason ? skipped(navigationReasonCode) : await captureTool('asset', async () => {
@@ -112,8 +117,8 @@ try {
     const asset = await new AssetReportManager({ reportsRoot }).save(assessment);
     const reportRoot = path.join(reportsRoot, asset.reportName);
     if (!assessment.pages.length || assessment.summary.totalRequests < 1) throw new Error('Asset smoke produced no page metrics.');
-    if (!fs.existsSync(path.join(reportRoot, 'summary.html')) || !fs.existsSync(path.join(reportRoot, 'summary.xlsx'))) throw new Error('Asset smoke report exports are incomplete.');
-    return { reportName: asset.reportName, pages: assessment.pages.length, metrics: true, report: true, xlsx: true, durationMs: Math.round(performance.now() - started) };
+    assertExportSet(reportRoot, ['summary.html', 'summary.csv', 'summary.pdf']);
+    return { reportName: asset.reportName, pages: assessment.pages.length, metrics: true, report: true, csv: true, pdf: true, pdfBytes: fs.statSync(path.join(reportRoot, 'summary.pdf')).size, pdfMs: asset.pdfGeneration?.durationMs, durationMs: Math.round(performance.now() - started) };
   });
 
   result.links = navigationReason ? skipped(navigationReasonCode) : await captureTool('links', async () => {
@@ -121,10 +126,10 @@ try {
     const assessment = await checkBrokenLinksAndResources({ projectName: 'Toolkit Broken Links Smoke', baseUrl: linksLab.baseUrl, startingPages: ['/', '/page-two'], scanScope: 'selected', maxPages: 5, maxTargets: 200, timeoutMs: 150, concurrency: 4, maxRedirects: 4, preferredBrowserPath: browserPath });
     const saved = await new BrokenLinksReportManager({ reportsRoot }).save(assessment);
     const reportRoot = path.join(reportsRoot, saved.reportName);
-    const required = ['summary.html', 'summary.json', 'summary.csv', 'summary.xlsx', 'metadata.json'];
-    if (!required.every((file) => fs.existsSync(path.join(reportRoot, file)))) throw new Error('Broken Links smoke report is missing a required export.');
+    const required = ['summary.html', 'summary.json', 'summary.csv', 'summary.pdf', 'metadata.json'];
+    assertExportSet(reportRoot, required);
     if (!assessment.targets.length || assessment.summary.broken < 1 || !assessment.targets.some((target) => target.outcome === 'redirected')) throw new Error('Broken Links smoke did not exercise broken and redirected classifications.');
-    return { reportName: saved.reportName, pages: assessment.summary.pagesScanned, targets: assessment.summary.uniqueTargets, broken: assessment.summary.broken, redirected: assessment.summary.redirected, report: true, csv: true, xlsx: true, durationMs: Math.round(performance.now() - started) };
+    return { reportName: saved.reportName, pages: assessment.summary.pagesScanned, targets: assessment.summary.uniqueTargets, broken: assessment.summary.broken, redirected: assessment.summary.redirected, report: true, csv: true, pdf: true, pdfBytes: fs.statSync(path.join(reportRoot, 'summary.pdf')).size, pdfMs: saved.pdfGeneration?.durationMs, durationMs: Math.round(performance.now() - started) };
   });
 
   result.lighthouse = navigationReason ? skipped(navigationReasonCode) : await captureTool('lighthouse', async () => {
@@ -138,8 +143,8 @@ try {
     manager.writeManifest(reportRoot, [record]);
     const summary = await manager.generateSummary(reportRoot, [record], config);
     if (summary.overview.totalAudits !== 1 || !Number.isFinite(summary.overview.accessibility)) throw new Error('Lighthouse smoke did not produce the configured accessibility score.');
-    if (!fs.existsSync(path.join(reportRoot, 'summary.html'))) throw new Error('Lighthouse smoke report was not generated.');
-    return { reportName, runStatus: record.status, completed: true, report: true, accessibility: summary.overview.accessibility, durationMs: Math.round(performance.now() - started) };
+    assertExportSet(reportRoot, ['summary.html', 'summary.csv', 'summary.pdf']);
+    return { reportName, runStatus: record.status, completed: true, report: true, csv: true, pdf: true, pdfBytes: fs.statSync(path.join(reportRoot, 'summary.pdf')).size, pdfMs: summary.pdfGeneration?.durationMs, accessibility: summary.overview.accessibility, durationMs: Math.round(performance.now() - started) };
   });
 } catch (error) {
   result.environment.setupError = String(error?.stack || error?.message || error);

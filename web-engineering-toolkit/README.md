@@ -4,7 +4,7 @@ A framework-free website engineering and QA workspace built with vanilla HTML, C
 
 ## Tools included
 
-- **Lighthouse Reporter** — repeatable Performance, Accessibility, Best Practices and SEO audits with public/session modes, language-aware routing, mobile/desktop runs, grouped Lighthouse findings and HTML/CSV/XLSX reports.
+- **Lighthouse Reporter** — repeatable Performance, Accessibility, Best Practices and SEO audits with public/session modes, language-aware routing, mobile/desktop runs, grouped Lighthouse findings and HTML/PDF/CSV reports.
 - **Compliance Mapping** — collects defensible HTTP, browser, TLS, crawl, and optional passive OWASP ZAP evidence; maps that evidence to framework controls and reviewer decisions without claiming certification.
 - **Asset & Page-Weight Analyzer** — measures transferred page weight and network requests across selected pages, including JavaScript, CSS, images, fonts, media, XHR/fetch, third-party resources and the largest assets.
 - **Broken Links & Resources Checker** — renders selected pages, discovers links and page resources, checks bounded unique HTTP(S) targets, validates in-scope fragments, and preserves every source occurrence without treating restricted or timed-out targets as definitive broken links.
@@ -32,6 +32,17 @@ data/projects.json
 ```
 
 The generated file is ignored by Git so local project data is not committed accidentally.
+
+## Lighthouse Reporter output
+
+Each completed Lighthouse run retains its standalone HTML summary and internal JSON/metadata, plus the user-facing report pair:
+
+```text
+summary.pdf
+summary.csv
+```
+
+The PDF presents selected category scores, grouped important findings, bounded page results, and methodology. CSV remains the structured page-result export; raw Lighthouse detail stays in the existing run artifacts rather than being dumped into the PDF.
 
 ## Asset & Page-Weight Analyzer
 
@@ -69,17 +80,11 @@ Generated files include:
 summary.html
 summary.json
 summary.csv
-summary.xlsx
+summary.pdf
 assets.csv
 metadata.json
 ```
 
-The Excel workbook contains:
-
-- Summary
-- Page Results
-- Largest Assets
-- Findings
 
 ## Broken Links & Resources Checker
 
@@ -95,11 +100,11 @@ Each run writes:
 summary.html
 summary.json
 summary.csv
-summary.xlsx
+summary.pdf
 metadata.json
 ```
 
-The CSV contains one row per unique target. The workbook contains Summary, Broken & Unavailable, Redirects, All Checks, and Occurrences sheets. Reports do not archive response bodies, request bodies, credentials, cookies, or browser storage.
+The PDF is remediation-first and summarizes healthy inventory without printing hundreds of normal rows. The CSV retains one row per unique target. Reports do not archive response bodies, request bodies, credentials, cookies, or browser storage.
 
 ## Unified report history
 
@@ -112,6 +117,8 @@ Report History supports the current report types:
 
 Existing single-report deletion and multi-select report-folder deletion remain available.
 
+Every tool exposes **View report**, **PDF**, and **CSV** actions. Downloaded PDF and CSV files use the report identity, report-time project name, and original generation timestamp; internal JSON and metadata remain available to the application for history and reconstruction.
+
 ## Requirements
 
 - Node.js 20+
@@ -122,7 +129,6 @@ Project dependencies:
 
 - Lighthouse 12.8.2
 - Playwright Core 1.54.2
-- ExcelJS 4.4.0
 
 ## Install and run
 
@@ -188,7 +194,7 @@ Local Regulations requires a jurisdiction. Built-in mapping identifiers currentl
 - OWASP ZAP passive and authenticated-passive evidence modes
 - immutable automated evidence provenance, reviewer decisions, and append-only audit events
 - finding comparison with separate finding status, review, scope, and mapping decisions
-- canonical HTML, JSON, native searchable PDF, findings CSV, and XLSX reports with metadata, workflow, evidence, and signed/hash manifests
+- canonical HTML, JSON, native searchable PDF and findings CSV reports with metadata, workflow, evidence, and signed/hash manifests
 
 ### Compliance report output
 
@@ -200,7 +206,6 @@ summary.json       canonical machine-readable assessment
 summary.pdf        native A4 text/vector PDF printed from summary.html
 findings.csv       normalized findings export
 summary.csv        backward-compatible alias of findings.csv
-summary.xlsx       structured spreadsheet export
 metadata.json
 workflow.json
 report-manifest.json
@@ -211,7 +216,7 @@ The CSV files contain normalized findings only; they are not complete assessment
 
 Raw evidence is stored below each report's `evidence/` directory and is intentionally blocked from the generic `/reports` static route because it can contain session identifiers or personal data. The metadata-only `evidence/manifest.json` remains downloadable so reviewers can verify artifact names, sizes, and hashes.
 
-Finding review decisions refresh the affected Report History HTML, JSON, PDF, findings CSV, and XLSX outputs plus `workflow.json` and `report-manifest.json`; the original raw evidence archive is not modified. New assessments do not generate duplicate audience-specific JSON projections or numbered workflow revisions. Existing historical files remain readable and are not deleted.
+Finding review decisions refresh the affected Report History HTML, JSON, PDF, and findings CSV outputs plus `workflow.json` and `report-manifest.json`; the original raw evidence archive is not modified. New assessments do not generate duplicate audience-specific JSON projections or numbered workflow revisions. Existing historical files remain readable and are not deleted.
 
 ### Schema compatibility
 

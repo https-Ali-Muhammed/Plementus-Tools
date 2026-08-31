@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import ExcelJS from 'exceljs';
 import { SecurityLifecycleManager } from '../lib/security-lifecycle-manager.js';
 import { SecurityReportManager, buildReviewSummary, normalizeLegacySummary, spreadsheetSafeReviewText } from '../lib/security-report-manager.js';
 import { createComplianceSummary } from './fixtures/compliance-summary-fixture.js';
@@ -25,7 +24,7 @@ test('mutable review text receives spreadsheet formula neutralization without ch
   assert.equal(spreadsheetSafeReviewText('Ordinary reviewer note.'), 'Ordinary reviewer note.');
 });
 
-test('review overlay is consistent and safely separated across JSON, HTML, XLSX, workflow, metadata, and manifest', async (t) => {
+test('review overlay is consistent and safely separated across JSON, HTML, PDF, CSV, workflow, metadata, and manifest', async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase4-report-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const reportsRoot = path.join(root, 'reports');
@@ -49,9 +48,6 @@ test('review overlay is consistent and safely separated across JSON, HTML, XLSX,
   const manifest = JSON.parse(fs.readFileSync(path.join(reportRoot, 'report-manifest.json'), 'utf8'));
   const html = fs.readFileSync(path.join(reportRoot, 'summary.html'), 'utf8');
   const csv = fs.readFileSync(path.join(reportRoot, 'findings.csv'), 'utf8');
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(reportRoot, 'summary.xlsx'));
-  const queue = workbook.getWorksheet('Review Queue');
 
   assert.equal(json.schemaVersion, '2.6.0');
   assert.equal(workflow.schemaVersion, '3.0.0');
@@ -70,8 +66,7 @@ test('review overlay is consistent and safely separated across JSON, HTML, XLSX,
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
   assert.match(csv, /'=HYPERLINK/);
-  assert.equal(queue.getRow(2).getCell(13).value.startsWith("'="), true);
-  assert.equal(queue.getRow(2).getCell(14).value.startsWith("'@"), true);
+  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
   const publicText = [fs.readFileSync(path.join(reportRoot, 'summary.json'), 'utf8'), html, csv].join('\n');
   for (const secret of ['Authorization: Bearer', 'session-token-secret', 'password=']) assert.doesNotMatch(publicText, new RegExp(secret, 'i'));
 });

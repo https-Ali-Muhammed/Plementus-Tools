@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import ExcelJS from 'exceljs';
 import { buildComplianceHtml } from '../lib/security-report-html.js';
 import { buildControlEvaluations } from '../lib/security-finding-model.js';
 import { MAPPING_CATALOG_VERSION, SECURITY_MAPPING_REGISTRY } from '../lib/security-mapping-registry.js';
@@ -139,8 +138,8 @@ test('P3 metadata and review semantics render consistently in HTML', () => {
   assert.doesNotMatch(html, />ISO 27001</);
 });
 
-test('P3 XLSX provides compact mapping guidance and structured review reasons', async (t) => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-p3-xlsx-'));
+test('P3 PDF and HTML provide compact mapping guidance and structured review reasons', async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-p3-report-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const control = buildControlEvaluations([check('https'), check('tls', 'info', 'failed_to_test')], [], ['iso-27001'])[0];
   const summary = createComplianceSummary({
@@ -150,15 +149,11 @@ test('P3 XLSX provides compact mapping guidance and structured review reasons', 
   });
   const manager = new SecurityReportManager({ reportsRoot: root, pdfGenerator: async ({ pdfPath }) => { fs.writeFileSync(pdfPath, '%PDF-fixture'); return { durationMs: 1, method: 'fixture' }; } });
   await manager.writeReportFiles(root, summary);
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(root, 'summary.xlsx'));
-  const guidance = workbook.getWorksheet('Mapping Guidance');
-  assert.ok(guidance);
-  assert.match(guidance.getCell('A1').value, /Mapping relationships/i);
-  assert.match(guidance.getCell('A8').value, /No relationship type determines control satisfaction or compliance/i);
-  const controls = workbook.getWorksheet('Control Evidence');
-  assert.equal(controls.getRow(1).values.includes('Review Reasons'), true);
-  assert.match(controls.getCell(2, 14).value, /Failed collection present/i);
+  const html = fs.readFileSync(path.join(root, 'summary.html'), 'utf8');
+  assert.match(html, /Mapping relationships/i);
+  assert.match(html, /No relationship type determines control satisfaction or compliance/i);
+  assert.match(html, /Failed collection present/i);
+  assert.equal(fs.existsSync(path.join(root, 'summary.xlsx')), false);
 });
 
 test('legacy reports gain conservative presentation defaults without rewriting input', () => {
@@ -176,4 +171,3 @@ test('legacy reports gain conservative presentation defaults without rewriting i
   assert.ok(normalized.controlEvaluations[0].manualReviewReasons.length > 0);
   assert.deepEqual(legacy, original);
 });
-

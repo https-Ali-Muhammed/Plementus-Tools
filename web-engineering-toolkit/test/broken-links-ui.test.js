@@ -20,7 +20,7 @@ function resultFixture() {
       { targetUrl: occurrence.targetUrl, finalUrl: occurrence.targetUrl, outcome: 'broken', httpStatus: 404, referenceType: 'link', referenceTypes: ['link'], internal: true, checkMethod: 'head', failureReason: '', occurrenceCount: 1, sourcePages: [source], occurrences: [occurrence] },
       { targetUrl: 'https://fixture.test/logo.png', finalUrl: 'https://fixture.test/logo.png', outcome: 'healthy', httpStatus: 200, referenceType: 'image', referenceTypes: ['image'], internal: true, checkMethod: 'browser_get', failureReason: '', occurrenceCount: 1, sourcePages: [source], occurrences: [{ ...occurrence, targetUrl: 'https://fixture.test/logo.png', referenceType: 'image', attribute: 'src', linkText: '' }] }
     ],
-    summaryHref: '/reports/fixture/summary.html', jsonHref: '/reports/fixture/summary.json', csvHref: '/reports/fixture/summary.csv', xlsxHref: '/reports/fixture/summary.xlsx'
+    summaryHref: '/reports/fixture/summary.html', jsonHref: '/reports/fixture/summary.json', csvHref: '/api/reports/fixture/download/csv', pdfHref: '/api/reports/fixture/download/pdf'
   };
 }
 
@@ -74,6 +74,17 @@ test('large checker results are remediation-first, paginated, filterable, and re
     assert.equal(await page.locator('#linksProjectName').inputValue(), 'Shared fixture');
     assert.equal(await page.locator('#linksBaseUrl').inputValue(), 'https://fixture.test');
     assert.equal((await page.locator('#linksPages').inputValue()).includes('/docs'), true);
+    const manyPages = ['/', '/docs', ...Array.from({ length: 12 }, (_, index) => `/page-${index + 1}`)].join('\n');
+    await page.locator('#linksPages').fill(manyPages);
+    const pageListGeometry = await page.locator('#linksPages').evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      overflowY: getComputedStyle(element).overflowY,
+      resize: getComputedStyle(element).resize
+    }));
+    assert.ok(pageListGeometry.clientHeight >= pageListGeometry.scrollHeight - 2);
+    assert.equal(pageListGeometry.overflowY, 'hidden');
+    assert.equal(pageListGeometry.resize, 'none');
     assert.equal(await page.locator('#startLinksCheckBtn').isVisible(), true);
     await page.locator('#startLinksCheckBtn').click();
     await page.locator('#linksResultsCard:not(.hidden)').waitFor();
@@ -143,5 +154,6 @@ test('CSS architecture includes one root-scoped stylesheet for the fourth tool',
   const css = fs.readFileSync(path.join(publicRoot, 'styles', 'broken-links.css'), 'utf8');
   assert.match(entry, /@import\s+url\(["']\.\/styles\/broken-links\.css["']\)/);
   assert.match(css, /#linksSection \.links-layout/);
+  assert.match(css, /grid-template-areas:\s*"target run"\s*"config run"/s);
   assert.doesNotMatch(css, /#(?:runner|security|assets)Section/);
 });

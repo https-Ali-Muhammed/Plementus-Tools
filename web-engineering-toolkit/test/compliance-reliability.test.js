@@ -280,11 +280,11 @@ test('package version is the HTTP scanner User-Agent provenance source', async (
   assert.equal(userAgent, `Web-Engineering-Toolkit-Security-Scanner/${TOOL_VERSION}`);
 });
 
-test('report download content types include native PDF without changing other exports', () => {
+test('report download content types include the PDF and CSV export contract', () => {
   assert.equal(contentTypeForFile('summary.pdf'), 'application/pdf');
   assert.equal(contentTypeForFile('summary.html'), 'text/html; charset=utf-8');
   assert.equal(contentTypeForFile('findings.csv'), 'text/csv; charset=utf-8');
-  assert.equal(contentTypeForFile('summary.xlsx'), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  assert.equal(contentTypeForFile('summary.xlsx'), 'application/octet-stream');
 });
 
 test('Compliance HTML report uses responsive report-only navigation and readable layouts', () => {
@@ -391,7 +391,9 @@ test('Asset report manager smoke test preserves page-weight report identity and 
   const summary = JSON.parse(fs.readFileSync(path.join(reportsRoot, saved.reportName, 'summary.json'), 'utf8'));
   assert.equal(summary.reportType, 'asset-page-weight');
   assert.equal(summary.overview.pages, 1);
-  assert.ok(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.xlsx')));
+  assert.ok(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.pdf')));
+  assert.ok(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.csv')));
+  assert.equal(fs.existsSync(path.join(reportsRoot, saved.reportName, 'summary.xlsx')), false);
 });
 
 test('legacy compliance summaries receive conservative defaults without rewriting historical evidence', async (t) => {

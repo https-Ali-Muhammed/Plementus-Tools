@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { pathToFileURL } from 'node:url';
-import ExcelJS from 'exceljs';
 import { chromium } from 'playwright-core';
 import { detectBrowserCapabilities } from '../lib/browser-capability.js';
 import { BrokenLinksReportManager } from '../lib/broken-links-report-manager.js';
@@ -29,11 +28,12 @@ function fixtureResult() {
   };
 }
 
-test('dedicated report manager writes safe HTML, JSON, CSV, XLSX, and metadata projections', async () => {
+test('dedicated report manager writes safe HTML, JSON, CSV, PDF, and metadata projections', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'broken-links-report-'));
   const saved = await new BrokenLinksReportManager({ reportsRoot: root }).save(fixtureResult());
   const reportRoot = path.join(root, saved.reportName);
-  for (const file of ['summary.html', 'summary.json', 'summary.csv', 'summary.xlsx', 'metadata.json']) assert.equal(fs.existsSync(path.join(reportRoot, file)), true, file);
+  for (const file of ['summary.html', 'summary.json', 'summary.csv', 'summary.pdf', 'metadata.json']) assert.equal(fs.existsSync(path.join(reportRoot, file)), true, file);
+  assert.equal(fs.existsSync(path.join(reportRoot, 'summary.xlsx')), false);
   const json = JSON.parse(fs.readFileSync(path.join(reportRoot, 'summary.json'), 'utf8'));
   const metadata = JSON.parse(fs.readFileSync(path.join(reportRoot, 'metadata.json'), 'utf8'));
   const html = fs.readFileSync(path.join(reportRoot, 'summary.html'), 'utf8');
@@ -48,12 +48,10 @@ test('dedicated report manager writes safe HTML, JSON, CSV, XLSX, and metadata p
   assert.match(csv, /Outcome,HTTP Status,Reference Type,Internal\/External,Target URL/);
   assert.match(csv, /'=1\+1/);
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(reportRoot, 'summary.xlsx'));
-  assert.deepEqual(workbook.worksheets.map((sheet) => sheet.name), ['Summary', 'Broken & Unavailable', 'Redirects', 'All Checks', 'Occurrences']);
-  const occurrenceSheet = workbook.getWorksheet('Occurrences');
-  assert.ok(occurrenceSheet.getColumn(6).values.some((value) => String(value).startsWith("'=")), 'formula-like link text must be neutralized');
-  assert.equal(saved.pdfHref, undefined);
+  const pdf = fs.readFileSync(path.join(reportRoot, 'summary.pdf'));
+  assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
+  assert.ok(pdf.length > 10_000);
+  assert.match(saved.pdfHref, /\/download\/pdf$/);
 });
 
 test('large standalone report is remediation-first and retains complete canonical data', async () => {
@@ -111,7 +109,8 @@ test('generic Report History discovers the fourth report type and artifacts', as
   assert.equal(report.overview.broken, 1);
   assert.equal(report.overview.redirected, 1);
   assert.match(report.summaryHref, /summary\.html$/);
-  assert.match(report.csvHref, /summary\.csv$/);
-  assert.match(report.xlsxHref, /summary\.xlsx$/);
+  assert.match(report.csvHref, /\/download\/csv$/);
+  assert.match(report.pdfHref, /\/download\/pdf$/);
+  assert.equal('xlsxHref' in report, false);
   assert.match(report.jsonHref, /summary\.json$/);
 });

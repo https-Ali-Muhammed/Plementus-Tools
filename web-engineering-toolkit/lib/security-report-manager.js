@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { ensureDir, slugify, timestamp, csvEscape } from './utils.js';
 import { buildComplianceHtml } from './security-report-html.js';
 import { generateCompliancePdf } from './security-pdf.js';
+import { reportDownloadHref } from './report-downloads.js';
 import { validateFindingProvenance, validateSummaryTraceability } from './security-finding-model.js';
 import { normalizeCollectionMethod, normalizeCollectionState, normalizeEvidenceConfidence, normalizeEvidenceStrength } from './security-evidence-semantics.js';
 import {
@@ -90,7 +91,7 @@ export function describeIntegrityMetadata({ evidenceManifest = {}, reportManifes
 }
 
 function reportMimeType(file) {
-  return ({ '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.csv': 'text/csv; charset=utf-8', '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '.pdf': 'application/pdf' })[path.extname(file)] || 'application/octet-stream';
+  return ({ '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.csv': 'text/csv; charset=utf-8', '.pdf': 'application/pdf' })[path.extname(file)] || 'application/octet-stream';
 }
 
 function stripBrowserSecrets(browserScan = {}) {
@@ -307,89 +308,6 @@ function writeCsv(root, summary) {
   fs.writeFileSync(path.join(root,'summary.csv'),csv,'utf8');
 }
 
-async function writeXlsx(root, summary) {
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Developer Toolkit';
-  const navy = 'FF11192D', border = 'FFE0E5EE', text = 'FF1F2A3D', muted = 'FF667085';
-  const overview = workbook.addWorksheet('Summary', { views: [{ showGridLines: false }] });
-  overview.columns = [{ width: 26 }, { width: 52 }, { width: 4 }, { width: 24 }, { width: 18 }, { width: 18 }, { width: 18 }];
-  overview.mergeCells('A1:G2'); overview.getCell('A1').value = 'Compliance Pre-assessment Report'; overview.getCell('A1').font = { size: 22, bold: true, color: { argb: 'FFFFFFFF' } }; overview.getCell('A1').fill = { type:'pattern',pattern:'solid',fgColor:{argb:navy} }; overview.getCell('A1').alignment={vertical:'middle'};
-  const details = [['Report type','Compliance Pre-assessment'],['Evidence level',humanize(summary.evidenceLevel)],['Compliance conclusion',humanize(summary.complianceConclusion)],['Coverage','Partial'],['Tool version',summary.toolVersion||summary.scannerVersion],['Mapping catalog',summary.mappingCatalogVersion||'legacy-unversioned'],['Project',summary.projectName],['Requested URL',summary.requestedUrl],['Final URL',summary.finalUrl],['HTTP status',summary.responseStatus],['Jurisdiction',summary.jurisdiction || 'Not specified'],['Generated',new Date(summary.generatedAt).toLocaleString()],['Scope note',summary.disclaimer]];
-  details.forEach(([label,value],i)=>{const r=4+i; overview.getCell(r,1).value=label;overview.getCell(r,1).font={bold:true,color:{argb:muted}};overview.getCell(r,2).value=value;overview.getCell(r,2).alignment={wrapText:true,vertical:'top'};overview.getCell(r,2).font={color:{argb:text}};overview.getRow(r).height=label==='Scope note'?58:26;});
-  overview.getCell('D4').value='Status';overview.getCell('D4').font={bold:true,color:{argb:muted}};
-  [['No adverse observation',summary.totals.pass,'pass'],['Review',summary.totals.warning,'warning'],['Needs attention',summary.totals.fail,'fail'],['Manual review',summary.totals.manual,'manual']].forEach(([label,value,status],i)=>{const c=4+i;overview.getCell(5,c).value=label;overview.getCell(5,c).font={bold:true,color:{argb:muted}};overview.getCell(6,c).value=value;overview.getCell(6,c).font={size:18,bold:true,color:{argb:statusColor(status)}};overview.getCell(6,c).fill={type:'pattern',pattern:'solid',fgColor:{argb:statusFill(status)}};overview.getCell(5,c).alignment=overview.getCell(6,c).alignment={horizontal:'center'};});
-  overview.getCell('D9').value='Assessment quality';overview.getCell('D9').font={bold:true,color:{argb:muted}};
-  const qualityCounts=(summary.testResults||[]).reduce((counts,item)=>{counts[item.state]=(counts[item.state]||0)+1;return counts;},{});
-  [['Technical checks completed',qualityCounts.confirmed||0],['Observed / partial evidence',qualityCounts.observed||0],['Not assessed',qualityCounts.not_tested||0],['Failed to test',qualityCounts.failed_to_test||0]].forEach(([label,value],i)=>{const c=4+i;overview.getCell(10,c).value=label;overview.getCell(10,c).font={bold:true,color:{argb:muted}};overview.getCell(10,c).alignment={wrapText:true,horizontal:'center'};overview.getCell(11,c).value=value;overview.getCell(11,c).font={size:16,bold:true,color:{argb:text}};overview.getCell(11,c).alignment={horizontal:'center'};});
-  overview.getCell('D13').value='Compliance evidence';overview.getCell('D13').font={bold:true,color:{argb:muted}};
-  summary.frameworkResults.forEach((fw,i)=>{const r=14+i;overview.getCell(r,4).value=frameworkDisplayName(fw.id);overview.getCell(r,4).font={bold:true,color:{argb:text}};overview.getCell(r,5).value=fw.applicabilityLabel||applicabilityPresentation(fw.applicability,{inputState:fw.applicabilityInput}).label;overview.getCell(r,6).value=`${(fw.publicEvidence||[]).length + (fw.technicalControls||[]).length} observed`;overview.getCell(r,7).value=`${(fw.missingEvidence||[]).length} missing/manual`;});
-
-  const collection = workbook.addWorksheet('Collection Coverage', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  collection.columns=[{header:'Collector',width:24},{header:'Collection State',width:22},{header:'Limitations',width:90}];
-  collection.getRow(1).height=34;collection.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const [collector,item] of Object.entries(summary.collectionCoverage||{})){const row=collection.addRow([humanize(collector),humanize(item.state||'not_tested'),(item.limitations||[]).join('\n')]);row.height=38;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  collection.getCell('A11').value='Collector states describe bounded execution only. They are not a score or compliance conclusion.';collection.mergeCells('A11:C11');collection.getCell('A11').font={italic:true,color:{argb:muted}};
-
-  const guidance = workbook.addWorksheet('Mapping Guidance', { views: [{ showGridLines: false }] });
-  guidance.columns = [{ width: 24 }, { width: 92 }];
-  guidance.getCell('A1').value = 'Mapping relationships'; guidance.getCell('A1').font = { size: 18, bold: true, color: { argb: text } }; guidance.mergeCells('A1:B1');
-  Object.values(summary.relationshipDefinitions || RELATIONSHIP_DEFINITIONS).forEach((definition, index) => { const row = guidance.getRow(index + 2); row.values = [definition.label, definition.shortDescription]; row.getCell(1).font = { bold: true, color: { argb: text } }; row.alignment = { vertical: 'top', wrapText: true }; });
-  guidance.getCell('A8').value = summary.relationshipDisclaimer || RELATIONSHIP_DISCLAIMER; guidance.getCell('A8').font = { bold: true, color: { argb: muted } }; guidance.mergeCells('A8:B8');
-
-  const findings = workbook.addWorksheet('Findings', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  findings.columns=[{header:'Finding ID',width:38},{header:'Title',width:38},{header:'Severity',width:14},{header:'Legacy Confidence',width:18},{header:'Collection State',width:18},{header:'Evidence Confidence',width:18},{header:'Collection Method',width:22},{header:'Evidence Strength',width:22},{header:'Finding Status',width:18},{header:'Review Decision',width:28},{header:'Scope Decision',width:22},{header:'Mapping Decision',width:22},{header:'Decision Reason',width:48},{header:'Reviewed By',width:24},{header:'Reviewer Role',width:24},{header:'Review Date',width:24},{header:'Affected URL',width:50},{header:'Evidence Type',width:24},{header:'Evidence',width:72},{header:'Impact',width:58},{header:'Recommendation',width:62},{header:'Controls',width:52},{header:'Mapping Applicability',width:44},{header:'Test Method',width:36},{header:'First Seen',width:24},{header:'Last Seen',width:24},{header:'Tool Version',width:16},{header:'Limitations',width:60}];
-  findings.getRow(1).height=34;findings.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const item of summary.findings || []){const row=findings.addRow([item.id,item.title,item.severity,item.confidence,item.evidence?.collectionState||'',item.evidence?.confidence||item.evidence?.evidenceConfidence||'',item.evidence?.collectionMethod||'',item.evidence?.normalizedEvidenceStrength||'',item.findingStatus||item.status,item.decision?.reviewDecision||'',item.decision?.scopeDecision||'',item.decision?.mappingDecision||'',spreadsheetSafeReviewText(item.decision?.reason||''),spreadsheetSafeReviewText(item.decision?.reviewer||item.decision?.actor||''),spreadsheetSafeReviewText(item.decision?.role||''),item.decision?.updatedAt||'',item.affectedUrl,item.evidence?.type||'',item.evidence?.raw||'',item.impact,item.recommendation,(item.controls||[]).join('\n'),Object.entries(item.mappingApplicability||{}).map(([framework,state])=>`${framework}: ${state}`).join('\n'),item.testMethod,item.firstSeen,item.lastSeen,item.toolVersion,(item.limitations||[]).join('\n')]);row.height=58;row.alignment={vertical:'top',wrapText:true};row.getCell(3).fill={type:'pattern',pattern:'solid',fgColor:{argb:statusFill(['critical','high'].includes(item.severity)?'fail':item.severity==='medium'?'warning':'info')}};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  findings.autoFilter={from:'A1',to:'AB1'};
-
-  const reviewQueue = workbook.addWorksheet('Review Queue', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  reviewQueue.columns=[{header:'Finding ID',width:38},{header:'Severity',width:14},{header:'Review Status',width:18},{header:'Finding Disposition',width:28},{header:'Mapping Decision',width:22},{header:'Mapping ID',width:44},{header:'Scope Decision',width:22},{header:'Scope Framework',width:24},{header:'Frameworks',width:32},{header:'Control IDs',width:44},{header:'Source URL',width:52},{header:'Manual Review Reasons',width:52},{header:'Reviewer Note',width:60},{header:'Reviewer Label',width:28},{header:'Updated At',width:26},{header:'Revision',width:12}];
-  reviewQueue.getRow(1).height=34;reviewQueue.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  const reasonByControl = new Map((summary.controlEvaluations||[]).map(control=>[control.controlId,manualReviewReasonLabels(control.manualReviewReasons||[])]));
-  for(const item of summary.findings||[]){const decision=item.decision||{};const frameworks=[...new Set((item.controlMappings||[]).map(mapping=>mapping.framework).filter(Boolean))];const reasons=[...new Set((item.controls||[]).flatMap(controlId=>reasonByControl.get(controlId)||[]))];const row=reviewQueue.addRow([item.id,item.severity,(item.findingStatus||item.status)==='reviewed'?'Reviewed':'Unreviewed',decision.reviewDecision||'',decision.mappingDecision||'',decision.mappingId||'',decision.scopeDecision||'',decision.scopeFramework||'',frameworks.join('\n'),(item.controls||[]).join('\n'),item.affectedUrl||'',reasons.join('\n'),spreadsheetSafeReviewText(decision.reason||''),spreadsheetSafeReviewText(decision.reviewer||decision.actor||''),decision.updatedAt||'',decision.workflowRevision||item.workflowRevision||'']);row.height=54;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  reviewQueue.autoFilter={from:'A1',to:'P1'};
-
-  const coverage = workbook.addWorksheet('Test Coverage', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  coverage.columns=[{header:'Test ID',width:30},{header:'Title',width:38},{header:'Category',width:28},{header:'Outcome',width:18},{header:'Legacy State',width:18},{header:'Collection State',width:20},{header:'Evidence Confidence',width:18},{header:'Collection Method',width:22},{header:'Affected URL',width:50},{header:'Test Method',width:38},{header:'Summary',width:60},{header:'Limitations',width:62}];
-  coverage.getRow(1).height=34;coverage.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const item of summary.testResults || []){const row=coverage.addRow([item.id,item.title,item.category,statusLabel(item.outcome,item),item.stateLabel||humanize(item.state),humanize(item.collectionState||normalizeCollectionState(item.state)),humanize(item.evidenceConfidence||normalizeEvidenceConfidence(item.confidence)),humanize(item.collectionMethod||normalizeCollectionMethod(item.testMethod)),item.affectedUrl,item.testMethod,item.summary,(item.limitations||[]).join('\n')]);row.height=46;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  coverage.autoFilter={from:'A1',to:'L1'};
-
-  const checks = workbook.addWorksheet('Security Checks', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  checks.columns=[{header:'Category',width:24},{header:'Check',width:34},{header:'Status',width:18},{header:'Severity',width:16},{header:'Affected URL',width:54},{header:'Summary',width:58},{header:'Details / Evidence',width:70},{header:'Recommendation',width:65},{header:'References',width:65},{header:'Frameworks',width:42}];
-  checks.getRow(1).height=34;checks.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const item of summary.checks){const evidenceItems=(item.evidenceItems||[]).map(e=>`${e.sourceUrl}: ${e.evidenceText}`).join(' | ');const row=checks.addRow([item.category,item.title,statusLabel(item.status,item),item.severity||'',item.affectedUrl||'',item.summary,[item.details,item.evidence,evidenceItems].filter(Boolean).join(' · '),item.recommendation,(item.references||[]).join('\n'),(item.frameworks||[]).join(', ')]);row.height=50;row.alignment={vertical:'top',wrapText:true};row.getCell(3).fill={type:'pattern',pattern:'solid',fgColor:{argb:statusFill(item.status)}};row.getCell(3).font={bold:true,color:{argb:statusColor(item.status)}};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  checks.autoFilter={from:'A1',to:'J1'};
-
-  const mapping = workbook.addWorksheet('Compliance Mapping', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  mapping.columns=[{header:'Framework',width:24},{header:'Selected for Mapping',width:22},{header:'Applicability',width:38},{header:'Scope Basis',width:26},{header:'Scope Confidence',width:22},{header:'Control Satisfaction',width:24},{header:'Public Evidence',width:58},{header:'Technical Evidence Statements',width:68},{header:'Missing / Manual Evidence',width:58},{header:'Jurisdiction',width:24},{header:'Scope Note',width:72}];
-  mapping.getRow(1).height=34;mapping.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const fw of summary.frameworkResults){const row=mapping.addRow([frameworkDisplayName(fw.id),fw.selectionLabel||'Selected for mapping',fw.applicabilityLabel||applicabilityPresentation(fw.applicability,{inputState:fw.applicabilityInput}).label,humanize(fw.scopeBasis),humanize(fw.scopeConfidence),humanize(fw.controlSatisfaction||'not_determined'),(fw.evidenceStatements||[]).map(item=>`${item.statement} [${(item.evidenceRefs||[]).join(', ')}]`).join('\n'),(fw.technicalEvidenceStatements||[]).map(item=>`${item.statement} [${(item.evidenceRefs||[]).join(', ')}]`).join('\n'),(fw.missingEvidence||[]).join('\n'),fw.jurisdiction||'',fw.note]);row.height=64;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-
-  const controls = workbook.addWorksheet('Control Evidence', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  controls.columns=[{header:'Control ID',width:34},{header:'Evidence State',width:34},{header:'Control Satisfaction',width:24},{header:'Coverage',width:16},{header:'Coverage Qualifiers',width:42},{header:'Source Count',width:16},{header:'Source Checks',width:56},{header:'Evidence Level',width:24},{header:'Automated Evidence',width:76},{header:'Mapping Relationships',width:42},{header:'Prerequisites',width:58},{header:'Linked Findings',width:48},{header:'Manual Review Required',width:24},{header:'Review Reasons',width:48},{header:'Limitations',width:72}];
-  controls.getRow(1).height=34;controls.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  for(const item of summary.controlEvaluations || []){const row=controls.addRow([item.controlId,humanize(item.state),humanize(item.controlSatisfaction),humanize(item.coverage),(item.coverageQualifiers||[]).map(humanize).join('\n'),item.provenanceSummary?.sourceCheckCount??(item.automatedEvidence||[]).length,(item.provenanceSummary?.sourceCheckIds||[]).join('\n'),humanize(item.evidenceLevel),(item.automatedEvidence||[]).map(e=>`${e.checkId}: ${e.outcome || 'not_recorded'} (${humanize(e.collectionState||e.testState||'not_recorded')}; ${humanize(e.evidenceState||e.normalizedEvidenceStrength||e.strength||'not_recorded')})`).join('\n'),(item.mappings||[]).map(mapping=>`${mapping.mappingId}: ${mapping.relationship}`).join('\n'),(item.mappings||[]).flatMap(mapping=>mapping.prerequisiteResults||[]).map(entry=>`${entry.prerequisite}: ${entry.state}`).join('\n'),(item.linkedFindings||[]).join('\n'),item.manualReviewRequired?'Yes':'No',manualReviewReasonLabels(item.manualReviewReasons||[]).join('\n'),(item.limitations||[]).join('\n')]);row.height=58;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-  controls.autoFilter={from:'A1',to:'O1'};
-
-  const governance = workbook.addWorksheet('Mapping Governance', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-  governance.columns=[{header:'Mapping ID',width:54},{header:'Framework',width:22},{header:'Control ID',width:34},{header:'Relationship',width:18},{header:'Rationale',width:72},{header:'Source Version',width:52},{header:'Source Citation',width:72},{header:'Review Status',width:26},{header:'Last Reviewed',width:18},{header:'Reviewed By',width:30},{header:'Change Reason',width:72},{header:'Approved By',width:20},{header:'Approval Date',width:20}];
-  governance.getRow(1).height=34;governance.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-  const governanceMappings = [...new Map((summary.controlEvaluations || []).flatMap((control) => control.mappings || []).flatMap((entry) => entry.sourceGovernance || [entry]).map((entry) => [entry.mappingId, entry])).values()];
-  for(const item of governanceMappings){const row=governance.addRow([item.mappingId,frameworkDisplayName(item.framework),item.controlId,item.relationship,item.rationale||'',item.sourceVersion||item.frameworkVersion||'',item.sourceCitation||'',item.reviewStatus||'',item.lastReviewedAt||'',item.reviewedBy||'',item.changeReason||'',item.approvedBy||'',item.approvalDate||'']);row.height=54;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-
-  if (summary.crawl && Array.isArray(summary.crawl.pages) && summary.crawl.pages.length) {
-    const evidence = workbook.addWorksheet('Crawled Evidence', { views: [{ state:'frozen', ySplit:1, showGridLines:false }] });
-    evidence.columns=[{header:'URL',width:60},{header:'Found',width:12},{header:'HTTP Status',width:14},{header:'Evidence Group(s)',width:32},{header:'Error',width:54}];
-    evidence.getRow(1).height=34;evidence.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};});
-    for(const page of summary.crawl.pages){const row=evidence.addRow([page.url,page.found?'Yes':'No',page.status||'','' + (page.groups||[]).join(', '),page.error||'']);row.height=24;row.alignment={vertical:'top',wrapText:true};row.eachCell(c=>c.border={bottom:{style:'thin',color:{argb:border}}});}
-    evidence.autoFilter={from:'A1',to:'E1'};
-  }
-
-  await workbook.xlsx.writeFile(path.join(root,'summary.xlsx'));
-}
-
 export class SecurityReportManager {
   constructor({ reportsRoot, evidenceVault = null, lifecycleManager = null, pdfGenerator = generateCompliancePdf, browserPath = '' }) {
     this.reportsRoot = reportsRoot;
@@ -400,7 +318,7 @@ export class SecurityReportManager {
   }
 
   makeReportWritable(root) {
-    for (const file of ['metadata.json','summary.json','summary.csv','findings.csv','summary.html','summary.xlsx','summary.pdf','workflow.json','report-manifest.json']) {
+    for (const file of ['metadata.json','summary.json','summary.csv','findings.csv','summary.html','summary.pdf','workflow.json','report-manifest.json']) {
       try { fs.chmodSync(path.join(root, file), 0o644); } catch {}
     }
   }
@@ -424,14 +342,13 @@ export class SecurityReportManager {
     }
     summary = { ...summary, reportGeneration: { ...(summary.reportGeneration || {}), htmlGenerationMs, pdfGenerationMs: summary.pdfGeneration.durationMs ?? null } };
     const metadata = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, schemaVersion:summary.schemaVersion, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, targetUrl:summary.requestedUrl, generatedAt:summary.generatedAt, frameworks:summary.frameworks, jurisdiction:summary.jurisdiction, counts:summary.counts, evidenceArtifactCount:summary.evidenceManifest?.artifactCount || 0, workflowRevision:summary.workflow?.revision || 0, workflowUpdatedAt:summary.workflow?.updatedAt || summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), pdfGeneration:summary.pdfGeneration };
-    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, generatedAt:summary.generatedAt, workflowRevision:summary.workflow?.revision||0, workflowUpdatedAt:summary.workflow?.updatedAt||summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, xlsx:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
+    const overview = { reportType:'security-compliance', assessmentType:summary.assessmentType, evidenceLevel:summary.evidenceLevel, complianceConclusion:summary.complianceConclusion, coverage:'partial', collectionCoverage:summary.collectionCoverage||{}, toolVersion:summary.toolVersion||summary.scannerVersion, scannerVersion:summary.scannerVersion, mappingCatalogVersion:summary.mappingCatalogVersion, projectName:summary.projectName, baseUrl:summary.finalUrl, generatedAt:summary.generatedAt, workflowRevision:summary.workflow?.revision||0, workflowUpdatedAt:summary.workflow?.updatedAt||summary.generatedAt, reviewSummary:summary.reviewSummary||buildReviewSummary(summary.findings||[],summary.workflow||{}), overallStatus:summary.overallStatus, counts:summary.counts, checksWithoutAdverseObservation:summary.totals.pass, attentionFindings:summary.totals.fail + summary.totals.warning, frameworks:summary.frameworkResults.map(f=>f.label), exports:{ html:true, json:true, findingsCsv:true, pdf:summary.pdfGeneration.status === 'generated' }, pdfGeneration:summary.pdfGeneration };
     fs.writeFileSync(path.join(root,'metadata.json'),JSON.stringify(metadata,null,2));
     fs.writeFileSync(path.join(root,'summary.json'),JSON.stringify({ ...summary, overview },null,2));
     fs.writeFileSync(path.join(root,'workflow.json'),`${JSON.stringify(summary.workflow || {},null,2)}\n`);
     writeCsv(root,summary);
     fs.writeFileSync(path.join(root,'summary.html'),buildComplianceHtml(summary),'utf8');
-    await writeXlsx(root,summary);
-    const files = ['metadata.json','summary.json','findings.csv','summary.csv','summary.html','summary.xlsx','workflow.json'];
+    const files = ['metadata.json','summary.json','findings.csv','summary.csv','summary.html','workflow.json'];
     if (summary.pdfGeneration.status === 'generated' && fs.existsSync(finalPdf)) files.push('summary.pdf');
     if (fs.existsSync(path.join(root, 'evidence', 'manifest.json'))) files.push('evidence/manifest.json');
     return { reportManifest: writeSignedReportManifest(root, summary, files), summary };
@@ -449,11 +366,11 @@ export class SecurityReportManager {
     const traceabilityValidation = validateSummaryTraceability(summary, evidenceManifest);
     if (!traceabilityValidation.valid) throw new Error(`Summary traceability validation failed: ${traceabilityValidation.errors.join('; ')}`);
     summary = { ...publicSummary(summary), evidenceManifest: { schemaVersion: evidenceManifest.schemaVersion, artifactCount: evidenceManifest.artifactCount, access: evidenceManifest.access, artifacts: evidenceManifest.artifacts, signature: evidenceManifest.signature }, vaultEvidence, provenanceValidation, traceabilityValidation };
-    summary = applyWorkflow({ ...summary, pdfDownloadName: `${slugify(summary.projectName)}_compliance-pre-assessment_${timestamp()}.pdf` }, reportWorkflow({ summary, reportName: runName, lifecycleManager: this.lifecycleManager, revision: 1 }));
+    summary = applyWorkflow({ ...summary, reportName: runName }, reportWorkflow({ summary, reportName: runName, lifecycleManager: this.lifecycleManager, revision: 1 }));
     const written = await this.writeReportFiles(root, summary);
     summary = written.summary;
-    const pdfHref = summary.pdfGeneration.status === 'generated' ? `/reports/${encodeURIComponent(runName)}/summary.pdf` : '';
-    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:`/reports/${encodeURIComponent(runName)}/summary.json`, csvHref:`/reports/${encodeURIComponent(runName)}/findings.csv`, legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, xlsxHref:`/reports/${encodeURIComponent(runName)}/summary.xlsx`, pdfHref, evidenceManifestHref:`/reports/${encodeURIComponent(runName)}/evidence/manifest.json` };
+    const pdfHref = summary.pdfGeneration.status === 'generated' ? reportDownloadHref(runName, 'pdf') : '';
+    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:`/reports/${encodeURIComponent(runName)}/summary.json`, csvHref:reportDownloadHref(runName, 'csv'), legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, pdfHref, evidenceManifestHref:`/reports/${encodeURIComponent(runName)}/evidence/manifest.json` };
   }
 
   async refreshWorkflow({ projectName = '', reportName = '', legacyOnly = false } = {}) {
@@ -469,7 +386,7 @@ export class SecurityReportManager {
       const workflowIsCurrent = summary.workflow?.schemaVersion === '3.0.0';
       if (summary.overview?.reportType !== 'security-compliance' || (projectName && summary.projectName !== projectName) || (legacyOnly && workflowIsCurrent)) continue;
       const workflow = reportWorkflow({ summary, reportName: entry.name, lifecycleManager: this.lifecycleManager, revision: (summary.workflow?.revision || 0) + 1 });
-      summary = applyWorkflow(summary, workflow);
+      summary = applyWorkflow({ ...summary, reportName: entry.name }, workflow);
       this.makeReportWritable(root);
       await this.writeReportFiles(root, summary);
       updated.push(entry.name);

@@ -619,8 +619,8 @@ function renderSummary(summary, reportName) {
       </div>
       <div class="summary-actions">
         <a class="button button-ghost small" href="${base}/summary.html" target="_blank" rel="noopener">View full summary ${externalLinkIcon()}</a>
-        <a class="button button-ghost small" href="${base}/summary.csv" download>Download CSV</a>
-        ${overview.exports?.xlsx ? `<a class="button button-secondary small" href="${base}/summary.xlsx" download>Download Excel</a>` : ''}
+        <a class="button button-secondary small" href="/api/reports/${encodeURIComponent(reportName)}/download/pdf" download>Download PDF</a>
+        <a class="button button-ghost small" href="/api/reports/${encodeURIComponent(reportName)}/download/csv" download>Download CSV</a>
       </div>
     </div>
 
@@ -845,11 +845,8 @@ async function loadHistory() {
           </div>
           <div class="history-actions">
             ${report.summaryHref ? `<a href="${report.summaryHref}" target="_blank" rel="noopener">View report ${externalLinkIcon()}</a>` : ''}
-            ${reportType === 'security-compliance' && report.jsonHref ? `<a href="${report.jsonHref}" download>JSON</a>` : ''}
-            ${reportType === 'broken-links-resources' && report.jsonHref ? `<a href="${report.jsonHref}" download>JSON</a>` : ''}
             ${report.csvHref ? `<a href="${report.csvHref}" download>${reportType === 'security-compliance' ? 'Findings CSV' : 'CSV'}</a>` : ''}
-            ${report.xlsxHref ? `<a class="primary" href="${report.xlsxHref}" download>Excel</a>` : ''}
-            ${reportType === 'security-compliance' && report.pdfHref ? `<a class="primary" href="${report.pdfHref}" download="${escapeHtml(report.name)}.pdf">PDF</a>` : ''}
+            ${report.pdfHref ? `<a class="primary" href="${report.pdfHref}" download>PDF</a>` : ''}
             ${reportType === 'security-compliance' && report.evidenceManifestHref ? `<a href="${report.evidenceManifestHref}" download>Evidence manifest</a>` : ''}
             <button class="history-delete-btn" type="button" data-delete-report="${escapeHtml(report.name)}" title="Delete report folder">Delete</button>
           </div>
@@ -1184,8 +1181,9 @@ function renderAssetResults(result) {
 
   refs.assetResultActions.innerHTML = `
     <a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a>
+    <a class="button button-secondary small" href="${result.pdfHref}" download>PDF</a>
     <a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>
-    <a class="button button-secondary small" href="${result.xlsxHref}" download>Excel</a>`;
+    `;
   refs.assetResultsCard.classList.remove('hidden');
   refs.assetResultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1427,7 +1425,7 @@ function renderLinksResults(result) {
     <section class="links-result-workspace" aria-label="Checked references"><div class="links-result-toolbar"><div class="links-view-tabs" role="group" aria-label="Result groups">${[['attention', 'Needs attention'], ['review', 'Review'], ['healthy', 'Healthy'], ['all', 'All']].map(([view, label]) => `<button type="button" data-links-view="${view}" aria-pressed="${state.linksResultView === view}"><span>${label}</span><strong>${counts[view]}</strong></button>`).join('')}</div><div class="links-filter-grid"><label class="field links-search-field"><span>Search results</span><input id="linksResultSearch" type="search" placeholder="Target, source, status, type, failure…"></label><label class="field"><span>Outcome</span><select id="linksResultOutcome"><option value="all">All outcomes</option>${Object.entries(outcomeCounts).map(([value, count]) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))} (${count})</option>`).join('')}</select></label><label class="field"><span>Reference type</span><select id="linksResultType"><option value="all">All types</option>${types.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(humanize(value))}</option>`).join('')}</select></label><label class="field"><span>Scope</span><select id="linksResultScope"><option value="all">Internal + external</option><option value="internal">Internal</option><option value="external">External</option></select></label><label class="field"><span>HTTP status</span><select id="linksResultStatus"><option value="all">All statuses</option>${statuses.map((value) => `<option value="${value}">${value}</option>`).join('')}</select></label><label class="field"><span>Source page</span><select id="linksResultSource"><option value="all">All source pages</option>${sourcePages.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}</select></label><label class="field"><span>Sort</span><select id="linksResultSort"><option value="priority">Action priority</option><option value="outcome">Outcome</option><option value="status">HTTP status</option><option value="target">Target</option><option value="occurrences">Occurrences</option></select></label><button id="linksClearFilters" class="button button-ghost small" type="button">Clear filters</button></div></div>
       <div id="linksTargetList" class="links-target-list"></div><div id="linksResultEmpty" class="links-empty-state hidden"><strong>No matching references</strong><p>Adjust the result view or clear the current filters.</p><button class="button button-secondary small" type="button" data-links-clear-filters>Clear filters</button></div>
       <div class="links-pagination"><label>Rows per page <select id="linksResultPageSize"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><div><button id="linksResultPrevious" class="button button-ghost small" type="button">Previous</button><span id="linksResultPageStatus">Page 1 of 1</span><button id="linksResultNext" class="button button-ghost small" type="button">Next</button></div></div></section>`;
-  refs.linksResultActions.innerHTML = `<a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a><a class="button button-ghost small" href="${result.csvHref}" download>CSV</a><a class="button button-secondary small" href="${result.xlsxHref}" download>Excel</a><a class="button button-ghost small" href="${result.jsonHref}" download>JSON</a>`;
+  refs.linksResultActions.innerHTML = `<a class="button button-ghost small" href="${result.summaryHref}" target="_blank" rel="noopener">Open report ↗</a><a class="button button-secondary small" href="${result.pdfHref}" download>PDF</a><a class="button button-ghost small" href="${result.csvHref}" download>CSV</a>`;
   refs.linksResultsCard.classList.remove('hidden');
   $('#linksSection')?.classList.add('links-has-results');
   renderLinksTargetPage();
@@ -1771,9 +1769,9 @@ function renderSecurityResults(result) {
 
     <section id="securityCrawl" class="security-workspace-section"><div class="security-section-title"><div><h4>Crawl results</h4><span>Successful evidence pages first; discovery failures remain available as diagnostics.</span></div></div>${crawlPages.length ? `<div class="security-crawl-metrics"><div><span>Successful pages</span><strong>${successfulPages.length}</strong></div><div><span>Redirects</span><strong>${redirectPages.length}</strong></div><div><span>Candidate paths tested</span><strong>${crawlPages.length}</strong></div><div><span>Not found</span><strong>${notFoundPages.length}</strong></div></div><div class="security-crawl-success">${successfulPages.map((page) => `<article><span class="security-crawl-badge status-${page.status}">${page.status || 200}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><strong>${escapeHtml(page.url)}</strong></article>`).join('') || '<div class="empty-state">No successful evidence pages were discovered.</div>'}</div>${unsuccessfulPages.length ? `<details class="security-summary-details security-crawl-failures"><summary><div><strong>Show ${unsuccessfulPages.length} unsuccessful discovery attempt${unsuccessfulPages.length === 1 ? '' : 's'}</strong><span>${notFoundPages.length} not found · ${failedPages.length} failed or skipped</span></div><span class="security-chevron"><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></span></summary><div class="security-crawl-diagnostics">${unsuccessfulPages.map((page) => `<article><span class="security-crawl-badge ${page.status === 404 ? 'status-404' : 'status-failed'}">${page.status || 'Failed'}</span><span class="security-crawl-badge provenance">${escapeHtml(crawlSourceLabel(page.source, page.status))}</span><div><strong>${escapeHtml(page.url)}</strong>${page.error ? `<small>${escapeHtml(page.error)}</small>` : ''}</div></article>`).join('')}</div></details>` : ''}` : `<div class="empty-state">${escapeHtml(result.crawl?.error || 'Crawl evidence was not collected for this assessment.')}</div>`}</section>`;
 
-  const primaryDownloads = [[result.summaryHref, 'Open Report', false], [result.pdfHref, 'Download PDF', true, result.pdfDownloadName || 'compliance-pre-assessment.pdf']].filter(([href]) => Boolean(href));
-  const secondaryDownloads = [[result.jsonHref, 'JSON', true], [result.xlsxHref, 'Excel', true], [result.csvHref, 'Findings CSV', true], [result.evidenceManifestHref, 'Evidence Manifest', true]].filter(([href]) => Boolean(href));
-  refs.securityResultActions.innerHTML = `${primaryDownloads.map(([href, label, download, filename]) => `<a class="button ${label === 'Open Report' ? 'button-secondary' : 'button-primary'} small" href="${escapeHtml(href)}" ${download ? `download="${escapeHtml(filename || '')}"` : 'target="_blank" rel="noopener"'}>${label}</a>`).join('')}${secondaryDownloads.length ? `<details class="security-export-menu"><summary class="button button-ghost small">More Exports</summary><div>${secondaryDownloads.map(([href, label]) => `<a href="${escapeHtml(href)}" download>${label}</a>`).join('')}</div></details>` : ''}`;
+  const primaryDownloads = [[result.summaryHref, 'Open Report', false], [result.pdfHref, 'Download PDF', true]].filter(([href]) => Boolean(href));
+  const secondaryDownloads = [[result.csvHref, 'Findings CSV', true], [result.evidenceManifestHref, 'Evidence Manifest', true]].filter(([href]) => Boolean(href));
+  refs.securityResultActions.innerHTML = `${primaryDownloads.map(([href, label, download, filename]) => `<a class="button ${label === 'Open Report' ? 'button-secondary' : 'button-primary'} small" href="${escapeHtml(href)}" ${download ? 'download' : 'target="_blank" rel="noopener"'}>${label}</a>`).join('')}${secondaryDownloads.length ? `<details class="security-export-menu"><summary class="button button-ghost small">More Exports</summary><div>${secondaryDownloads.map(([href, label]) => `<a href="${escapeHtml(href)}" download>${label}</a>`).join('')}</div></details>` : ''}`;
   refs.securityResultsCard.classList.remove('hidden');
   setSecurityConfigurationCollapsed(true, result);
   updateSecurityReviewProgress();
@@ -2032,7 +2030,8 @@ refs.assetPaths?.addEventListener('blur', validateAssetForm);
 refs.assetPaths?.addEventListener('input', () => autoSizePageList(refs.assetPaths));
 refs.linksProjectName?.addEventListener('blur', validateLinksForm);
 refs.linksBaseUrl?.addEventListener('blur', validateLinksForm);
-refs.linksPages?.addEventListener('blur', () => { if (!refs.linksPages.value.trim()) refs.linksPages.value = '/'; validateLinksForm(); updateLinksRunSummary(); });
+refs.linksPages?.addEventListener('blur', () => { if (!refs.linksPages.value.trim()) refs.linksPages.value = '/'; autoSizePageList(refs.linksPages); validateLinksForm(); updateLinksRunSummary(); });
+refs.linksPages?.addEventListener('input', () => autoSizePageList(refs.linksPages));
 [refs.linksProjectName, refs.linksBaseUrl, refs.linksPages, refs.linksMaxPages, refs.linksMaxTargets, refs.linksTimeout, refs.linksConcurrency, refs.linksMaxRedirects, refs.linksIgnorePatterns].forEach((element) => element?.addEventListener('input', updateLinksRunSummary));
 [refs.linksCheckExternal, refs.linksCheckFragments, refs.linksCheckResources].forEach((element) => element?.addEventListener('change', updateLinksRunSummary));
 refs.startLinksCheckBtn?.addEventListener('click', runLinksCheck);
@@ -2113,6 +2112,7 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
     if (!refs.linksProjectName.value.trim() && refs.projectName.value.trim()) refs.linksProjectName.value = refs.projectName.value.trim();
     if (!refs.linksBaseUrl.value.trim() && refs.baseUrl.value.trim()) refs.linksBaseUrl.value = refs.baseUrl.value.trim();
     if ((!refs.linksPages.value.trim() || refs.linksPages.value.trim() === '/') && refs.urls.value.trim()) refs.linksPages.value = refs.urls.value.trim();
+    autoSizePageList(refs.linksPages);
     updateLinksRunSummary();
   }
   if (button.dataset.section === 'projects') loadProjects();

@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { csvEscape, ensureDir, slugify, timestamp } from './utils.js';
+import { generateToolPdf } from './pdf-report-renderer.js';
+import { brokenLinksPdfHtml } from './tool-pdf-reports.js';
+import { reportDownloadHref } from './report-downloads.js';
 
 const ATTENTION_OUTCOMES = new Set(['broken', 'fragment_missing', 'server_error', 'unreachable', 'failed_to_check', 'client_error', 'restricted', 'rate_limited']);
 
@@ -57,87 +60,6 @@ function writeCsv(root, result) {
   const headers = ['Outcome', 'HTTP Status', 'Reference Type', 'Internal/External', 'Target URL', 'Final URL', 'Redirect Count', 'Occurrence Count', 'Source Pages', 'Check Method', 'Failure Reason'];
   const rows = [headers, ...result.targets.map(targetRow)];
   fs.writeFileSync(path.join(root, 'summary.csv'), rows.map((row) => row.map(csvCell).join(',')).join('\n'));
-}
-
-function styleHeader(row) {
-  row.height = 30;
-  row.eachCell((cell) => {
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF11192D' } };
-    cell.alignment = { vertical: 'middle', wrapText: true };
-  });
-}
-
-function styleTable(sheet, start = 2) {
-  for (let rowNumber = start; rowNumber <= sheet.rowCount; rowNumber += 1) {
-    const row = sheet.getRow(rowNumber);
-    row.height = 34;
-    row.eachCell((cell) => {
-      if (typeof cell.value === 'string') cell.value = spreadsheetSafe(cell.value);
-      cell.alignment = { vertical: 'top', wrapText: true };
-      cell.font = { color: { argb: 'FF101828' }, size: 10 };
-      cell.border = { bottom: { style: 'thin', color: { argb: 'FFE4E7EC' } } };
-      if (rowNumber % 2 === 0) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
-    });
-  }
-}
-
-function addTargetSheet(workbook, name, targets) {
-  const sheet = workbook.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 1, showGridLines: false }] });
-  sheet.columns = [
-    { header: 'Outcome', width: 20 }, { header: 'HTTP Status', width: 13 }, { header: 'Reference Type', width: 22 },
-    { header: 'Internal / External', width: 18 }, { header: 'Target URL', width: 58 }, { header: 'Final URL', width: 58 },
-    { header: 'Redirects', width: 12 }, { header: 'Occurrences', width: 14 }, { header: 'Source Pages', width: 52 },
-    { header: 'Check Method', width: 20 }, { header: 'Failure Reason', width: 44 }
-  ];
-  for (const target of targets) sheet.addRow(targetRow(target));
-  styleHeader(sheet.getRow(1));
-  styleTable(sheet);
-  sheet.autoFilter = { from: 'A1', to: 'K1' };
-  return sheet;
-}
-
-async function writeWorkbook(root, result) {
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Web Engineering Toolkit';
-  const summary = workbook.addWorksheet('Summary', { views: [{ showGridLines: false }] });
-  summary.columns = [{ width: 28 }, { width: 62 }];
-  summary.mergeCells('A1:B2');
-  const title = summary.getCell('A1');
-  title.value = 'Broken Links & Resources Checker';
-  title.font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
-  title.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF11192D' } };
-  title.alignment = { vertical: 'middle' };
-  const details = [
-    ['Project', result.projectName], ['Base URL', result.baseUrl], ['Generated', result.generatedAt], ['Scope', humanize(result.scope.mode)],
-    ['Pages scanned', result.summary.pagesScanned], ['Unique targets', result.summary.uniqueTargets], ['Healthy', result.summary.healthy],
-    ['Broken / fragment missing', result.summary.broken], ['Redirected', result.summary.redirected], ['Unavailable / failed checks', result.summary.unavailable],
-    ['External targets', result.summary.externalTargets], ['Duration', `${result.durationMs} ms`], ['Schema version', result.schemaVersion]
-  ];
-  details.forEach(([label, value], index) => {
-    const row = summary.getRow(index + 4);
-    row.values = [label, value];
-    row.height = 26;
-    row.getCell(1).font = { bold: true, color: { argb: 'FF667085' } };
-    row.getCell(2).value = typeof value === 'string' ? spreadsheetSafe(value) : value;
-    row.getCell(2).alignment = { wrapText: true, vertical: 'middle' };
-  });
-  addTargetSheet(workbook, 'Broken & Unavailable', result.targets.filter((target) => ATTENTION_OUTCOMES.has(target.outcome)));
-  addTargetSheet(workbook, 'Redirects', result.targets.filter((target) => target.outcome === 'redirected'));
-  addTargetSheet(workbook, 'All Checks', result.targets);
-  const occurrences = workbook.addWorksheet('Occurrences', { views: [{ state: 'frozen', ySplit: 1, showGridLines: false }] });
-  occurrences.columns = [
-    { header: 'Target URL', width: 58 }, { header: 'Source Page', width: 58 }, { header: 'Reference Type', width: 20 },
-    { header: 'Attribute', width: 15 }, { header: 'Fragment', width: 24 }, { header: 'Link Text', width: 44 }, { header: 'Outcome', width: 20 }
-  ];
-  for (const target of result.targets) {
-    for (const occurrence of target.occurrences || []) occurrences.addRow([target.targetUrl, occurrence.sourcePageUrl, humanize(occurrence.referenceType), occurrence.attribute, occurrence.fragment, occurrence.linkText, humanize(target.outcome)]);
-  }
-  styleHeader(occurrences.getRow(1));
-  styleTable(occurrences);
-  occurrences.autoFilter = { from: 'A1', to: 'G1' };
-  await workbook.xlsx.writeFile(path.join(root, 'summary.xlsx'));
 }
 
 const REPORT_ATTENTION_OUTCOMES = new Set(['broken', 'fragment_missing', 'server_error', 'unreachable', 'failed_to_check', 'client_error']);
@@ -199,15 +121,15 @@ export class BrokenLinksReportManager {
     fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ schemaVersion: result.schemaVersion, reportType: 'broken-links-resources', generatedAt: result.generatedAt, projectName: result.projectName, baseUrl: result.baseUrl, overview }, null, 2));
     writeCsv(root, result);
     writeHtml(root, result);
-    await writeWorkbook(root, result);
+    const pdfGeneration = await generateToolPdf({ html: brokenLinksPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Broken Links & Resources Checker', projectName: result.projectName });
     return {
-      ...result,
+      ...result, pdfGeneration,
       reportName,
       overview,
       summaryHref: `/reports/${encodeURIComponent(reportName)}/summary.html`,
       jsonHref: `/reports/${encodeURIComponent(reportName)}/summary.json`,
-      csvHref: `/reports/${encodeURIComponent(reportName)}/summary.csv`,
-      xlsxHref: `/reports/${encodeURIComponent(reportName)}/summary.xlsx`
+      csvHref: reportDownloadHref(reportName, 'csv'),
+      pdfHref: reportDownloadHref(reportName, 'pdf')
     };
   }
 }

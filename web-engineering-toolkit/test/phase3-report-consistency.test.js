@@ -74,22 +74,12 @@ test('Phase 3 collection metadata survives public formats without leaking restri
   assert.match(html, /Passive metadata only/);
   assert.doesNotMatch(csv, /api\.example\.test/, 'runtime network metadata must not be forced into findings.csv');
 
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path.join(root, 'summary.xlsx'));
-  const coverageSheet = workbook.getWorksheet('Collection Coverage');
-  assert.ok(coverageSheet);
-  const collectorRows = coverageSheet.getRows(2, Object.keys(collectionCoverage).length).map((row) => row.getCell(1).value);
-  assert.deepEqual(collectorRows, ['Http', 'Tls', 'Dns', 'Crawl', 'Browser', 'Authenticated', 'Consent', 'ZapPassive']);
-  assert.equal(coverageSheet.getCell('B5').value, 'Partial');
-
   for (const file of ['summary.json', 'summary.html', 'findings.csv', 'summary.csv', 'metadata.json']) {
     const content = fs.readFileSync(path.join(root, file), 'utf8');
     for (const value of forbidden) assert.equal(content.includes(value), false, `${file} leaked ${value}`);
   }
-  const workbookText = workbook.worksheets.flatMap((worksheet) => worksheet.getSheetValues()).flat(4).filter((value) => typeof value === 'string').join('\n');
-  for (const value of forbidden) assert.equal(workbookText.includes(value), false, `summary.xlsx leaked ${value}`);
-  for (const file of ['summary.json', 'summary.html', 'summary.pdf', 'summary.xlsx', 'metadata.json']) assert.ok(manifest.files.some((entry) => entry.file === file), `${file} missing from report manifest`);
+  for (const file of ['summary.json', 'summary.html', 'summary.pdf', 'metadata.json']) assert.ok(manifest.files.some((entry) => entry.file === file), `${file} missing from report manifest`);
+  assert.equal(manifest.files.some((entry) => entry.file === 'summary.xlsx'), false);
 
   const restrictedNetwork = fs.readFileSync(path.join(root, 'evidence', 'browser', 'network.json'), 'utf8');
   assert.match(restrictedNetwork, /SECRET_PHASE3_AUTH/);

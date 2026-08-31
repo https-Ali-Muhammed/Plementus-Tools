@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir, slugify, timestamp, csvEscape } from './utils.js';
+import { generateToolPdf } from './pdf-report-renderer.js';
+import { assetPdfHtml } from './tool-pdf-reports.js';
+import { reportDownloadHref } from './report-downloads.js';
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
@@ -28,41 +31,6 @@ function writeCsv(root, result) {
   fs.writeFileSync(path.join(root, 'assets.csv'), [assetHeaders, ...assetRows].map((row) => row.map(csvEscape).join(',')).join('\n'));
 }
 
-async function writeWorkbook(root, result) {
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Web Engineering Toolkit';
-  const navy = 'FF11192D', blue = 'FF2563EB', text = 'FF101828', muted = 'FF667085', border = 'FFE4E7EC', soft = 'FFF8FAFC';
-  const thin = { top:{style:'thin',color:{argb:border}}, left:{style:'thin',color:{argb:border}}, bottom:{style:'thin',color:{argb:border}}, right:{style:'thin',color:{argb:border}} };
-  const headerStyle = (row) => { row.height = 28; row.eachCell((cell) => { cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type:'pattern',pattern:'solid',fgColor:{argb:navy} }; cell.alignment = { vertical:'middle', wrapText:true }; cell.border = thin; }); };
-  const styleRows = (sheet, start = 2) => { for (let i = start; i <= sheet.rowCount; i += 1) { const row = sheet.getRow(i); row.height = 26; row.eachCell((cell) => { cell.font = { color:{argb:text}, size:10 }; cell.alignment = { vertical:'middle', wrapText:true }; cell.border = thin; if (i % 2 === 0) cell.fill = { type:'pattern',pattern:'solid',fgColor:{argb:soft} }; }); } };
-
-  const summary = workbook.addWorksheet('Summary', { views:[{showGridLines:false}] });
-  summary.columns = [{width:24},{width:48},{width:4},{width:22},{width:22}];
-  summary.mergeCells('A1:E2'); const title = summary.getCell('A1'); title.value = 'Asset & Page-Weight Report'; title.font = { size:22,bold:true,color:{argb:'FFFFFFFF'} }; title.fill={type:'pattern',pattern:'solid',fgColor:{argb:navy}}; title.alignment={vertical:'middle'};
-  const details = [['Project', result.projectName], ['Base URL', result.baseUrl], ['Device', humanize(result.device)], ['Browser', result.browser?.name || '—'], ['Pages analyzed', result.summary.pageCount], ['Generated', new Date(result.generatedAt).toLocaleString()]];
-  details.forEach(([label,value], i) => { const r=4+i; summary.getCell(r,1).value=label; summary.getCell(r,1).font={bold:true,color:{argb:muted}}; summary.getCell(r,2).value=value; summary.getCell(r,2).alignment={wrapText:true}; });
-  summary.getCell('D4').value='Average page weight'; summary.getCell('D5').value='Average requests'; summary.getCell('D6').value='Total transfer'; summary.getCell('D7').value='Third-party transfer';
-  summary.getCell('E4').value=formatBytes(result.summary.averageBytes); summary.getCell('E5').value=Math.round(result.summary.averageRequests); summary.getCell('E6').value=formatBytes(result.summary.totalBytes); summary.getCell('E7').value=formatBytes(result.summary.thirdPartyBytes);
-  for (let r=4;r<=7;r+=1){ summary.getCell(r,4).font={bold:true,color:{argb:muted}}; summary.getCell(r,5).font={bold:true,color:{argb:blue},size:14}; }
-  const breakdownStart=12; summary.getCell(`A${breakdownStart}`).value='Resource breakdown'; summary.getCell(`A${breakdownStart}`).font={bold:true,size:13,color:{argb:text}};
-  const breakdown = Object.entries(result.summary.breakdown).sort((a,b)=>b[1]-a[1]); breakdown.forEach(([type,bytes],i)=>{ const r=breakdownStart+1+i; summary.getCell(r,1).value=humanize(type); summary.getCell(r,2).value=formatBytes(bytes); });
-
-  const pages = workbook.addWorksheet('Page Results', { views:[{state:'frozen',ySplit:1,showGridLines:false}] });
-  pages.columns=[{header:'Page',key:'page',width:52},{header:'Status',key:'status',width:12},{header:'Weight',key:'weight',width:14},{header:'Requests',key:'requests',width:12},{header:'JavaScript',key:'js',width:14},{header:'CSS',key:'css',width:14},{header:'Images',key:'images',width:14},{header:'Fonts',key:'fonts',width:14},{header:'Third-party',key:'third',width:14},{header:'DOM Elements',key:'dom',width:14},{header:'Findings',key:'findings',width:12}];
-  result.pages.forEach((page)=>pages.addRow({page:page.finalUrl,status:page.status,weight:formatBytes(page.totalTransferBytes),requests:page.requestCount,js:formatBytes(page.breakdown.script),css:formatBytes(page.breakdown.stylesheet),images:formatBytes(page.breakdown.image),fonts:formatBytes(page.breakdown.font),third:formatBytes(page.thirdPartyBytes),dom:page.dom?.domElements||0,findings:page.findings.length})); headerStyle(pages.getRow(1)); styleRows(pages);
-
-  const assets = workbook.addWorksheet('Largest Assets', { views:[{state:'frozen',ySplit:1,showGridLines:false}] });
-  assets.columns=[{header:'Asset URL',key:'url',width:70},{header:'Type',key:'type',width:16},{header:'Size',key:'size',width:14},{header:'Host',key:'host',width:28},{header:'Status',key:'status',width:12},{header:'Encoding',key:'encoding',width:14},{header:'Cache-Control',key:'cache',width:36},{header:'Page',key:'page',width:42}];
-  result.largestAssets.forEach((a)=>assets.addRow({url:a.url,type:humanize(a.category),size:formatBytes(a.transferBytes),host:a.host,status:a.status,encoding:a.contentEncoding||'None',cache:a.cacheControl||'Not set',page:a.pageUrl})); headerStyle(assets.getRow(1)); styleRows(assets);
-
-  const findings = workbook.addWorksheet('Findings', { views:[{state:'frozen',ySplit:1,showGridLines:false}] });
-  findings.columns=[{header:'Priority',key:'priority',width:16},{header:'Category',key:'category',width:18},{header:'Finding',key:'finding',width:34},{header:'Details',key:'detail',width:58},{header:'Recommendation',key:'recommendation',width:62},{header:'Affected Pages',key:'pages',width:60}];
-  result.findings.forEach((f)=>findings.addRow({priority:severityLabel(f.severity),category:f.category,finding:f.title,detail:f.detail,recommendation:f.recommendation,pages:f.pages.join('\n')})); headerStyle(findings.getRow(1)); styleRows(findings);
-
-  await workbook.xlsx.writeFile(path.join(root, 'summary.xlsx'));
-}
-
 function writeHtml(root, result) {
   const breakdown = Object.entries(result.summary.breakdown).sort((a,b)=>b[1]-a[1]);
   const maxBreakdown = Math.max(...breakdown.map(([,value])=>value),1);
@@ -88,12 +56,12 @@ export class AssetReportManager {
     fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ reportType:'asset-page-weight', generatedAt:result.generatedAt, projectName:result.projectName, baseUrl:result.baseUrl, device:result.device }, null, 2));
     writeCsv(root, result);
     writeHtml(root, result);
-    await writeWorkbook(root, result);
+    const pdfGeneration = await generateToolPdf({ html: assetPdfHtml(result), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Asset & Page-Weight Analyzer', projectName: result.projectName });
     return {
-      ...result, reportName, overview,
+      ...result, reportName, overview, pdfGeneration,
       summaryHref:`/reports/${encodeURIComponent(reportName)}/summary.html`,
-      csvHref:`/reports/${encodeURIComponent(reportName)}/summary.csv`,
-      xlsxHref:`/reports/${encodeURIComponent(reportName)}/summary.xlsx`,
+      csvHref:reportDownloadHref(reportName, 'csv'),
+      pdfHref:reportDownloadHref(reportName, 'pdf'),
       assetsCsvHref:`/reports/${encodeURIComponent(reportName)}/assets.csv`
     };
   }

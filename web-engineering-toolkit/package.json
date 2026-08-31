@@ -21,8 +21,7 @@
   },
   "dependencies": {
     "lighthouse": "12.8.2",
-    "playwright-core": "1.54.2",
-    "exceljs": "4.4.0"
+    "playwright-core": "1.54.2"
   },
   "engines": {
     "node": ">=20"
