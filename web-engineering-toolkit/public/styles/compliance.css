@@ -416,7 +416,7 @@
   display: inline-flex;
   align-items: center;
 }
-#securitySection .security-results {
+#securitySection .tool-result-card .security-results {
   display: grid;
   gap: 18px;
 }
@@ -1024,6 +1024,89 @@
 #securitySection .security-results-card {
   width: 100%;
   padding: 22px clamp(16px, 2vw, 28px);
+}
+
+/* Post-run presentation follows the shared toolkit result-surface family.
+   Compliance-specific content and workflow controls remain unchanged. */
+#securitySection .tool-result-card.security-results-card {
+  border-color: rgba(181, 197, 230, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(19, 28, 49, 0.97), rgba(12, 19, 35, 0.97));
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
+}
+#securitySection .tool-result-card .security-results-heading {
+  align-items: flex-start;
+  margin: 0 0 18px;
+  padding: 0 0 17px;
+  border-bottom: 1px solid rgba(181, 197, 230, 0.12);
+}
+#securitySection .tool-result-card .security-results-heading h3 {
+  font-size: 16px;
+}
+#securitySection .tool-result-card .security-result-actions {
+  align-self: center;
+}
+#securitySection .security-results {
+  gap: 16px;
+}
+#securitySection .tool-result-card .security-results-nav {
+  top: 12px;
+  margin: 0;
+  padding: 7px;
+  border-color: rgba(181, 197, 230, 0.14);
+  border-radius: 14px;
+  background: rgba(12, 20, 36, 0.94);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+#securitySection .tool-result-card .security-results-nav a {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+#securitySection .tool-result-card .security-workspace-section {
+  padding: 20px;
+  border: 1px solid rgba(181, 197, 230, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(18, 28, 48, 0.86), rgba(13, 22, 39, 0.86));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.018);
+}
+#securitySection .tool-result-card .security-workspace-section + .security-workspace-section {
+  margin-top: 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(181, 197, 230, 0.12);
+}
+#securitySection .tool-result-card .security-workspace-section .security-section-title {
+  margin-bottom: 2px;
+}
+#securitySection .tool-result-card .security-score-card,
+#securitySection .tool-result-card .security-framework-result,
+#securitySection .tool-result-card .security-summary-details,
+#securitySection .tool-result-card .security-finding-group {
+  border-color: rgba(181, 197, 230, 0.13);
+  background: rgba(7, 14, 28, 0.32);
+}
+#securitySection .tool-result-card .security-score-card {
+  border-radius: 14px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.018);
+}
+#securitySection .tool-result-card .security-framework-result,
+#securitySection .tool-result-card .security-finding-group {
+  border-radius: 14px;
+}
+#securitySection .tool-result-card .security-assessment-boundary {
+  border: 1px solid rgba(255, 191, 105, 0.2);
+  border-left: 3px solid var(--warning);
+  border-radius: 12px;
+  background: rgba(255, 191, 105, 0.055);
+}
+
+@media (max-width: 760px) {
+  #securitySection .tool-result-card .security-results-heading {
+    gap: 14px;
+  }
+  #securitySection .tool-result-card .security-workspace-section {
+    padding: 16px;
+  }
 }
 #securitySection .security-results-heading {
   margin-bottom: 14px;

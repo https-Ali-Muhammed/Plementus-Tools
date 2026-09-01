@@ -5,6 +5,7 @@ import { generateToolPdf } from './pdf-report-renderer.js';
 import { lighthousePdfHtml } from './tool-pdf-reports.js';
 import { reportDownloadHref } from './report-downloads.js';
 import { writeReportXlsx } from './xlsx-reports.js';
+import { reportBackToTopControl, reportHtmlQuickActions, reportHtmlTheme } from './report-html-theme.js';
 
 const CATEGORY_META = {
   performance: { label: 'Performance', key: 'performance' },
@@ -283,7 +284,7 @@ function buildInsightsHtml(insights) {
     </section>`).join('');
 }
 
-function buildSummaryHtml(summary) {
+export function buildLighthouseSummaryHtml(summary) {
   const { overview, rows, insights } = summary;
   const categories = overview.categories || DEFAULT_CATEGORIES;
   const scoreCard = (id) => { const meta = CATEGORY_META[id]; const value = overview[meta.key]; return `<div class="score-card"><span>${escapeHtml(meta.label)}</span><strong class="${scoreClass(value)}">${escapeHtml(formatScore(value))}</strong></div>`; };
@@ -301,15 +302,15 @@ function buildSummaryHtml(summary) {
 
 .insight-group summary{min-height:58px;padding:13px 6px;border-radius:10px;transition:background .16s ease}.insight-group summary:hover{background:rgba(255,255,255,.025)}.accordion-summary-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}.accordion-chevron{width:32px;height:32px;display:grid;place-items:center;border:1px solid rgba(124,108,255,.2);background:rgba(124,108,255,.07);border-radius:9px;color:#aaa3ff}.accordion-chevron svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}.insight-group[open] .accordion-chevron svg{transform:rotate(90deg)}.finding-row{grid-template-columns:132px 1fr;align-items:start}.finding-status{align-self:start;justify-self:start;width:auto;min-width:0;gap:6px;padding:7px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.075);text-transform:none;white-space:nowrap}.finding-status-dot{width:6px;height:6px;flex:0 0 6px;border-radius:999px;background:currentColor}.finding-status.issue,.finding-status.error{color:#ff8795;border-color:rgba(255,107,122,.18);background:rgba(255,107,122,.055)}.finding-status.warning{color:#ffc36f;border-color:rgba(255,191,105,.18);background:rgba(255,191,105,.055)}.finding-status.info{color:#83bcff;border-color:rgba(79,156,255,.18);background:rgba(79,156,255,.055)}.finding-status.manual{color:#bbaeff;border-color:rgba(124,108,255,.18);background:rgba(124,108,255,.055)}@media(max-width:560px){.finding-row{grid-template-columns:1fr}}
 
-</style></head><body><main class="wrap">
-<div class="top"><div><div class="eyebrow">Lighthouse final report</div><h1>${escapeHtml(overview.projectName || 'Project')}</h1><div class="sub">${escapeHtml(overview.baseUrl || '')} · ${escapeHtml(String(overview.mode || '').toUpperCase())} · ${escapeHtml(String(overview.targetLanguage || '').toUpperCase())} · ${escapeHtml(new Date(summary.generatedAt).toLocaleString())}</div></div><div class="actions"><a class="btn" href="${escapeHtml(reportDownloadHref(summary.reportName, 'csv'))}" download>Download CSV</a><a class="btn" href="${escapeHtml(reportDownloadHref(summary.reportName, 'pdf'))}" download>Download PDF</a></div></div>
+</style><style>${reportHtmlTheme({ accent: '#7db9ff', accentSoft: 'rgba(125,185,255,.12)' })}.wrap.report-shell{width:min(1360px,100%);max-width:none;padding:42px 24px 72px}.top.report-header{margin-bottom:18px}.top.report-header .eyebrow{color:var(--report-accent)}.top.report-header h1{font-size:clamp(29px,4vw,38px);margin:7px 0 0}.top.report-header .sub{margin-top:9px;color:var(--report-muted);overflow-wrap:anywhere}.top.report-header .actions{align-self:start}.top.report-header .btn{min-height:38px;border-color:color-mix(in srgb,var(--report-accent) 34%,transparent);border-radius:10px;background:var(--report-accent-soft);color:var(--report-text)}.score-card,.metric,.panel,.insight-category{border-color:var(--report-border)}.score-card,.metric{border-radius:14px}.panel,.insight-category{border-radius:18px}.panel-head,.insight-category-head{padding:18px 20px}.table-wrap{border-radius:12px}.table-wrap table{min-width:720px}@media(max-width:560px){.wrap.report-shell{padding:24px 14px 58px}.top.report-header{padding:16px}.top.report-header .actions{width:100%}.top.report-header .btn{justify-content:center;flex:1}}</style></head><body><main class="wrap report-shell">
+<div class="top report-header"><div><div class="eyebrow report-eyebrow">Web Engineering Toolkit · Lighthouse</div><h1 class="report-title">${escapeHtml(overview.projectName || 'Project')}</h1><div class="sub report-subtitle">${escapeHtml(overview.baseUrl || '')} · ${escapeHtml(String(overview.mode || '').toUpperCase())} · ${escapeHtml(String(overview.targetLanguage || '').toUpperCase())} · ${escapeHtml(new Date(summary.generatedAt).toLocaleString())}</div></div>${reportHtmlQuickActions({ exports: [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']], label: 'Lighthouse report exports' })}</div>
 <div class="cards">${categories.map(scoreCard).join('')}</div>
 <div class="status-grid">${metric('Pages',overview.pages)}${metric('Total audits',overview.totalAudits)}${metric('Valid',overview.validAudits)}${metric('Redirected',overview.redirectedAudits)}${metric('Failed',overview.failedAudits)}${metric('Cancelled',overview.cancelledAudits)}</div>
 ${categories.includes('performance') ? `<div class="metrics">${metric('FCP',formatMs(overview.fcpMs))}${metric('LCP',formatMs(overview.lcpMs))}${metric('Speed Index',formatMs(overview.speedIndexMs))}${metric('TBT',formatMs(overview.tbtMs))}${metric('CLS',overview.cls === '' ? '—' : overview.cls)}${metric('Transfer',formatBytes(overview.totalBytes))}${metric('DOM',overview.domElements === '' ? '—' : overview.domElements)}</div>` : ''}
 <div class="insights-title"><h2>Important Lighthouse findings</h2><div class="sub">Grouped from Lighthouse's own category and audit groups. Passed groups stay visible so coverage is clear.</div></div>${buildInsightsHtml(insights)}
 <section class="panel"><div class="panel-head"><h2>Page results</h2><div class="sub">Median values from valid runs only. Findings come from the representative report for each page/device.</div></div><div class="table-wrap"><table><thead><tr><th>Page</th><th>Device</th><th>Status</th><th>Runs</th>${scoreHeaders}${performanceHeaders}<th>Findings</th><th>Report</th></tr></thead><tbody>
 ${rows.map((row) => `<tr><td><div class="path">${escapeHtml(row.path)}</div><div class="tested">${escapeHtml(row.testedPath)}</div></td><td>${escapeHtml(row.device)}</td><td><span class="badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span></td><td>${row.validRuns}/${row.totalRuns} valid</td>${scoreCells(row)}${performanceCells(row)}<td>${row.findingCount || 0}</td><td>${row.reportFile ? `<a class="open" href="${escapeHtml(row.reportFile)}" target="_blank" rel="noopener" title="Open Lighthouse report">${externalIcon}</a>` : `<span class="open disabled">${externalIcon}</span>`}</td></tr>`).join('')}
-</tbody></table></div></section></main></body></html>`;
+</tbody></table></div></section></main>${reportBackToTopControl()}</body></html>`;
 }
 
 export class ReportManager {
@@ -400,7 +401,7 @@ export class ReportManager {
     fs.writeFileSync(path.join(root, 'summary.csv'), `\uFEFF${csv}\n`, 'utf8');
     overview.exports = { csv: true, html: true, pdf: true, xlsx: true };
     await writeReportXlsx({ root, reportType: 'lighthouse', data: summary });
-    fs.writeFileSync(path.join(root, 'summary.html'), buildSummaryHtml(summary));
+    fs.writeFileSync(path.join(root, 'summary.html'), buildLighthouseSummaryHtml(summary));
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(summary, null, 2));
     summary.pdfGeneration = await generateToolPdf({ html: lighthousePdfHtml(summary), pdfPath: path.join(root, 'summary.pdf'), toolName: 'Lighthouse Reporter', reportTitle: 'Lighthouse Technical Report', projectName: overview.projectName, target: overview.baseUrl });
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(summary, null, 2));

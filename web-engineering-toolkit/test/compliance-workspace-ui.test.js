@@ -103,3 +103,13 @@ test('Compliance layout rules are scoped and cover desktop, tablet, and mobile b
   assert.match(css, /overflow-wrap: anywhere/);
   assert.doesNotMatch(css, /(?:^|\n)\.(?:asset|layout-grid|page-section|nav-item)[^{]*\{/);
 });
+
+test('post-run Compliance results use the shared toolkit surface language without changing result semantics', () => {
+  assert.match(html, /id="securityResultsCard" class="card tool-result-card security-results-card hidden"/);
+  assert.match(css, /#securitySection \.tool-result-card\.security-results-card\s*\{/);
+  assert.match(css, /#securitySection \.tool-result-card \.security-workspace-section\s*\{[^}]*border-radius:\s*16px/s);
+  assert.match(css, /#securitySection \.tool-result-card \.security-results-nav\s*\{[^}]*background:\s*rgba\(12, 20, 36, 0\.94\)/s);
+  assert.match(css, /#securitySection \.tool-result-card \.security-score-card,[\s\S]*?\.tool-result-card \.security-framework-result/);
+  assert.match(html, /Assessment workspace/);
+  assert.match(app, /Collection Coverage|Candidate mappings|Human review/);
+});

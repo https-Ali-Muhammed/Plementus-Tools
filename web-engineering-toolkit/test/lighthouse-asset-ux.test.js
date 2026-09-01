@@ -41,7 +41,7 @@ function assetResult() {
       { finalUrl: 'https://fixture.test/docs', status: 200, totalTransferBytes: 320000, requestCount: 20, thirdPartyBytes: 50000, breakdown: { script: 120000, image: 90000 }, findings: [{ id: 'large-image' }] }
     ],
     findings: [{ severity: 'medium', title: 'Large image transfer', detail: 'An image exceeds the review threshold.', recommendation: 'Resize and compress the image.' }],
-    largestAssets: [{ category: 'image', url: 'https://fixture.test/assets/very-long-product-image-name-for-responsive-layout-testing.webp', transferBytes: 160000, host: 'fixture.test', pageUrl: 'https://fixture.test/docs' }],
+    largestAssets: [{ category: 'image', url: 'https://fixture.test/assets/1997406647578659?v=2.9.385&stable=true&cache=very-long-query-value', transferBytes: 160000, host: 'fixture.test', pageUrl: 'https://fixture.test/docs' }],
     summaryHref: '/reports/asset/summary.html', csvHref: '/api/reports/asset/download/csv', pdfHref: '/api/reports/asset/download/pdf'
   };
 }
@@ -155,6 +155,17 @@ test('Lighthouse and Asset real UI runs retain controls, auto-size page lists, a
     assert.equal(assetGeometry.page, assetGeometry.viewport);
     assert.ok(assetGeometry.results >= assetGeometry.section * 0.96);
     assert.equal(await page.locator('#assetResultActions a').count(), 3);
+    const largestTable = page.locator('.asset-table--largest');
+    const assetTitle = largestTable.locator('.asset-title-display');
+    const assetUrl = largestTable.locator('.asset-url-display');
+    assert.equal(await assetTitle.textContent(), '199740664757865...');
+    assert.ok((await assetUrl.textContent()).length <= 52);
+    assert.equal(await assetTitle.getAttribute('title'), '1997406647578659?v=2.9.385&stable=true&cache=very-long-query-value');
+    assert.equal(await assetUrl.getAttribute('title'), 'https://fixture.test/assets/1997406647578659?v=2.9.385&stable=true&cache=very-long-query-value');
+    assert.equal(await assetTitle.getAttribute('tabindex'), '0');
+    assert.equal(await assetUrl.getAttribute('tabindex'), '0');
+    const largestGeometry = await largestTable.evaluate((table) => ({ table: table.scrollWidth, container: table.parentElement.clientWidth }));
+    assert.ok(largestGeometry.table <= largestGeometry.container + 1, `largest-assets table fits at ${width}px`);
     if (process.env.CAPTURE_LIGHTHOUSE_ASSET_UX === '1' && [1440, 390].includes(width)) await page.screenshot({ path: `/tmp/asset-results-${width}.png`, fullPage: true });
     assert.deepEqual(errors, []);
     await page.close();

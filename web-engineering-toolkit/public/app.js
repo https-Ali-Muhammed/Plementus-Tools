@@ -513,6 +513,30 @@ function formatBytes(value) {
   return `${Math.round(bytes)} B`;
 }
 
+function truncateDisplayValue(value, maxVisible = 15) {
+  const text = String(value || '');
+  return text.length > maxVisible ? `${text.slice(0, maxVisible)}...` : text;
+}
+
+function assetNameFromUrl(value) {
+  try {
+    const url = new URL(value);
+    return `${url.pathname.split('/').filter(Boolean).pop() || url.hostname}${url.search}`;
+  } catch {
+    return String(value || '').split('/').pop() || String(value || '');
+  }
+}
+
+function shortenedAssetUrl(value, maxVisible = 52) {
+  const original = String(value || '');
+  let display = original;
+  try {
+    const url = new URL(original);
+    display = `${url.origin}${url.pathname}${url.search ? '?...' : ''}`;
+  } catch {}
+  return display.length > maxVisible ? `${display.slice(0, maxVisible - 3)}...` : display;
+}
+
 function reportAssetUrl(reportName, relativeFile) {
   if (!reportName || !relativeFile) return '';
   const encodedFile = String(relativeFile).split('/').map(encodeURIComponent).join('/');
@@ -561,6 +585,14 @@ function reportTypeLabel(reportType) {
   return humanize(reportType);
 }
 
+function reportTypeBadgeClass(reportType) {
+  if (reportType === 'security-compliance') return 'report-type-badge--compliance';
+  if (reportType === 'lighthouse') return 'report-type-badge--lighthouse';
+  if (reportType === 'asset-page-weight') return 'report-type-badge--asset';
+  if (reportType === 'broken-links-resources') return 'report-type-badge--broken-links';
+  return '';
+}
+
 function findingStatusLabel(status) {
   const normalized = String(status || '').toLowerCase();
   if (normalized === 'issue' || normalized === 'error') return 'Needs attention';
@@ -584,7 +616,7 @@ function renderInsights(insights = {}) {
     <div class="insight-category-list">${categories.map((category) => `
       <section class="insight-category-card">
         <div class="insight-category-title">
-          <div><span class="report-type-badge lighthouse">Lighthouse</span><strong>${escapeHtml(category.title)}</strong></div>
+          <div><span class="report-type-badge report-type-badge--lighthouse">Lighthouse</span><strong>${escapeHtml(category.title)}</strong></div>
           <span class="finding-total ${category.totalFindings ? 'has-findings' : ''}">${category.totalFindings || 0} finding${category.totalFindings === 1 ? '' : 's'}</span>
         </div>
         <div class="insight-group-list">${(category.groups || []).map((group) => `<details class="insight-group-card">
@@ -857,7 +889,7 @@ async function loadHistory() {
         <div class="history-item upgraded" data-report-name="${escapeHtml(report.name)}">
           <label class="history-check-wrap" title="Select report"><input class="history-report-check" type="checkbox" value="${escapeHtml(report.name)}" /><span class="ui-checkbox" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg></span></label>
           <div class="history-info">
-            <div class="history-title-line"><span class="report-type-badge ${escapeHtml(reportType)}">${escapeHtml(reportTypeLabel(reportType))}</span><strong>${escapeHtml(report.name)}</strong></div>
+            <div class="history-title-line"><span class="report-type-badge ${reportTypeBadgeClass(reportType)}">${escapeHtml(reportTypeLabel(reportType))}</span><strong>${escapeHtml(report.name)}</strong></div>
             <span>${reportType === 'security-compliance' && overview.generatedAt ? `Scan ${escapeHtml(new Date(overview.generatedAt).toLocaleString())} · Review revision ${escapeHtml(overview.workflowRevision ?? 0)} updated ${escapeHtml(new Date(overview.workflowUpdatedAt || overview.generatedAt).toLocaleString())}` : new Date(report.modifiedAt).toLocaleString()}${scoreText ? ` · ${escapeHtml(scoreText)}` : ''}</span>
           </div>
           <div class="history-actions">
@@ -1191,7 +1223,7 @@ function renderAssetResults(result) {
     <div class="asset-section-title"><div><h4>Optimization findings</h4><span>Practical thresholds highlight the areas most worth reviewing first.</span></div></div>
     <div class="asset-findings">${findings.length ? findings.map((finding) => `<article class="asset-finding"><span class="asset-priority ${escapeHtml(finding.severity)}">${escapeHtml(finding.severity === 'high' ? 'High priority' : finding.severity === 'medium' ? 'Review' : 'Opportunity')}</span><div class="asset-finding-copy"><strong>${escapeHtml(finding.title)}</strong><p>${escapeHtml(finding.detail)}</p><small>${escapeHtml(finding.recommendation)}</small></div></article>`).join('') : '<div class="asset-empty">No page-weight thresholds were triggered by this scan.</div>'}</div>
     <div class="asset-section-title"><div><h4>Largest transferred assets</h4><span>The heaviest individual resources across all analyzed pages.</span></div></div>
-    <div class="asset-table-wrap"><table class="asset-table"><thead><tr><th>Type</th><th>Asset</th><th>Size</th><th>Host</th><th>Page</th></tr></thead><tbody>${largest.slice(0, 15).map((asset) => `<tr><td><span class="asset-type-pill">${escapeHtml(humanize(asset.category))}</span></td><td><strong title="${escapeHtml(asset.url)}">${escapeHtml(asset.url.split('/').pop() || asset.url)}</strong><span title="${escapeHtml(asset.url)}">${escapeHtml(asset.url)}</span></td><td><strong>${escapeHtml(formatBytes(asset.transferBytes))}</strong></td><td>${escapeHtml(asset.host)}</td><td><span title="${escapeHtml(asset.pageUrl)}">${escapeHtml(new URL(asset.pageUrl).pathname || '/')}</span></td></tr>`).join('')}</tbody></table></div>`;
+    <div class="asset-table-wrap asset-table-wrap--largest"><table class="asset-table asset-table--largest"><colgroup><col class="asset-col-type"><col class="asset-col-value"><col class="asset-col-size"><col class="asset-col-host"><col class="asset-col-page"></colgroup><thead><tr><th>Type</th><th>Asset</th><th>Size</th><th>Host</th><th>Page</th></tr></thead><tbody>${largest.slice(0, 15).map((asset) => { const fullName = assetNameFromUrl(asset.url); return `<tr><td><span class="asset-type-pill">${escapeHtml(humanize(asset.category))}</span></td><td><span class="asset-value"><strong class="asset-title-display" tabindex="0" title="${escapeHtml(fullName)}" aria-label="Full asset title: ${escapeHtml(fullName)}">${escapeHtml(truncateDisplayValue(fullName, 15))}</strong><span class="asset-url-display" tabindex="0" title="${escapeHtml(asset.url)}" aria-label="Full asset URL: ${escapeHtml(asset.url)}">${escapeHtml(shortenedAssetUrl(asset.url))}</span><span class="asset-full-value" aria-hidden="true">${escapeHtml(asset.url)}</span></span></td><td><strong>${escapeHtml(formatBytes(asset.transferBytes))}</strong></td><td class="asset-host-cell">${escapeHtml(asset.host)}</td><td class="asset-page-cell"><span title="${escapeHtml(asset.pageUrl)}">${escapeHtml(new URL(asset.pageUrl).pathname || '/')}</span></td></tr>`; }).join('')}</tbody></table></div>`;
 
   refs.assetResultActions.innerHTML = reportActionControls({ openHref: result.summaryHref, pdfHref: result.pdfHref, csvHref: result.csvHref, xlsxHref: result.xlsxHref, label: 'Asset report actions' });
   refs.assetResultsCard.classList.remove('hidden');
@@ -2183,6 +2215,16 @@ loadProjects({ sync: true });
 loadHistory();
 setTimeout(checkEnvironment, 300);
 setInterval(refreshBrowserStatus, 5000);
+
+(() => {
+  const button = document.querySelector('#globalBackToTop');
+  if (!button) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const update = () => { button.hidden = window.scrollY < 400; };
+  button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduced.matches ? 'auto' : 'smooth' }));
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
 
 
 // v1.3 responsive sidebar drawer

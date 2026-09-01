@@ -126,6 +126,9 @@ test('Chromium print flow packs mappings, splits large mappings, and keeps findi
   const rawPdfText = fs.readFileSync(rawTextPath, 'utf8');
   const pages = pdfText.split('\f').filter((page) => page.trim());
 
+  assert.equal(pageFor(pages, 'Report Metadata'), 0, 'report identity and metadata should share the cover page');
+  assert.equal(pageFor(pages, '1. Assessment Overview'), 1, 'assessment content should start on page two');
+
   const smallOnePage = pageFor(pages, 'ISO27001:TEST-SMALL-1');
   assert.equal(smallOnePage, pageFor(pages, 'ISO27001:TEST-SMALL-2'), 'small mappings should share a page');
   const mediumOnePage = pageFor(pages, 'ISO27001:TEST-MEDIUM-1');

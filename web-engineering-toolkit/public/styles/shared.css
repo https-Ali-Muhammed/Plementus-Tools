@@ -781,7 +781,6 @@ select {
 }
 
 .history-item span {
-  color: var(--subtle);
   font-size: 10px;
 }
 
@@ -1054,6 +1053,85 @@ select {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.report-type-badge--compliance {
+  color: #9ce8dc;
+  border-color: rgba(76, 204, 187, .32);
+  background: rgba(76, 204, 187, .12);
+}
+
+.report-type-badge--lighthouse {
+  color: #afd3ff;
+  border-color: rgba(91, 159, 255, .32);
+  background: rgba(91, 159, 255, .12);
+}
+
+.report-type-badge--asset {
+  color: #c7b3ff;
+  border-color: rgba(169, 123, 255, .34);
+  background: rgba(169, 123, 255, .12);
+}
+
+.report-type-badge--broken-links {
+  color: #f5c080;
+  border-color: rgba(224, 151, 74, .36);
+  background: rgba(224, 151, 74, .12);
+}
+
+.global-back-to-top {
+  position: fixed;
+  z-index: 90;
+  right: max(16px, calc(env(safe-area-inset-right) + 12px));
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 12px));
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgba(139, 124, 255, .45);
+  border-radius: 999px;
+  background: rgba(17, 25, 45, .96);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .34);
+  color: #c6bfff;
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease;
+}
+
+.global-back-to-top:hover {
+  transform: translateY(-2px);
+  background: #192440;
+}
+
+.global-back-to-top:focus-visible {
+  outline: 3px solid #a99fff;
+  outline-offset: 3px;
+}
+
+.global-back-to-top[hidden] {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .global-back-to-top {
+    right: max(12px, calc(env(safe-area-inset-right) + 10px));
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 10px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-back-to-top {
+    transition: none;
+  }
+}
+
+@media print {
+  .global-back-to-top {
+    display: none !important;
+  }
 }
 
 .history-toolbar {
@@ -1517,6 +1595,7 @@ body.modal-open {
 
 .report-action:hover {
   transform: translateY(-1px);
+  color:#fff;
 }
 
 .report-action:active {
@@ -1556,6 +1635,9 @@ body.modal-open {
   border-radius: 11px;
   background: #11192d;
   box-shadow: 0 18px 46px rgba(0, 0, 0, .42);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .report-export-popover[hidden] {
