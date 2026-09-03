@@ -20,6 +20,7 @@ export function lighthousePdfHtml(summary) {
   ];
   return reportFamilyDocument({
     toolName: 'Lighthouse Reporter', title: 'Lighthouse Technical Report', projectName: o.projectName || 'Project',
+    eyebrowColor: '#7db9ff',
     subtitle: 'Lighthouse performance and quality observations for the configured pages, devices, and categories.', generatedAt: summary.generatedAt,
     metadata: [['Project', o.projectName], ['Target / base URL', o.baseUrl, true], ['Scan generated', summary.generatedAt, true], ['Toolkit version', TOOL_VERSION, true], ['Browser mode', o.mode], ['Devices', (o.devices || []).join(', ')], ['Language', o.targetLanguage], ['Selected categories', categories.map((id) => label[id] || humanizePdf(id)).join(', ')], ['Pages analyzed', o.pages], ['Valid runs / failed runs', `${o.validAudits || 0} / ${o.failedAudits || 0}`]],
     chips: [['Run state', o.failedAudits ? 'Completed with failed runs' : 'Completed'], ['Selected categories', categories.length]],
@@ -57,10 +58,36 @@ export function brokenLinksPdfHtml(result) {
   const types = Object.entries(healthy.reduce((acc, target) => { for (const type of target.referenceTypes || [target.referenceType || 'other_resource']) acc[type] = (acc[type] || 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1]);
   return reportFamilyDocument({
     toolName: 'Broken Links & Resources Checker', title: 'Broken Links & Resources Report', projectName: result.projectName || 'Project',
+    eyebrowColor: '#f0ae69',
     subtitle: 'A remediation-first availability report preserving canonical outcome distinctions.', generatedAt: result.generatedAt,
     metadata: [['Project', result.projectName], ['Base URL', result.baseUrl, true], ['Generated', result.generatedAt, true], ['Toolkit version', TOOL_VERSION, true], ['Scan scope', humanizePdf(result.scope?.mode)], ['Pages scanned', result.summary?.pagesScanned], ['Targets checked', result.summary?.uniqueTargets]],
     chips: [['Needs attention', attention.length, 'attention'], ['Review', review.length, 'review'], ['Healthy', healthy.length, 'healthy']],
     metrics: [['Pages scanned', result.summary?.pagesScanned], ['Targets checked', result.summary?.uniqueTargets], ['Needs attention', attention.length, 'attention'], ['Review', review.length, 'review'], ['Healthy', healthy.length, 'healthy']],
     sections: [section(2, 'Canonical Outcome Counts', table(['Outcome', 'Count'], outcomeRows, ['80mm'])), section(3, 'Attention Required', remediation(attention), 'Definitive failures, missing fragments, server errors, and checks that could not complete are prioritized.'), section(4, 'Review Items', remediation(review.filter((target) => target.outcome !== 'redirected')), 'Restricted and rate-limited targets remain distinct from broken references.'), section(5, 'Redirects', remediation(redirects), 'Redirects are factual route outcomes and are not classified as broken references.'), section(6, 'Healthy Inventory Summary', `${table(['Reference type', 'Healthy targets'], types.map(([type, count]) => [e(humanizePdf(type)), e(count)]), ['90mm'])}<p class="muted">${healthy.length} healthy targets are retained in the complete CSV; individual healthy rows are intentionally omitted from this PDF.</p>`), section(7, 'Scope / Methodology / Limitations', '<div class="limitations">Only bounded HTTP(S) checks and rendered-page observations are represented. Restricted, rate-limited, redirected, timed-out, and failed checks are not classified as definitive broken links. Response bodies, credentials, headers, and sensitive query values are not included.</div>')]
+  });
+}
+
+export function securityAnalyzerPdfHtml(result) {
+  const categories = Object.values(result.categories || {});
+  const checks = (category) => (result.pages || []).flatMap((page) => {
+    if (category === 'headers') return (page.headerChecks || []).map((check) => ({ page: page.finalUrl, ...check }));
+    if (category === 'https') return (page.tlsChecks || []).map((check) => ({ page: page.finalUrl, ...check }));
+    if (category === 'cookies') return (page.cookieChecks || []).map((check) => ({ page: page.finalUrl, ...check }));
+    if (category === 'mixedContent') return (page.mixedChecks || []).map((check) => ({ page: page.finalUrl, ...check }));
+    return [];
+  });
+  const checkTable = (items) => table(['Check', 'Status', 'Current value', 'Risk / recommendation'], items.slice(0, 100).map((item) => [e(item.label), e(humanizePdf(item.status)), e(item.currentValue || 'Not observed'), e(`${item.risk} Recommendation: ${item.recommendation}`)]), ['34mm', '16mm', '49mm']);
+  const tlsChecks = [...checks('https'), ...(result.redirectCheck ? [{ page: result.baseUrl, ...result.redirectCheck }] : [])];
+  const mixedRows = (result.pages || []).flatMap((page) => (page.mixedContent || []).map((item) => [machineUrlCell(item.pageUrl), machineUrlCell(item.resourceUrl), e(humanizePdf(item.resourceType)), e(humanizePdf(item.status))]));
+  const mixedEmpty = (result.pages || []).some((page) => page.finalUrl?.startsWith('https:')) ? 'No insecure HTTP subresource requests were observed on the analyzed HTTPS pages.' : 'Mixed content was not assessed because no analyzed page completed over HTTPS.';
+  const recommendations = (result.recommendations || []).slice(0, 60).map((item) => `<article class="card"><span class="badge">${e(humanizePdf(item.priority))}</span><h3>${e(item.title)}</h3><p>${e(item.recommendation)}</p></article>`).join('') || '<div class="card">No recommendations were generated from the selected checks.</div>';
+  return reportFamilyDocument({
+    toolName: 'Security Headers & Web Security Analyzer', title: 'Security Headers & Web Security Analysis', projectName: result.projectName || 'Project',
+    eyebrowColor: '#ff8291',
+    subtitle: 'Observable response-header, HTTPS/TLS, cookie, and mixed-content configuration for the selected pages.', generatedAt: result.generatedAt,
+    metadata: [['Project', result.projectName], ['Target URL', result.baseUrl, true], ['Generated', result.generatedAt, true], ['Toolkit version', TOOL_VERSION, true], ['Scan type', humanizePdf(result.scanType)], ['Browser / device', `${result.environment?.browser || 'Unknown'} / ${humanizePdf(result.environment?.device)}`], ['Pages analyzed', result.pages?.length || 0], ['Security score', result.score == null ? 'Not scored' : `${result.score}%`]],
+    chips: [['Failures', result.findings?.filter((finding) => finding.status === 'fail').length || 0, 'attention'], ['Warnings', result.findings?.filter((finding) => finding.status === 'warning').length || 0, 'review']],
+    metrics: [['Overall score', result.score == null ? 'Not scored' : `${result.score}%`], ...categories.map((category) => [category.label, category.score == null ? 'Not scored' : `${category.score}%`])],
+    sections: [section(2, 'Security Headers Analysis', checkTable(checks('headers'))), section(3, 'TLS & HTTPS Analysis', checkTable(tlsChecks)), section(4, 'Cookie Security Analysis', checkTable(checks('cookies'))), section(5, 'Mixed Content Findings', mixedRows.length ? table(['Page', 'Insecure resource', 'Type', 'Status'], mixedRows, ['45mm', '73mm', '18mm']) : `<div class="card">${e(mixedEmpty)}</div>`), section(6, 'Recommendations', `<div class="grid">${recommendations}</div>`), section(7, 'Methodology / Limitations', '<div class="limitations">The score gives equal weight to the four selected categories and uses pass = full credit, warning = half credit, and failure = no credit. Unavailable checks are disclosed and excluded from scoring. This bounded configuration review is not a penetration test, vulnerability guarantee, compliance conclusion, or certification.</div>')]
   });
 }

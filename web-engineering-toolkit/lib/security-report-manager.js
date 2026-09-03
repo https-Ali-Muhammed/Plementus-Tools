@@ -372,7 +372,7 @@ export class SecurityReportManager {
     const written = await this.writeReportFiles(root, summary);
     summary = written.summary;
     const pdfHref = summary.pdfGeneration.status === 'generated' ? reportDownloadHref(runName, 'pdf') : '';
-    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:`/reports/${encodeURIComponent(runName)}/summary.json`, csvHref:reportDownloadHref(runName, 'csv'), legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, xlsxHref:reportDownloadHref(runName, 'xlsx'), pdfHref, evidenceManifestHref:`/reports/${encodeURIComponent(runName)}/evidence/manifest.json` };
+    return { ...summary, reportManifest:written.reportManifest, integrityPresentation: describeIntegrityMetadata({ evidenceManifest, reportManifest: written.reportManifest }), reportName:runName, summaryHref:`/reports/${encodeURIComponent(runName)}/summary.html`, jsonHref:reportDownloadHref(runName, 'json'), csvHref:reportDownloadHref(runName, 'csv'), legacyCsvHref:`/reports/${encodeURIComponent(runName)}/summary.csv`, xlsxHref:reportDownloadHref(runName, 'xlsx'), pdfHref, evidenceManifestHref:reportDownloadHref(runName, 'evidence-manifest') };
   }
 
   async refreshWorkflow({ projectName = '', reportName = '', legacyOnly = false } = {}) {

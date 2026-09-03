@@ -53,6 +53,7 @@
                     d="M10 13a4 4 0 0 0 5.7.1l2.4-2.4a4 4 0 0 0-5.7-5.7L11 6.4"/><path
                     d="M14 11a4 4 0 0 0-5.7-.1l-2.4 2.4A4 4 0 0 0 11.6 19l1.4-1.4"/><path d="m4 4 3 3M17 17l3 3"/></svg></span><span>Broken Links &amp; Resources</span>
             </button>
+            <button class="nav-item" data-section="securityAnalyzer"><span class="nav-glyph nav-security-analyzer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.8-2.9 8.3-7 10-4.1-1.7-7-5.2-7-10V6z"/><path d="M8 12h8M12 8v8"/></svg></span><span>Security Headers &amp; Web Security</span></button>
 
             <div class="nav-label nav-label-spaced">Reports</div>
             <button class="nav-item" data-section="history"><span class="nav-glyph">◴</span><span>Report history</span>
@@ -78,8 +79,8 @@
                     <div class="eyebrow">Shared workspace</div>
                     <h2>Projects</h2>
                     <p>Save website environments, languages and common target pages once, then reuse them across
-                        Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources
-                        reports.</p>
+                        Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, Broken Links &amp; Resources, and Security
+                        Headers &amp; Web Security reports.</p>
                 </div>
                 <button id="newProjectBtn" class="button button-primary" type="button">New project</button>
             </header>
@@ -922,13 +923,53 @@
             </section>
         </section>
 
+        <section id="securityAnalyzerSection" class="page-section">
+            <header class="page-header">
+                <div><div class="eyebrow">Security Headers &amp; Web Security Analyzer</div><h2>Review observable web security configuration</h2><p>Analyze response headers, HTTPS and TLS, cookie attributes, and mixed-content requests across one or more selected pages.</p></div>
+                <div class="browser-badge security-analyzer-scope-badge"><span class="pulse"></span><span>Bounded browser + network analysis</span></div>
+            </header>
+            <div class="security-analyzer-layout">
+                <div class="content-column">
+                    <section class="card">
+                        <div class="card-heading"><div><span class="step-number">01</span><h3>Analysis target</h3></div><span class="muted">Single or selected pages</span></div>
+                        <div class="project-setup-grid">
+                            <label class="field" id="securityAnalyzerProjectField"><span>Project name</span><input id="securityAnalyzerProjectName" type="text" placeholder="Enter project name"/><small id="securityAnalyzerProjectError" class="field-error"></small></label>
+                            <label class="field" id="securityAnalyzerBaseUrlField"><span>Base URL</span><input id="securityAnalyzerBaseUrl" type="url" placeholder="https://example.com"/><small id="securityAnalyzerBaseUrlError" class="field-error"></small></label>
+                        </div>
+                        <label class="field compact-top" id="securityAnalyzerPagesField"><span>Pages to analyze <em>optional</em></span><textarea id="securityAnalyzerPages" rows="5" spellcheck="false" placeholder="/&#10;/login&#10;/checkout">/</textarea><small>One path or full URL per line. The base URL is analyzed when left empty.</small><small id="securityAnalyzerPagesError" class="field-error"></small></label>
+                    </section>
+                    <section class="card">
+                        <div class="card-heading"><div><span class="step-number">02</span><h3>Security configuration</h3></div><span class="muted">Full audit coverage</span></div>
+                        <div class="security-analyzer-options" role="group" aria-label="Security checks">
+                            <label class="check"><input id="securityAnalyzerHeaders" type="checkbox" checked/><span>HTTP security headers</span></label>
+                            <label class="check"><input id="securityAnalyzerHttps" type="checkbox" checked/><span>HTTPS &amp; TLS</span></label>
+                            <label class="check"><input id="securityAnalyzerCookies" type="checkbox" checked/><span>Cookie security</span></label>
+                            <label class="check"><input id="securityAnalyzerMixed" type="checkbox" checked/><span>Mixed content</span></label>
+                        </div>
+                        <div class="security-analyzer-network compact-top">
+                            <label class="field"><span>Viewport</span><select id="securityAnalyzerDevice"><option value="desktop">Desktop</option><option value="mobile">Mobile</option></select></label>
+                            <label class="field"><span>Browser</span><select id="securityAnalyzerBrowserSelect"><option value="">Auto-detect</option></select></label>
+                            <label class="field"><span>Page timeout (ms)</span><input id="securityAnalyzerTimeout" type="number" min="1000" max="60000" value="30000"/></label>
+                        </div>
+                        <div class="security-analyzer-note compact-top"><strong>Interpretation boundary</strong><span>This is a configuration-focused web audit. It does not perform exploit attempts and is not a penetration test or compliance certification.</span></div>
+                    </section>
+                </div>
+                <aside class="action-column"><section class="card sticky-card">
+                    <div class="card-heading slim"><div><span class="step-number">03</span><h3>Run analysis</h3></div></div>
+                    <div class="security-analyzer-run-summary"><div><span>Categories</span><strong>Headers · HTTPS/TLS · Cookies · Mixed content</strong></div><div><span>Coverage</span><strong>Every selected page</strong></div></div>
+                    <button id="startSecurityAnalyzerBtn" class="button button-primary full" type="button">Analyze web security</button>
+                    <div id="securityAnalyzerState" class="security-scan-state idle" aria-live="polite"><span class="security-spinner"></span><div><strong>Ready to analyze</strong><small>No manual browser launch is required.</small></div></div>
+                </section></aside>
+            </div>
+            <section id="securityAnalyzerResultsCard" class="card tool-result-card hidden"><div class="card-heading"><div><span class="step-number">04</span><h3>Security analysis results</h3></div><div id="securityAnalyzerResultActions" class="security-result-actions"></div></div><div id="securityAnalyzerResults" class="security-analyzer-results"></div></section>
+        </section>
+
         <section id="historySection" class="page-section">
             <header class="page-header">
                 <div>
                     <div class="eyebrow">Report library</div>
                     <h2>Report history</h2>
-                    <p>Open Lighthouse, Compliance Mapping, Asset &amp; Page-Weight, and Broken Links &amp; Resources
-                        summaries, then download the available exports.</p>
+                    <p>Open reports from all five toolkit modules, then download the available shared-format exports.</p>
                 </div>
                 <button id="refreshHistoryBtn" class="button button-secondary">Refresh</button>
             </header>

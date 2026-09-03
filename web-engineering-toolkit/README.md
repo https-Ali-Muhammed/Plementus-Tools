@@ -8,6 +8,7 @@ A framework-free website engineering and QA workspace built with vanilla HTML, C
 - **Compliance Mapping** — collects defensible HTTP, browser, TLS, crawl, and optional passive OWASP ZAP evidence; maps that evidence to framework controls and reviewer decisions without claiming certification.
 - **Asset & Page-Weight Analyzer** — measures transferred page weight and network requests across selected pages, including JavaScript, CSS, images, fonts, media, XHR/fetch, third-party resources and the largest assets.
 - **Broken Links & Resources Checker** — renders selected pages, discovers links and page resources, checks bounded unique HTTP(S) targets, validates in-scope fragments, and preserves every source occurrence without treating restricted or timed-out targets as definitive broken links.
+- **Security Headers & Web Security Analyzer** — reviews response security headers, HTTPS redirects and TLS certificate metadata, cookie attributes, and browser-observed mixed content across selected pages with explicit per-category coverage and scoring.
 
 ## Shared Projects
 
@@ -23,7 +24,7 @@ A project profile can store:
 - available EN / AR languages
 - shared target pages
 
-Selecting **Use project** applies that configuration across Lighthouse Reporter, Compliance Mapping, Asset & Page-Weight Analyzer, and Broken Links & Resources Checker so the same website information does not need to be entered repeatedly.
+Selecting **Use project** applies that configuration across all five toolkit tools so the same website information does not need to be entered repeatedly.
 
 Project profiles are stored in:
 
@@ -106,6 +107,35 @@ metadata.json
 
 The PDF is remediation-first and summarizes healthy inventory without printing hundreds of normal rows. The CSV retains one row per unique target. Reports do not archive response bodies, request bodies, credentials, cookies, or browser storage.
 
+## Security Headers & Web Security Analyzer
+
+The analyzer accepts a project name, Base URL, and up to 30 optional page paths or URLs. An empty page list safely analyzes `/`. A detected Chrome/Chromium/Brave browser supplies rendered-page cookie and mixed-content observations; the shared HTTP client supplies response headers, redirect chains, negotiated TLS protocol/cipher, certificate authorization, issuer, and validity dates.
+
+Supported checks include:
+
+- Content-Security-Policy presence and common unsafe/wildcard configurations
+- Strict-Transport-Security duration and `includeSubDomains`
+- X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy
+- Cross-Origin-Opener-Policy, Cross-Origin-Resource-Policy, and Cross-Origin-Embedder-Policy
+- HTTPS use, HTTP-to-HTTPS redirects, certificate validity/expiration/issuer, and TLS version
+- Secure, HttpOnly, SameSite, and third-party cookie observations
+- insecure scripts, stylesheets, images, and other HTTP resources requested by HTTPS pages
+
+The overall score is the equally weighted mean of selected categories. A passed check receives full credit, a warning half credit, and a failure no credit. Unavailable checks are shown but excluded from the score. The score is a bounded configuration summary, not a penetration-test result, compliance determination, or certification.
+
+Example result: `Security score 86% · 2 pages · 3 failed · 4 warnings`. Open the standalone report to see every passed, warning, failed, and unavailable check with its current value, risk, and recommendation.
+
+Each run writes:
+
+```text
+summary.html
+summary.json
+summary.csv
+summary.xlsx
+summary.pdf
+metadata.json
+```
+
 ## Unified report history
 
 Report History supports the current report types:
@@ -114,10 +144,11 @@ Report History supports the current report types:
 - Compliance Mapping
 - Asset Page Weight
 - Broken Links & Resources
+- Security Headers & Web Security
 
 Existing single-report deletion and multi-select report-folder deletion remain available.
 
-Every tool exposes **View report**, **PDF**, and **CSV** actions. Downloaded PDF and CSV files use the report identity, report-time project name, and original generation timestamp; internal JSON and metadata remain available to the application for history and reconstruction.
+Every tool uses the shared **Open Report**, **Download PDF**, and **More Exports** actions. More Exports includes CSV and Excel where available. Downloaded artifacts use the report identity, report-time project name, and original generation timestamp; internal JSON and metadata remain available to the application for history and reconstruction.
 
 ## Requirements
 

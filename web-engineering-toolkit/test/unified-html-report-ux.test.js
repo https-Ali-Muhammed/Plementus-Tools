@@ -7,6 +7,7 @@ import { detectBrowserCapabilities } from '../lib/browser-capability.js';
 import { buildBrokenLinksSummaryHtml } from '../lib/broken-links-report-manager.js';
 import { buildLighthouseSummaryHtml } from '../lib/report-manager.js';
 import { buildComplianceHtml } from '../lib/security-report-html.js';
+import { buildReportArtifactDownloadFilename } from '../lib/report-downloads.js';
 import { createBrokenLinksPresentationFixture } from './fixtures/broken-links-presentation-fixture.js';
 
 const root = new URL('..', import.meta.url);
@@ -70,10 +71,10 @@ test('all standalone HTML summaries use the common report shell and one shared b
 
 test('all standalone summaries use the shared quick-action structure without changing their exports', () => {
   const reports = [
-    ['Compliance Mapping', buildComplianceHtml(complianceFixture()), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['findings.csv', 'CSV'], ['summary.json', 'JSON'], ['evidence/manifest.json', 'Evidence Manifest']]],
-    ['Lighthouse', buildLighthouseSummaryHtml(lighthouseFixture()), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]],
-    ['Asset', buildAssetSummaryHtml(assetFixture()), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]],
-    ['Broken Links', buildBrokenLinksSummaryHtml(createBrokenLinksPresentationFixture(80)), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]]
+    ['Compliance Mapping', buildComplianceHtml({ ...complianceFixture(), reportName: '' }), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['findings.csv', 'CSV'], ['summary.json', 'JSON'], ['evidence/manifest.json', 'Evidence Manifest']]],
+    ['Lighthouse', buildLighthouseSummaryHtml({ ...lighthouseFixture(), reportName: '' }), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]],
+    ['Asset', buildAssetSummaryHtml(assetFixture(), ''), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]],
+    ['Broken Links', buildBrokenLinksSummaryHtml(createBrokenLinksPresentationFixture(80), ''), [['summary.pdf', 'PDF'], ['summary.xlsx', 'Excel'], ['summary.csv', 'CSV'], ['summary.json', 'JSON']]]
   ];
   for (const [name, html, exports] of reports) {
     assert.equal((html.match(/class="report-actions report-action-controls screen-only"/g) || []).length, 1, `${name} has one action group`);
@@ -86,12 +87,31 @@ test('all standalone summaries use the shared quick-action structure without cha
   }
   const compliance = reports[0][1];
   assert.match(compliance, /class="cover compliance-report-header"/);
+  assert.equal((compliance.match(/\.eyebrow\{[^}]*color:#70dfd0/g) || []).length, 2);
   assert.match(compliance, /Compliance UX fixture<\/h1>/);
   assert.match(compliance, /https:\/\/fixture\.test\/ · PUBLIC URL · TECHNICAL PRE-ASSESSMENT ·/);
   assert.match(compliance, /class="compliance-report-metadata"/);
   assert.doesNotMatch(compliance.match(/<section class="cover compliance-report-header">[\s\S]*?<\/section>/)?.[0] || '', /Technical Compliance Pre-Assessment|A professional portable representation|Target URL|Toolkit version|Disclaimer/);
   assert.match(compliance, /Compliance conclusion: <strong>Not determined<\/strong>/);
   assert.match(compliance, /Assessment Overview|Collection Coverage|Candidate Control Mappings|Human Review Status/);
+});
+
+test('standalone report actions retain portable artifacts and assign canonical download filenames', () => {
+  const generatedAt = '2026-08-31T12:00:00.000Z';
+  const reports = [
+    [buildComplianceHtml({ ...complianceFixture(), reportName: '' }), 'security-compliance', 'Compliance UX fixture'],
+    [buildLighthouseSummaryHtml({ ...lighthouseFixture(), reportName: '' }), 'lighthouse', 'Lighthouse UX fixture'],
+    [buildAssetSummaryHtml({ ...assetFixture(), generatedAt }), 'asset-page-weight', 'Asset UX fixture'],
+    [buildBrokenLinksSummaryHtml({ ...createBrokenLinksPresentationFixture(5), generatedAt }), 'broken-links-resources', 'Large presentation fixture']
+  ];
+  for (const [html, reportType, projectName] of reports) {
+    for (const format of ['pdf', 'xlsx', 'csv', 'json']) {
+      const filename = buildReportArtifactDownloadFilename({ reportType, projectName, generatedAt, format });
+      assert.match(html, new RegExp(`download="${filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
+    }
+  }
+  assert.match(reports[0][0], /href="evidence\/manifest\.json"/);
+  assert.match(reports[0][0], /__evidence-manifest\.json"/);
 });
 
 test('all standalone summaries are responsive and the global control behaves accessibly', { timeout: 60_000 }, async (t) => {

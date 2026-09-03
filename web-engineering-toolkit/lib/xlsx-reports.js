@@ -83,6 +83,21 @@ function complianceSheets(workbook, summary) {
   addTableSheet(workbook, 'Control Evidence', [['Control ID', 36], ['Evidence state', 34], ['Control satisfaction', 24], ['Coverage', 16], ['Source checks', 62], ['Mappings', 68], ['Manual review', 20], ['Limitations', 72]], (summary.controlEvaluations || []).map((control) => [control.controlId, humanize(control.state), humanize(control.controlSatisfaction || 'not_determined'), humanize(control.coverage || 'partial'), (control.provenanceSummary?.sourceCheckIds || []).join('\n'), (control.mappings || []).map((mapping) => `${mapping.mappingId || ''}: ${mapping.relationship || ''}`).join('\n'), control.manualReviewRequired === false ? 'No' : 'Yes', (control.limitations || []).join('\n')]));
 }
 
+function securityAnalyzerSheets(workbook, result) {
+  addSummary(workbook, 'Security Headers & Web Security Analysis', [['Project', result.projectName], ['Base URL', result.baseUrl], ['Generated', result.generatedAt], ['Scan type', humanize(result.scanType)], ['Browser', result.environment?.browser], ['Device', humanize(result.environment?.device)], ['Pages analyzed', result.pages?.length || 0], ['Security score', result.score == null ? 'Not scored' : `${result.score}%`], ...Object.values(result.categories || {}).map((category) => [`${category.label} score`, category.score == null ? 'Not scored' : `${category.score}%`])]);
+  const rows = (result.pages || []).flatMap((page) => [
+    ...(page.headerChecks || []).map((check) => [page.finalUrl, 'Security Headers', check.label, humanize(check.status), check.currentValue, check.risk, check.recommendation]),
+    ...(page.tlsChecks || []).map((check) => [page.finalUrl, 'HTTPS & TLS', check.label, humanize(check.status), check.currentValue, check.risk, check.recommendation]),
+    ...(page.cookieChecks || []).map((check) => [page.finalUrl, 'Cookies', check.label, humanize(check.status), check.currentValue, check.risk, check.recommendation]),
+    ...(page.mixedChecks || []).map((check) => [page.finalUrl, 'Mixed Content', check.label, humanize(check.status), check.currentValue, check.risk, check.recommendation])
+  ]);
+  addTableSheet(workbook, 'Checks', [['Page', 58], ['Category', 22], ['Check', 34], ['Status', 16], ['Current value', 70], ['Risk', 64], ['Recommendation', 70]], rows);
+  if (result.redirectCheck) addTableSheet(workbook, 'HTTPS Redirect', [['Target', 58], ['Status', 16], ['Current value', 70], ['Risk', 64], ['Recommendation', 70]], [[result.baseUrl, humanize(result.redirectCheck.status), result.redirectCheck.currentValue, result.redirectCheck.risk, result.redirectCheck.recommendation]]);
+  addTableSheet(workbook, 'TLS Certificates', [['Page', 58], ['HTTPS', 12], ['Authorized', 14], ['Protocol', 16], ['Cipher', 28], ['Issuer', 36], ['Subject', 36], ['Valid from', 24], ['Valid to', 24], ['Authorization error', 42]], (result.pages || []).map((page) => { const tls = page.http?.tls || {}; return [page.finalUrl, page.finalUrl?.startsWith('https:') ? 'Yes' : 'No', tls.authorized == null ? '' : tls.authorized ? 'Yes' : 'No', tls.protocol || '', tls.cipher || '', tls.issuer || '', tls.subject || '', tls.validFrom || '', tls.validTo || '', tls.authorizationError || '']; }));
+  addTableSheet(workbook, 'Mixed Content', [['Page', 58], ['Resource URL', 78], ['Type', 18], ['Status', 16], ['Risk', 62], ['Recommendation', 68]], (result.pages || []).flatMap((page) => (page.mixedContent || []).map((item) => [item.pageUrl, item.resourceUrl, humanize(item.resourceType), humanize(item.status), item.risk, item.recommendation])));
+  addTableSheet(workbook, 'Recommendations', [['Priority', 16], ['Category', 22], ['Area', 38], ['Recommendation', 80]], (result.recommendations || []).map((item) => [humanize(item.priority), humanize(item.category), item.title, item.recommendation]));
+}
+
 export async function writeReportXlsx({ root, reportType, data }) {
   const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
@@ -95,6 +110,7 @@ export async function writeReportXlsx({ root, reportType, data }) {
   else if (reportType === 'asset-page-weight') assetSheets(workbook, data);
   else if (reportType === 'broken-links-resources') brokenLinksSheets(workbook, data);
   else if (reportType === 'security-compliance') complianceSheets(workbook, data);
+  else if (reportType === 'security-analyzer') securityAnalyzerSheets(workbook, data);
   else throw new Error(`Unsupported XLSX report type: ${reportType}`);
   for (const sheet of workbook.worksheets) sheet.eachRow((row, rowNumber) => { if (rowNumber > 1 && rowNumber % 2 === 0) row.eachCell((cell) => { if (!cell.fill?.type) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: SOFT } }; }); });
   await workbook.xlsx.writeFile(path.join(root, 'summary.xlsx'));

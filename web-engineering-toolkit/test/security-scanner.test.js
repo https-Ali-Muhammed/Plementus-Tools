@@ -453,7 +453,7 @@ test('local lab scan produces findings, coverage states, and a hashed evidence a
   for (const projection of ['executive-report.json', 'developer-report.json', 'auditor-evidence-report.json', 'legal-privacy-report.json', 'technical-appendix.json']) {
     assert.equal(fs.existsSync(path.join(reportRoot, projection)), false);
   }
-  assert.equal(saved.evidenceManifestHref, `/reports/${encodeURIComponent(saved.reportName)}/evidence/manifest.json`);
+  assert.equal(saved.evidenceManifestHref, `/api/reports/${encodeURIComponent(saved.reportName)}/download/evidence-manifest`);
   assert.equal(refreshedHtml.includes('[object Object]'), false);
   assert.doesNotMatch(refreshedHtml, /Auditor|readiness percentage|Compliance Mapping Platform/i);
   assert.match(refreshedHtml, /Technical checks completed/);

@@ -1,0 +1,190 @@
+.nav-security-analyzer {
+  display: grid;
+  place-items: center;
+}
+.nav-security-analyzer svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.security-analyzer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 22px;
+  align-items: start;
+}
+.security-analyzer-layout .content-column {
+  display: grid;
+  gap: 18px;
+}
+.security-analyzer-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.security-analyzer-network {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.security-analyzer-note {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px;
+  border: 1px solid rgba(93, 214, 183, 0.25);
+  border-radius: 12px;
+  background: rgba(93, 214, 183, 0.06);
+}
+.security-analyzer-note span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.security-analyzer-run-summary {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.security-analyzer-run-summary div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.security-analyzer-run-summary span {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.security-analyzer-run-summary strong {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.security-analyzer-results {
+  display: grid;
+  gap: 22px;
+}
+.security-analyzer-result-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+.security-score-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  min-width: 250px;
+  padding: 1rem;
+  border: 1px solid rgba(93, 214, 183, 0.35);
+  border-radius: 16px;
+  background: rgba(93, 214, 183, 0.08);
+}
+.security-score-pill strong {
+  font-size: 26px;
+  color: #8fe8d1;
+}
+.security-score-pill span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.security-analyzer-score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.security-analyzer-score-card {
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.security-analyzer-score-card > span,
+.security-analyzer-score-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.security-analyzer-score-card strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 22px;
+}
+.security-analyzer-findings {
+  display: grid;
+  gap: 9px;
+}
+.security-analyzer-finding {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.security-analyzer-finding p,
+.security-analyzer-finding small {
+  display: block;
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.security-analyzer-finding .report-type-badge {
+  align-self: start;
+  text-align: center;
+}
+.security-analyzer-status-badge.pass {
+  color: #8ce6c3;
+  border-color: rgba(79, 209, 161, 0.18);
+  background: rgba(79, 209, 161, 0.09);
+}
+.security-analyzer-status-badge.warning {
+  color: #ffd095;
+  border-color: rgba(255, 191, 105, 0.18);
+  background: rgba(255, 191, 105, 0.09);
+}
+.security-analyzer-status-badge.fail {
+  color: #ff9da7;
+  border-color: rgba(255, 107, 122, 0.18);
+  background: rgba(255, 107, 122, 0.09);
+}
+.security-analyzer-status-badge.unavailable {
+  color: var(--muted);
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.035);
+}
+@media (max-width: 1050px) {
+  .security-analyzer-layout {
+    grid-template-columns: 1fr;
+  }
+  .security-analyzer-layout .action-column {
+    position: static;
+  }
+  .security-analyzer-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .security-analyzer-options,
+  .security-analyzer-network,
+  .security-analyzer-score-grid {
+    grid-template-columns: 1fr;
+  }
+  .security-analyzer-result-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .security-analyzer-finding {
+    grid-template-columns: 1fr;
+  }
+}

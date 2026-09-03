@@ -13,6 +13,8 @@ import { analyzeWebsiteAssets } from './lib/asset-analyzer.js';
 import { AssetReportManager } from './lib/asset-report-manager.js';
 import { checkBrokenLinksAndResources, validateBrokenLinksInput } from './lib/broken-links-checker.js';
 import { BrokenLinksReportManager } from './lib/broken-links-report-manager.js';
+import { analyzeWebsiteSecurity } from './lib/security-analyzer.js';
+import { SecurityAnalyzerReportManager } from './lib/security-analyzer-report-manager.js';
 import { SecuritySessionStore } from './lib/security-session-store.js';
 import { EvidenceVault } from './lib/evidence-vault.js';
 import { SecurityLifecycleManager } from './lib/security-lifecycle-manager.js';
@@ -36,6 +38,7 @@ const securityReportManager = new SecurityReportManager({ reportsRoot: REPORTS_D
 const projectManager = new ProjectManager({ dataDir: DATA_DIR });
 const assetReportManager = new AssetReportManager({ reportsRoot: REPORTS_DIR });
 const brokenLinksReportManager = new BrokenLinksReportManager({ reportsRoot: REPORTS_DIR });
+const securityAnalyzerReportManager = new SecurityAnalyzerReportManager({ reportsRoot: REPORTS_DIR });
 const securitySessionStore = new SecuritySessionStore({ root: path.join(PROFILES_DIR, 'security-scanner') });
 const executeSecurityScan = async (config) => securityReportManager.save(securityLifecycleManager.reconcile(await scanWebsiteSecurity(config, { sessionStore: securitySessionStore })));
 
@@ -135,6 +138,10 @@ const server = http.createServer(async (req, res) => {
       const result = await checkBrokenLinksAndResources(input);
       return json(res, 200, await brokenLinksReportManager.save(result));
     }
+    if (req.method === 'POST' && url.pathname === '/api/security-analyzer/analyze') {
+      const result = await analyzeWebsiteSecurity(await readBody(req));
+      return json(res, 200, await securityAnalyzerReportManager.save(result));
+    }
     if (req.method === 'GET' && url.pathname === '/api/projects') {
       return json(res, 200, projectManager.list());
     }
@@ -164,7 +171,7 @@ const server = http.createServer(async (req, res) => {
       if (blocked.length) return json(res, 409, { error: `Cannot delete an active report: ${blocked.join(', ')}` });
       return json(res, 200, reportManager.deleteReports(names));
     }
-    const reportDownloadMatch = url.pathname.match(/^\/api\/reports\/([^/]+)\/download\/(pdf|csv|xlsx)$/);
+    const reportDownloadMatch = url.pathname.match(/^\/api\/reports\/([^/]+)\/download\/(pdf|csv|xlsx|json|evidence-manifest|assets-csv)$/);
     if (req.method === 'GET' && reportDownloadMatch) {
       const download = resolveReportDownload({ reportsRoot: REPORTS_DIR, reportName: decodeURIComponent(reportDownloadMatch[1]), format: reportDownloadMatch[2] });
       res.writeHead(200, {

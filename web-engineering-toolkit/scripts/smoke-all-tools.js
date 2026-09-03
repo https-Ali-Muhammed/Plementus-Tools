@@ -14,6 +14,8 @@ import { scanWebsiteSecurity } from '../lib/security-scanner.js';
 import { ensureDir, findFreePort } from '../lib/utils.js';
 import { startSecurityLab } from '../test/fixtures/security-lab-server.js';
 import { startBrokenLinksLab } from '../test/fixtures/broken-links-lab-server.js';
+import { analyzeWebsiteSecurity } from '../lib/security-analyzer.js';
+import { SecurityAnalyzerReportManager } from '../lib/security-analyzer-report-manager.js';
 
 const keep = process.argv.includes('--keep');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'web-toolkit-smoke-'));
@@ -73,7 +75,8 @@ const result = {
   compliance: skipped('environment_not_checked'),
   lighthouse: skipped('environment_not_checked'),
   asset: skipped('environment_not_checked'),
-  links: skipped('environment_not_checked')
+  links: skipped('environment_not_checked'),
+  securityAnalyzer: skipped('environment_not_checked')
 };
 
 try {
@@ -120,6 +123,16 @@ try {
     return { reportName: asset.reportName, pages: assessment.pages.length, metrics: true, report: true, csv: true, xlsx: true, pdf: true, pdfBytes: fs.statSync(path.join(reportRoot, 'summary.pdf')).size, pdfMs: asset.pdfGeneration?.durationMs, durationMs: Math.round(performance.now() - started) };
   });
 
+  result.securityAnalyzer = navigationReason || pdfReason ? skipped(navigationReasonCode || pdfReasonCode) : await captureTool('securityAnalyzer', async () => {
+    const started = performance.now();
+    const assessment = await analyzeWebsiteSecurity({ projectName: 'Toolkit Security Analyzer Smoke', baseUrl: lab.baseUrl, pages: ['/secure-corporate', '/weak-security'], device: 'desktop', preferredBrowserPath: browserPath, timeoutMs: 8000 });
+    const saved = await new SecurityAnalyzerReportManager({ reportsRoot }).save(assessment);
+    const reportRoot = path.join(reportsRoot, saved.reportName);
+    assertExportSet(reportRoot, ['summary.html', 'summary.json', 'summary.csv', 'summary.xlsx', 'summary.pdf', 'metadata.json']);
+    if (assessment.pages.length !== 2 || !assessment.findings.length || assessment.score == null) throw new Error('Security analyzer smoke did not exercise multi-page findings and scoring.');
+    return { reportName: saved.reportName, pages: assessment.pages.length, score: assessment.score, findings: assessment.findings.length, report: true, csv: true, xlsx: true, pdf: true, pdfBytes: fs.statSync(path.join(reportRoot, 'summary.pdf')).size, durationMs: Math.round(performance.now() - started) };
+  });
+
   result.links = navigationReason ? skipped(navigationReasonCode) : await captureTool('links', async () => {
     const started = performance.now();
     const assessment = await checkBrokenLinksAndResources({ projectName: 'Toolkit Broken Links Smoke', baseUrl: linksLab.baseUrl, startingPages: ['/', '/page-two'], scanScope: 'selected', maxPages: 5, maxTargets: 200, timeoutMs: 150, concurrency: 4, maxRedirects: 4, preferredBrowserPath: browserPath });
@@ -147,7 +160,7 @@ try {
   });
 } catch (error) {
   result.environment.setupError = String(error?.stack || error?.message || error);
-  for (const tool of ['compliance', 'lighthouse', 'asset', 'links']) if (result[tool].reason === 'environment_not_checked') result[tool] = { status: 'failed', reason: 'environment_setup_failed', error: result.environment.setupError };
+  for (const tool of ['compliance', 'lighthouse', 'asset', 'links', 'securityAnalyzer']) if (result[tool].reason === 'environment_not_checked') result[tool] = { status: 'failed', reason: 'environment_setup_failed', error: result.environment.setupError };
 } finally {
   await Promise.all(browserProcesses.map(stopBrowserProcess));
   await lab?.close().catch(() => {});
@@ -156,4 +169,4 @@ try {
   if (!keep) fs.rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
 
-if (['compliance', 'lighthouse', 'asset', 'links'].some((tool) => result[tool].status === 'failed')) process.exitCode = 1;
+if (['compliance', 'lighthouse', 'asset', 'links', 'securityAnalyzer'].some((tool) => result[tool].status === 'failed')) process.exitCode = 1;

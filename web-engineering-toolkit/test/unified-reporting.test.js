@@ -16,6 +16,8 @@ test('canonical report filenames are descriptive, safe, and share the report tim
   assert.equal(buildReportDownloadFilename({ reportType: 'lighthouse', projectName: 'Plementus', generatedAt, extension: 'pdf' }), 'lighthouse-report__plementus__2026-08-30_13-55-42Z.pdf');
   assert.equal(buildReportDownloadFilename({ reportType: 'lighthouse', projectName: 'Plementus', generatedAt, extension: 'csv' }), 'lighthouse-report__plementus__2026-08-30_13-55-42Z.csv');
   assert.equal(buildReportDownloadFilename({ reportType: 'lighthouse', projectName: 'Plementus', generatedAt, extension: 'xlsx' }), 'lighthouse-report__plementus__2026-08-30_13-55-42Z.xlsx');
+  assert.equal(buildReportDownloadFilename({ reportType: 'lighthouse', projectName: 'Plementus', generatedAt, extension: 'json' }), 'lighthouse-report__plementus__2026-08-30_13-55-42Z.json');
+  assert.equal(buildReportDownloadFilename({ reportType: 'security-compliance', projectName: 'Plementus', generatedAt, extension: 'json', suffix: 'evidence-manifest' }), 'compliance-mapping-report__plementus__2026-08-30_13-55-42Z__evidence-manifest.json');
   assert.match(buildReportDownloadFilename({ reportType: 'asset-page-weight', projectName: 'My Client / مصر', generatedAt, extension: 'pdf' }), /^asset-page-weight-report__my-client__/);
   assert.match(buildReportDownloadFilename({ reportType: 'security-compliance', projectName: 'Client: "North" \\ Cairo', generatedAt, extension: 'csv' }), /^compliance-mapping-report__client-north-cairo__/);
   assert.ok(buildReportDownloadFilename({ reportType: 'broken-links-resources', projectName: 'a'.repeat(300), generatedAt, extension: 'pdf' }).length < 160);
@@ -65,15 +67,17 @@ test('download resolution is allow-listed and uses historical report metadata', 
   fs.writeFileSync(path.join(root, 'summary.pdf'), '%PDF fixture');
   fs.writeFileSync(path.join(root, 'summary.csv'), 'A\n1\n');
   fs.writeFileSync(path.join(root, 'summary.xlsx'), 'xlsx fixture');
+  fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify({ reportType: 'asset-page-weight', projectName: 'Client / Egypt', generatedAt: '2026-08-30T13:57:10.000Z' }));
   fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ reportType: 'asset-page-weight', projectName: 'Client / Egypt', generatedAt: '2026-08-30T13:57:10.000Z' }));
   assert.equal(resolveReportDownload({ reportsRoot, reportName: 'safe-report', format: 'pdf' }).filename, 'asset-page-weight-report__client-egypt__2026-08-30_13-57-10Z.pdf');
   assert.equal(resolveReportDownload({ reportsRoot, reportName: 'safe-report', format: 'xlsx' }).filename, 'asset-page-weight-report__client-egypt__2026-08-30_13-57-10Z.xlsx');
+  assert.equal(resolveReportDownload({ reportsRoot, reportName: 'safe-report', format: 'json' }).filename, 'asset-page-weight-report__client-egypt__2026-08-30_13-57-10Z.json');
   assert.throws(() => resolveReportDownload({ reportsRoot, reportName: '../safe-report', format: 'pdf' }), /Invalid/);
 });
 
 
 
-test('real report download endpoint returns canonical historical PDF and CSV filenames for every tool', { timeout: 15_000 }, async (t) => {
+test('real report download endpoint returns canonical filenames for every report format and tool', { timeout: 15_000 }, async (t) => {
   const reportsRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'report-download-http-'));
   t.after(() => fs.rmSync(reportsRoot, { recursive: true, force: true }));
   const fixtures = [
@@ -87,7 +91,12 @@ test('real report download endpoint returns canonical historical PDF and CSV fil
     fs.writeFileSync(path.join(root, 'summary.pdf'), '%PDF-1.4\nfixture\n');
     fs.writeFileSync(path.join(root, 'summary.csv'), 'A,B\n1,2\n');
     fs.writeFileSync(path.join(root, 'summary.xlsx'), 'xlsx fixture');
-    if (reportType === 'security-compliance') fs.writeFileSync(path.join(root, 'findings.csv'), 'Finding\nfixture\n');
+    if (reportType === 'asset-page-weight') fs.writeFileSync(path.join(root, 'assets.csv'), 'Asset\nfixture\n');
+    if (reportType === 'security-compliance') {
+      fs.writeFileSync(path.join(root, 'findings.csv'), 'Finding\nfixture\n');
+      fs.mkdirSync(path.join(root, 'evidence'));
+      fs.writeFileSync(path.join(root, 'evidence', 'manifest.json'), '{"fixture":true}');
+    }
     fs.writeFileSync(path.join(root, 'metadata.json'), JSON.stringify({ reportType, projectName, generatedAt }));
     fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify({ reportType, projectName, generatedAt, overview: { reportType, projectName, generatedAt } }));
   }
@@ -101,20 +110,24 @@ test('real report download endpoint returns canonical historical PDF and CSV fil
   }
   if (!ready) { child.kill('SIGTERM'); return t.skip('Local HTTP binding unavailable in this environment.'); }
   const expected = {
-    lh: ['lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.pdf', 'lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.csv', 'lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.xlsx'],
-    asset: ['asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.pdf', 'asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.csv', 'asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.xlsx'],
-    links: ['broken-links-resources-report__links-project__2026-08-30_14-57-04Z.pdf', 'broken-links-resources-report__links-project__2026-08-30_14-57-04Z.csv', 'broken-links-resources-report__links-project__2026-08-30_14-57-04Z.xlsx'],
-    comp: ['compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.pdf', 'compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.csv', 'compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.xlsx']
+    lh: ['lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.pdf', 'lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.csv', 'lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.xlsx', 'lighthouse-report__lighthouse-project__2026-08-30_14-55-02Z.json'],
+    asset: ['asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.pdf', 'asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.csv', 'asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.xlsx', 'asset-page-weight-report__asset-project__2026-08-30_14-56-03Z.json'],
+    links: ['broken-links-resources-report__links-project__2026-08-30_14-57-04Z.pdf', 'broken-links-resources-report__links-project__2026-08-30_14-57-04Z.csv', 'broken-links-resources-report__links-project__2026-08-30_14-57-04Z.xlsx', 'broken-links-resources-report__links-project__2026-08-30_14-57-04Z.json'],
+    comp: ['compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.pdf', 'compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.csv', 'compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.xlsx', 'compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z.json']
   };
   for (const [name] of fixtures) {
-    for (const [index, format] of ['pdf', 'csv', 'xlsx'].entries()) {
+    for (const [index, format] of ['pdf', 'csv', 'xlsx', 'json'].entries()) {
       const response = await fetch(`http://127.0.0.1:${port}/api/reports/${name}/download/${format}`);
       assert.equal(response.status, 200);
       assert.equal(response.headers.get('content-disposition'), `attachment; filename="${expected[name][index]}"`);
-      assert.match(response.headers.get('content-type') || '', format === 'pdf' ? /^application\/pdf/ : format === 'csv' ? /^text\/csv/ : /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet/);
+      assert.match(response.headers.get('content-type') || '', format === 'pdf' ? /^application\/pdf/ : format === 'csv' ? /^text\/csv/ : format === 'json' ? /^application\/json/ : /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet/);
       await response.arrayBuffer();
     }
   }
+  const manifest = await fetch(`http://127.0.0.1:${port}/api/reports/comp/download/evidence-manifest`);
+  assert.equal(manifest.headers.get('content-disposition'), 'attachment; filename="compliance-mapping-report__compliance-project__2026-08-30_14-58-05Z__evidence-manifest.json"');
+  const assets = await fetch(`http://127.0.0.1:${port}/api/reports/asset/download/assets-csv`);
+  assert.equal(assets.headers.get('content-disposition'), 'attachment; filename="asset-page-weight-report__asset-project__2026-08-30_14-56-03Z__assets.csv"');
   const blocked = await fetch(`http://127.0.0.1:${port}/api/reports/lh/download/zip`);
   assert.equal(blocked.status, 404);
   child.kill('SIGTERM');

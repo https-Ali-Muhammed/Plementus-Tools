@@ -111,5 +111,5 @@ test('generic Report History discovers the fourth report type and artifacts', as
   assert.match(report.csvHref, /\/download\/csv$/);
   assert.match(report.pdfHref, /\/download\/pdf$/);
   assert.match(report.xlsxHref, /\/download\/xlsx$/);
-  assert.match(report.jsonHref, /summary\.json$/);
+  assert.match(report.jsonHref, /\/download\/json$/);
 });

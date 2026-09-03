@@ -6,13 +6,17 @@ const REPORT_SLUGS = Object.freeze({
   lighthouse: 'lighthouse-report',
   'security-compliance': 'compliance-mapping-report',
   'asset-page-weight': 'asset-page-weight-report',
-  'broken-links-resources': 'broken-links-resources-report'
+  'broken-links-resources': 'broken-links-resources-report',
+  'security-analyzer': 'security-web-security'
 });
 
 const ARTIFACTS = Object.freeze({
   pdf: { file: 'summary.pdf', mimeType: 'application/pdf' },
   csv: { file: 'summary.csv', complianceFile: 'findings.csv', mimeType: 'text/csv; charset=utf-8' },
-  xlsx: { file: 'summary.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+  xlsx: { file: 'summary.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+  json: { file: 'summary.json', mimeType: 'application/json; charset=utf-8' },
+  'evidence-manifest': { file: 'evidence/manifest.json', extension: 'json', suffix: 'evidence-manifest', mimeType: 'application/json; charset=utf-8' },
+  'assets-csv': { file: 'assets.csv', extension: 'csv', suffix: 'assets', mimeType: 'text/csv; charset=utf-8' }
 });
 
 function timestampPart(value) {
@@ -21,12 +25,19 @@ function timestampPart(value) {
   return date.toISOString().replace(/\.\d{3}Z$/, 'Z').replace('T', '_').replaceAll(':', '-');
 }
 
-export function buildReportDownloadFilename({ reportType, projectName, generatedAt, extension }) {
+export function buildReportDownloadFilename({ reportType, projectName, generatedAt, extension, suffix = '' }) {
   const ext = String(extension || '').toLowerCase().replace(/^\./, '');
-  if (!ARTIFACTS[ext]) throw new Error('Unsupported report download format.');
+  if (!['pdf', 'csv', 'xlsx', 'json'].includes(ext)) throw new Error('Unsupported report download format.');
   const report = REPORT_SLUGS[reportType] || 'web-engineering-report';
   const project = slugify(String(projectName || '').slice(0, 160), 'project').slice(0, 80) || 'project';
-  return `${report}__${project}__${timestampPart(generatedAt)}.${ext}`;
+  const qualifier = suffix ? `__${slugify(String(suffix).slice(0, 80), 'artifact')}` : '';
+  return `${report}__${project}__${timestampPart(generatedAt)}${qualifier}.${ext}`;
+}
+
+export function buildReportArtifactDownloadFilename({ reportType, projectName, generatedAt, format }) {
+  const artifact = ARTIFACTS[format];
+  if (!artifact) throw new Error('Unsupported report download format.');
+  return buildReportDownloadFilename({ reportType, projectName, generatedAt, extension: artifact.extension || format, suffix: artifact.suffix });
 }
 
 function readJson(file) {
@@ -47,7 +58,7 @@ export function resolveReportDownload({ reportsRoot, reportName, format }) {
   if (!fs.existsSync(file) || !fs.statSync(file).isFile()) throw Object.assign(new Error('Report artifact not found.'), { statusCode: 404 });
   const projectName = summary.projectName || summary.overview?.projectName || metadata.projectName || 'project';
   const generatedAt = summary.generatedAt || summary.overview?.generatedAt || metadata.generatedAt;
-  return { file, mimeType: artifact.mimeType, filename: buildReportDownloadFilename({ reportType, projectName, generatedAt, extension: format }) };
+  return { file, mimeType: artifact.mimeType, filename: buildReportArtifactDownloadFilename({ reportType, projectName, generatedAt, format }) };
 }
 
 export function reportDownloadHref(reportName, format) {

@@ -58,6 +58,7 @@ const refs = {
   assetProjectName: $('#assetProjectName'), assetProjectField: $('#assetProjectField'), assetProjectError: $('#assetProjectError'), assetBaseUrl: $('#assetBaseUrl'), assetBaseUrlField: $('#assetBaseUrlField'), assetBaseUrlError: $('#assetBaseUrlError'),
   assetPaths: $('#assetPaths'), assetPathsField: $('#assetPathsField'), assetPathsError: $('#assetPathsError'), assetBrowserSelect: $('#assetBrowserSelect'), startAssetAnalysisBtn: $('#startAssetAnalysisBtn'), assetScanState: $('#assetScanState'), assetResultsCard: $('#assetResultsCard'), assetResults: $('#assetResults'), assetResultActions: $('#assetResultActions'),
   linksProjectName: $('#linksProjectName'), linksProjectField: $('#linksProjectField'), linksProjectError: $('#linksProjectError'), linksBaseUrl: $('#linksBaseUrl'), linksBaseUrlField: $('#linksBaseUrlField'), linksBaseUrlError: $('#linksBaseUrlError'), linksPages: $('#linksPages'), linksPagesField: $('#linksPagesField'), linksPagesMeta: $('#linksPagesMeta'), linksPagesError: $('#linksPagesError'), linksCheckExternal: $('#linksCheckExternal'), linksCheckFragments: $('#linksCheckFragments'), linksCheckResources: $('#linksCheckResources'), linksBrowserSelect: $('#linksBrowserSelect'), linksMaxPages: $('#linksMaxPages'), linksMaxTargets: $('#linksMaxTargets'), linksTimeout: $('#linksTimeout'), linksConcurrency: $('#linksConcurrency'), linksMaxRedirects: $('#linksMaxRedirects'), linksIgnorePatterns: $('#linksIgnorePatterns'), linksAdvancedSummary: $('#linksAdvancedSummary'), linksRunSummary: $('#linksRunSummary'), startLinksCheckBtn: $('#startLinksCheckBtn'), linksCheckState: $('#linksCheckState'), linksResultsCard: $('#linksResultsCard'), linksResults: $('#linksResults'), linksResultActions: $('#linksResultActions'),
+  securityAnalyzerProjectName: $('#securityAnalyzerProjectName'), securityAnalyzerProjectField: $('#securityAnalyzerProjectField'), securityAnalyzerProjectError: $('#securityAnalyzerProjectError'), securityAnalyzerBaseUrl: $('#securityAnalyzerBaseUrl'), securityAnalyzerBaseUrlField: $('#securityAnalyzerBaseUrlField'), securityAnalyzerBaseUrlError: $('#securityAnalyzerBaseUrlError'), securityAnalyzerPages: $('#securityAnalyzerPages'), securityAnalyzerPagesField: $('#securityAnalyzerPagesField'), securityAnalyzerPagesError: $('#securityAnalyzerPagesError'), securityAnalyzerHeaders: $('#securityAnalyzerHeaders'), securityAnalyzerHttps: $('#securityAnalyzerHttps'), securityAnalyzerCookies: $('#securityAnalyzerCookies'), securityAnalyzerMixed: $('#securityAnalyzerMixed'), securityAnalyzerDevice: $('#securityAnalyzerDevice'), securityAnalyzerBrowserSelect: $('#securityAnalyzerBrowserSelect'), securityAnalyzerTimeout: $('#securityAnalyzerTimeout'), startSecurityAnalyzerBtn: $('#startSecurityAnalyzerBtn'), securityAnalyzerState: $('#securityAnalyzerState'), securityAnalyzerResultsCard: $('#securityAnalyzerResultsCard'), securityAnalyzerResults: $('#securityAnalyzerResults'), securityAnalyzerResultActions: $('#securityAnalyzerResultActions'),
   projectDeleteModal: $('#projectDeleteModal'), projectDeleteModalCloseBtn: $('#projectDeleteModalCloseBtn'), projectDeleteModalMessage: $('#projectDeleteModalMessage'), cancelProjectDeleteBtn: $('#cancelProjectDeleteBtn'), confirmProjectDeleteBtn: $('#confirmProjectDeleteBtn')
 };
 
@@ -85,6 +86,7 @@ function autoSizeToolPageLists() {
   autoSizePageList(refs.urls);
   autoSizePageList(refs.assetPaths);
   autoSizePageList(refs.linksPages);
+  autoSizePageList(refs.securityAnalyzerPages);
 }
 
 function parseUrls() {
@@ -377,6 +379,7 @@ async function checkEnvironment() {
     refs.browserSelect.innerHTML = browserOptions;
     if (refs.assetBrowserSelect) refs.assetBrowserSelect.innerHTML = browserOptions;
     if (refs.linksBrowserSelect) refs.linksBrowserSelect.innerHTML = browserOptions;
+    if (refs.securityAnalyzerBrowserSelect) refs.securityAnalyzerBrowserSelect.innerHTML = browserOptions;
     toast(data.ready ? (warnings ? `Environment is ready with ${warnings} warning${warnings === 1 ? '' : 's'}.` : 'Environment is ready.') : `Environment needs ${errors} required fix${errors === 1 ? '' : 'es'}.`, !data.ready);
   } catch (error) {
     refs.environmentDot.className = 'status-dot error';
@@ -582,6 +585,7 @@ function humanize(value) {
 function reportTypeLabel(reportType) {
   if (reportType === 'security-compliance') return 'Compliance Mapping';
   if (reportType === 'broken-links-resources') return 'Broken Links & Resources';
+  if (reportType === 'security-analyzer') return 'Security Headers & Web Security';
   return humanize(reportType);
 }
 
@@ -590,6 +594,7 @@ function reportTypeBadgeClass(reportType) {
   if (reportType === 'lighthouse') return 'report-type-badge--lighthouse';
   if (reportType === 'asset-page-weight') return 'report-type-badge--asset';
   if (reportType === 'broken-links-resources') return 'report-type-badge--broken-links';
+  if (reportType === 'security-analyzer') return 'report-type-badge--security-analyzer';
   return '';
 }
 
@@ -884,6 +889,12 @@ async function loadHistory() {
         if (overview.broken != null) scoreParts.push(`${overview.broken} broken`);
         if (overview.redirected != null) scoreParts.push(`${overview.redirected} redirected`);
       }
+      if (reportType === 'security-analyzer') {
+        if (overview.securityScore != null) scoreParts.push(`Security ${overview.securityScore}%`);
+        if (overview.pages != null) scoreParts.push(`${overview.pages} page${overview.pages === 1 ? '' : 's'}`);
+        if (overview.securityFailures != null) scoreParts.push(`${overview.securityFailures} failed`);
+        if (overview.securityWarnings != null) scoreParts.push(`${overview.securityWarnings} warnings`);
+      }
       const scoreText = scoreParts.join(' · ');
       return `
         <div class="history-item upgraded" data-report-name="${escapeHtml(report.name)}">
@@ -982,6 +993,10 @@ function syncSharedProjectToTools(project, { overwrite = true } = {}) {
   set(refs.linksProjectName, project.name);
   set(refs.linksBaseUrl, baseUrl);
   if (refs.linksPages && (overwrite || !refs.linksPages.value.trim() || refs.linksPages.value.trim() === '/')) refs.linksPages.value = paths || '/';
+
+  set(refs.securityAnalyzerProjectName, project.name);
+  set(refs.securityAnalyzerBaseUrl, baseUrl);
+  if (refs.securityAnalyzerPages && (overwrite || !refs.securityAnalyzerPages.value.trim() || refs.securityAnalyzerPages.value.trim() === '/')) refs.securityAnalyzerPages.value = paths || '/';
 
   updateEstimate();
   updateRoutingPreview();
@@ -1260,6 +1275,63 @@ async function runAssetAnalysis() {
     refs.startAssetAnalysisBtn.disabled = false;
     refs.startAssetAnalysisBtn.textContent = 'Analyze page weight';
   }
+}
+
+function securityAnalyzerPages() {
+  const pages = refs.securityAnalyzerPages.value.split('\n').map((value) => value.trim()).filter(Boolean);
+  return pages.length ? pages : ['/'];
+}
+
+function validateSecurityAnalyzerForm() {
+  const project = refs.securityAnalyzerProjectName.value.trim();
+  const base = refs.securityAnalyzerBaseUrl.value.trim();
+  const pages = securityAnalyzerPages();
+  const projectMessage = !project ? 'Project name is required.' : project.length < 2 ? 'Project name must contain at least 2 characters.' : '';
+  let baseMessage = '';
+  if (!base) baseMessage = 'Base URL is required.';
+  else { try { if (!['http:', 'https:'].includes(new URL(base).protocol)) baseMessage = 'Use http:// or https://.'; } catch { baseMessage = 'Enter a valid Base URL.'; } }
+  let pagesMessage = pages.length > 30 ? 'Analyze up to 30 pages per report.' : '';
+  if (!pagesMessage) { const bad = pages.findIndex((value) => !value.startsWith('/') && !/^https?:\/\//i.test(value)); if (bad >= 0) pagesMessage = `Line ${bad + 1} must start with / or be a full http(s) URL.`; }
+  const selected = [refs.securityAnalyzerHeaders, refs.securityAnalyzerHttps, refs.securityAnalyzerCookies, refs.securityAnalyzerMixed].filter((input) => input.checked).length;
+  if (!selected) pagesMessage = 'Select at least one security category.';
+  setFieldError(refs.securityAnalyzerProjectField, refs.securityAnalyzerProjectError, projectMessage);
+  setFieldError(refs.securityAnalyzerBaseUrlField, refs.securityAnalyzerBaseUrlError, baseMessage);
+  setFieldError(refs.securityAnalyzerPagesField, refs.securityAnalyzerPagesError, pagesMessage);
+  return !projectMessage && !baseMessage && !pagesMessage;
+}
+
+function renderSecurityAnalyzerResults(result) {
+  const categories = Object.values(result.categories || {});
+  const findings = result.findings || [];
+  const failureCount = findings.filter((finding) => finding.status === 'fail').length;
+  const warningCount = findings.filter((finding) => finding.status === 'warning').length;
+  refs.securityAnalyzerResults.innerHTML = `<div class="security-analyzer-result-head"><div><span class="eyebrow mini">Security Headers &amp; Web Security Analyzer</span><h4>${escapeHtml(result.projectName)}</h4><span class="muted">${escapeHtml(result.baseUrl)} · ${result.pages.length} page${result.pages.length === 1 ? '' : 's'} analyzed</span></div><div class="security-score-pill"><strong>${result.score == null ? '—' : `${result.score}%`}</strong><span>Security score</span></div></div>
+    <div class="security-analyzer-score-grid">${categories.map((category) => `<article class="security-analyzer-score-card"><span>${escapeHtml(category.label)}</span><strong>${category.score == null ? 'Not scored' : `${category.score}%`}</strong><small>${category.passed} passed · ${category.warnings} warnings · ${category.failures} failed${category.unavailable ? ` · ${category.unavailable} unavailable` : ''}</small></article>`).join('')}</div>
+    <div class="asset-section-title"><div><h4>Full audit coverage</h4><span>${failureCount} failures · ${warningCount} warnings · passed checks remain visible in the complete report.</span></div></div>
+    <div class="security-analyzer-findings">${findings.length ? findings.map((finding) => `<article class="security-analyzer-finding"><span class="report-type-badge security-analyzer-status-badge ${escapeHtml(finding.status)}">${escapeHtml(humanize(finding.status))}</span><div><strong>${escapeHtml(finding.label)}</strong><p>${escapeHtml(finding.risk)}</p><small>${escapeHtml(finding.recommendation)}</small></div></article>`).join('') : '<div class="empty-state">No warnings or failures were produced by the selected checks. Open the report to review every passed check.</div>'}</div>`;
+  refs.securityAnalyzerResultActions.innerHTML = reportActionControls({ openHref: result.summaryHref, pdfHref: result.pdfHref, csvHref: result.csvHref, xlsxHref: result.xlsxHref, label: 'Security analyzer report actions' });
+  refs.securityAnalyzerResultsCard.classList.remove('hidden');
+  refs.securityAnalyzerResultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function runSecurityAnalyzer() {
+  if (!validateSecurityAnalyzerForm()) { toast('Fix the highlighted fields before running the analysis.', true); return; }
+  refs.startSecurityAnalyzerBtn.disabled = true;
+  refs.startSecurityAnalyzerBtn.textContent = 'Analyzing…';
+  refs.securityAnalyzerState.className = 'security-scan-state running';
+  refs.securityAnalyzerState.innerHTML = '<span class="security-spinner"></span><div><strong>Inspecting pages…</strong><small>Collecting headers, TLS, cookies, and browser requests.</small></div>';
+  try {
+    const result = await api('/api/security-analyzer/analyze', { method: 'POST', body: JSON.stringify({ projectName: refs.securityAnalyzerProjectName.value.trim(), baseUrl: refs.securityAnalyzerBaseUrl.value.trim(), pages: securityAnalyzerPages(), device: refs.securityAnalyzerDevice.value, preferredBrowserPath: refs.securityAnalyzerBrowserSelect.value || undefined, timeoutMs: Number(refs.securityAnalyzerTimeout.value), options: { headers: refs.securityAnalyzerHeaders.checked, https: refs.securityAnalyzerHttps.checked, cookies: refs.securityAnalyzerCookies.checked, mixedContent: refs.securityAnalyzerMixed.checked } }) });
+    renderSecurityAnalyzerResults(result);
+    refs.securityAnalyzerState.className = 'security-scan-state success';
+    refs.securityAnalyzerState.innerHTML = `<span class="security-state-dot"></span><div><strong>Analysis completed</strong><small>${result.pages.length} page${result.pages.length === 1 ? '' : 's'} · ${result.score == null ? 'not scored' : `${result.score}% security score`}.</small></div>`;
+    toast('Security analysis report generated.');
+    loadHistory();
+  } catch (error) {
+    refs.securityAnalyzerState.className = 'security-scan-state error';
+    refs.securityAnalyzerState.innerHTML = `<span class="security-state-dot"></span><div><strong>Analysis failed</strong><small>${escapeHtml(error.message)}</small></div>`;
+    toast(error.message, true);
+  } finally { refs.startSecurityAnalyzerBtn.disabled = false; refs.startSecurityAnalyzerBtn.textContent = 'Analyze web security'; }
 }
 
 function linksStartingPages() {
@@ -2068,6 +2140,11 @@ refs.assetProjectName?.addEventListener('blur', validateAssetForm);
 refs.assetBaseUrl?.addEventListener('blur', validateAssetForm);
 refs.assetPaths?.addEventListener('blur', validateAssetForm);
 refs.assetPaths?.addEventListener('input', () => autoSizePageList(refs.assetPaths));
+refs.startSecurityAnalyzerBtn?.addEventListener('click', runSecurityAnalyzer);
+refs.securityAnalyzerProjectName?.addEventListener('blur', validateSecurityAnalyzerForm);
+refs.securityAnalyzerBaseUrl?.addEventListener('blur', validateSecurityAnalyzerForm);
+refs.securityAnalyzerPages?.addEventListener('blur', validateSecurityAnalyzerForm);
+refs.securityAnalyzerPages?.addEventListener('input', () => autoSizePageList(refs.securityAnalyzerPages));
 refs.linksProjectName?.addEventListener('blur', validateLinksForm);
 refs.linksBaseUrl?.addEventListener('blur', validateLinksForm);
 refs.linksPages?.addEventListener('blur', () => { if (!refs.linksPages.value.trim()) refs.linksPages.value = '/'; autoSizePageList(refs.linksPages); validateLinksForm(); updateLinksRunSummary(); });
@@ -2184,7 +2261,7 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
   $$('.page-section').forEach((section) => section.classList.remove('active'));
   $(`#${button.dataset.section}Section`).classList.add('active');
   const active = currentProject();
-  if (active && ['runner', 'security', 'assets', 'links'].includes(button.dataset.section)) syncSharedProjectToTools(active, { overwrite: false });
+  if (active && ['runner', 'security', 'assets', 'links', 'securityAnalyzer'].includes(button.dataset.section)) syncSharedProjectToTools(active, { overwrite: false });
   if (button.dataset.section === 'security') {
     if (!refs.securityProjectName.value.trim() && refs.projectName.value.trim()) refs.securityProjectName.value = refs.projectName.value.trim();
     if (!refs.securityTargetUrl.value.trim() && refs.baseUrl.value.trim()) refs.securityTargetUrl.value = refs.baseUrl.value.trim();
@@ -2201,6 +2278,12 @@ $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
     if ((!refs.linksPages.value.trim() || refs.linksPages.value.trim() === '/') && refs.urls.value.trim()) refs.linksPages.value = refs.urls.value.trim();
     autoSizePageList(refs.linksPages);
     updateLinksRunSummary();
+  }
+  if (button.dataset.section === 'securityAnalyzer') {
+    if (!refs.securityAnalyzerProjectName.value.trim() && refs.projectName.value.trim()) refs.securityAnalyzerProjectName.value = refs.projectName.value.trim();
+    if (!refs.securityAnalyzerBaseUrl.value.trim() && refs.baseUrl.value.trim()) refs.securityAnalyzerBaseUrl.value = refs.baseUrl.value.trim();
+    if ((!refs.securityAnalyzerPages.value.trim() || refs.securityAnalyzerPages.value.trim() === '/') && refs.urls.value.trim()) refs.securityAnalyzerPages.value = refs.urls.value.trim();
+    autoSizePageList(refs.securityAnalyzerPages);
   }
   if (button.dataset.section === 'projects') loadProjects();
   if (button.dataset.section === 'history') loadHistory();

@@ -1,3 +1,5 @@
+import { buildReportArtifactDownloadFilename } from './report-downloads.js';
+
 // Shared, self-contained presentation primitives for standalone HTML reports.
 // Report generators retain ownership of their data and tool-specific content.
 
@@ -6,7 +8,7 @@ export function reportHtmlTheme({ accent = '#70dfd0', accentSoft = 'rgba(112,223
     :root{color-scheme:dark;--report-bg:#090f1d;--report-panel:#111b2f;--report-panel-soft:#0d1627;--report-border:rgba(184,201,234,.14);--report-text:#eef4ff;--report-muted:#9aa8c1;--report-subtle:#76849e;--report-accent:${accent};--report-accent-soft:${accentSoft};--report-good:#65d7a8;--report-warning:#ffc276;--report-danger:#ff8291}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(circle at 82% 0,rgba(62,100,163,.16),transparent 30%),linear-gradient(180deg,#0b1221,#080d18);color:var(--report-text);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{color:inherit}
     .report-shell{width:min(1360px,100%);margin:0 auto;padding:42px 24px 72px}.report-header{display:grid;gap:16px;padding:24px;border:1px solid var(--report-border);border-radius:18px;background:linear-gradient(180deg,rgba(20,31,52,.97),rgba(14,23,40,.97));box-shadow:0 16px 42px rgba(0,0,0,.16)}.report-eyebrow{color:var(--report-accent);font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.report-title{margin:7px 0 0;font-size:clamp(29px,4vw,38px);line-height:1.1;letter-spacing:-.04em}.report-subtitle,.report-muted{color:var(--report-muted)}.report-subtitle{margin:9px 0 0;overflow-wrap:anywhere}
-    .report-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.report-meta>div,.report-metric,.report-detail{min-width:0;padding:11px 12px;border:1px solid var(--report-border);border-radius:11px;background:rgba(4,10,22,.18)}.report-meta span,.report-metric span,.report-detail span{display:block;color:var(--report-subtle);font-size:9px;font-weight:750;letter-spacing:.06em;text-transform:uppercase}.report-meta strong,.report-detail strong{display:block;margin-top:4px;font-size:11px;overflow-wrap:anywhere}
+    .report-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top: 18px;}.report-meta>div,.report-metric,.report-detail{min-width:0;padding:11px 12px;border:1px solid var(--report-border);border-radius:11px;background:rgba(4,10,22,.18)}.report-meta span,.report-metric span,.report-detail span{display:block;color:var(--report-subtle);font-size:9px;font-weight:750;letter-spacing:.06em;text-transform:uppercase}.report-meta strong,.report-detail strong{display:block;margin-top:4px;font-size:11px;overflow-wrap:anywhere}
     ${reportHtmlActionStyles()}
     .report-metrics{display:grid;grid-template-columns:repeat(var(--metric-columns,4),minmax(0,1fr));gap:12px;margin:18px 0}.report-metric strong{display:block;margin-top:7px;font-size:clamp(20px,2.7vw,29px);line-height:1.1}.report-section{margin-top:18px;padding:20px;border:1px solid var(--report-border);border-radius:18px;background:rgba(17,27,47,.91)}.report-section-heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:15px}.report-section-heading h2{margin:0;font-size:18px;letter-spacing:-.015em}.report-section-heading p{margin:4px 0 0;color:var(--report-muted);font-size:12px}
     .report-table-wrap{min-width:0;overflow:auto;border:1px solid var(--report-border);border-radius:12px}.report-table{width:100%;min-width:720px;border-collapse:collapse;font-size:12px}.report-table th,.report-table td{padding:12px 13px;border-bottom:1px solid var(--report-border);text-align:left;vertical-align:top}.report-table tr:last-child td{border-bottom:0}.report-table th{color:var(--report-subtle);background:rgba(255,255,255,.025);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.report-table td{color:#dce6f6}.report-table a{color:#a8cbff;text-decoration:none;overflow-wrap:anywhere}.report-machine-text{overflow-wrap:anywhere;word-break:break-word}.report-status-chip{display:inline-flex;align-items:center;min-height:24px;padding:8px 20px;border:1px solid var(--report-border);border-radius:999px;background:rgba(255,255,255,.04);color:var(--report-muted);font-size:10px;font-weight:800;line-height:1;text-transform:capitalize;white-space:nowrap}.report-status-chip.good{color:var(--report-good);background:rgba(101,215,168,.09)}.report-status-chip.warning{color:var(--report-warning);background:rgba(255,194,118,.1); text-align:center ;width: fit-content;height: fit-content;}.report-status-chip.danger{color:var(--report-danger);background:rgba(255,130,145,.1)}
@@ -25,10 +27,13 @@ export function reportHtmlActionStyles() {
 
 // A self-contained counterpart to the application action controls. It uses
 // relative report artifacts so generated summaries remain useful off-server.
-export function reportHtmlQuickActions({ exports = [], label = 'Report exports' } = {}) {
+export function reportHtmlQuickActions({ exports = [], label = 'Report exports', downloadContext = null } = {}) {
   const exportLinks = exports.filter(([href]) => Boolean(href));
   return `<div class="report-actions report-action-controls screen-only" role="group" aria-label="${escapeHtml(label)}">
-    ${exportLinks.map(([href, exportLabel]) => `<a class="report-action report-export-action" href="${escapeHtml(href)}" download>${escapeHtml(exportLabel)}</a>`).join('')}
+    ${exportLinks.map(([href, exportLabel, format]) => {
+      const downloadName = downloadContext && format ? buildReportArtifactDownloadFilename({ ...downloadContext, format }) : '';
+      return `<a class="report-action report-export-action" href="${escapeHtml(href)}" download${downloadName ? `="${escapeHtml(downloadName)}"` : ''}>${escapeHtml(exportLabel)}</a>`;
+    }).join('')}
   </div>`;
 }
 
