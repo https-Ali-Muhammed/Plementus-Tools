@@ -3,9 +3,9 @@
 ## Current ledger
 - Documentation Bootstrap (DB): ACCEPTED per owner; committed/pushed at `f3cdea5`, verified 2026-10-20.
 - Verified repository: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; project path `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root `/home/https_ali_muhammed/Plementus/Tools`.
-- Implementation branch: `feature/odoo-tracebridge`, created from `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`; current HEAD `9b728bae9c54ebd07768fbe641aed3a7f5178ebe`, upstream `origin/feature/odoo-tracebridge`; live remote equals HEAD. Future commits and pushes require owner review.
-- Completed product phases: **1/22**.
-- Phase 00: COMPLETE, ChatGPT/owner accepted 2026-10-21 per owner; commit/push 9b728ba verified. Phase 01: PROVISIONAL — pending owner acceptance, architecture/security documentation only. Phases 02–20: NOT STARTED / not authorized by this task.
+- Implementation branch: `feature/odoo-tracebridge`, created from `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`; verified baseline HEAD `013887312f69d77458191d1663308ed9490297e7`, upstream `origin/feature/odoo-tracebridge`; live remote matched at Phase 02 preflight. Phase 02 changes are uncommitted; future commits and pushes require owner review.
+- Accepted progress: **2/22**.
+- Phase 00 and Phase 01: COMPLETE; Phase 01 acceptance supplied by owner/ChatGPT on 2026-10-21 with verified pushed baseline `0138873`. Phase 02: **PROVISIONAL — pending owner acceptance**; scaffold and automated checks pass, manual Chrome popup smoke NOT TESTED. Phases 03–20 NOT STARTED.
 - Phase 21: OPTIONAL future Plemo discovery only; NOT STARTED and not part of the AI-free v1 gate.
 - No phase may begin without the preceding gate and owner authorization.
 

@@ -84,3 +84,46 @@ Phase 00 COMPLETE: ChatGPT/owner accepted 2026-10-21 per owner; local/tracking/l
 Python 3 standard library only; temporary validator outside repository (not a shipped script). From the supplied project directory, parse whole-parent `git status --porcelain=v1 --untracked-files=all`; exact final allowlist: README, docs/00–07, PRODUCT_SCOPE, Phases/PHASE_00 and the three Phase 01 deliverables (14). Require unstaged modifications/untracked only, no outside paths and unchanged HEAD. Verify both root/copy canonical byte contents against HEAD. Decode all 22 Markdown files, assert balanced fences, relative file and heading-anchor links; check changed-file whitespace, one H1 and balanced table columns. Assert six mandatory phase-report headings, phase IDs 00–21, 13 support rows each with eight UNKNOWN / NOT TESTED cells, diagrams/framework/identity/provenance markers, twelve threat IDs, permission/policy markers and final 1/22/provisional/HEAD ledgers. `git diff --check` covers tracked diff, while assertions cover new files too. Text assertions support manual design review; they do not validate security behavior or Mermaid rendering. Diagrams reviewed as source; no visual renderer run. External reference content was checked through official web sources; no redundant full HTTP crawl of historical research.
 
 Six documentary/Git groups PASS; two SKIP; no unresolved documentary FAIL. Human Phase 01 review PENDING, not a test pass. Phase 00 historical result blocks preserved. Skill actually used: **Ponytail full**. Tools actually used: functions shell/Git/Python and web open/find; no WarpGrep/Valyu/Superpowers available, no agents, no application/browser/Odoo runtime tools used. Memory registry quick search found no relevant TraceBridge entry; no memory-derived project facts used.
+
+## Phase 02 checks — 2026-10-21
+
+Phase 01 acceptance was supplied by owner for 2026-10-21; pushed SHA `013887312f69d77458191d1663308ed9490297e7` matched live origin. Phase 01 COMPLETE; accepted progress **2/22**. Phase 02 **PROVISIONAL — pending owner acceptance**.
+
+| ID | Exact command / check | Result | Evidence / limitation |
+|---|---|---|---|
+| P02-01 | `git rev-parse --show-toplevel`; `git remote get-url origin`; `git branch --show-current`; `git rev-parse HEAD`; `git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'`; `git status --porcelain=v1 --untracked-files=all`; `git ls-remote origin refs/heads/feature/odoo-tracebridge` | PASS | Expected Git root, origin, branch, HEAD, upstream; whole-repo clean before edits; live remote SHA matched |
+| P02-02 | `npm install --package-lock-only` | PASS | Synchronized exact direct pins and lockfile; npm reported 0 vulnerabilities |
+| P02-03 | `npm ci` | PASS | Clean install; 243 packages added |
+| P02-04 | `npm run build` | PASS | Production build with WXT 0.21.4 / Vite 8.3.5; `.output/chrome-mv3`; initial path error fixed and build rerun |
+| P02-05 | `npm run typecheck` | PASS | TypeScript 6.0.3; initial missing JSX mode fixed and rerun |
+| P02-06 | `npm run lint` | PASS | ESLint 10.0.1; no findings |
+| P02-07 | `npm test` | PASS | Vitest 5.0.5: 1 test file, 1 test passed |
+| P02-08 | `npm run dev -- --host 127.0.0.1`; inspect `.output/chrome-mv3-dev/manifest.json` | PASS | Development artifact generated; dev-only `tabs`, `scripting`, localhost host permission and localhost CSP identified; dev server stopped |
+| P02-09 | Inspect `.output/chrome-mv3/manifest.json` and packaged files | PASS — STATIC AUDIT | Production manifest has no permissions or host grants; popup bundle is local. Not a runtime network monitor or dependency security certification |
+| P02-10 | `cua.getState({disableDiffing:true})` browser inventory | NOT TESTED | Only empty Codex MCP Apps and in-app browser surfaces; no Chrome window to load unpacked build. Owner smoke steps in README/PHASE_02 |
+| P02-11 | `git diff --check`; whole-parent status/staged paths/HEAD | PASS | Final result recorded after documentation updates in PHASE_02 and status |
+
+The first `npm ci` reported a stale lock (`@babel/types`, `entities`, `pkg-types`, `confbox` mismatches); `npm install --package-lock-only` regenerated it and subsequent `npm ci` passed. An initial build reported an unresolved absolute `main.tsx` HTML path; corrected to relative path and rerun. Initial typecheck lacked `jsx`; configured `react-jsx` and rerun. No unresolved source/build/lint/typecheck/unit failures. Package audit output from lockfile generation reported zero vulnerabilities.
+
+WXT docs show v0.21.4 and the React module, registry metadata confirms Node >=22 for WXT and the pinned releases, React docs list 19.3 as current, and Chrome docs support MV3 popup action and manifest permission fields. Official sources and precise limits are listed in [Phase 02](Phases/PHASE_02.md). No Chrome popup, Odoo, customer data, capture, runtime security, privacy, performance, or compatibility test was performed.
+
+Phase 02 tools used: Ponytail full skill; shell/Git/npm; official-source web search/open; CUA browser-surface inventory. No WarpGrep, Valyu, Superpowers, application UI, Chrome window, Odoo endpoint, or sub-agent was used. Full command summary and manifest review: [PHASE_02](Phases/PHASE_02.md).
+
+### Phase 02 acceptance verification — 2026-10-21
+
+| Exact command / check | Result | Observed result / boundary |
+|---|---|---|
+| `npm run build` | PASS | WXT 0.21.4 / Vite 8.3.5; `.output/chrome-mv3`; manifest, popup HTML and one local JS bundle; 220.21 kB |
+| `npm run typecheck` | PASS | TypeScript 6.0.3; strict mode, no diagnostics |
+| `npm run lint` | PASS | ESLint 10.0.1; no findings |
+| `npm test` | PASS | Vitest 5.0.5; **1 test file / 1 test passed**. Test checks status constant, not mounted React/Chrome behavior |
+| `npm ls --depth=0` and Node check of direct pins against package-lock entries | PASS | All 10 direct deps resolve to exact package.json pins; lockfile v3 |
+| Inspect `.output/chrome-mv3/manifest.json`, popup HTML and bundle | PASS — STATIC AUDIT | Production manifest declares only MV3 metadata, Chrome 120 floor and popup action. No permission/host grant, background, content script, web-accessible resource or external connection. Popup references a packaged JS chunk. No capture or telemetry source found. Static review, not runtime/network monitoring |
+| Compare `.output/chrome-mv3-dev/manifest.json` | REVIEW FINDING | Dev-only WXT additions: background reload worker, `tabs`, `scripting`, `http://localhost/*`, localhost CSP/HMR code. Never distribute/load against customer pages; production is separate |
+| `cua.getState({disableDiffing:true})` | BLOCKED / NOT TESTED | No Chrome app/window or tabs are available. No install, popup, Details/permission view, runtime error console or screenshots observed |
+| `npm ci` | NOT RUN this verification | Prior clean Phase 02 `npm ci` passed (243 added, 244 audited, 0 vulnerabilities reported); installed tree and lock pins confirmed without reinstall |
+| Final whole-parent Git identity/status/scope; `git diff --check` | PASS | Expected identity/HEAD/upstream/live remote; only existing Phase 02 paths, all within project and unstaged; no commit/push |
+
+Source findings: strict TypeScript is configured; popup renders the inert fixed status with `role="status"`; the single test validates the text constant only, so actual rendered behavior remains pending browser smoke. Static bundle contains React error-reference URL strings and a conditional Vite module-preload helper; the production HTML has no module-preload link and references only the packaged chunk. No external executable source or telemetry was found. This check cannot establish absence of all runtime network activity.
+
+Evidence ZIP: `/tmp/tracebridge-phase02-evidence.zip` (source/config, lockfile, production manifest and phase/evidence records only; no screenshots because Chrome GUI was unavailable). ZIP contents were verified. Phase 02 remains PROVISIONAL, accepted progress **2/22**; acceptance blocker is the unperformed real Chrome smoke. Exact owner steps are in [PHASE_02](Phases/PHASE_02.md).

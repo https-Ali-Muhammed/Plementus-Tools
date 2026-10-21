@@ -1,71 +1,49 @@
 # Odoo TraceBridge
 
-**PROJECT NOT YET IMPLEMENTED OR RUNNABLE.** This repository currently contains planning references, accepted Step DB/Phase 00 documentation and provisional Phase 01 architecture/security only. No browser extension, executable features, dependencies, build output, or compatibility certification exists.
-
-Odoo TraceBridge is a proposed privacy-first diagnostic handover tool for Odoo developers, technical leads, implementation/QA engineers, and support engineers. The planned workflow is an explicitly opted-in troubleshooting session that organizes observable browser evidence, separates facts from hypotheses, compares cases cautiously, and prepares a reviewed handover.
+Odoo TraceBridge is a privacy-first Chromium extension scaffold. **Recording and all diagnostic features are unavailable — not implemented.** The popup is inert. Do not use it with Odoo/customer data.
 
 ## Planned functionality
 
-The proposed first release is an AI-free, local-first Chromium browser extension. Planned capabilities include a per-tab investigation timeline, safe client-error and request metadata, evidence-linked deterministic checks, local case review, and Markdown/JSON export. These are plans only; none are available today. Future Plemo discovery is optional and separately authorized (Phase 21); no Plemo integration is implemented or assumed.
+Per-tab investigations, safe browser evidence, Odoo capability adapters, local case storage, comparisons, reviewed exports, and optional Plemo discovery are **PLANNED** only. No Odoo version, hosting type, or feature is tested or certified. See [product scope](docs/PRODUCT_SCOPE.md), [support matrix](docs/SUPPORT_MATRIX.md), and the [22-phase plan](docs/01_MASTER_PLAN.md).
 
-## Architecture direction
+## Prerequisites
 
-The blueprint proposes a Chromium Manifest V3 extension with local processing and storage, capability-based Odoo adapters, and a generic browser-evidence fallback. The product is intended to work without AI, a hosted backend, or an Odoo server module. Phase 01 design and WXT/React recommendation await owner review; no framework is installed.
+- Node.js **22 or newer** and npm (the lockfile uses npm lockfile v3). Verified here with Node `v24.19.0` and npm `11.17.0`.
+- Google Chrome **120 or newer** for the proposed initial browser floor. Chromium/other browsers are not certified. Chrome 120 is the architecture proposal, not a result of browser testing.
 
-## Privacy and security principles
+WXT `0.21.4` and its React module `1.2.2` officially support the chosen setup; React/React DOM are pinned to `19.3.1`. All direct dependencies are exact-pinned in `package.json` and the npm lockfile. See [Phase 02 evidence](docs/Phases/PHASE_02.md).
 
-The proposed design is opt-in, bounded, read-only, and local-first. It must not collect credentials, cookies, tokens, typed input, complete business records, or raw request/response bodies by default. Export/transmission would require deliberate review and approval. These are design requirements, not implemented or security-tested controls. Do not use this project to access Odoo/customer data; no such access is part of the current scope.
+## Setup and development
 
-## Odoo compatibility strategy
+```sh
+npm ci
+npm run dev
+npm run build
+npm run typecheck
+npm run lint
+npm test
+```
 
-Compatibility is a goal, not a result. The plan uses generic browser evidence plus tested capability-specific adapters and explicit statuses (`Verified`, `Partial`, `Fallback`, `Unknown`, `Unsupported`). Odoo 8–20 are planning targets; no version, edition, hosting type, or feature has been tested or certified. See the [support matrix](docs/SUPPORT_MATRIX.md), [master plan](docs/01_MASTER_PLAN.md) and the canonical blueprint's compatibility strategy.
+`npm run dev` creates `.output/chrome-mv3-dev`, which includes localhost-only development permissions and reload support. Do not use that folder as the production artifact. `npm run build` creates the production unpacked extension at **`.output/chrome-mv3`**. It requests no extension permissions or host grants.
 
-## Installation and setup
+## Load the production build in Chrome
 
-**NOT YET AVAILABLE.** There is no runnable extension or verified setup procedure. Do not install dependencies, run build commands, or load an unpacked extension based on this README. Exact prerequisites, commands, permissions, and output paths will be documented only after implementation and verification.
+1. Run `npm ci` and `npm run build`.
+2. Open `chrome://extensions` and enable **Developer mode**.
+3. Select **Load unpacked** and choose this project's `.output/chrome-mv3` directory.
+4. Open the extension popup. It should show **“Recording unavailable — not implemented”**.
 
-### Browser extension installation
+Manual Chrome installation/popup smoke testing was **NOT TESTED** in the current environment because no Chrome window is connected. Owner acceptance is pending that smoke test.
 
-**PLANNED — NOT AVAILABLE.** Chrome Developer mode / Load unpacked instructions and a build directory cannot be provided until a real extension build exists and its output path is verified.
+## Security and status
 
-## Planned development, build, and test workflow
+Production contains only the popup and minimum manifest metadata. There are no background/content scripts, host grants, capture hooks, telemetry, external requests, or remote code. The generated development manifest has additional WXT hot-reload permissions and localhost CSP; see the manifest audit in [Phase 02](docs/Phases/PHASE_02.md). Loading the scaffold does not authorize capture or use with customer data.
 
-The planned sequence is documentation acceptance, product discovery, architecture/security decisions, and then one gated implementation phase at a time. No development, build, lint, typecheck, or product test commands are available yet. Product and real-Odoo tests are **NOT TESTED**.
-
-## Troubleshooting
-
-No application is runnable, so there are no verified runtime troubleshooting steps yet. For project status or blockers, see [00 Project Status](docs/00_PROJECT_STATUS.md), [05 Blockers and Decisions](docs/05_BLOCKERS_AND_DECISIONS.md), and [07 Handoff](docs/07_HANDOFF.md).
-
-## Contributions and security reports
-
-Contribution and security-reporting processes are **NOT YET ESTABLISHED**. Do not submit customer data, credentials, or production captures. Changes to the project scope and any Git commit/push require owner review.
-
-## Current development branch
-
-`feature/odoo-tracebridge`, created from verified `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`. The branch policy and evidence are recorded in [Architecture Decisions](docs/02_ARCHITECTURE_DECISIONS.md) and the [DB phase report](docs/Phases/PHASE_DB_DOCUMENTATION_BOOTSTRAP.md). All later phases use this branch unless the owner explicitly changes the strategy. Commits and pushes require owner review; no automatic merges to `develop` or `main`.
+Phase 00 and Phase 01 are **COMPLETE**; accepted progress remains **2/22**. Phase 02 is **PROVISIONAL — pending owner acceptance**. Browser/Odoo compatibility and all planned functionality remain **NOT TESTED / NOT IMPLEMENTED**. Commits and pushes require owner review; no commit or push was made. See [status](docs/00_PROJECT_STATUS.md) and [handoff](docs/07_HANDOFF.md).
 
 ## Project documentation
 
-- [Project status](docs/00_PROJECT_STATUS.md)
-- [Master plan and phase gates](docs/01_MASTER_PLAN.md)
-- [Architecture decisions](docs/02_ARCHITECTURE_DECISIONS.md)
-- [Changelog](docs/03_CHANGELOG.md)
-- [Test evidence](docs/04_TEST_EVIDENCE.md)
-- [Blockers and decisions](docs/05_BLOCKERS_AND_DECISIONS.md)
-- [Deployment runbook](docs/06_DEPLOYMENT_RUNBOOK.md)
-- [Handoff](docs/07_HANDOFF.md)
-- [Product scope](docs/PRODUCT_SCOPE.md)
-- [Competitor matrix](docs/COMPETITOR_MATRIX.md)
-- [Feasibility](docs/FEASIBILITY.md)
-- [Support matrix](docs/SUPPORT_MATRIX.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Security and privacy](docs/SECURITY_PRIVACY.md)
-- [Phase 01 report](docs/Phases/PHASE_01.md)
-- [Phase 00 report](docs/Phases/PHASE_00.md)
-- [Step DB phase report](docs/Phases/PHASE_DB_DOCUMENTATION_BOOTSTRAP.md)
-- [Canonical implementation blueprint](docs/Odoo_TraceBridge_Complete_Implementation_Blueprint.md)
-- [New chat instructions](docs/Odoo_TraceBridge_New_Chat_Instructions.md)
-
-## Status boundaries
-
-Real Odoo compatibility: **NOT TESTED**. Browser extension functionality: **NOT IMPLEMENTED**. Plemo integration: **NOT IMPLEMENTED**. Step DB was accepted per owner and is committed/pushed at `f3cdea5` (live remote verified 2026-10-20). Phase 00 is COMPLETE, accepted by ChatGPT/owner on 2026-10-21 per owner; commit/push `9b728ba` verified against live origin. Phase 01 is **PROVISIONAL — pending owner acceptance**. Accepted progress **1/22**; Phase 01 documentation is local/uncommitted. The name/trademark/store availability is unverified; no Odoo endorsement is claimed.
+- [Project status](docs/00_PROJECT_STATUS.md) · [Master plan](docs/01_MASTER_PLAN.md) · [Architecture decisions](docs/02_ARCHITECTURE_DECISIONS.md)
+- [Changelog](docs/03_CHANGELOG.md) · [Test evidence](docs/04_TEST_EVIDENCE.md) · [Blockers](docs/05_BLOCKERS_AND_DECISIONS.md) · [Runbook](docs/06_DEPLOYMENT_RUNBOOK.md) · [Handoff](docs/07_HANDOFF.md)
+- [Phase 02 report](docs/Phases/PHASE_02.md) · [Architecture](docs/ARCHITECTURE.md) · [Security and privacy](docs/SECURITY_PRIVACY.md)
+- [Phase 01 report](docs/Phases/PHASE_01.md) · [Phase 00 report](docs/Phases/PHASE_00.md) · [Canonical blueprint](Odoo_TraceBridge_Complete_Implementation_Blueprint.md)

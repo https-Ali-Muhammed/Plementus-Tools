@@ -23,3 +23,11 @@ All entries describe repository changes only. Product functionality is not impli
 - Updated `docs/02_ARCHITECTURE_DECISIONS.md` with accepted sequencing ADR and five proposed ADRs; WXT/React, retention, encryption, browser and production decisions remain unapproved.
 - Updated `README.md`, `docs/PRODUCT_SCOPE.md`, `docs/Phases/PHASE_00.md`, and docs/00–07 (14 changed Markdown paths total); handoff second last, status last.
 - Six static/Git verification groups PASS, two SKIP; runtime/browser/Odoo NOT TESTED. No code, dependencies, live Odoo/customer access, Plemo, commit/push or Phase 02 work.
+
+## 2026-10-21 — Phase 02 MV3 scaffold (provisional)
+
+- Reconciled owner/ChatGPT Phase 01 acceptance and verified pushed baseline `013887312f69d77458191d1663308ed9490297e7`; preserved Phase 01 historical evidence; accepted progress 2/22.
+- Added project-local WXT/React popup scaffold, exact-pinned npm dependency tree/lockfile, strict TypeScript, build/dev/typecheck/lint/test scripts, one smoke test and scoped `.gitignore`.
+- Replaced README's non-runnable directions with verified prerequisites, commands, production output and Chrome unpacked-install steps; all unimplemented product capabilities labeled PLANNED or NOT IMPLEMENTED.
+- Recorded build, typecheck, lint and 1/1 unit test PASS; audited production and development manifests. Manual Chrome load/popup smoke NOT TESTED because no Chrome window was connected.
+- Phase 02 PROVISIONAL — pending owner acceptance. No capture/Odoo/customer access, consent, persistence, Plemo, deployment, commit or push.

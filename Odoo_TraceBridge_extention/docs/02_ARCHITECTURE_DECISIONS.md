@@ -104,3 +104,13 @@ Owner reports ChatGPT/owner acceptance on 2026-10-21; commit/push `9b728ba` veri
 - Proposed choice: WXT strict TypeScript with official React module only for packaged UI; no UI framework in Odoo pages. Proposed Chrome API floor 120 with current patched Linux Stable as first test target. No dependency pin, installation, scaffold or browser support certification now.
 - Evidence: current official docs/metadata checked 2026-10-21; [comparison and sources S10–S15](ARCHITECTURE.md); Chrome API sources S2/S8. Upstream WXT metadata reports 0.21.4 and Node >=22/Bun >=1.2.0, not project prerequisites.
 - Tradeoff: tooling/transitive dependencies and generated dev permissions require pinned review in separately authorized 02; manual MV3 offers explicit configuration with more wiring; Plasmo is viable but unnecessary extra conventions here. Owner/technical lead choose before scaffold; QA verifies target/build/OS later. Published support is not a passed local build.
+
+Phase 01 acceptance reconciliation: owner/ChatGPT acceptance on 2026-10-21 and pushed commit `013887312f69d77458191d1663308ed9490297e7` were supplied by the owner. Phase 01 is COMPLETE; its original provisional execution snapshot is preserved in the phase report. Phase 02 implementation below resolves the framework/package-manager choice only; sensitive runtime policy decisions remain open.
+
+## ADR-P02-01 — Minimal WXT/React Chromium MV3 scaffold
+
+- Date: 2026-10-21. Status: **PROVISIONAL — pending owner acceptance**.
+- Problem: establish the approved Phase 02 build and test baseline without requesting any Odoo/site access or implementing future capture behavior.
+- Decision: WXT 0.21.4, official `@wxt-dev/module-react` 1.2.2, React 19.3.1, TypeScript 6.0.3 strict mode; npm as the sole package manager with exact direct dependency pins and `package-lock.json`. Chrome MV3 popup only, minimum Chrome 120, no production permissions/host grants. Test with Vitest; use Node's package scripts for build, dev, typecheck and lint.
+- Evidence: `npm ci`, build/typecheck/lint/test results and dev/production manifest audit in [Phase 02](Phases/PHASE_02.md). Official WXT/React/Node/Chrome source references dated 2026-10-21 are listed there.
+- Tradeoff: WXT dev mode creates a separate localhost reload build with `tabs`, `scripting`, localhost host access and localhost CSP. Use production `.output/chrome-mv3` for unpacked installation. Chrome UI smoke remains NOT TESTED; no Odoo compatibility or security guarantee is implied.

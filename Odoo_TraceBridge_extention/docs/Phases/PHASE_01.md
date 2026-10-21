@@ -61,3 +61,7 @@ Accepted by ChatGPT review? **UNREVIEWED**. Accepted by owner? **PENDING**. Read
 Starting/ending branch `feature/odoo-tracebridge`; HEAD unchanged at `9b728bae9c54ebd07768fbe641aed3a7f5178ebe`; upstream/live origin matches verified baseline. Phase 00 COMMITTED LOCAL / PUSHED REMOTE verified; Phase 01 FILES CREATED/MODIFIED only, 14 paths, none staged, no commit/push/merge. Handoff updated second last, status last; subsequent checks read-only.
 
 Single next action: owner/ChatGPT review this Phase 01 package and record acceptance/required decisions. **STOP after Phase 01.**
+
+## Acceptance reconciliation — 2026-10-21
+
+Owner/ChatGPT acceptance on 2026-10-21 and verified pushed commit `013887312f69d77458191d1663308ed9490297e7` were supplied explicitly by the owner for Phase 02 preflight. Phase 01 is therefore **COMPLETE**. Its execution snapshot above (including the historical pending acceptance, old baseline SHA, scope, and checks) is preserved as evidence of what was true during that execution. Current accepted progress is **2/22** after Phase 00 and Phase 01; see [current status](../00_PROJECT_STATUS.md) and [Phase 02](PHASE_02.md).

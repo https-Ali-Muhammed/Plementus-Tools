@@ -1,6 +1,6 @@
 # Blockers and Decisions
 
-Date: 2026-10-21. Phase 00 COMPLETE; Phase 01 PROVISIONAL — pending owner acceptance; accepted progress 1/22.
+Date: 2026-10-21. Phase 00 and Phase 01 COMPLETE; Phase 02 PROVISIONAL — pending owner acceptance; accepted progress 2/22. Manual Chrome popup smoke remains NOT TESTED.
 
 ## Current blockers and pending decisions
 
@@ -31,12 +31,12 @@ Date: 2026-10-21. Phase 00 COMPLETE; Phase 01 PROVISIONAL — pending owner acce
 
 Public documentation/store pages and Git remote were read. No Odoo application/customer database, production system, secrets, credentials or capture data was accessed. Read-only extension intent does not authorize business-action reproduction that changes Odoo data. See [scope](PRODUCT_SCOPE.md), [feasibility](FEASIBILITY.md) and [support inventory](SUPPORT_MATRIX.md).
 
-## Phase 01 review gates — OWNER DECISION REQUIRED
+## Phase 01 review gates — reconciled 2026-10-21
 
 | ID | Proposal / unresolved tradeoff | Owner / gate |
 |---|---|---|
-| P01-REVIEW | Accept architecture/security package; no runtime control is proven | Owner/ChatGPT; before 02 authorization |
-| P01-BUILD | WXT + React UI versus native MV3 + Vite or Plasmo; pinned dependency audit still absent | Owner/technical lead; before scaffold selection |
+| P01-REVIEW | **SATISFIED** — owner supplied Phase 01 acceptance for 2026-10-21 and verified pushed commit `013887312f69d77458191d1663308ed9490297e7` | Phase 01 COMPLETE; historical pending record preserved |
+| P01-BUILD | **RESOLVED FOR PHASE 02** — WXT + React implemented with exact pins and audited manifests | See ADR-P02-01 and [Phase 02](Phases/PHASE_02.md); not a security certification |
 | P01-HOST | activeTab baseline; optional HTTPS site grant only if 07 needs it; no wildcard grant | Owner/security; approve permission strategy before capture |
 | P01-RETENTION | Proposed 30-minute capture, 24-hour age, 10 cases / 20 MiB total; smaller caps reduce evidence | Owner/security; before 04 persistence |
 | P01-CRYPT | IndexedDB sanitized cases without app encryption versus volatile-only or passphrase encryption | Owner/security; before persisted evidence; restrictive volatile alternative if unresolved |
@@ -45,3 +45,7 @@ Public documentation/store pages and Git remote were read. No Odoo application/c
 | P01-EXPORT | Internal confidential reviewed file classification; notes/aliases may still identify people | Owner/data custodian; before export; recipient transmission separately authorized |
 
 Numeric proposals, encryption, browser coverage, production access and export classification are not accepted by accepting Phase 00. See [policy tradeoffs](SECURITY_PRIVACY.md). P00-POLICY/P00-BROWSER are refined by these IDs, not silently resolved.
+
+## Phase 02 acceptance gap
+
+Phase 02 implementation/build/tool checks are recorded as PASS, but owner acceptance is **PENDING** because no Chrome window was available for a manual unpacked-install/popup smoke. Run the exact owner steps in [PHASE_02](Phases/PHASE_02.md). This does not block later review of Phase 02 artifacts, but acceptance should record the browser result explicitly. Phase 02 does not resolve host permissions, consent, retention, encryption, production or export decisions for later phases.
