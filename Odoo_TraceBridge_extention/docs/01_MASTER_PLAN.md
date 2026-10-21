@@ -3,9 +3,9 @@
 ## Current ledger
 - Documentation Bootstrap (DB): ACCEPTED per owner; committed/pushed at `f3cdea5`, verified 2026-10-20.
 - Verified repository: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; project path `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root `/home/https_ali_muhammed/Plementus/Tools`.
-- Implementation branch: `feature/odoo-tracebridge`, created from `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`; current HEAD `f3cdea59bf1a563d16897a1bd0771d60fd7cb640`, upstream `origin/feature/odoo-tracebridge`; live remote equals HEAD. Future commits and pushes require owner review.
-- Completed product phases: **0/22**.
-- Phase 00: PROVISIONAL discovery documented; ChatGPT/owner review pending. Phases 01–20: NOT STARTED / not authorized by this task.
+- Implementation branch: `feature/odoo-tracebridge`, created from `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`; current HEAD `9b728bae9c54ebd07768fbe641aed3a7f5178ebe`, upstream `origin/feature/odoo-tracebridge`; live remote equals HEAD. Future commits and pushes require owner review.
+- Completed product phases: **1/22**.
+- Phase 00: COMPLETE, ChatGPT/owner accepted 2026-10-21 per owner; commit/push 9b728ba verified. Phase 01: PROVISIONAL — pending owner acceptance, architecture/security documentation only. Phases 02–20: NOT STARTED / not authorized by this task.
 - Phase 21: OPTIONAL future Plemo discovery only; NOT STARTED and not part of the AI-free v1 gate.
 - No phase may begin without the preceding gate and owner authorization.
 
@@ -47,6 +47,6 @@ Phase 21 is an optional, separately approved exploratory track after stable expo
 
 The complete phase definitions, detailed deliverables, verification requirements, and stop conditions are in [the canonical blueprint](Odoo_TraceBridge_Complete_Implementation_Blueprint.md), especially Sections 10–14. The companion handoff reference is [New Chat Instructions](Odoo_TraceBridge_New_Chat_Instructions.md). Both were copied verbatim from the project root into this documentation directory.
 
-## Phase 00 scope clarification (proposed)
+## Accepted sequencing — 2026-10-21
 
-Detailed roadmap §10 places the single-case MVP at 16 and automated comparison at 17, whereas broad §2.1 includes comparison. Retain comparison in v1; propose 16 as the single-case checkpoint pending `P00-SCOPE`. See [product scope](PRODUCT_SCOPE.md), [Phase 00 report](Phases/PHASE_00.md) and [owner decisions](05_BLOCKERS_AND_DECISIONS.md). No downstream phase started.
+Detailed roadmap §10 places the single-case MVP at 16 and automated comparison at 17, whereas broad §2.1 includes comparison. Owner explicitly retains single-case MVP at 16 and comparison at 17 in v1; `P00-SCOPE` resolved. See [product scope](PRODUCT_SCOPE.md), [Phase 00 report](Phases/PHASE_00.md) and [owner decisions](05_BLOCKERS_AND_DECISIONS.md). Phase 01 documents [architecture](ARCHITECTURE.md) and [security](SECURITY_PRIVACY.md); no Phase 02 work.

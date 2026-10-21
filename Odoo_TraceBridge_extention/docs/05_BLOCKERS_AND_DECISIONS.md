@@ -1,6 +1,6 @@
 # Blockers and Decisions
 
-Date: 2026-10-20. Phase 00 PROVISIONAL; no Phase 01 authorization.
+Date: 2026-10-21. Phase 00 COMPLETE; Phase 01 PROVISIONAL — pending owner acceptance; accepted progress 1/22.
 
 ## Current blockers and pending decisions
 
@@ -8,8 +8,8 @@ Date: 2026-10-20. Phase 00 PROVISIONAL; no Phase 01 authorization.
 |---|---|---|---|
 | DB-REVIEW | RESOLVED | DB accepted per explicit owner statement; commit/push verified at f3cdea5 | Owner acceptance recorded; historical DB report preserved |
 | PHASE-00-AUTH | RESOLVED | Owner explicitly authorized this Phase 00 only | No broader authority inferred |
-| P00-REVIEW | OPEN / gate | Cannot accept 00 or start 01 | ChatGPT/owner review phase report, sources and checks |
-| P00-SCOPE | OPEN / gate | Broad MVP comparison list versus Phase 16/17 sequencing | Owner ratify single-case MVP at 16, automatic comparison at 17; see scope |
+| P00-REVIEW | RESOLVED | ChatGPT/owner accepted 00 on 2026-10-21 per owner | Acceptance reconciliation in Phase 00 report; commit/push 9b728ba verified |
+| P00-SCOPE | RESOLVED | Owner explicitly retains single-case 16, comparison 17, optional discovery 21 | Current instruction dated 2026-10-21; ADR-P01-01 |
 | P00-DIFF | OPEN / product risk | Workbench already overlaps recording/comparison/local export | Owner approve narrow value hypothesis; later controlled recipient/leakage evaluation |
 | ODOO-ENV | UNKNOWN / runtime blocker | No authorized real version/edition/hosting evidence | Owner later supplies non-sensitive environment/permission inventory and permitted test actions; no access now |
 | P00-CAPTURE | OPEN / feasibility risk | MAIN observer may be unsafe; metadata misses HTTP-200 application errors | Owner accept reduced handover or revisit scope after Phase 08 safety GO/NO-GO; never force invasive capture |
@@ -23,10 +23,25 @@ Date: 2026-10-20. Phase 00 PROVISIONAL; no Phase 01 authorization.
 ## Owner decisions recorded
 
 - Owner states DB accepted and pushed at f3cdea5. Local/live remote evidence confirms the commit; acceptance itself is owner-attested.
-- Required permanent branch: feature/odoo-tracebridge, originally created from origin/develop at 64a05446cd9ca65e89c5515c6c76e8ee073fb94a. Current HEAD f3cdea59bf1a563d16897a1bd0771d60fd7cb640; upstream origin/feature/odoo-tracebridge now exists and matches live remote.
-- Current authorization: Phase 00 documents and DB reconciliation only. No code/dependencies/Odoo/customer access/Plemo/commit/push/Phase 01. Future Git publication requires separate owner action/review.
+- Required permanent branch: feature/odoo-tracebridge, originally created from origin/develop at 64a05446cd9ca65e89c5515c6c76e8ee073fb94a. Current HEAD 9b728bae9c54ebd07768fbe641aed3a7f5178ebe; upstream origin/feature/odoo-tracebridge now exists and matches live remote.
+- Current authorization: Phase 01 architecture/security documentation and Phase 00 acceptance reconciliation only. No code/dependencies/Odoo/customer access/Plemo/commit/push/Phase 02. Future Git publication requires separate owner action/review.
 - Product remains AI-free/local-first as a proposed requirement; all architecture, runtime security and compatibility claims remain untested.
 
 ## Security and privacy boundaries
 
 Public documentation/store pages and Git remote were read. No Odoo application/customer database, production system, secrets, credentials or capture data was accessed. Read-only extension intent does not authorize business-action reproduction that changes Odoo data. See [scope](PRODUCT_SCOPE.md), [feasibility](FEASIBILITY.md) and [support inventory](SUPPORT_MATRIX.md).
+
+## Phase 01 review gates — OWNER DECISION REQUIRED
+
+| ID | Proposal / unresolved tradeoff | Owner / gate |
+|---|---|---|
+| P01-REVIEW | Accept architecture/security package; no runtime control is proven | Owner/ChatGPT; before 02 authorization |
+| P01-BUILD | WXT + React UI versus native MV3 + Vite or Plasmo; pinned dependency audit still absent | Owner/technical lead; before scaffold selection |
+| P01-HOST | activeTab baseline; optional HTTPS site grant only if 07 needs it; no wildcard grant | Owner/security; approve permission strategy before capture |
+| P01-RETENTION | Proposed 30-minute capture, 24-hour age, 10 cases / 20 MiB total; smaller caps reduce evidence | Owner/security; before 04 persistence |
+| P01-CRYPT | IndexedDB sanitized cases without app encryption versus volatile-only or passphrase encryption | Owner/security; before persisted evidence; restrictive volatile alternative if unresolved |
+| P01-BROWSER | Proposed API floor Chrome 120, supported target current patched Stable on Linux only; no old-build security promise | Owner/QA; before scaffold browser target |
+| P01-PRODUCTION | Proposed deny production/unknown environments; later exception needs organization approval and tested noninterference | Owner/security; before any real recording |
+| P01-EXPORT | Internal confidential reviewed file classification; notes/aliases may still identify people | Owner/data custodian; before export; recipient transmission separately authorized |
+
+Numeric proposals, encryption, browser coverage, production access and export classification are not accepted by accepting Phase 00. See [policy tradeoffs](SECURITY_PRIVACY.md). P00-POLICY/P00-BROWSER are refined by these IDs, not silently resolved.

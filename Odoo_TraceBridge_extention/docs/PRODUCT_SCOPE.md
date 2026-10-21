@@ -1,6 +1,6 @@
 # Product scope — Phase 00
 
-Date: 2026-10-20. **PROPOSED / PROVISIONAL; NOT IMPLEMENTED**. Owner review pending; 0/22 completed.
+Discovery date: 2026-10-20. **Phase 00 COMPLETE**, ChatGPT/owner accepted 2026-10-21 per owner; accepted progress 1/22. Product NOT IMPLEMENTED. Sensitive policy decisions remain open.
 
 ## Problem and defensible claim
 
@@ -21,7 +21,7 @@ The Phase 16 MVP checkpoint is a single-case journey: grant one site/tab permiss
 | Automated two-case comparison | Capability-aware first observable divergence and unmatched events | 17, after MVP |
 | Expanded legacy adapters | Only evidenced 8–16 features; generic fallback remains a proposal until tested | 18 |
 
-Blueprint §2.1 includes cautious comparison in broad MVP scope, while §10 puts it after the Phase 16 checkpoint. **Proposed interpretation:** retain comparison in the v1 roadmap, defer automated comparison to Phase 17; scope ratification `P00-SCOPE` is required before 01. No canonical text was silently changed.
+Blueprint §2.1 includes cautious comparison in broad MVP scope, while §10 puts it after the Phase 16 checkpoint. **Accepted sequencing (owner, 2026-10-21):** retain comparison in the v1 roadmap, automated comparison at Phase 17 after the single-case Phase 16 checkpoint; `P00-SCOPE` resolved. No canonical text was silently changed.
 
 ## Three concrete handover scenarios
 
@@ -41,7 +41,7 @@ Each case should include case/schema/tool versions, safe environment aliases, us
 - No automatic business actions, request replay, RPC console, database/source/log access or customer access.
 - No raw bodies, headers/cookies/tokens, business record values/IDs, typed input, DOM dumps, full console streams or screenshots/video in MVP.
 - No generic field explorer, database introspection, editing/debug toggles, universal error detection, blanket Odoo certification or Firefox-specific package.
-- No public release/store submission, trademark clearance, dependency installation or Phase 01 design in Phase 00.
+- No public release/store submission, trademark clearance or dependency installation; Phase 01 design is separately authorized documentation only.
 
 ## Success criteria — targets, not measured results
 
@@ -59,4 +59,4 @@ Phase 00 acceptance is documentary: these five deliverables, dated primary sourc
 
 ## Owner review required
 
-Ratify MVP/comparison sequence and value proposition; authorize test systems and actions later; choose browser baseline and production policy; set retention/encryption/export classification, branding/license and measurable user/performance acceptance policy. No open policy is silently enforced by these documents.
+Sequence and Phase 00 scope accepted per owner on 2026-10-21; differentiation remains an unproven hypothesis. Authorize test systems and actions later; choose browser baseline and production policy; set retention/encryption/export classification, branding/license and measurable user/performance acceptance policy. No open policy is silently enforced by these documents.

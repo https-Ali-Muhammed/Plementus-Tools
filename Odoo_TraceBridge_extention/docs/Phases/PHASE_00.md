@@ -1,5 +1,11 @@
 # PHASE_00 — Product discovery and originality audit
 
+## Acceptance reconciliation — 2026-10-21
+
+**Current status: COMPLETE.** Owner reports ChatGPT/owner acceptance on 2026-10-21 and verified commit/push `9b728ba`. Phase 01 preflight confirms local HEAD, upstream tracking ref and live origin branch all equal `9b728bae9c54ebd07768fbe641aed3a7f5178ebe`; parent worktree initially clean. Accepted product progress: **1/22**. Single-case MVP at 16, comparison at 17, optional Plemo discovery at 21 are explicitly retained by the current owner instruction. This acceptance authorizes Phase 01 documentation only; sensitive policy choices remain open.
+
+Everything below is the **historical Phase 00 execution snapshot (2026-10-20)**, including its then-provisional status, 0/22 count and no-commit/no-push outcome. These are historical, not current gate instructions.
+
 ## Scope and owner authorization
 
 - Date: 2026-10-20 (Africa/Cairo). Owner explicitly authorized Phase 00 only and stated DB accepted/pushed at `f3cdea5`.

@@ -1,6 +1,6 @@
 # Odoo TraceBridge
 
-**PROJECT NOT YET IMPLEMENTED OR RUNNABLE.** This repository currently contains planning references, accepted Step DB documentation and provisional Phase 00 discovery only. No browser extension, executable features, dependencies, build output, or compatibility certification exists.
+**PROJECT NOT YET IMPLEMENTED OR RUNNABLE.** This repository currently contains planning references, accepted Step DB/Phase 00 documentation and provisional Phase 01 architecture/security only. No browser extension, executable features, dependencies, build output, or compatibility certification exists.
 
 Odoo TraceBridge is a proposed privacy-first diagnostic handover tool for Odoo developers, technical leads, implementation/QA engineers, and support engineers. The planned workflow is an explicitly opted-in troubleshooting session that organizes observable browser evidence, separates facts from hypotheses, compares cases cautiously, and prepares a reviewed handover.
 
@@ -10,7 +10,7 @@ The proposed first release is an AI-free, local-first Chromium browser extension
 
 ## Architecture direction
 
-The blueprint proposes a Chromium Manifest V3 extension with local processing and storage, capability-based Odoo adapters, and a generic browser-evidence fallback. The product is intended to work without AI, a hosted backend, or an Odoo server module. Technical choices remain subject to Phase 00 discovery and Phase 01 architecture/security review.
+The blueprint proposes a Chromium Manifest V3 extension with local processing and storage, capability-based Odoo adapters, and a generic browser-evidence fallback. The product is intended to work without AI, a hosted backend, or an Odoo server module. Phase 01 design and WXT/React recommendation await owner review; no framework is installed.
 
 ## Privacy and security principles
 
@@ -58,6 +58,9 @@ Contribution and security-reporting processes are **NOT YET ESTABLISHED**. Do no
 - [Competitor matrix](docs/COMPETITOR_MATRIX.md)
 - [Feasibility](docs/FEASIBILITY.md)
 - [Support matrix](docs/SUPPORT_MATRIX.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Security and privacy](docs/SECURITY_PRIVACY.md)
+- [Phase 01 report](docs/Phases/PHASE_01.md)
 - [Phase 00 report](docs/Phases/PHASE_00.md)
 - [Step DB phase report](docs/Phases/PHASE_DB_DOCUMENTATION_BOOTSTRAP.md)
 - [Canonical implementation blueprint](docs/Odoo_TraceBridge_Complete_Implementation_Blueprint.md)
@@ -65,4 +68,4 @@ Contribution and security-reporting processes are **NOT YET ESTABLISHED**. Do no
 
 ## Status boundaries
 
-Real Odoo compatibility: **NOT TESTED**. Browser extension functionality: **NOT IMPLEMENTED**. Plemo integration: **NOT IMPLEMENTED**. Step DB was accepted per owner and is committed/pushed at `f3cdea5` (live remote verified 2026-10-20). Phase 00 is PROVISIONAL pending ChatGPT/owner review; product phases completed remain **0/22**. Phase 00 changes are local and uncommitted. The name/trademark/store availability is unverified; no Odoo endorsement is claimed.
+Real Odoo compatibility: **NOT TESTED**. Browser extension functionality: **NOT IMPLEMENTED**. Plemo integration: **NOT IMPLEMENTED**. Step DB was accepted per owner and is committed/pushed at `f3cdea5` (live remote verified 2026-10-20). Phase 00 is COMPLETE, accepted by ChatGPT/owner on 2026-10-21 per owner; commit/push `9b728ba` verified against live origin. Phase 01 is **PROVISIONAL — pending owner acceptance**. Accepted progress **1/22**; Phase 01 documentation is local/uncommitted. The name/trademark/store availability is unverified; no Odoo endorsement is claimed.

@@ -15,3 +15,11 @@ All entries describe repository changes only. Product functionality is not impli
 - Updated README, docs/00–07 and DB report with current discovery/review state. Preserved canonical references and historical DB actions; original no-commit/no-push statements describe bootstrap execution only.
 - Owner reports DB accepted/pushed. Verified commit `f3cdea5` and live remote/upstream match; no Phase 00 commit/push performed.
 - All changes documentation only; Phase 00 PROVISIONAL, product phases completed 0/22. No code, dependencies, Odoo/customer access, provisioning, Plemo or Phase 01 work.
+
+## 2026-10-21 — Phase 01 architecture/security documentation (provisional)
+
+- Reconciled Phase 00 acceptance on 2026-10-21 per owner and verified commit/push 9b728ba; preserved Phase 00 execution snapshot and accepted progress 1/22.
+- Added `docs/ARCHITECTURE.md`, `docs/SECURITY_PRIVACY.md`, `docs/Phases/PHASE_01.md`: MV3 components and diagrams, message/session boundaries, permission-purpose map, threat/test map, capability degradation, current official framework comparison and policy tradeoffs.
+- Updated `docs/02_ARCHITECTURE_DECISIONS.md` with accepted sequencing ADR and five proposed ADRs; WXT/React, retention, encryption, browser and production decisions remain unapproved.
+- Updated `README.md`, `docs/PRODUCT_SCOPE.md`, `docs/Phases/PHASE_00.md`, and docs/00–07 (14 changed Markdown paths total); handoff second last, status last.
+- Six static/Git verification groups PASS, two SKIP; runtime/browser/Odoo NOT TESTED. No code, dependencies, live Odoo/customer access, Plemo, commit/push or Phase 02 work.

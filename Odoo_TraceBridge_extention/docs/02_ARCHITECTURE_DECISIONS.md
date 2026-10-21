@@ -46,3 +46,61 @@ These are baseline decisions from the supplied planning references and the expli
 - Evidence: [competitor matrix](COMPETITOR_MATRIX.md), [scope](PRODUCT_SCOPE.md), canonical §2.1 and §10.
 - Tradeoff: narrower first checkpoint; differentiation and degraded-capture usefulness still require evaluation (`P00-DIFF`, `P00-SCOPE`, `P00-CAPTURE`).
 - Architecture/permissions/retention/framework selection deferred to separately authorized Phase 01. WXT feasibility assessed only; no dependency selected or installed.
+
+## Phase 00 acceptance reconciliation — 2026-10-21
+
+Owner reports ChatGPT/owner acceptance on 2026-10-21; commit/push `9b728ba` verified against local HEAD, tracking ref and live origin. Phase 00 COMPLETE; accepted progress 1/22. ADR-P00-01's sequencing is accepted by explicit current owner instruction; remaining product differentiation/capture/policy questions stay open. Older ADR statuses describe their historical date unless explicitly superseded below.
+
+## ADR-P01-01 — Preserve accepted phase sequence and documentation boundary
+
+- Date: 2026-10-21. Status: **ACCEPTED — explicit owner instruction**, limited to scope/sequence.
+- Problem: Broad blueprint MVP wording could pull comparison or future integrations forward.
+- Alternatives: combine comparison into 16; or retain detailed numbered gates.
+- Decision: single-case MVP 16, comparison 17, optional Plemo discovery 21. Phase 01 architecture/security documentation only; no implementation or policy acceptance inferred.
+- Evidence: current owner request; [scope](PRODUCT_SCOPE.md), canonical §10; supersedes proposed sequencing in ADR-P00-01.
+- Tradeoff: reduced first checkpoint, explicit later comparison; owner/ChatGPT reviews Phase 01 independently. No fabricated Plemo API or Odoo compatibility.
+
+## ADR-P01-02 — Worker authority with isolated collection and conditional MAIN
+
+- Date: 2026-10-21. Status: **PROPOSED — pending owner/technical-security review**.
+- Problem: Page evidence is untrusted and MV3 workers restart; page-controlled commands could leak cases or broaden capture.
+- Alternatives: privileged page bridge/universal MAIN hook; isolated-only forever; isolated baseline with separately gated observer.
+- Proposed choice: worker owns consent/permissions/storage, content script top-frame only, strict browser sender identity/epoch/lease; popup and packaged investigation panel. Fresh worker recovers paused; explicit Resume. MAIN remains absent until 08 GO/NO-GO.
+- Evidence: [architecture](ARCHITECTURE.md), S1–S5/S8 and lifecycle direct-read recovery; [threat map](SECURITY_PRIVACY.md).
+- Tradeoff: more gaps/restarts and lower-fidelity errors; no page nonce can authenticate evidence from an actively malicious page. Owner/security acceptance required; runtime NOT TESTED.
+
+## ADR-P01-03 — Permission budget and zero unsolicited transmission
+
+- Date: 2026-10-21. Status: **PROPOSED — permission strategy P01-HOST OWNER DECISION REQUIRED**; privacy restrictions are supplied requirements, not implemented controls.
+- Problem: Convenient wildcard access/network inspection expands exposure beyond one investigation.
+- Alternatives: mandatory all-site/debugger capture; activeTab baseline; optional selected-site metadata mode.
+- Proposed choice: inert scaffold without capture access; add activeTab/scripting/storage only in implementing phases; optional webRequest/selected HTTPS host if Phase 07 justifies it; separate recording gate regardless of browser grant. No unsolicited transmission, remote assets/analytics or privileged page command channel.
+- Evidence: [permission-purpose table](SECURITY_PRIVACY.md), architecture S2–S3/S6–S10. Request/initiator scope and generated manifests require later testing.
+- Tradeoff: arbitrary origins may need broad optional eligibility declaration; actual grants remain chosen-site only and runtime exact-origin checks narrower. Reject declaration → keep activeTab/degraded fallback, not blanket access. Owner/security approval before host/capture work.
+
+## ADR-P01-04 — Bounded local evidence, reviewed export and policy options
+
+- Date: 2026-10-21. Status: **PROPOSED — P01-RETENTION / P01-CRYPT / P01-PRODUCTION / P01-EXPORT OWNER DECISION REQUIRED**.
+- Problem: Diagnostic metadata/notes and downloaded files can expose customer data even when local.
+- Alternatives: volatile-only; sanitized IndexedDB with OS/profile protections; passphrase encryption with separate key lifecycle review. Production blocked initially versus separately approved exceptions.
+- Proposed choice: minimized sanitized cases in IndexedDB only after policy acceptance, small trusted settings/session state; review numeric caps and 24-hour proposal in [security policy](SECURITY_PRIVACY.md); default deny production/unknown environments; preview exact sanitized export and classify internal confidential.
+- Evidence: architecture S4/S6/S9, blueprint §7 and [threat/deletion contract](SECURITY_PRIVACY.md).
+- Tradeoff: strict minimization/short retention reduce diagnostic value; app encryption adds recovery/crypto complexity and cannot protect unlocked UI. No encryption-at-rest guarantee, physical secure erase or downloaded-file recall. If policy unresolved, affected persistence/capture/export waits; owner/security/data custodian must decide before implementing it.
+
+## ADR-P01-05 — Capability adapters and uncertainty over universal RPC
+
+- Date: 2026-10-21. Status: **PROPOSED — pending owner/technical review**.
+- Problem: Odoo versions/custom clients and missing envelopes can produce false support or success claims.
+- Alternatives: hardcoded universal RPC/version hook; capability-bound adapters with generic/manual fallback.
+- Proposed choice: capability contracts cannot grant permissions or make RPC calls; record adapter/source/provenance, gaps and independent detection confidence/support status; HTTP status alone does not prove application outcome. No unsafe parsing to fill gaps.
+- Evidence: [architecture capability model](ARCHITECTURE.md), [feasibility](FEASIBILITY.md) F5/F10/F11, [support matrix](SUPPORT_MATRIX.md); no new Odoo API claim.
+- Tradeoff: useful but reduced handover may require P00-CAPTURE owner scope decision after 08. Every Odoo feature remains UNKNOWN / NOT TESTED; synthetic evidence cannot certify compatibility.
+
+## ADR-P01-06 — Recommend WXT/React, keep browser/build approval open
+
+- Date: 2026-10-21. Status: **PROPOSED — P01-BUILD / P01-BROWSER OWNER DECISION REQUIRED**.
+- Problem: Need reproducible MV3 entrypoints and UI without guessing installed package/browser support.
+- Alternatives: WXT + React UI; native MV3 + Vite/plain or React UI; Plasmo + React.
+- Proposed choice: WXT strict TypeScript with official React module only for packaged UI; no UI framework in Odoo pages. Proposed Chrome API floor 120 with current patched Linux Stable as first test target. No dependency pin, installation, scaffold or browser support certification now.
+- Evidence: current official docs/metadata checked 2026-10-21; [comparison and sources S10–S15](ARCHITECTURE.md); Chrome API sources S2/S8. Upstream WXT metadata reports 0.21.4 and Node >=22/Bun >=1.2.0, not project prerequisites.
+- Tradeoff: tooling/transitive dependencies and generated dev permissions require pinned review in separately authorized 02; manual MV3 offers explicit configuration with more wiring; Plasmo is viable but unnecessary extra conventions here. Owner/technical lead choose before scaffold; QA verifies target/build/OS later. Published support is not a passed local build.

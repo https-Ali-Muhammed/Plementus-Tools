@@ -1,36 +1,37 @@
 # Odoo TraceBridge — Project Status
 
-Date: 2026-10-20 (Africa/Cairo). **Planning/discovery only; NOT IMPLEMENTED OR RUNNABLE.**
+Date: **2026-10-21 (Africa/Cairo)**. **Documentation only; NOT IMPLEMENTED OR RUNNABLE.**
 
 ## Current gate
 
-- Step DB: **ACCEPTED per owner**, committed/pushed at f3cdea5 and verified against live origin; historical execution snapshot preserved.
-- Phase 00: **PROVISIONAL — ChatGPT/owner review pending**. Requested discovery documentation prepared; acceptance not inferred from static checks.
-- Completed product phases: **0/22**; 22 remaining, including optional Phase 21. Required 00–20 remain unaccepted; 01–20 NOT STARTED. Optional 21 NOT STARTED and separately authorized.
-- Current task ends at Phase 00. **No Phase 01 work or authorization.**
+- Step DB: ACCEPTED per owner; historical committed/pushed state at f3cdea5 retained.
+- Phase 00: **COMPLETE**, ChatGPT/owner accepted 2026-10-21 per owner; commit/push **9b728ba verified**. Historical execution snapshot preserved in [Phase 00 report](Phases/PHASE_00.md).
+- Phase 01: **PROVISIONAL — pending owner acceptance**. Architecture/security package prepared and statically checked; no runtime controls or framework/policy approval inferred.
+- Accepted progress: **1/22**. Remaining: **21**, including optional Phase 21; 20 required phases 01–20 unaccepted. Phases 02–20 and optional 21 NOT STARTED.
+- Current authorization ends at Phase 01 documentation. **STOP; no Phase 02 work.** Single-case MVP 16, comparison 17, optional Plemo discovery 21 retained.
 
-## Verified repository and branch
+## Verified repository and Git state
 
-- Supplied GitHub URL: https://github.com/https-Ali-Muhammed/Plementus-Tools/tree/feature/odoo-tracebridge
+- Repo: https://github.com/https-Ali-Muhammed/Plementus-Tools/tree/feature/odoo-tracebridge
 - Origin: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`.
-- Project: `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`.
-- Actual Git root: `/home/https_ali_muhammed/Plementus/Tools` (nested project).
-- Required branch: `feature/odoo-tracebridge`; starting/ending HEAD: `f3cdea59bf1a563d16897a1bd0771d60fd7cb640`; upstream `origin/feature/odoo-tracebridge`. Live remote, tracking ref and local HEAD equal.
-- Historical branch base: origin/develop at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`. No branch creation/switch/reset/clone in Phase 00.
-- Initially clean parent worktree. Final Phase 00 state: **5 new + 10 modified Markdown paths**, none staged; local changes only, no Phase 00 commit/push/merge. Canonical references unchanged.
+- Project: `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root: `/home/https_ali_muhammed/Plementus/Tools`.
+- Branch: `feature/odoo-tracebridge`; initial/final HEAD: `9b728bae9c54ebd07768fbe641aed3a7f5178ebe`; upstream `origin/feature/odoo-tracebridge`. Local/tracking/live origin equal at preflight; whole-repo worktree initially clean.
+- Phase 01 final changes: **14 Markdown paths (3 new + 11 modified)**, all inside project, none staged. No commit/push/merge/clone/checkout/reset. Phase 00 published baseline verified; Phase 01 local files only.
 
 ## Deliverables and verification
 
-- Created [product scope](PRODUCT_SCOPE.md), [competitor matrix](COMPETITOR_MATRIX.md), [feasibility](FEASIBILITY.md), [support matrix](SUPPORT_MATRIX.md), and [Phase 00 report](Phases/PHASE_00.md).
-- Updated README and docs/00–07 plus DB reconciliation, preserving historical execution evidence. Handoff updated second last; this status last.
-- Documentary/Git checks: **8 PASS**, runtime/dependency groups **3 SKIP** with reasons, human review **1 PENDING**. Markdown/link/table/scope/reference assertions and `git diff --check` passed; citations reviewed against primary sources. Toolbox search-version failure recovered from live page. Details in [04](04_TEST_EVIDENCE.md).
-- Proposed value remains unproven: Workbench already advertises recording/comparison. No novelty/superiority/trademark-clearance claim.
-- All Odoo 8–20 feature support **UNKNOWN / NOT TESTED**; no evidenced authorized Odoo test instance. Browser extension/Plemo **NOT IMPLEMENTED**. Runtime/product/security/performance tests **NOT TESTED**.
+Created [architecture](ARCHITECTURE.md), [security/privacy](SECURITY_PRIVACY.md) and [Phase 01 report](Phases/PHASE_01.md); added dated accepted/proposed ADRs. Updated README, scope, Phase 00 acceptance reconciliation and docs/00–07. Canonical originals/copies unchanged. Full exact scope and evidence in Phase 01 report and [test evidence](04_TEST_EVIDENCE.md).
 
-## Security and privacy boundary
+- **6 PASS** documentary/Git groups; **2 SKIP** (build/dependency and runtime groups); human acceptance **PENDING**. Markdown relative links/anchors/fences/tables, exact scope/HEAD, canonical bytes, 22-phase ledger, unchanged 13-version support matrix and architecture/threat markers checked. `git diff --check` passes; final read-only checks include this status/handoff.
+- Current official Chrome/WXT/React/Vite/Plasmo sources dated 2026-10-21; lifecycle web timeout recovered via direct official-document read. Framework recommendation remains proposed; no install or pinned dependency audit.
+- Runtime/browser/Odoo/security/noninterference: **NOT TESTED**. Product tests 0; real Odoo versions 0; synthetic fixtures 0. Odoo 8–20 feature support **UNKNOWN / NOT TESTED**. Mermaid diagrams reviewed as source, not visually rendered.
 
-No application code, dependencies, Odoo/customer/production access, credentials, customer data, provisioning, runtime capture or Plemo integration. Public reference research and read-only Git remote verification only. Privacy controls and safe fallbacks are proposals, not tested implementations.
+## Decisions and security boundary
 
-## Next action
+**OWNER DECISION REQUIRED:** framework/build choice, host-permission strategy, retention/input/lease caps, storage/encryption, browser floor/coverage, production policy and export classification. See [decision register](05_BLOCKERS_AND_DECISIONS.md). No authorized real Odoo instance evidenced; differentiation/usefulness and performance unmeasured. MAIN observation deferred to Phase 08 safety GO/NO-GO, with metadata/manual fallback.
 
-ChatGPT/owner reviews Phase 00 and decides the scope/acceptance questions in [05](05_BLOCKERS_AND_DECISIONS.md). See [handoff](07_HANDOFF.md). Keep **PROVISIONAL / 0/22** until accepted; **STOP**, with no Phase 01 work.
+No code, dependencies, live Odoo/customer/production access, credentials, record data, runtime capture, unsolicited transmission or Plemo integration. Controls are proposed design requirements, not implemented guarantees. Acceptance of Phase 00 does not resolve sensitive policies.
+
+## Single next action
+
+Owner/ChatGPT reviews Phase 01 package and records acceptance/required decisions. Accepted progress remains **1/22** until that review. [Handoff](07_HANDOFF.md) updated second last; this status LAST, followed only by read-only verification. **STOP after Phase 01.**
