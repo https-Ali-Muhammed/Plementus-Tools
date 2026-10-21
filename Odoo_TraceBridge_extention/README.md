@@ -1,6 +1,6 @@
 # Odoo TraceBridge
 
-**PROJECT NOT YET IMPLEMENTED OR RUNNABLE.** This repository currently contains planning references and Step DB documentation only. No browser extension, executable features, dependencies, build output, or compatibility certification exists.
+**PROJECT NOT YET IMPLEMENTED OR RUNNABLE.** This repository currently contains planning references, accepted Step DB documentation and provisional Phase 00 discovery only. No browser extension, executable features, dependencies, build output, or compatibility certification exists.
 
 Odoo TraceBridge is a proposed privacy-first diagnostic handover tool for Odoo developers, technical leads, implementation/QA engineers, and support engineers. The planned workflow is an explicitly opted-in troubleshooting session that organizes observable browser evidence, separates facts from hypotheses, compares cases cautiously, and prepares a reviewed handover.
 
@@ -18,7 +18,7 @@ The proposed design is opt-in, bounded, read-only, and local-first. It must not 
 
 ## Odoo compatibility strategy
 
-Compatibility is a goal, not a result. The plan uses generic browser evidence plus tested capability-specific adapters and explicit statuses (`Verified`, `Partial`, `Fallback`, `Unknown`, `Unsupported`). Odoo 8–20 are planning targets; no version, edition, hosting type, or feature has been tested or certified. See the [master plan](docs/01_MASTER_PLAN.md) and the canonical blueprint's compatibility strategy.
+Compatibility is a goal, not a result. The plan uses generic browser evidence plus tested capability-specific adapters and explicit statuses (`Verified`, `Partial`, `Fallback`, `Unknown`, `Unsupported`). Odoo 8–20 are planning targets; no version, edition, hosting type, or feature has been tested or certified. See the [support matrix](docs/SUPPORT_MATRIX.md), [master plan](docs/01_MASTER_PLAN.md) and the canonical blueprint's compatibility strategy.
 
 ## Installation and setup
 
@@ -54,10 +54,15 @@ Contribution and security-reporting processes are **NOT YET ESTABLISHED**. Do no
 - [Blockers and decisions](docs/05_BLOCKERS_AND_DECISIONS.md)
 - [Deployment runbook](docs/06_DEPLOYMENT_RUNBOOK.md)
 - [Handoff](docs/07_HANDOFF.md)
+- [Product scope](docs/PRODUCT_SCOPE.md)
+- [Competitor matrix](docs/COMPETITOR_MATRIX.md)
+- [Feasibility](docs/FEASIBILITY.md)
+- [Support matrix](docs/SUPPORT_MATRIX.md)
+- [Phase 00 report](docs/Phases/PHASE_00.md)
 - [Step DB phase report](docs/Phases/PHASE_DB_DOCUMENTATION_BOOTSTRAP.md)
 - [Canonical implementation blueprint](docs/Odoo_TraceBridge_Complete_Implementation_Blueprint.md)
 - [New chat instructions](docs/Odoo_TraceBridge_New_Chat_Instructions.md)
 
 ## Status boundaries
 
-Real Odoo compatibility: **NOT TESTED**. Browser extension functionality: **NOT IMPLEMENTED**. Plemo integration: **NOT IMPLEMENTED**. No commits or pushes have been performed for Step DB.
+Real Odoo compatibility: **NOT TESTED**. Browser extension functionality: **NOT IMPLEMENTED**. Plemo integration: **NOT IMPLEMENTED**. Step DB was accepted per owner and is committed/pushed at `f3cdea5` (live remote verified 2026-10-20). Phase 00 is PROVISIONAL pending ChatGPT/owner review; product phases completed remain **0/22**. Phase 00 changes are local and uncommitted. The name/trademark/store availability is unverified; no Odoo endorsement is claimed.

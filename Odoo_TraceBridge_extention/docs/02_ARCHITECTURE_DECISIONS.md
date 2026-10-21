@@ -8,7 +8,7 @@ These are baseline decisions from the supplied planning references and the expli
 - Context: Establish a permanent working branch without changing `develop` or `main`.
 - Decision: Use verified `develop` as the source and create local `feature/odoo-tracebridge` from `origin/develop` commit `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`.
 - Authorization: Explicitly requested by the owner in this task; documented as an exception to the original documentation-only DB scope.
-- Strategy: All subsequent phases use this branch unless the owner explicitly changes strategy. Commits and pushes require owner review. No automatic merges into `develop` or `main`. No upstream is configured on the local implementation branch until a remote feature branch is explicitly established.
+- Strategy: All subsequent phases use this branch unless the owner explicitly changes strategy. Commits and pushes require owner review. No automatic merges into `develop` or `main`. At DB execution no upstream was configured. Rechecked 2026-10-20: upstream is `origin/feature/odoo-tracebridge`, local and live remote HEAD `f3cdea5`; owner reports accepted/pushed DB.
 - Evidence: Local Git preflight and branch-creation commands/results are recorded in `Phases/PHASE_DB_DOCUMENTATION_BOOTSTRAP.md` and `04_TEST_EVIDENCE.md`.
 
 ## ADR-DB-02 — Keep the project nested at the supplied path
@@ -36,3 +36,13 @@ These are baseline decisions from the supplied planning references and the expli
 - Status: PROPOSED BY AUTHORITATIVE BLUEPRINT
 - Decision: Use a capability-based strategy with generic fallback and explicit `Verified`, `Partial`, `Fallback`, `Unknown`, and `Unsupported` statuses. Do not claim compatibility for any Odoo version without real, feature-specific evidence.
 - Current evidence: Real Odoo compatibility NOT TESTED.
+
+## ADR-P00-01 — Provisional discovery interpretation, not architecture approval
+
+- Date: 2026-10-20. Status: PROPOSED; ChatGPT/owner review pending.
+- Problem: Workbench overlaps recording/comparison; broad blueprint MVP list conflicts with detailed sequencing.
+- Alternatives: duplicate broad toolkit/ship comparison by 16; or preserve the §10 sequence and focus single-case handover first.
+- Proposed choice: minimal-data, evidence-labeled single-case handover at 16; automated comparison at 17, within v1. No implementation or approved policy follows.
+- Evidence: [competitor matrix](COMPETITOR_MATRIX.md), [scope](PRODUCT_SCOPE.md), canonical §2.1 and §10.
+- Tradeoff: narrower first checkpoint; differentiation and degraded-capture usefulness still require evaluation (`P00-DIFF`, `P00-SCOPE`, `P00-CAPTURE`).
+- Architecture/permissions/retention/framework selection deferred to separately authorized Phase 01. WXT feasibility assessed only; no dependency selected or installed.
