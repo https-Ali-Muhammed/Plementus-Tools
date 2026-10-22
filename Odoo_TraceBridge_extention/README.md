@@ -1,49 +1,46 @@
 # Odoo TraceBridge
 
-Odoo TraceBridge is a privacy-first Chromium extension scaffold. **Recording and all diagnostic features are unavailable — not implemented.** The popup is inert. Do not use it with Odoo/customer data.
+Phase 03 permission and consent preview. **Recording unavailable — not implemented.** Start stays disabled. Phases 00–02 COMPLETE; Phase 03 **PROVISIONAL**, accepted progress **3/22**, pending owner/ChatGPT review. Phase 04 is NOT STARTED.
 
-## Planned functionality
+## Local development is a primary use case
 
-Per-tab investigations, safe browser evidence, Odoo capability adapters, local case storage, comparisons, reviewed exports, and optional Plemo discovery are **PLANNED** only. No Odoo version, hosting type, or feature is tested or certified. See [product scope](docs/PRODUCT_SCOPE.md), [support matrix](docs/SUPPORT_MATRIX.md), and the [22-phase plan](docs/01_MASTER_PLAN.md).
+Explicitly authorized local Odoo development now supports `http://localhost:8069`, `http://127.0.0.1:8069`, other URL-valid loopback ports, browser-normalized default ports, and `http://[::1]:<port>` where IPv6 is available. No certificates, proxies or public exposure are required. The prior HTTPS-only restriction is superseded for loopback development by owner instruction on 2026-10-22.
 
-## Prerequisites
+Invoke the extension on the intended tab. Type its **displayed normalized exact origin**, select **Local Development**, confirm site/data-owner authorization and click **Approve consent only**. Loopback alone never establishes Odoo identity or authorization. Local Development rejects non-loopback hosts; loopback approval requires Local Development. Authorized remote HTTPS Odoo.sh/test/staging origins use Test or Staging, including exact non-default HTTPS ports. Production/unknown, ordinary remote HTTP, LAN/custom DNS, misleading local hostnames, credentials, unsupported schemes, mismatched host/port/tab and missing confirmation fail closed. Consent is transient; Deny, Revoke, popup closure and tab/document changes invalidate it. Browser activeTab is never recording consent.
 
-- Node.js **22 or newer** and npm (the lockfile uses npm lockfile v3). Verified here with Node `v24.19.0` and npm `11.17.0`.
-- Google Chrome **120 or newer** for the proposed initial browser floor. Chromium/other browsers are not certified. Chrome 120 is the architecture proposal, not a result of browser testing.
+## Setup and automated verification
 
-WXT `0.21.4` and its React module `1.2.2` officially support the chosen setup; React/React DOM are pinned to `19.3.1`. All direct dependencies are exact-pinned in `package.json` and the npm lockfile. See [Phase 02 evidence](docs/Phases/PHASE_02.md).
-
-## Setup and development
+Node 22+ and npm. Verified Node `v24.19.0`, npm `11.17.0`; exact-pinned Playwright `1.64.1`, WXT `0.21.4`, React `19.3.1` and lockfile. Only Playwright and its two required packages were added for automation.
 
 ```sh
 npm ci
-npm run dev
-npm run build
-npm run typecheck
-npm run lint
-npm test
+npx playwright install chromium
+npm run verify
 ```
 
-`npm run dev` creates `.output/chrome-mv3-dev`, which includes localhost-only development permissions and reload support. Do not use that folder as the production artifact. `npm run build` creates the production unpacked extension at **`.output/chrome-mv3`**. It requests no extension permissions or host grants.
+`verify` builds production, checks strict TypeScript/lint, runs all policy/integration/regression tests, separately generates/audits production and development manifests, runs isolated Chromium extension E2E, and checks diff whitespace. Results/logs/screenshots/traces are in ignored `.artifacts/`; inspect `verification.json`, `unit.json`, `e2e.json` and `browser/*/browser.json`. Final run: **123 unit/integration PASS; 10 browser PASS (9 native action, 1 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped**. The clean `npm ci` passed, with 0 vulnerabilities reported by npm (not a security certification).
 
-## Load the production build in Chrome
+```sh
+npm test
+npm run test:e2e
+npm run test:e2e:headed
+npm run dev -- --host 127.0.0.1
+```
 
-1. Run `npm ci` and `npm run build`.
-2. Open `chrome://extensions` and enable **Developer mode**.
-3. Select **Load unpacked** and choose this project's `.output/chrome-mv3` directory.
-4. Open the extension popup. It should show **“Recording unavailable — not implemented”**.
+E2E automatically builds/loads actual `.output/chrome-mv3` in temporary isolated persistent Chromium profiles. On Linux, native action tests use an available X11 display and existing `xdotool`; headless direct-popup coverage is separate. If already installed, `xvfb-run -a npm run verify` supplies a disposable display (Xvfb unavailable/NOT TESTED here). Missing native prerequisites cause explicit skipped/BLOCKED coverage; `verify` exits unsuccessfully if mandatory E2E specs skip. Do not install system dependencies with sudo or weaken browser security to recover. Full [automation policy and runbook](docs/06_DEPLOYMENT_RUNBOOK.md).
 
-Manual Chrome installation/popup smoke testing was **NOT TESTED** in the current environment because no Chrome window is connected. Owner acceptance is pending that smoke test.
+## Permission and privacy boundary
 
-## Security and status
+Production requests **only activeTab**, incognito disabled, packaged scripts and `connect-src 'none'`. No host/optional grants, background worker, content scripts, storage, collectors, case persistence, RPC, telemetry or Plemo. Revoke clears app consent, not Chrome's temporary grant. Cross-origin navigation/tab closure ends browser access; same-origin navigation may retain the browser grant, while app consent still invalidates. A future worker must independently verify authority before capture.
 
-Production contains only the popup and minimum manifest metadata. There are no background/content scripts, host grants, capture hooks, telemetry, external requests, or remote code. The generated development manifest has additional WXT hot-reload permissions and localhost CSP; see the manifest audit in [Phase 02](docs/Phases/PHASE_02.md). Loading the scaffold does not authorize capture or use with customer data.
+Development `.output/chrome-mv3-dev` adds WXT-only tabs/scripting, localhost host access, reload worker and localhost script CSP; never distribute or use on customer pages. Its retained connect-src none may block HMR; rebuild production/reload as fallback. Local Odoo HTTP support is independent of development-build HMR.
 
-Phase 00 and Phase 01 are **COMPLETE**; accepted progress remains **2/22**. Phase 02 is **PROVISIONAL — pending owner acceptance**. Browser/Odoo compatibility and all planned functionality remain **NOT TESTED / NOT IMPLEMENTED**. Commits and pushes require owner review; no commit or push was made. See [status](docs/00_PROJECT_STATUS.md) and [handoff](docs/07_HANDOFF.md).
+## Evidence and limits
 
-## Project documentation
+Chromium `156.0.8078.4` on Linux tested against synthetic loopback fixtures only. Authentic invocation uses the browser's built-in Activate Extension shortcut, configured in the disposable profile and sent as native input. It grants real activeTab and opens the browser-owned popup; no grant/API mocks or production manifest changes. Physical toolbar mouse clicking and the Chrome minimum version 120 are NOT TESTED. The pinned Playwright internal popup-target hook is a maintenance limitation. Context request/console observations are bounded runtime evidence, not OS-wide network or security certification.
 
-- [Project status](docs/00_PROJECT_STATUS.md) · [Master plan](docs/01_MASTER_PLAN.md) · [Architecture decisions](docs/02_ARCHITECTURE_DECISIONS.md)
-- [Changelog](docs/03_CHANGELOG.md) · [Test evidence](docs/04_TEST_EVIDENCE.md) · [Blockers](docs/05_BLOCKERS_AND_DECISIONS.md) · [Runbook](docs/06_DEPLOYMENT_RUNBOOK.md) · [Handoff](docs/07_HANDOFF.md)
-- [Phase 02 report](docs/Phases/PHASE_02.md) · [Architecture](docs/ARCHITECTURE.md) · [Security and privacy](docs/SECURITY_PRIVACY.md)
-- [Phase 01 report](docs/Phases/PHASE_01.md) · [Phase 00 report](docs/Phases/PHASE_00.md) · [Canonical blueprint](Odoo_TraceBridge_Complete_Implementation_Blueprint.md)
+Historical Phase 02 Brave popup smoke PASSED (owner-attested, accepted 2026-10-21); **Google Chrome Stable remains NOT TESTED**. No real Odoo version, edition, hosting environment, customer or production system was accessed/certified. Future features remain PLANNED. Owner reviews evidence and authorizes Git publication; routine testing is Codex-owned.
+
+- [Phase 03](docs/Phases/PHASE_03.md) · [test evidence](docs/04_TEST_EVIDENCE.md) · [blockers](docs/05_BLOCKERS_AND_DECISIONS.md)
+- [Status](docs/00_PROJECT_STATUS.md) · [handoff](docs/07_HANDOFF.md) · [master plan](docs/01_MASTER_PLAN.md) · [ADRs](docs/02_ARCHITECTURE_DECISIONS.md)
+- [Architecture](docs/ARCHITECTURE.md) · [security/privacy](docs/SECURITY_PRIVACY.md) · [canonical blueprint](docs/Odoo_TraceBridge_Complete_Implementation_Blueprint.md)

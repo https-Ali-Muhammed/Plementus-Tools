@@ -31,3 +31,18 @@ All entries describe repository changes only. Product functionality is not impli
 - Replaced README's non-runnable directions with verified prerequisites, commands, production output and Chrome unpacked-install steps; all unimplemented product capabilities labeled PLANNED or NOT IMPLEMENTED.
 - Recorded build, typecheck, lint and 1/1 unit test PASS; audited production and development manifests. Manual Chrome load/popup smoke NOT TESTED because no Chrome window was connected.
 - Phase 02 PROVISIONAL — pending owner acceptance. No capture/Odoo/customer access, consent, persistence, Plemo, deployment, commit or push.
+
+## 2026-10-21 — Phase 02 acceptance reconciliation and Phase 03 PROVISIONAL
+
+- Owner/ChatGPT acceptance at pushed `fe90532`: Phase 02 COMPLETE, progress 3/22. Owner-attested Brave popup smoke PASSED; Chrome NOT TESTED. Historical Phase 02 evidence retained.
+- `entrypoints/popup/main.tsx` now mounts new `Popup.tsx`; `consent.ts` validates selected identity/exact origin, explicit authorization/non-production declaration, rechecks target and drops stale async decisions. `style.css` adds local form styling/focus. No page content or browsing history is gathered.
+- `consent.test.ts`: 51 focused new synthetic/mock/source tests; existing status test retained (52 total). `wxt.config.ts`: only activeTab, incognito disabled, restrictive packaged CSP. No package/lock changes.
+- `README.md`, `docs/01_MASTER_PLAN.md`, `02_ARCHITECTURE_DECISIONS.md`, `04_TEST_EVIDENCE.md`, `05_BLOCKERS_AND_DECISIONS.md`, `06_DEPLOYMENT_RUNBOOK.md`, `ARCHITECTURE.md`, `SECURITY_PRIVACY.md`, `Phases/PHASE_02.md`, new `Phases/PHASE_03.md` updated; `07_HANDOFF.md` second last and `00_PROJECT_STATUS.md` last.
+- Approval never starts recording. Start stays disabled until 04; no sessions/storage/observers/capture/network/telemetry/RPC/Plemo added. Production has no host grant, worker or content scripts; WXT development-only broadening documented. No commit/push/deployment. Phase 03 browser smoke NOT TESTED; no real Odoo compatibility claim.
+
+## 2026-10-22 — Phase 03 automated verification and local development (PROVISIONAL)
+
+- Extended existing consent policy and popup with explicit Local Development, normalized loopback HTTP(S)/exact-port support, shared declaration gating and fail-closed remote HTTP/production/unknown rejection. Retained Deny/Revoke/stale-target checks and disabled Start. Removed popup max-width constraint that native screenshots showed shrinking it to 182px; native tests assert 390px.
+- Added exact Playwright 1.64.1/lock entries, Playwright/Vitest configs, two E2E fixture/spec files, manifest/verification scripts, npm test:e2e/test:e2e:headed/verify scripts and ignored .artifacts. No production permission widening, worker, content script, collection, persistence or later phase.
+- Clean npm ci, production build/typecheck/lint, 123 unit/integration/regression tests and 10 actual Chromium extension specs pass. Nine specs invoke the native browser action; one directly opens the popup. Prod/dev manifests audited separately; installed production grants observed. Screenshots/traces/browser JSON/logs and verified ZIP recorded; earlier test-harness/type errors recovered and retained in logs.
+- Updated README, current phase/architecture/security and docs/00–07 with superseded HTTPS-only restriction, Codex-owned permanent phase verification, exact browser evidence/limits. Handoff second last, status last. Historical Phase 02 Brave PASS/Google Chrome NOT TESTED preserved. Accepted progress remains 3/22; 28 paths unstaged/uncommitted; no commit/push/Phase 04.

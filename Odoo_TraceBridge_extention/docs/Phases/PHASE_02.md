@@ -1,5 +1,7 @@
 # PHASE_02 — MV3 scaffold
 
+> Current reconciliation: Phase 02 COMPLETE, accepted 2026-10-21 by owner/ChatGPT at pushed `fe90532`. Owner-attested Brave popup smoke PASSED; Google Chrome NOT TESTED. Accepted progress 3/22. Original execution snapshot below is preserved; the dated acceptance reconciliation at the end supersedes its pending status.
+
 Date: **2026-10-21 (Africa/Cairo)**. Status: **PROVISIONAL — pending owner acceptance**. Accepted progress remains **2/22**. Scope is scaffold/config/tests/documentation only; no capture, consent, persistence, Odoo hooks, Plemo, deployment, commit, or push.
 
 ## Reconciliation and preflight
@@ -60,3 +62,7 @@ On Chrome 120 or newer: run `npm ci`, `npm run build`; open `chrome://extensions
 ## Git and stop boundary
 
 All changes are intended to be inside the project directory. No files were staged, no commit/push/merge/clone/switch/reset occurred. HEAD remains `013887312f69d77458191d1663308ed9490297e7`. Phase 02 is **PROVISIONAL — pending owner acceptance**; accepted progress stays **2/22**. Next action: owner runs the documented Chrome smoke test, reviews the report, and records Phase 02 acceptance. **STOP after Phase 02.**
+
+## Phase 02 acceptance reconciliation — 2026-10-21
+
+Owner/ChatGPT accepted Phase 02 on 2026-10-21 and reports Brave popup smoke **PASSED**. This is owner-attested browser evidence, not a new Codex browser run. Google Chrome remains **NOT TESTED**. Local HEAD, upstream tracking ref and live origin match pushed commit `fe90532b11e043344aa2abfb7a539a0156e30cd5`. Phase 02 is **COMPLETE**; accepted progress is **3/22**. Earlier provisional/2-of-22 and uncommitted records above are preserved as historical execution evidence and superseded by this reconciliation. Current authorization is Phase 03 only; no publication or later phase is authorized.

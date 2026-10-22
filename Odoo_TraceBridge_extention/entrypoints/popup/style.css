@@ -1,0 +1,18 @@
+:root { font-family: system-ui, sans-serif; color: #172d37; background: #f5f7f4; font-size: 14px; }
+body { margin: 0; width: 390px; }
+main { padding: 20px; border-top: 5px solid #21645c; }
+h1 { font-size: 23px; margin: 6px 0; }
+h2 { font-size: 16px; margin-top: 0; }
+p { line-height: 1.5; overflow-wrap: anywhere; }
+small { font-size: 11px; letter-spacing: .08em; }
+section { padding: 12px; background: #e6efeb; border-left: 3px solid #21645c; }
+fieldset { border: 1px solid #80918f; padding: 12px; margin: 18px 0 12px; }
+label { display: block; margin-bottom: 14px; line-height: 1.5; }
+input:not([type=checkbox]), select { display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 5px; font: inherit; }
+.confirmation { display: flex; gap: 8px; align-items: flex-start; }
+button { font: inherit; padding: 9px 12px; border: 1px solid #21645c; background: #fff; color: #172d37; cursor: pointer; }
+button[type=submit] { background: #21645c; color: #fff; }
+button:disabled { opacity: .65; cursor: not-allowed; }
+:focus-visible { outline: 3px solid #925300; outline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.limit { font-size: 12px; }

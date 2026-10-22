@@ -127,3 +127,101 @@ Phase 02 tools used: Ponytail full skill; shell/Git/npm; official-source web sea
 Source findings: strict TypeScript is configured; popup renders the inert fixed status with `role="status"`; the single test validates the text constant only, so actual rendered behavior remains pending browser smoke. Static bundle contains React error-reference URL strings and a conditional Vite module-preload helper; the production HTML has no module-preload link and references only the packaged chunk. No external executable source or telemetry was found. This check cannot establish absence of all runtime network activity.
 
 Evidence ZIP: `/tmp/tracebridge-phase02-evidence.zip` (source/config, lockfile, production manifest and phase/evidence records only; no screenshots because Chrome GUI was unavailable). ZIP contents were verified. Phase 02 remains PROVISIONAL, accepted progress **2/22**; acceptance blocker is the unperformed real Chrome smoke. Exact owner steps are in [PHASE_02](Phases/PHASE_02.md).
+
+## Phase 02 acceptance reconciliation — 2026-10-21
+
+Owner/ChatGPT accepted Phase 02 on 2026-10-21 and reports Brave popup smoke **PASSED**. This is owner-attested browser evidence, not a new Codex browser run. Google Chrome remains **NOT TESTED**. Local HEAD, upstream tracking ref and live origin match pushed commit `fe90532b11e043344aa2abfb7a539a0156e30cd5`. Phase 02 is **COMPLETE**; accepted progress is **3/22**. Earlier provisional/2-of-22 and uncommitted records above are preserved as historical execution evidence and superseded by this reconciliation. Current authorization is Phase 03 only; no publication or later phase is authorized.
+
+## Phase 03 checks — 2026-10-21
+
+Current accepted ledger **3/22**; Phase 03 **PROVISIONAL**, not accepted. Phase 02 Brave pass is owner-attested; it is not Phase 03 coverage. Full actions, source limitations, exact changed paths and acceptance matrix: [Phase 03 report](Phases/PHASE_03.md).
+
+| ID | Exact command/action | Observed result | Evidence / limitation |
+|---|---|---|---|
+| P03-01 | `pwd`; `git rev-parse --show-toplevel`; `git remote get-url origin`; `git branch --show-current`; `git rev-parse HEAD`; `git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'`; `git status --porcelain=v1 --untracked-files=all`; `git ls-remote origin refs/heads/feature/odoo-tracebridge` | PASS | Expected root/origin/branch/upstream and fe90532 HEAD/tracking/live SHA; clean whole-parent tree before edits |
+| P03-02 | `npm run build` | PASS | WXT 0.21.4 / Vite 8.3.5, four production files, 227.82 kB |
+| P03-03 | `npm run typecheck` | PASS after correction | Initial fixture with missing incognito failed TypeScript; boundary type now optional, runtime still rejects anything other than false. Strict rerun no diagnostics |
+| P03-04 | `npm run lint` | PASS | ESLint 10.0.1, no diagnostics |
+| P03-05 | `npm test` | PASS: **52/52**, **2 files**, 0 failed/skipped | 51 new policy/mock browser-controller/source-boundary tests + original status constant test. No mounted DOM or actual Chrome integration |
+| P03-06 | `npm run dev -- --host 127.0.0.1` | PASS generation | Local dev manifest/reload worker generated; stopped Ctrl-C (130). HMR/browser NOT TESTED; connect-src none may block HMR |
+| P03-07 | `python3 /tmp/tracebridge_phase03_audit.py`; inspect generated prod/dev JSON and popup HTML | PASS — STATIC REVIEW | Production only activeTab, incognito not_allowed, no hosts/worker/content/optional grants; packaged-only CSP + connect-src none. Dev activeTab/tabs/scripting, localhost host/script source, WXT worker. Four local production assets, no localhost strings. Reproducible assertion procedure in phase report |
+| P03-08 | CUA `cua.getState()` | UNAVAILABLE / NOT TESTED | Empty in-app browser and MCP Apps only; no Chrome/Brave/native window. No Phase 03 install, popup interaction, screenshot, accessibility, runtime console or network monitor evidence |
+| P03-09 | `git diff --check`; Python final documentation/Git scope/whitespace assertions; `git status --porcelain=v1 --untracked-files=all`; `git diff --cached --name-only`; HEAD/upstream check | PASS | 19 project-only paths, 14 modified/5 new, 0 staged; unchanged baseline; canonical copies untouched; handoff second last/status last |
+| P03-10 | Fresh `npm ci`, real Odoo, performance/noninterference/security certification | NOT RUN / NOT TESTED | No package changes; accepted Phase 02 install preserved. No authorized real instances; no compatibility/security guarantees |
+
+Synthetic negatives cover explicit approval/confirmation, restricted schemes/store/credential/HTTP/custom-port URLs, incognito/loading/missing IDs or URL, wrong exact origin/environment, tab/window/origin switching, denial/revocation, browser rejection and invalidation during pending lookups. Source tests verify listeners and cleanup, permanently disabled Start, only popup entrypoint and absence of capture/injection/storage/network APIs. Browser invocation is never approval; no collector exists even after approval. Actual Chrome event/grant semantics require the owner runbook.
+
+Production assets: `manifest.json`, `popup.html`, `chunks/popup-B2zh8ibR.js`, `assets/popup-BhW7hcAC.css`. Node `v24.19.0`, npm `11.17.0`, Linux. Skills used: Ponytail full, frontend-design. Tools: functions shell/Git/npm/Python, web open of official Chrome docs, CUA inventory. No agents, WarpGrep/Valyu/Superpowers. Registry search had no relevant memory hit.
+
+Documentation validator note: its first run incorrectly counted a fenced phase-report template H1 in the unchanged canonical blueprint; excluding fenced blocks corrected the validator. The corrected pre-final check passed 17 paths/91 relative links before the required final two ledger updates. This was a temporary verification-script issue, not a product or canonical-source defect. Final check enforces the full 19-path allowlist and runs after status.
+
+## Phase 03 installed-browser smoke attempt — 2026-10-22 (Africa/Cairo)
+
+**BLOCKED / NOT TESTED**. Phase 03 **PROVISIONAL**, accepted **3/22**. Browser **NONE**, browser/version **UNAVAILABLE**, browser OS **UNVERIFIED**, build host Linux. Prior 52 automated tests not rerun and not counted as browser evidence.
+
+| ID | Exact action | Observed result | Boundary |
+|---|---|---|---|
+| P03-S01 | Verify root/origin/branch/HEAD/upstream, `git status --porcelain=v1 --untracked-files=all`, staged paths; Python exact 19-path assertion | PASS | Initial docs.zip mismatch caused stop; owner removed it and authorized continuation. Expected 19 unstaged changes preserved; HEAD fe90532, branch/upstream unchanged |
+| P03-S02 | `npm run build` | PASS, exit 0 | WXT 0.21.4 / Vite 8.3.5; production four files, 227.82 kB; no installed browser proof |
+| P03-S03 | Python parse `.output/chrome-mv3/manifest.json`, assert four nonempty assets, only activeTab, no optional/host/background/content keys, incognito not_allowed | PASS — STATIC | Effective installed permission Details remain NOT TESTED |
+| P03-S04 | CUA `cua.getState()` | Chrome/Brave UNAVAILABLE | Only empty Codex In-app Browser and MCP Apps; no native apps |
+| P03-S05 | CUA `cua.createBrowserTab('chrome', 'chrome://extensions', { sessionName: '🧪 TraceBridge smoke' })` | BLOCKED | Exact error: `Error: Browser is not available: chrome`; no browser tab/profile/extension installation |
+| P03-S06 | Actual installed-browser cases B01–B12 below | 0 PASS / 0 FAIL / 12 NOT TESTED | All BLOCKED; no simulated/mock PASS |
+| P03-S07 | Screenshot capture of popup/approved/rejected/permission states | NOT TESTED / UNAVAILABLE | No browser surface; zero screenshots; none fabricated |
+| P03-S08 | `git diff --check`; Python source/non-target hash equality, unchanged Git/19-path scope and no staging, Markdown structure/link checks | PASS | Only five requested docs edited this run; source/README/config/package and other Phase 03 changes preserved |
+| P03-S09 | Python zipfile create `/tmp/tracebridge-phase03-smoke.zip`, `testzip()`, member/doc-content assertions | PASS | Outside Git; contains updated reports/results plus sanitized inventory/build/manifest/hashes, no screenshots/customer data |
+
+| ID | Browser test | Result | Exact observed behavior / limitation |
+|---|---|---|---|
+| B01 | Popup opens and renders correctly | BLOCKED / NOT TESTED | Not opened: no connected Chrome/Brave; direct Chrome access attempt unavailable. |
+| B02 | Selected tab ID and exact origin displayed correctly | BLOCKED / NOT TESTED | No installed popup or selected browser tab observed. |
+| B03 | Consent initially absent | BLOCKED / NOT TESTED | No popup observed; previous mock/source evidence is not smoke evidence. |
+| B04 | Approval requires exact origin, test/staging and explicit authorization | BLOCKED / NOT TESTED | No installed browser and no existing owner-controlled HTTPS/default-port synthetic fixture identified in supplied records. |
+| B05 | Production/unknown/unauthorized/mismatched declarations rejected | BLOCKED / NOT TESTED | No actual form interaction observed; no unrelated website substituted or false authorization entered. |
+| B06 | Approval does not enable recording; Start remains disabled | BLOCKED / NOT TESTED | Positive approval blocked by missing browser/fixture; no runtime Start state observed. |
+| B07 | Deny and Revoke clear consent | BLOCKED / NOT TESTED | No actual popup interaction or consent transition observed. |
+| B08 | Popup close/reopen requires fresh consent | BLOCKED / NOT TESTED | No popup opened or reopened. |
+| B09 | Tab switching/navigation/stale identity cannot reuse approval | BLOCKED / NOT TESTED | No installed popup, approval or browser tab navigation observed. |
+| B10 | Restricted URLs/unsupported schemes/incognito fail safely | BLOCKED / NOT TESTED | No extension-capable browser; no installed behavior observed. |
+| B11 | Effective installed permissions only activeTab, no host grants | BLOCKED / NOT TESTED | Generated manifest statically matches activeTab-only/no host grants; effective installed permissions and Details UI NOT TESTED. |
+| B12 | No background capture/observers/unexpected network/runtime errors | BLOCKED / NOT TESTED | No installed runtime, DevTools, network monitor or console observed; absence of runtime behavior cannot be certified. |
+
+
+An existing owner-controlled synthetic HTTPS/default-port fixture was not identified in supplied records; existence elsewhere UNKNOWN. No unrelated website, invented positive fixture or false authorization substituted. Critical result is missing Chrome/Brave access, not a diagnosed functional defect. No security-policy bypass, dependency, source/config change, customer/Odoo access, commit/push/deployment.
+
+Full observations, limitations, manual owner procedure and ZIP provenance: [Phase 03 latest smoke attempt](Phases/PHASE_03.md#browser-smoke-only-verification--2026-10-22-africacairo). Run unchanged [runbook steps 1–9](06_DEPLOYMENT_RUNBOOK.md#phase-03-owner-browser-smoke--not-tested) on an isolated owner browser and an existing authorized synthetic fixture, record exact version/OS and per-case outcomes, and submit sanitized screenshots/runtime errors. Phase 03 remains UNREVIEWED; no Phase 04. Tools: shell/Git/npm/Python and CUA inventory/direct Chrome attempt; no new skill/mock test.
+
+## Phase 03 automated completion — 2026-10-22 (Africa/Cairo)
+
+Current evidence supersedes prior CUA-only blockers; historical failures/NOT TESTED snapshots above remain intact. Phase 03 PROVISIONAL; accepted 3/22, UNREVIEWED.
+
+| ID | Exact command / test | Result | Evidence / limits |
+|---|---|---|---|
+| P03-A01 | Whole-root Git preflight + git ls-remote origin refs/heads/feature/odoo-tracebridge | PASS | Expected origin/root/branch/upstream/local/tracking/live fe90532; 19 existing unstaged project paths, no unrelated modifications |
+| P03-A02 | npm install --save-dev --save-exact @playwright/test@1.64.1; npm ci | PASS | Exact pin/lock, 246 installed / 247 audited, npm 0 vulnerabilities; install.log |
+| P03-A03 | npx playwright install chromium | PASS | Chromium 156.0.8078.4 revision 1248, no system packages/sudo; isolated sandboxed contexts |
+| P03-A04 | npm run verify | PASS final run | build/typecheck/lint/unit/manifests/E2E/diff all exit 0; verification.json + per-step logs |
+| P03-A05 | npm test -- --reporter=default --reporter=json --outputFile=.artifacts/unit.json | **123 PASS / 0 FAIL / 0 skipped**, 2 files | Policy/mock lookup integration/source boundary/regression; unit.json, unit.log |
+| P03-A06 | npx --no-install playwright test | **10 PASS / 0 FAIL / 0 BLOCKED / 0 skipped** | 9 native action specs + 1 actual direct-popup spec; e2e.json, e2e.log, browser directories |
+| P03-A07 | node scripts/audit-manifests.mjs; installed runtime.getManifest/permissions.getAll in direct-popup test | PASS | Production only activeTab, no installed origins; no hosts/optional/worker/content entries; incognito not_allowed. Dev-only tabs/scripting/localhost/worker separately audited |
+| P03-A08 | Browser console/pageerror/request logs; popup screenshot inspection; native body width assertion | PASS within observed matrix | No JS console/page errors/non-loopback HTTP(S) context requests; screenshots/traces real, synthetic content only; not OS-wide network or security proof |
+| P03-A09 | git diff --check; exact path/whitespace/docs/reference/cleanup/archive inventory assertions | PASS | 28 project paths, none staged; ZIP CRC/member/hash checks; profiles/processes/servers cleaned |
+
+Unit matrix includes localhost/IPv4/IPv6, different/default/invalid ports, exact origin isolation, misleading names/LAN/custom DNS/remote HTTP/protocol/userinfo negatives, Test/Staging/Local declarations, absent or malformed authorization, production/unknown denial, Deny/Revoke, stale tab/window/origin and async races. These counts do not imply actual browser interaction for every policy input.
+
+Native browser matrix: explicit IPv4/localhost/IPv6/second-port local approval; exact-origin/environment/checkbox negatives; Deny/Revoke and close/reopen; same-origin full navigation, cross-host/cross-port navigation, same-origin new-tab switch; restricted chrome://settings and disabled Start. Direct-popup spec separately verifies real MV3 render, installed manifest/grants and no automatic approval without native invocation. Actual browser-owned popup is opened by a native Activate Extension shortcut configured via chrome://extensions/shortcuts in the temporary profile. No browser API/grant mocks or manifest test permissions. xdotool targets only the uniquely identified fixture window; no owner profile/session used.
+
+Versions: Node v24.19.0 / npm 11.17.0 / WXT 0.21.4 / Vite 8.3.5 / TypeScript 6.0.3 / ESLint 10.0.1 / Vitest 5.0.5 / Playwright 1.64.1 / Chromium 156.0.8078.4, Linux. Actual browser.json records version, request/console/error arrays, sandbox enabled and profile removal. Earlier selector/other-target attachment/exact-label/test-fixture typing failures recovered; aggregate attempt logs retained. Harmless X11 window-manager/NO_COLOR warnings are recorded, distinct from extension JS errors. Native screenshots exposed the existing narrow-popup CSS defect; fixed and rerun with 390px assertion.
+
+### Explicit blocked / untested inventory
+
+Mandatory Phase 03 automated matrix: **0 BLOCKED** on this host. Optional/compatibility observations below are **NOT TESTED** and are not PASS:
+
+- Physical toolbar mouse click (native keyboard action is tested); browser UI site-access withholding/removal, disable/re-enable and incognito UX. Mock policy and declaration tests cover missing/revoked lookup/incognito only. Temporary activeTab removal events are not guaranteed.
+- Google Chrome Stable / Brave Phase 03, minimum version 120, other browsers/OS. Historical Phase 02 Brave PASS remains owner-attested; Google Chrome NOT TESTED.
+- Real Odoo/version/edition/remote Odoo.sh or HTTPS staging, default port 80 service and real application noninterference/performance/security certification. Fixture services used only dynamic loopback ports; existing 8069 server untouched.
+- Xvfb (not installed), dev HMR (connect-src none retained), physical toolbar pin/click workflow and full accessibility/WCAG audit. Keyboard activation/form interaction and real screenshots are evidence only for their observed paths.
+
+Pinned Playwright internal PW_CHROMIUM_ATTACH_TO_OTHER is needed for native Chromium popup targets; this can require maintenance on upgrade. Production has no capture/network/persistence API paths, verified by source/static manifests and bounded runtime observations; no claim about all OS/browser packets. [Permanent policy/runbook](06_DEPLOYMENT_RUNBOOK.md), [full phase report](Phases/PHASE_03.md).
+
+Verified archive: `/tmp/tracebridge-phase03-automated-evidence.zip`; source/tests/config/package-lock, production/development manifests, JSON/logs/screenshots/traces, docs and explicit NOT TESTED inventory. CRC, inventory and per-member SHA-256 verified after final status. No node_modules, profiles/cookies/credentials/customer data or unnecessary production bundles. Skills/tools: Ponytail full; shell/Git/npm/Python, official-source web research, Playwright/Chromium/xdotool and local image inspection. No CUA/agents/real Odoo in this run.

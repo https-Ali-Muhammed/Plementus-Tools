@@ -1,5 +1,7 @@
 # Architecture — Phase 01
 
+> Current gate (2026-10-21): Phase 01 accepted by owner/ChatGPT; original design snapshot below is historical and future contracts remain phase gated. Phases 00–02 COMPLETE, 3/22 accepted; Phase 03 PROVISIONAL. See the Phase 03 implementation note at the end for the narrow working boundary. No capture/compatibility/security certification.
+
 Date: **2026-10-21 (Africa/Cairo)**. **PROVISIONAL — pending owner acceptance; NOT IMPLEMENTED**. Design requirements below are future contracts, not working features. Accepted progress 1/22. [Security policy](SECURITY_PRIVACY.md) defines sensitive choices; [ADRs](02_ARCHITECTURE_DECISIONS.md) distinguish accepted sequencing from proposed engineering choices.
 
 ## Components and ownership
@@ -143,3 +145,17 @@ All retrieved **2026-10-21**. Web open/find used except S4 recovered via Python 
 ## Future verification gates
 
 03 consent/messages and permissions; 04 lifecycle/retention/delete/restart; 05–07 minimal signals; 08 CSP/collision/body safety GO/NO-GO; 09–11 capability/schema provenance; 12–13 conservative findings; 14–15 accessible UI/review/export; 16 single-case acceptance; 17 comparison; 18 legacy evidence; 19 security/performance resilience; 20 release review; 21 optional separate discovery. [Threat tests](SECURITY_PRIVACY.md) define expected negative cases. Runtime/browser/Odoo: **NOT TESTED**. Architecture approval and policy decisions require owner review; this document grants no access.
+
+## Phase 03 implemented boundary — PROVISIONAL
+
+Only the popup-local permission/consent preview exists: `main.tsx` → `Popup.tsx` → `consent.ts`; no worker, content script, runtime message, storage or collector. Worker authority/epochs/leases remain future contracts for Phase 04 onward, not silently replaced by UI state. No cross-context message validator is needed because no message channel exists.
+
+Production uses activeTab alone, incognito disabled and packaged-only/no-network CSP. The popup queries exactly one active/current-window tab; displays ID/window/exact normalized origin; requires matching user-entered authorized origin, explicit Local Development for loopback HTTP(S) or Test/Staging for remote HTTPS, confirmation and approval. This owner-approved 2026-10-22 policy supersedes the prior HTTPS-only/default-port loopback restriction. Approval revalidates identity; tab/document/window/permission changes invalidate decisions; stale async results are dropped. Closing the popup loses approval. Start is permanently disabled.
+
+URL visibility does not prove future injection authority or organizational permission; environment is user stated. Temporary grant revocation event delivery is not guaranteed. No future session may consume this transient preview as Start authority; worker/document checks must be designed/tested in their authorized phase. No persistent hosts or scripting probe is introduced to fill the gap. Dev WXT-only reload broadening remains separately audited; connect-src none may block HMR. See [ADR-P03-01](02_ARCHITECTURE_DECISIONS.md#adr-p03-01--activetab-only-popup-consent-preview) and [Phase 03 evidence](Phases/PHASE_03.md).
+
+## Phase 03 automated testing architecture — 2026-10-22
+
+Playwright 1.64.1 launches sandbox-enabled persistent bundled Chromium with the actual production MV3 and a temporary isolated profile. OS-allocated HTTP fixture servers bind only IPv4/IPv6 loopback. Native action tests configure Chromium's built-in Activate Extension shortcut through browser UI in that profile; xdotool delivers real input to the unique fixture window and observes actual activeTab/native popup. A pinned internal Playwright other-target hook exposes that popup; no production worker/test permissions are added. Direct popup rendering is counted separately from native grants; isolated policy/controller tests remain explicitly synthetic/mocked.
+
+The verification runner serializes build/typecheck/lint/unit/regression, assertion-based production/development manifest audit and E2E, writing JSON/logs with screenshots/traces. Native prerequisites missing → explicit skip/BLOCKED, never fully verified. Profiles/contexts/servers/dev child processes clean up after execution. No owner browser profile, normal sessions or existing Odoo server is accessed. See [permanent testing policy](06_DEPLOYMENT_RUNBOOK.md#permanent-codex-owned-phase-verification-policy). 123 unit/integration and 10 Chromium specs pass; real Odoo/browser compatibility is still unverified. This remains Phase 03-only infrastructure, not session/capture implementation.

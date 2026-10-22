@@ -3,9 +3,10 @@
 ## Current ledger
 - Documentation Bootstrap (DB): ACCEPTED per owner; committed/pushed at `f3cdea5`, verified 2026-10-20.
 - Verified repository: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; project path `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root `/home/https_ali_muhammed/Plementus/Tools`.
-- Implementation branch: `feature/odoo-tracebridge`, created from `origin/develop` at `64a05446cd9ca65e89c5515c6c76e8ee073fb94a`; verified baseline HEAD `013887312f69d77458191d1663308ed9490297e7`, upstream `origin/feature/odoo-tracebridge`; live remote matched at Phase 02 preflight. Phase 02 changes are uncommitted; future commits and pushes require owner review.
-- Accepted progress: **2/22**.
-- Phase 00 and Phase 01: COMPLETE; Phase 01 acceptance supplied by owner/ChatGPT on 2026-10-21 with verified pushed baseline `0138873`. Phase 02: **PROVISIONAL — pending owner acceptance**; scaffold and automated checks pass, manual Chrome popup smoke NOT TESTED. Phases 03–20 NOT STARTED.
+- Implementation branch: `feature/odoo-tracebridge`; verified HEAD/upstream/live remote `fe90532b11e043344aa2abfb7a539a0156e30cd5`. Whole-repository worktree clean at Phase 03 preflight.
+- Accepted progress: **3/22**.
+- Phases 00–02: COMPLETE. Phase 02 owner/ChatGPT acceptance dated 2026-10-21; owner-attested Brave popup smoke PASSED, Google Chrome NOT TESTED. Historical Phase 02 evidence preserved.
+- Phase 03: **PROVISIONAL**, permission/consent only; pending owner/ChatGPT review and browser smoke. Phases 04–20 NOT STARTED.
 - Phase 21: OPTIONAL future Plemo discovery only; NOT STARTED and not part of the AI-free v1 gate.
 - No phase may begin without the preceding gate and owner authorization.
 
@@ -50,3 +51,9 @@ The complete phase definitions, detailed deliverables, verification requirements
 ## Accepted sequencing — 2026-10-21
 
 Detailed roadmap §10 places the single-case MVP at 16 and automated comparison at 17, whereas broad §2.1 includes comparison. Owner explicitly retains single-case MVP at 16 and comparison at 17 in v1; `P00-SCOPE` resolved. See [product scope](PRODUCT_SCOPE.md), [Phase 00 report](Phases/PHASE_00.md) and [owner decisions](05_BLOCKERS_AND_DECISIONS.md). Phase 01 documents [architecture](ARCHITECTURE.md) and [security](SECURITY_PRIVACY.md); no Phase 02 work.
+
+## Permanent verification and approved loopback development — 2026-10-22
+
+Phase 03 remains PROVISIONAL, progress 3/22; no Phase 04. The owner approves Local Development as a primary use case on explicitly authorized exact localhost/127.0.0.1/[::1] origins and valid loopback ports, including HTTP. This supersedes HTTPS-only loopback restrictions. Remote HTTP/LAN/custom DNS and production/unknown remain denied; authorized remote HTTPS Test/Staging is retained.
+
+Every implementation phase must add appropriate tests, run build/strict typecheck/lint/unit/integration/regression/security negatives and applicable actual extension E2E, audit both manifests, record exact commands/versions/machine results and sanitized screenshots/traces, fix in-scope failures, and provide a verified evidence archive before review. Codex owns fixtures, execution and evidence; owner reviews and authorizes publication. FAIL/BLOCKED/NOT TESTED must remain explicit; mandatory blocked coverage prevents a fully verified claim. Full policy and commands: [runbook](06_DEPLOYMENT_RUNBOOK.md#permanent-codex-owned-phase-verification-policy). This updates all future phase gates without authorizing their implementation.
