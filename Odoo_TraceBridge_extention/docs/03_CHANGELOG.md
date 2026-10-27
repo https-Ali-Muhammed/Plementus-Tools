@@ -1,5 +1,7 @@
 # Changelog
 
+Current Phase 05 verification: **200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
 All entries describe repository changes only. Product functionality is not implied.
 
 ## 2026-10-20 — Step DB documentation bootstrap (historical execution snapshot)
@@ -53,3 +55,11 @@ All entries describe repository changes only. Product functionality is not impli
 - Added MV3 worker, strict control/header schema, one-session lifecycle controller, atomic IndexedDB case-header store and temporary trusted-context session binding. UUID epochs/challenges, serialized initialization, browser revalidation, conservative pause/recovery, bounded TTL/count/bytes and selected-case deletion. No diagnostic storage/collectors/observers/RPC/network/keepalive or fixed lease.
 - Connected existing consent form to worker Start/Resume, case selection and Pause/Stop/Delete/Revoke with explicit no-capture status. Removed obsolete popup-local consent-controller code/tests; retained URL/declaration regressions and replaced authority coverage with worker tests. Added native MV3 termination, real browser quota failure, storage/isolation/replay tests and source boundaries; audited activeTab+storage and separate WXT dev broadening.
 - No dependency/lockfile changes. Updated architecture/security/ADR/runbook/evidence/phase records; handoff second last and status last. Header-only numeric policies remain proposals; sensitive retention/encryption unresolved. No staging/commit/push or Phase 05. Exact final results: [Phase 04](Phases/PHASE_04.md).
+
+
+## 2026-10-27 — Phase 04 accepted; Phase 05 volatile categories (PROVISIONAL)
+
+- Reconciled owner/ChatGPT Phase 04 acceptance dated 2026-10-22 at verified pushed 56ca07d; progress **5/22**. Preserved 158 unit/integration and 18 Chromium PASS history; sensitive policy OPEN; Chrome Stable/Brave Phase 04/real Odoo NOT TESTED.
+- Added isolated programmatic top-document collector and worker capture gate with document/scope/epoch/access validation, strict enums/sequence, bounded volatile ring, single in-flight message, absolute session deadline, setup timeout and disconnect teardown. Added only scripting permission; no stored schema/dependency changes.
+- Connected popup counter/loss/unavailable-signal notices. Fixed native popup return to its own bound window, preserved other focus invalidation and stale/older-case control isolation. Added policy/failure/expiry/bounds/teardown/privacy tests and native synthetic browser capture/restart/overflow/noninterference coverage.
+- Updated README, architecture/security/ADR, phase report and docs/00–07. Final results in [Phase 05](Phases/PHASE_05.md); handoff second last/status last. No Phase 06+, sensitive persistence, production/customer access, telemetry/AI/Plemo, staging/commit/push.

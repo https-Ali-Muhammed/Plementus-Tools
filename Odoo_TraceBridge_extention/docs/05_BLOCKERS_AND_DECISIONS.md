@@ -1,5 +1,27 @@
 # Blockers and Decisions
 
+Current Phase 05 verification: **200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
+## Current Phase 05 gate — 2026-10-27
+
+Phase 04 **COMPLETE**, owner/ChatGPT acceptance 2026-10-22 at verified pushed `56ca07d`; accepted **5/22**. Historical **158 unit/integration PASS; 18 Chromium PASS**, worker lifecycle/header-only persistence accepted. Sensitive policy OPEN. Chrome Stable, Brave Phase 04 and real Odoo NOT TESTED.
+
+| ID | Current disposition | Next action / limit |
+|---|---|---|
+| P04-REVIEW | RESOLVED — accepted | Preserve historical execution and product/browser limits |
+| P05-REVIEW | OPEN — PROVISIONAL / UNREVIEWED | Owner/ChatGPT reviews Phase 05 and ZIP; progress stays 5/22 |
+| P01-RETENTION / P01-CRYPT | OPEN for sensitive diagnostic evidence | Only bounded sanitized categories in worker memory; no event writes or new stored schema |
+| P04-ACCESS / P05-ACCESS | Implemented document/access gate; bounded tests | ISOLATED top frame, exact browser documentId/sender and per-event real injection-access probe; browser UI revocation UX NOT TESTED |
+| P05-EXPIRY | Non-renewing existing session deadline; no heartbeat/reconnect | 3-second setup timeout is not a lease. 128-entry ring/512 admitted collector cap are reviewable Phase 05 choices |
+| P05-GAPS | Known observation limits, disclosed | Full navigation can tear down before category acceptance; busy/unknown/child-frame/in-place actions omitted. No all-action/SPA claim |
+| P05-RECOVERY | Volatile loss and paused restart | Fresh explicit Resume and original binding required; no silent recovery |
+| P05-BROWSER | Actual production synthetic Chromium only | Chrome Stable/Brave/real Odoo, TLS/remote endpoint/general performance/security certification NOT TESTED |
+| P03-AUTH / ODOO-ENV | Existing limitation | Environment/organization authority user stated; no production or Odoo detector |
+
+Final automated results and limits: [Phase 05](Phases/PHASE_05.md). Safe memory-only collection meets this bounded phase; no policy weakening needed. **STOP after Phase 05**, no publication or next-phase work.
+
+## Historical records — superseded by the Phase 05 record above
+
 ## Current Phase 04 gate — 2026-10-22
 
 Phase 03 COMPLETE: owner/ChatGPT acceptance 2026-10-22, verified pushed `8c73491`; accepted **4/22**. Phase 04 **PROVISIONAL**, awaiting review. Historical provisional/blocker records below remain intact and are superseded only where stated here.

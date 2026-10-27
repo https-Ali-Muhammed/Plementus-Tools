@@ -15,9 +15,21 @@ const extensionId = [...createHash('sha256').update(extensionPath).digest().suba
   .flatMap(byte => [byte >> 4, byte & 15]).map(n => String.fromCharCode(97 + n)).join('');
 
 async function listen(host: string, title: string): Promise<{ server: Server; origin: string }> {
-  const server = createServer((_req, res) => {
+  const server = createServer((req, res) => {
+    if (req.url === '/probe') {
+      let body = ''; req.on('data', chunk => { body += chunk; });
+      req.on('end', () => { res.writeHead(201, { 'Content-Type': 'application/json', 'X-Fixture': 'unchanged' }); res.end(JSON.stringify({ method: req.method, body })); });
+      return;
+    }
     res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
-    res.end(`<!doctype html><title>${title}</title><h1>Synthetic Odoo development fixture</h1><p>No real data or credentials.</p>`);
+    res.end(`<!doctype html><title>${title}</title><h1>Synthetic Odoo development fixture</h1><p>No real data or credentials.</p>
+      <button id="safe" type="button" onclick="window.fixtureClicks=(window.fixtureClicks||0)+1"><span>SYNTHETIC Invoice Customer 991</span></button>
+      <a id="link" href="/record/991?token=SYNTHETIC" onclick="event.preventDefault()">SYNTHETIC customer link</a>
+      <label>Synthetic password<input id="password" type="password"></label><input id="business" value="SYNTHETIC Customer 991">
+      <textarea id="notes">SYNTHETIC business notes</textarea><select id="select"><option>SYNTHETIC label</option></select>
+      <div id="editable" contenteditable="true"><button type="button" id="editable-button">SYNTHETIC editable button</button></div>
+      <div id="unknown" role="button" tabindex="0">SYNTHETIC unknown target</div>
+      ${req.url === '/frame' ? '' : '<iframe title="Synthetic child" src="/frame"></iframe>'}`);
   });
   await new Promise<void>((done, reject) => { server.once('error', reject); server.listen(0, host, done); });
   const address = server.address();
@@ -63,7 +75,7 @@ export const test = base.extend<{
       });
       await context.route(`${fixture.syntheticHttpsOrigin}/**`, async route => {
         intercepted.push(route.request().url());
-        await route.fulfill({ contentType: 'text/html', body: `<!doctype html><title>${fixture.title}</title><h1>Synthetic HTTPS-origin policy fixture; no TLS or remote endpoint.</h1>` });
+        await route.fulfill({ contentType: 'text/html', body: `<!doctype html><title>${fixture.title}</title><h1>Synthetic HTTPS-origin policy fixture; no TLS or remote endpoint.</h1><button id="safe" type="button">SYNTHETIC staging action</button>` });
       });
       version = context.browser()?.version();
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });

@@ -1,5 +1,11 @@
 # PHASE_04 — Session Lifecycle & Bounded Persistence
 
+## Phase 04 acceptance reconciliation — 2026-10-22
+
+Owner/ChatGPT acceptance supplied in the Phase 05 instruction: **COMPLETE**, accepted progress **5/22**, at verified pushed commit `56ca07d36c833313c9f3bc757d47e9620b8c39ca` (HEAD/upstream/live origin checked 2026-10-27). Worker-owned lifecycle and header-only persistence accepted. Historical execution evidence below remains unchanged: **158 unit/integration PASS; 18 Chromium PASS**. Sensitive retention/encryption policy remains OPEN. Chrome Stable, Brave Phase 04 and real Odoo NOT TESTED.
+
+## Historical provisional execution record
+
 ## Scope and owner authorization
 
 Date: **2026-10-22 (Africa/Cairo)**. Phase 04 ONLY, explicitly authorized. **PROVISIONAL — owner/ChatGPT acceptance UNREVIEWED; accepted progress 4/22.** STOP after this phase. No Phase 05 collection, client-error/network observers, RPC, telemetry, services, Plemo or production/customer Odoo access.

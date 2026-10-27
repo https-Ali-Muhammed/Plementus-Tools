@@ -55,12 +55,12 @@ export function Popup() {
     if (active?.state === 'recording') void send({ op: 'pause', requestId: crypto.randomUUID(), id: active.id, epoch: active.epoch });
   }
   return <main>
-    <header><small>PHASE 04 · SESSION LIFECYCLE</small><h1>Odoo TraceBridge</h1><p>{RECORDING_STATUS}</p></header>
+    <header><small>PHASE 05 · LIMITED OBSERVATION</small><h1>Odoo TraceBridge</h1><p>{RECORDING_STATUS}</p></header>
     <section aria-labelledby="target"><h2 id="target">Selected scope</h2>
       {view?.target ? <p>Tab {view.target.tabId} · Window {view.target.windowId}<br /><strong>{view.target.origin}</strong></p> : <p>No eligible tab bound.</p>}
       <p role="status">Browser access: {view?.target ? 'available' : 'unavailable'}. Session: {view?.state ?? (error ? 'error' : 'checking')}. {error}</p>
     </section>
-    <p>Recording is a lifecycle state only. No user-action, navigation, RPC, client-error, network or diagnostic signals are collected until later approved phases. Only generated case IDs, timestamps, state and revision are retained.</p>
+    <p>Only generic button/link clicks and limited navigation signals may be observed in the authorized top frame. Typed input, values, labels, page text, URLs and identifiers are excluded. Unknown targets, all actions and SPA navigations are not reliably observable. Full navigation may tear down before a signal is accepted. Missing events do not prove no action or navigation occurred. Client-error, network and RPC signals are unavailable.</p>
     <p>Browser activeTab access is separate from consent. Start and Resume require a fresh exact-origin declaration and site/data-owner confirmation. Local Development permits only localhost, 127.0.0.1 and IPv6 loopback at the displayed port. Remote HTTPS requires Test/Staging. Production and Unknown are blocked. Environment and authority are user stated; this does not prove Odoo identity or authorize customer use.</p>
     <form onSubmit={event => {
       event.preventDefault();
@@ -85,7 +85,7 @@ export function Popup() {
     <label>Retained case<select value={caseId} disabled={busy || !view?.cases.length} onChange={event => { setCaseId(event.target.value); clearConsent(); }}>
       <option value="">Select a case</option>{view?.cases.map(item => <option key={item.id} value={item.id}>{item.id} · {item.state}</option>)}
     </select></label>
-    {row && <p>Selected case: {row.id}<br />Case state: {row.state}. Created: {new Date(row.createdAt).toLocaleString()}. No diagnostic events.</p>}
+    {row && <p>Selected case: {row.id}<br />Case state: {row.state}. Created: {new Date(row.createdAt).toLocaleString()}. Volatile categories observed: {view?.evidence?.[row.id]?.count ?? 0}. Buffer dropped: {view?.evidence?.[row.id]?.dropped ?? 0}.</p>}
     <div className="actions">
       <button disabled={busy || row?.state !== 'recording'} onClick={() => control('pause')}>Pause</button>
       <button disabled={busy || !row || !['recording', 'paused'].includes(row.state)} onClick={() => control('stop')}>Stop</button>
@@ -93,6 +93,6 @@ export function Popup() {
       <button disabled={busy} onClick={revoke}>Deny consent</button><button disabled={busy} onClick={revoke}>Revoke consent</button>
       <button disabled={busy} onClick={() => { void inspect(); }}>Refresh scope / status</button>
     </div>
-    <p className="limit">Pause invalidates authorization; refresh before explicit Resume. Restart recovers paused. Navigation, reload, tab/window changes and access loss pause conservatively. One open session; Stop/Delete it before Start. Proposed limits: 30 minutes from creation, 10 headers, 24-hour TTL; cleanup on access/wake, never an exact deadline while closed. Sensitive evidence storage policy is unresolved. No encryption claim. Delete removes the selected local header and binding; physical disk/backups are outside this guarantee. Revoke does not remove Chrome activeTab.</p>
+    <p className="limit">Events are memory-only and may be lost on worker restart. Refresh to update this counter. Start/Resume clears the previous volatile buffer. Collection expires at the existing 30-minute session deadline; no renewal or automatic recovery. Pause invalidates authorization; refresh before explicit Resume. Restart recovers paused. Navigation, reload, tab/window changes and access loss pause conservatively. One open session; Stop/Delete it before Start. Proposed limits: 30 minutes from creation, 10 headers, 24-hour TTL; cleanup on access/wake, never an exact deadline while closed. Sensitive evidence storage policy is unresolved. No encryption claim. Delete removes the selected local header and binding; physical disk/backups are outside this guarantee. Revoke does not remove Chrome activeTab.</p>
   </main>;
 }

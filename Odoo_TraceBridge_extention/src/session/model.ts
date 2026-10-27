@@ -52,7 +52,7 @@ export function parseControl(value: unknown): Control | undefined {
       typeof value.declaration.authorized !== 'boolean')) return;
   return value as Control;
 }
-export interface View { state: Lifecycle; cases: Header[]; target?: Target; challenge?: string; boundIds: string[] }
+export interface View { state: Lifecycle; cases: Header[]; target?: Target; challenge?: string; boundIds: string[]; evidence?: Record<string, import('../capture/controller').Summary> }
 export type Reply = { ok: true; view: View } | { ok: false; error: string };
 export interface Sender { id?: string; url?: string; tab?: unknown; frameId?: number; origin?: string }
 export function trustedUI(sender: Sender, extensionId: string, popupUrl: string) {

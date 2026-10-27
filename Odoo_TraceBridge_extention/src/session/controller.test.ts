@@ -17,7 +17,7 @@ function fixture() {
   });
   const platform: Platform = { extensionId: sender.id, popupUrl: url, selected,
     readBinding: async () => saved, writeBinding: vi.fn(async value => { saved = structuredClone(value); }),
-    restrictStorage: vi.fn(async () => {}), badge: vi.fn(async () => {}), now: () => now, id: randomUUID };
+    restrictStorage: vi.fn(async () => {}), badge: vi.fn(async () => {}), now: () => now, id: randomUUID, capture: { start: vi.fn(async () => {}), stop: vi.fn(), forget: vi.fn(), summary: () => ({ count: 0, dropped: 0, events: [] }) } };
   let worker = createSessionController({ update }, platform);
   const handle = (input: unknown, from = sender) => worker.handle(input, from);
   async function inspect() { const result = await handle({ op: 'inspect', requestId: randomUUID() }); expect(result.ok).toBe(true); return (result as { ok: true; view: View }).view; }
@@ -33,7 +33,7 @@ function fixture() {
     rows: () => rows as Header[], saved: () => saved,
     setRows: (value: unknown[]) => { rows = value; }, time: (value: number) => { now = value; },
     restart: () => { worker = createSessionController({ update }, platform); },
-    invalidate: () => worker.invalidate(), clearBinding: () => { saved = undefined; } };
+    invalidate: () => worker.invalidate(), focus: (id: number) => worker.focusChanged(id), clearBinding: () => { saved = undefined; } };
 }
 function view(reply: Reply) { expect(reply.ok).toBe(true); return (reply as { ok: true; view: View }).view; }
 
@@ -181,6 +181,23 @@ describe('worker lifecycle with synthetic browser/storage ports', () => {
     const reply = await f.handle({ op: 'inspect', requestId: randomUUID() });
     expect(reply.ok).toBe(false); expect(JSON.stringify(reply)).not.toContain('DO_NOT_EXPOSE');
     expect((await f.handle({ op: 'inspect', requestId: randomUUID() })).ok).toBe(false);
+  });
+  it('injection failure leaves a paused header and cannot admit events', async () => {
+    const f = fixture(); f.platform.capture.start = vi.fn(async () => { throw new Error('No document authority'); });
+    expect((await f.auth()).ok).toBe(false); expect(f.rows()[0]!.state).toBe('paused'); expect(f.platform.capture.stop).toHaveBeenCalled();
+  });
+  it('return from native popup to bound window preserves recording; other/lost focus pauses', async () => {
+    const f = fixture(); await f.auth(); await f.focus(2); expect(f.rows()[0]!.state).toBe('recording');
+    await f.focus(-1); expect(f.rows()[0]!.state).toBe('paused');
+    await f.auth('resume'); await f.focus(9); expect(f.rows()[0]!.state).toBe('paused');
+  });
+  it('stale controls and deleting an older case preserve the current collector and authorization', async () => {
+    const f = fixture(); const first = view(await f.auth()).cases[0]!;
+    const stopped = view(await f.control('stop', first)).cases[0]!;
+    await f.auth(); const start = vi.mocked(f.platform.capture.start); const current = start.mock.calls.at(-1)![2];
+    vi.mocked(f.platform.capture.stop).mockClear();
+    expect((await f.control('stop', first)).ok).toBe(false); expect(current()).toBe(true);
+    await f.control('delete', stopped); expect(f.platform.capture.stop).not.toHaveBeenCalled(); expect(current()).toBe(true);
   });
   it('persists only exact headers, and ephemeral normalized binding without consent or URL data', async () => {
     const f = fixture(); await f.auth();

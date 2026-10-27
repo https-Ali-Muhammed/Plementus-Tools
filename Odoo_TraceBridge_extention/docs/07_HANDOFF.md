@@ -1,5 +1,33 @@
 # Handoff
 
+## Current Phase 05 handoff — 2026-10-27 (Africa/Cairo)
+
+**Phase 05 PROVISIONAL / UNREVIEWED; accepted progress 5/22. STOP after Phase 05.** Phases 00–04 COMPLETE. Owner/ChatGPT accepted Phase 04 **2026-10-22** at verified pushed `56ca07d36c833313c9f3bc757d47e9620b8c39ca`; historical **158 unit/integration PASS; 18 Chromium PASS**, worker lifecycle/header-only persistence accepted. Sensitive policy OPEN. Chrome Stable, Brave Phase 04 and real Odoo NOT TESTED. Earlier handoffs below remain historical.
+
+Review [Phase 05 report](Phases/PHASE_05.md), [test evidence](04_TEST_EVIDENCE.md), [ADR-P05-01](02_ARCHITECTURE_DECISIONS.md#adr-p05-01--isolated-document-bound-categories-in-volatile-memory), [blockers](05_BLOCKERS_AND_DECISIONS.md) and **/tmp/tracebridge-phase05-evidence.zip**. No routine owner browser/fixture tasks; owner/ChatGPT reviews acceptance only.
+
+Implemented programmatic ISOLATED top-document collection after explicit worker Start/Resume, browser-attested documentId/sender/epoch/token/origin/tab/window validation, per-event injection-access check and strict category/sequence schema. BUTTON/A trusted clicks plus limited generic navigation only; no input/text/labels/selectors/URLs/record IDs/HTML. One 128-entry volatile ring, 512 collector admissions per authorization, one in-flight message/no backlog; count/eviction UI with loss/unavailable notices. Start/Resume clears old memory; Delete clears its buffer; older-case Delete/stale controls preserve different active capture. Existing persisted headers/binding/deletion schema unchanged.
+
+Non-renewing absolute deadline at existing 30-minute lifetime (pauses included); no five-second lease, heartbeat, keepalive, reconnect or recovery. Three-second injection/handshake timeout is setup-only. Pause/Stop/Delete/Revoke/navigation/tab/access loss and worker restart tear down/invalidate. Native popup return to the same bound window preserves capture; lost/other focus pauses. Worker restart loses events, recovers PAUSED/fresh epoch; original binding and fresh authorization needed for explicit Resume. Full navigation/reload may lose the category to earlier teardown; in-place/unknown/iframe/busy actions are omitted, and missing categories do not prove nothing happened. Eviction count excludes those omitted signals.
+
+**200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
+Actual production sandboxed Chromium 156.0.8078.4 with X11/xdotool native action/activeTab and intercepted synthetic HTTPS staging, dynamic loopback localhost/IPv4/IPv6. Real worker termination/stopped events, real quota enforcement, real CDP isolated listener count 1→0 for Pause/Stop/Delete; accelerated page-time collector expiry. No browser API/grant mocks in native cases. Synthetic DOM/port failures remain separately labeled. Clean npm ci PASS (246 added/247 audited/0 npm-reported vulnerabilities), strict build/type/lint and both manifest audits PASS. Reports .artifacts/verification.json, unit.json, e2e.json, versions/logs/browser PNGs/traces; actual sanitized PNGs inspected. Documentation/scope checks repeated after final ledgers; archive CRC/inventory/member hashes/current-source equality are recorded externally afterward.
+
+Production adds only **scripting** to activeTab+storage; no host/static/all-frame/optional/network grants, MAIN/external bridge, client-error/network/RPC capture, telemetry/AI/Plemo. CSP connect-src none, incognito denied. Dev WXT tabs/localhost/reload exceptions audited separately; never distribute. **P01-RETENTION/P01-CRYPT OPEN**; no events in IndexedDB/storage/disk, no encryption/physical erase claim. Only old six-key headers and trusted normalized session binding persist.
+
+NOT TESTED: Chrome Stable/Brave Phase 04/05/minimum-version/other OS, real Odoo/customer/production/TLS/remote staging, browser UI site-grant withholding/removal/incognito/disable-update-reenable, physical toolbar mouse, actual 30-minute wall time/natural idle termination/full crash/power loss/physical disk exhaustion, general performance/noninterference/security/WCAG/OS-wide traffic, dev HMR/Xvfb. Authority/environment user stated; no compatibility certification. Historical Phase 02 Brave owner smoke remains historical.
+
+Git root `/home/https_ali_muhammed/Plementus/Tools`, project nested `Odoo_TraceBridge_extention`, origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`, branch **feature/odoo-tracebridge**, unchanged HEAD **56ca07d36c833313c9f3bc757d47e9620b8c39ca**, upstream **origin/feature/odoo-tracebridge**. Preflight whole root clean; final **30 project-only paths (24 modified/6 new), 0 staged**, all unstaged/uncommitted. Canonical references, package/lock, consent policy/header store and unrelated projects unchanged. No clone/switch/reset/commit/push/deployment/customer access.
+
+Evidence ZIP excludes dependencies/browser profiles/secrets/real data/unrelated/generated bundles; includes relevant source/tests/docs/config/lock, prod/dev manifests, current reports and real synthetic PNGs/traces. Final checks `/tmp/tracebridge-phase05-final-checks.json`; archive verification `/tmp/tracebridge-phase05-archive-verification.json`. Packaging/integrity checks follow final status.
+
+Skills/tools: Ponytail full, functions shell/Git/npm/Python, official Chrome web docs, Playwright/Chromium/CDP/native xdotool and local image inspection. WarpGrep/Superpowers/Valyu unavailable; no agents/CUA/real Odoo. Handoff written **SECOND LAST**, status follows **LAST**; only read-only project checks/external evidence packaging afterward.
+
+Next action: owner/ChatGPT accepts or requests Phase 05 corrections. **STOP. No Phase 06 or publication.**
+
+## Historical handoffs — superseded by the Phase 05 record above
+
 ## Current Phase 04 handoff — 2026-10-22 (Africa/Cairo)
 
 **Phase 04 PROVISIONAL / UNREVIEWED; accepted progress 4/22. STOP for owner/ChatGPT review. Phase 05 NOT STARTED.** Phase 03 COMPLETE: owner/ChatGPT accepted 2026-10-22, verified pushed `8c73491`; 123 unit/integration and 10 Chromium PASS (9 native/1 direct) retained. Local Development and permanent Codex-owned verification approved. Historical provisional records below are preserved; Chrome Stable, Brave Phase 03 and real Odoo remain NOT TESTED.

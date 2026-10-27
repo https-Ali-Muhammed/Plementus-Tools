@@ -1,6 +1,7 @@
 import { declarationAllows, identifyTab, type SelectedTab, type Target } from '../../entrypoints/popup/consent';
 import { exact, LIMITS, parseControl, trustedUI, uuid, validHeader, type Header, type Reply, type Sender, type View } from './model';
 import type { HeaderStore } from './store';
+import type { Capture } from '../capture/controller';
 
 interface Binding { id: string; target: Target }
 export interface Platform {
@@ -13,6 +14,7 @@ export interface Platform {
   badge(state: View['state']): Promise<void>;
   now(): number;
   id(): string;
+  capture: Capture;
 }
 class Rejected extends Error {}
 const same = (a?: Target, b?: Target) => !!a && !!b && a.tabId === b.tabId && a.windowId === b.windowId && a.origin === b.origin;
@@ -24,6 +26,7 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
   let generation = 0;
   let binding: Binding | undefined;
   let review: { challenge: string; target: Target; generation: number } | undefined;
+  let knownRows: Header[] = [];
 
   function clean(rows: unknown[]): Header[] {
     const now = platform.now();
@@ -33,6 +36,8 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
   }
   async function update(change: (rows: Header[]) => Header[] = rows => rows) {
     const rows = await store.update(raw => change(clean(raw)));
+    knownRows = rows;
+    if (!rows.some(row => row.state === 'recording')) platform.capture.stop();
     if (binding && !rows.some(row => row.id === binding!.id && ['paused', 'recording'].includes(row.state))) {
       binding = undefined;
       await platform.writeBinding();
@@ -61,7 +66,8 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
       try { await initialize(); return await action(); }
       catch (error) {
         review = undefined;
-        if (error instanceof Rejected) return { ok: false as const, error: 'Control rejected. Refresh and confirm the selected case and authorization again.' };
+        if (error instanceof Rejected) return { ok: false as const, error: error.message || 'Control rejected. Refresh and confirm the selected case and authorization again.' };
+        platform.capture.stop();
         failed = true;
         generation++;
         await platform.badge('error').catch(() => {});
@@ -78,17 +84,24 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
     const state = active?.state ?? (target && review ? 'permission_pending' : 'idle');
     await platform.badge(active?.state ?? 'idle');
     return { ok: true, view: { state, cases: rows, target, challenge: review?.challenge,
-      boundIds: binding && same(binding.target, target) ? [binding.id] : [] } };
+      boundIds: binding && same(binding.target, target) ? [binding.id] : [],
+      evidence: Object.fromEntries(rows.map(row => [row.id, platform.capture.summary(row.id)])) } };
   }
   async function pause(rotatePaused = false) {
     return update(rows => rows.map(row => row.state === 'recording' || rotatePaused && row.state === 'paused' ?
       { ...row, state: 'paused', epoch: platform.id(), updatedAt: platform.now() } : row));
   }
   return {
+    focusChanged(windowId: number) {
+      // Closing the native action popup returns focus to its already-bound window.
+      if (binding?.target.windowId !== windowId) return this.invalidate();
+      return Promise.resolve();
+    },
     // Invalidate synchronously, before any pending browser/storage work can complete.
     invalidate(tabId?: number) {
       if (tabId !== undefined && binding && binding.target.tabId !== tabId && review?.target.tabId !== tabId) return Promise.resolve<Reply>({ ok: true, view: { state: 'idle', cases: [], boundIds: [] } });
       generation++;
+      platform.capture.stop();
       review = undefined;
       return serialize(async () => view(await pause(true)));
     },
@@ -97,7 +110,13 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
       if (!trustedUI(sender, platform.extensionId, platform.popupUrl)) return Promise.resolve({ ok: false, error: 'Untrusted control sender.' });
       const request = parseControl(input);
       if (!request) return Promise.resolve({ ok: false, error: 'Invalid control message.' });
-      if (['pause', 'stop', 'delete'].includes(request.op)) { generation++; review = undefined; }
+      if (['pause', 'stop', 'delete'].includes(request.op)) {
+        const row = 'id' in request ? knownRows.find(row => row.id === request.id && row.epoch === request.epoch) : undefined;
+        // Deleting an older case must not stop a different recording.
+        if (row && (request.op === 'delete' ? binding?.id === row.id : ['recording', 'paused'].includes(row.state))) {
+          generation++; review = undefined; platform.capture.stop();
+        }
+      }
       const admitted = generation;
       return serialize(async () => {
         let rows = await update();
@@ -129,9 +148,19 @@ export function createSessionController(store: HeaderStore, platform: Platform) 
               state: 'recording', createdAt: row?.createdAt ?? now, updatedAt: now }];
           });
           if (!guard() || !rows.some(item => item.id === id && item.state === 'recording')) { await pause(); throw new Rejected(); }
+          try {
+            const recording = rows.find(item => item.id === id)!;
+            await platform.capture.start(recording, consent.target, () => guard() && knownRows.some(item => item.id === id && item.epoch === recording.epoch && item.state === 'recording'));
+            if (!guard()) throw new Rejected();
+          } catch {
+            platform.capture.stop();
+            await pause();
+            throw new Rejected('Collector unavailable or scope changed. Session paused; refresh and explicitly authorize Resume.');
+          }
         } else {
           if (request.op === 'pause' && row!.state !== 'recording' ||
               request.op === 'stop' && !['recording', 'paused'].includes(row!.state)) throw new Rejected();
+          if (request.op === 'delete') platform.capture.forget(row!.id);
           rows = await update(rows => rows.flatMap(item => item.id !== row!.id ? [item] : request.op === 'delete' ? [] :
             [{ ...item, state: request.op === 'pause' ? 'paused' : 'stopped', epoch: platform.id(), updatedAt: platform.now() }]));
         }

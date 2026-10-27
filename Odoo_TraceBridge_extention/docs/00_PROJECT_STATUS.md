@@ -1,5 +1,37 @@
 # Odoo TraceBridge — Project Status
 
+## Current Phase 05 gate — 2026-10-27 (Africa/Cairo)
+
+- Phases 00–04 **COMPLETE**; accepted progress **5/22**.
+- Phase 04 accepted by owner/ChatGPT on **2026-10-22**, at verified pushed **56ca07d36c833313c9f3bc757d47e9620b8c39ca**. Historical **158 unit/integration PASS; 18 Chromium PASS**, worker-owned lifecycle/header-only persistence accepted. Sensitive retention/encryption OPEN; Chrome Stable, Brave Phase 04 and real Odoo NOT TESTED.
+- Phase 05 **PROVISIONAL / UNREVIEWED**, implementation and mandatory automated synthetic verification finished. **STOP after Phase 05; Phase 06–20 NOT STARTED**, optional Plemo discovery 21 unchanged. Current record supersedes historical no-Phase-05/progress snapshots below.
+
+### Implementation and policy
+
+Explicit worker-authorized Start/Resume injects an ISOLATED selected top-document collector using activeTab+scripting, with browser documentId/extension/tab/window/origin/lifecycle/session epoch/token validation, strict enum/sequence and per-event document-access recheck. No input, values, text/business labels, selectors, raw URLs/route/query/fragment, record IDs or DOM HTML. Generic trusted BUTTON/A and limited navigation only. Unknown/editable/iframe/busy signals omitted; full navigation/reload can lose category to teardown. Missing events do not prove no action/navigation. UI accepted count/evictions/loss/unavailable notices and functional controls preserved.
+
+One **128-entry volatile ring**, **512 collector admissions per authorization** then pause, one event in flight/no raw queue. Worker-assigned coarse elapsed time; Start/Resume resets memory, Delete clears selected memory, restart loses all events and recovers PAUSED/fresh epoch. Fresh explicit authorization and original binding required for Resume. No keepalive, reconnect or silent recovery. Absolute non-renewing existing 30-minute session deadline; separate 3-second setup timeout, no five-second lease. Pause/Revoke/Stop/Delete/navigation/tab/access loss/restart invalidate; native popup returning to its same bound window preserves capture, lost/other focus pauses.
+
+**P01-RETENTION/P01-CRYPT remain OPEN. No action/navigation evidence persisted in IndexedDB/storage/disk.** Existing six-key non-sensitive headers, trusted normalized session binding and deletion/bounds unchanged. No encryption/physical erase/Odoo/customer/production/security certification. Production only activeTab+storage+scripting, no host/optional/static/all-frame/network grant, MAIN/external bridge, error/network/RPC observer, telemetry/AI/Plemo. CSP connect-src none; incognito disabled. Dev WXT tabs/localhost/reload exceptions separately audited; never distribute.
+
+### Verification
+
+**200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
+Clean npm ci PASS, 246 added/247 audited/0 npm-reported vulnerabilities, package/lock unchanged. Native action uses genuine production MV3/browser-granted activeTab in sandboxed disposable Chromium 156.0.8078.4, Playwright 1.64.1/X11/xdotool. Direct popup and synthetic DOM/storage/worker-port failures separated. Localhost/IPv4/IPv6/ports, wholly intercepted HTTPS-origin staging/denied policy, sensitive input/business exclusion, wrong identity/replay/races, navigation/reload/teardown, bounded overflow, no event persistence and unchanged fixture POST/response/page API identities covered. Real CDP worker stopped/restart and quota enforcement; isolated click listener 1→0 after Pause/Stop/Delete; accelerated page virtual-time expiry, not real elapsed 30 minutes. Real synthetic screenshots visually inspected; no unexpected JS errors/non-fixture context requests in final bounded matrix.
+
+Detailed paths, gate/availability matrices, recovered failures and limits: [Phase 05](Phases/PHASE_05.md), [test evidence](04_TEST_EVIDENCE.md), [decisions](05_BLOCKERS_AND_DECISIONS.md), [handoff](07_HANDOFF.md). No current mandatory automated BLOCKED case. NOT TESTED: Chrome Stable, Brave Phase 04/05, minimum Chrome/other OS, real Odoo/customer/production/TLS/remote hosting, physical toolbar mouse, browser UI grant withholding/removal/incognito/disable-update, actual 30-minute wall time/natural idle/full crash/power loss/physical disk exhaustion, full WCAG/general performance/noninterference/security/OS-wide packets/dev HMR/Xvfb. Authority/environment user stated. Historical Phase 02 owner-attested Brave smoke retained.
+
+### Git, evidence and next action
+
+Root `/home/https_ali_muhammed/Plementus/Tools`; project `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; branch **feature/odoo-tracebridge**; unchanged HEAD **56ca07d36c833313c9f3bc757d47e9620b8c39ca**; upstream **origin/feature/odoo-tracebridge**, matching live baseline. Whole-root preflight clean; **30 project-only changed paths (24 modified/6 new), 0 staged**, all unstaged/uncommitted. No clone/switch/reset/commit/push/deployment. Canonical references/package/lock/consent policy/header store and unrelated projects preserved.
+
+Evidence **/tmp/tracebridge-phase05-evidence.zip**: source/tests/config/lock, prod/dev manifests, machine reports/logs/synthetic browser PNGs/traces and phase docs; excludes dependencies/profiles/secrets/real customer data/unrelated projects/generated bundle bulk. After this LAST documentation write, run read-only scope/docs/identity/diff checks, package and verify CRC/inventory/member hashes/current-file equality. Results: `/tmp/tracebridge-phase05-final-checks.json` and `/tmp/tracebridge-phase05-archive-verification.json`. The external reports are authoritative for those post-ledger checks.
+
+Skills/tools actually used: Ponytail full; functions shell/Git/npm/Python, official Chrome web docs, Playwright/Chromium/CDP/native xdotool, local image inspection. WarpGrep/Superpowers/Valyu unavailable; no agents/CUA/real Odoo. Handoff updated SECOND LAST, status LAST. Next single action: **owner/ChatGPT reviews Phase 05 and the evidence ZIP, accepts or requests Phase 05 corrections. STOP.** No routine owner tests, Git publication or Phase 06.
+
+## Historical status records — superseded by the Phase 05 record above
+
 Date: **2026-10-22 (Africa/Cairo)**. This current ledger supersedes historical Phase 03-only instructions below.
 
 ## Current gate

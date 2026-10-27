@@ -266,3 +266,38 @@ Policy/limits: P01-RETENTION/P01-CRYPT unresolved for sensitive evidence. Phase 
 **NOT TESTED**: Chrome Stable, Brave Phase 03/04, minimum Chrome 120, other OS/browser, physical toolbar click, browser UI permission withholding/removal/incognito/disable-update-reenable, natural undebugged idle timing/full browser restart/crash/power loss, physical disk exhaustion/secure erase, TLS/remote HTTPS/Odoo.sh, real Odoo/version/edition/customer/production/noninterference/performance/security certification, full WCAG/dev HMR/Xvfb. Historical Phase 02 owner-attested Brave PASS retained. Synthetic ports/browser quota do not certify these paths. No current mandatory automated BLOCKED case.
 
 Evidence ZIP **/tmp/tracebridge-phase04-evidence.zip** includes relevant source/tests/config/package-lock, production/dev manifests, final JSON/logs and real sanitized screenshots/traces, policy/NOT TESTED records and member hashes. No dependencies/browser profiles/secrets/customer data/unrelated projects/unnecessary bundles. CRC/member/source equality and hashes verified after handoff SECOND LAST/status LAST. Skills/tools actually used: Ponytail full; shell/Git/npm/Python, official Chrome web docs, Playwright/Chromium/CDP/xdotool and local image inspection. WarpGrep/Valyu/Superpowers unavailable; no agents/CUA/real Odoo. STOP for review.
+
+
+## Phase 04 acceptance reconciliation — 2026-10-22
+
+Owner/ChatGPT accepted Phase 04 at verified pushed 56ca07d (HEAD/upstream/live remote checked 2026-10-27). **COMPLETE; accepted progress 5/22**. Historical **158 unit/integration PASS; 18 Chromium PASS**, worker lifecycle and header-only persistence accepted. Original results above unchanged. Sensitive retention/encryption OPEN; Chrome Stable, Brave Phase 04 and real Odoo NOT TESTED.
+
+## Phase 05 checks — 2026-10-27
+
+**PROVISIONAL / UNREVIEWED, progress 5/22**. **200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.** [Phase report](Phases/PHASE_05.md) records implementation/identity/bounds/security/limits and exact paths. Commands: `npm ci`, `npm run verify`, final Python documentation/scope checks and ZIP CRC/inventory/member hashes. Clean install PASS: 246 added/247 audited, npm reports 0 vulnerabilities; dependencies/lock unchanged. A prior aggregate passed 199 unit/integration and 31 actual Chromium specs; the final expanded source/expiry run passes 200 and 32 respectively. Reports/logs are `.artifacts/verification.json`, unit.json, e2e.json, per-spec browser.json and phase05 attempt logs.
+
+Native action uses genuine production MV3/native browser popup/activeTab in sandbox-enabled disposable Chromium; direct-popup cases are separate. Unit/DOM/port doubles remain synthetic. Synthetic loopback and wholly intercepted HTTPS-origin staging only, no remote TLS/server or real Odoo. Coverage includes consent/policy/loopback regressions, trusted click categories/sensitive input/business exclusion/top-frame isolation, navigation/reload/gaps, teardown/stale epochs/identity/access/setup failures, worker restart/explicit Resume, bounded memory/overflow/no persistent events, original fixture requests/responses and page function identities, prod/dev manifest/CSP and no network instrumentation.
+
+Full reload/document navigation may have **no admitted navigation category** because teardown wins; tests attach observed/gap evidence and require paused state/no raw URL/late capture. Hash/popstate/tab-updated synthetic paths observe generic categories. In-place DOM rendering is explicitly unavailable. Expiry via CDP page virtual time is accelerated browser collector coverage, not actual elapsed 30 minutes; worker clock/handshake failures use synthetic ports. Busy actions are omitted without backlog; ring-drop counter describes eviction only.
+
+Recovered browser attempts exposed native popup-close inspector/focus handling and overbroad navigation assumptions; an ambiguous `991` privacy regex also matched an allowed header timestamp and was replaced with exact schema/header/binding equality; final reruns govern. Permission-removal/access loss failure paths are synthetic; browser UI grant-withholding/removal remains NOT TESTED. No unexpected extension JS errors/non-fixture context requests in passed bounded matrix; no OS-wide traffic or security/performance certification. Chrome Stable, Brave Phase 04/05, real Odoo, physical toolbar mouse, full crash/power loss/disk exhaustion/full WCAG/dev HMR remain NOT TESTED. Final counts above; archive verification follows final ledgers and is recorded in `/tmp/tracebridge-phase05-archive-verification.json`. STOP after Phase 05.
+
+
+### Phase 05 final verification record
+
+**200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
+| Check | Command/action | Result / limit |
+|---|---|---|
+| Clean install | npm ci | PASS, exit 0; exact lock unchanged; 246 added/247 audited/0 npm-reported vulnerabilities |
+| Aggregate | npm run verify | PASS, exit 0; production build, typecheck, lint, unit, separate prod/dev manifests, Chromium, diff |
+| Units | npm test -- --reporter=default --reporter=json --outputFile=.artifacts/unit.json | 200 PASS, 6 files; synthetic policy/controller/DOM ports, not actual Chrome API failures |
+| Browser | npx --no-install playwright test | 32 PASS, 30 genuine native invocation / 2 direct popup; no grant/API mocks; no skipped/flaky/unexpected |
+| Manifest/grants | node scripts/audit-manifests.mjs + installed runtime manifest/permissions | Only activeTab/storage/scripting in production; no persistent origins/static/all-frame/optional/network grants; dev WXT tabs/localhost/reload separate |
+| Listener teardown | Actual CDP DOMDebugger.getEventListeners in extension ISOLATED context | 1 document capture-click listener while recording → 0 after Pause/Stop/Delete |
+| Expiration/restart | CDP page virtual time / actual ServiceWorker.stopWorker | Accelerated collector expiry, real worker stopped event, memory loss, paused recovery and explicit Resume; no wall-clock/natural-idle claim |
+| Minimization/noninterference | Exact IDB header/store/binding assertions; synthetic POST and original fetch/XHR/history identity | No event persistence; observed fixture body/status/header/action behavior unchanged; no broad Odoo noninterference certification |
+| Documentation/scope | python3 /tmp/tracebridge_phase05_check.py; git diff --check | PASS before ledgers; final repetition enforces 30 unstaged project paths, canonical/package/store immutability, links/anchors/fences/UTF-8/whitespace |
+| Archive | Python zipfile CRC/inventory/member hashes/current-file equality | Results in /tmp/tracebridge-phase05-archive-verification.json after final status |
+
+Versions: Node v24.19.0 / npm 11.17.0 / WXT 0.21.4 / Vite 8.3.5 / TypeScript 6.0.3 / ESLint 10.0.1 / Vitest 5.0.5 / Playwright 1.64.1 / Chromium 156.0.8078.4 / Linux 6.8.0-138-generic. Real PNGs inspected: sanitized count and recording UI. Full navigation signal availability in e2e.json attachments records observed/gaps; full document/reload teardown gap is an accepted limitation of this provisional implementation, not a claim of complete navigation capture. P01-RETENTION/P01-CRYPT remain OPEN. Phase 05 UNREVIEWED, progress 5/22; STOP.

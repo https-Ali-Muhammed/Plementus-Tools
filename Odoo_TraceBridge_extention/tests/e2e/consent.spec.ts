@@ -39,13 +39,13 @@ function native() { test.skip(process.env.TRACEBRIDGE_HEADED !== '1', 'Native ac
 test('direct popup: packaged MV3 fails closed; minimal grants and no persistent scope', async ({ popup }) => {
   const manifest = await popup.evaluate<Record<string, unknown>>('chrome.runtime.getManifest()');
   expect(manifest.manifest_version).toBe(3);
-  expect(manifest.permissions).toEqual(['activeTab', 'storage']);
+  expect(manifest.permissions).toEqual(['activeTab', 'storage', 'scripting']);
   expect(manifest.host_permissions).toBeUndefined();
   expect(manifest.background).toEqual({ service_worker: 'background.js' });
   expect(manifest.content_scripts).toBeUndefined();
   expect(manifest.incognito).toBe('not_allowed');
   const permissions = await popup.evaluate<Record<string, unknown>>('chrome.permissions.getAll()');
-  expect(permissions.permissions).toEqual(['activeTab', 'storage']); expect(permissions.origins).toEqual([]);
+  expect(permissions.permissions).toEqual(['activeTab', 'storage', 'scripting']); expect(permissions.origins).toEqual([]);
   await expect(popup.getByRole('heading', { name: 'Odoo TraceBridge' })).toBeVisible();
   await expect(popup.getByRole('status')).toContainText('Browser access: unavailable');
   await expect(popup.getByRole('button', { name: 'Start', exact: true })).toBeDisabled();

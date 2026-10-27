@@ -1,4 +1,20 @@
-# Architecture — Phase 01
+# Architecture
+
+## Current Phase 05 architecture — 2026-10-27
+
+Phase 04 accepted 2026-10-22 at verified pushed 56ca07d; COMPLETE, progress **5/22**. Historical execution below remains phase-specific. Phase 05 **PROVISIONAL / UNREVIEWED**; [full contract and evidence](Phases/PHASE_05.md), [ADR-P05-01](02_ARCHITECTURE_DECISIONS.md#adr-p05-01--isolated-document-bound-categories-in-volatile-memory).
+
+`Popup → existing session controller → capture.start → browser ISOLATED top-frame probe → documentId-targeted collector → one runtime port → capture validation → volatile ring → sanitized UI summary`. IndexedDB receives only the unchanged six-field header; no event flow to storage. The shared URL/declaration policy continues to govern localhost/IPv4/IPv6/exact ports and remote HTTPS test/staging.
+
+Port authority binds random token, current case/epoch/generation, tab/window/exact origin/top frame and browser-attested active documentId. Every strict enum/sequence message revalidates current recording/deadline and selected scope via actual document-targeted injection access. One message in flight, no queue/heartbeat. Unknown identity/fields/replay/concurrency/access failure closes collection. UI controls remain packaged-sender/selected-case/revision guarded; stale controls and older-case deletion preserve unrelated capture.
+
+Collector reads only trusted click provenance, composed tag path and editable classification. It never reads text/value/URL/label/selector/DOM HTML/record attributes. Allowlisted action/navigation categories, coarse worker elapsed time and sequence live only in a 128-entry ring; 512 collector admissions pause, Resume clears memory. Worker restart disconnects collection, loses memory and recovers PAUSED. Full navigation can win teardown before signal admission; in-place rendering and all SPA/actions are not observed.
+
+No short renewable lease was adopted. Absolute collection deadline equals existing 30-minute lifetime, including pauses; 3-second setup timeout covers injection/handshake only. Timer and event checks stop expired collectors, disconnect/pagehide remove listeners, and worker rejects stale epochs. No automatic reconnect or keepalive. Native popup return to bound window preserves capture; other/lost focus invalidates. No MAIN/network/error/RPC observers.
+
+Production adds only scripting to activeTab/storage. Dynamic top-document code has no host/static/all-frame registration. Dev exceptions remain separate. Sensitive policy unresolved; no new persisted schema, encryption or Odoo/security support claim. Platform sources rechecked 2026-10-27: [scripting](https://developer.chrome.com/docs/extensions/reference/api/scripting), [messaging](https://developer.chrome.com/docs/extensions/develop/concepts/messaging), [worker lifecycle](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle).
+
+## Historical records — superseded by the Phase 05 record above
 
 > Current 2026-10-22 gate: Phase 03 COMPLETE; accepted **4/22**. Phase 04 lifecycle/header-only persistence **PROVISIONAL**; see the Phase 04 section at the end. All earlier snapshots below are historical. No diagnostic capture or sensitive-storage policy approval.
 

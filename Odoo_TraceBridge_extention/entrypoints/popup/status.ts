@@ -1,1 +1,1 @@
-export const RECORDING_STATUS = 'Lifecycle only — no diagnostic signals collected (Phase 04)';
+export const RECORDING_STATUS = 'Limited action/navigation categories — memory only; lost on worker restart (Phase 05)';

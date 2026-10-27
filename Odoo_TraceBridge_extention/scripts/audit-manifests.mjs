@@ -5,7 +5,7 @@ import { setTimeout } from 'node:timers/promises';
 
 const production = JSON.parse(await readFile('.output/chrome-mv3/manifest.json', 'utf8'));
 assert.equal(production.manifest_version, 3);
-assert.deepEqual(production.permissions, ['activeTab', 'storage']);
+assert.deepEqual(production.permissions, ['activeTab', 'storage', 'scripting']);
 assert.equal(production.background.service_worker, 'background.js');
 assert.equal(production.incognito, 'not_allowed');
 assert.equal(production.action.default_popup, 'popup.html');

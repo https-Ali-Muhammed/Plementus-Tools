@@ -1,4 +1,20 @@
-# Security and privacy — Phase 01
+# Security and privacy
+
+## Current Phase 05 privacy boundary — 2026-10-27
+
+Phase 04 COMPLETE, owner/ChatGPT accepted 2026-10-22 at verified pushed 56ca07d; accepted **5/22**. Historical **158 unit/integration/18 Chromium PASS** retained. Phase 05 **PROVISIONAL / UNREVIEWED**. **P01-RETENTION/P01-CRYPT OPEN**; no sensitive persistent event storage or policy approval.
+
+Only enum category, bounded sequence and coarse elapsed time enter one worker-memory ring (128 recent, 512 collector admissions per Start/Resume). Busy-period actions are discarded, unknown classifications excluded. Inputs/form values, text/business labels, selectors, record identifiers, raw URL path/query/fragment, DOM HTML and key events are never collected. Only BUTTON/A tag path and editable classification are read for trusted clicks. Page structure/event hints remain lower trust and cannot establish business success or Odoo/production identity.
+
+No events in IndexedDB, storage.local/session, product logs or disk. Existing exact six-key headers and temporary normalized trusted-context binding unchanged. Worker restart loses events and recovers PAUSED; Start/Resume replaces memory; Delete clears the selected buffer. No encryption, physical erase, backup or anonymization guarantee. Tests/traces contain only synthetic data in isolated profiles and are not product evidence persistence.
+
+Runtime port sender requires exact extension/tab/window/top-frame/origin/active documentId, worker-issued token and current case epoch/generation/recording deadline. Strict two-field message schema, monotonic sequence, one in-flight message and per-event document-targeted injection-access check reject malformed/late/replayed/stale/flooded evidence. No page command bridge, external messaging, MAIN hook, raw rejection logging, remote networking or errors/RPC capture. CSP connect-src none; incognito disabled; scripting is the only new production permission, with activeTab and no persistent/optional host grant.
+
+Collection has the existing session's non-renewing 30-minute deadline, no five-second lease or heartbeat; 3 seconds is setup failure timeout only. Checks precede click classification and worker admission; timer/disconnect/pagehide teardown. Worker restart never reconnects or resumes. UI states memory loss, incomplete observation and unavailable signals. Full navigation/reload can pause before category admission, and in-place/unknown/iframe actions are unavailable. Counter evictions exclude unobservable/busy drops. Native popup return to its own bound window is not scope loss; other/lost focus remains invalidation.
+
+[Phase 05](Phases/PHASE_05.md) separates native production Chromium evidence, synthetic DOM/port failures, accelerated page-time expiry and NOT TESTED browser UI access removal/physical time/general security certification. Native synthetic fixture actions and POST content/response compare unchanged and page fetch/XHR/history references remain untouched. No real Odoo/customer/production, actual TLS or OS-wide traffic claim. Owner authority/environment remain user assertions. Sensitive policy decisions stay open.
+
+## Historical records — superseded by the Phase 05 record above
 
 > Current 2026-10-22 gate: Phase 03 COMPLETE; accepted **4/22**. Phase 04 lifecycle/header-only persistence **PROVISIONAL**; see the Phase 04 section at the end. All earlier snapshots below are historical. No diagnostic capture or sensitive-storage policy approval.
 

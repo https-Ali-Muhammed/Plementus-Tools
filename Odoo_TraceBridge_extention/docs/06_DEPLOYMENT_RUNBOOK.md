@@ -1,5 +1,27 @@
 # Deployment Runbook
 
+Current Phase 05 verification: **200 unit/integration/security PASS (6 files); 32 Chromium PASS (30 native action / 2 direct popup); 0 FAIL, 0 BLOCKED, 0 skipped. All 7 npm run verify gates PASS, exit 0.**
+
+## Current Phase 05 workflow — PROVISIONAL, 2026-10-27
+
+Phases 00–04 COMPLETE, accepted **5/22**. Phase 04 accepted 2026-10-22 at pushed 56ca07d; historical 158 unit/integration/18 Chromium PASS preserved. Phase 05 review pending; not release-ready. Codex owns routine testing and evidence under the permanent policy below.
+
+Run `npm ci`, then `npm run verify` from this project. If bundled Chromium is missing, use the existing `npx playwright install chromium` setup. Exact packages/lock unchanged. Clean install executed in Phase 05: 246 added/247 audited, 0 npm-reported vulnerabilities. Native action tests require X11/xdotool and isolated temporary sandboxed profiles; do not use owner profiles, customer systems or an existing Odoo server. Missing mandatory native coverage is BLOCKED.
+
+Load only production `.output/chrome-mv3`: activeTab+storage+scripting, no hosts/static/all-frame content grants; connect-src none. Dev has WXT tabs/localhost/reload exceptions, audited separately and never distributable. Explicit origin/environment/authorization and Start/Resume remain mandatory. Unknown/production/unauthorized scope is denied.
+
+After Start, only BUTTON/A categories and limited navigation are observed in the bound top document. Refresh displays accepted counts/evictions; Start/Resume resets the buffer. Unknown/input/editable/child-frame/in-place actions and some full navigation signals are unavailable. Full navigation/reload may disconnect before category admission; absence is not proof of no navigation. Events are worker-memory-only (128 ring, 512 admitted collector messages per authorization); worker restart loses them and recovers PAUSED. No event evidence in IndexedDB/storage/disk. Header bounds/schema/deletion unchanged; sensitive retention/encryption OPEN.
+
+The collector's absolute deadline uses the existing 30-minute case lifetime, pauses included. No renewal, five-second lease, heartbeat, keepalive or automatic reconnect. Three seconds is injection/handshake setup timeout only. Access/document/permission failure pauses safely. Storage errors disable that worker. Reinvoke, Refresh and explicitly authorize Resume only after correcting scope/access; never broaden host permissions as recovery. If browser/extension restart lost the original binding, Stop/Delete the old header and Start a new case.
+
+Closing the native popup back to the same bound window leaves collection running; lost/other window focus and tab/navigation changes invalidate. Pause/Stop/Delete/Revoke and restart detach listeners/ports. Buffer eviction counts exclude busy/unobservable actions. Timer throttling can delay callbacks, but per-action/admission deadline checks prevent acceptance past expiry. CDP page virtual time tests accelerated collector expiry; it is not a real 30-minute wall-clock run.
+
+Review [Phase 05](Phases/PHASE_05.md), [test evidence](04_TEST_EVIDENCE.md) and `/tmp/tracebridge-phase05-evidence.zip`. Machine reports/logs/screenshots/traces under ignored `.artifacts/`. Worker termination uses real CDP stopped events; quota uses real Chromium quota enforcement; DOM/port failure tests are labeled synthetic. No fixture request/response hooks in product. Chrome Stable, Brave, actual TLS/real Odoo/general noninterference/security/performance/full WCAG remain NOT TESTED.
+
+Next action: owner/ChatGPT reviews Phase 05. **STOP**, no routine owner manual tests, publication, Phase 06 errors, Phase 07 network capture or Phase 08 RPC.
+
+## Historical records — superseded by the Phase 05 record above
+
 ## Current Phase 04 workflow — PROVISIONAL, 2026-10-22
 
 NOT RELEASE-READY. Phase 03 COMPLETE at verified pushed `8c73491`; accepted progress **4/22**. Phase 04 lifecycle/header storage awaits owner/ChatGPT review. No Phase 05 or sensitive evidence use. All routine automated verification remains Codex-owned under the permanent policy preserved below.
