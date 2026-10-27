@@ -1,5 +1,25 @@
 # Deployment Runbook
 
+## Current Phase 04 workflow — PROVISIONAL, 2026-10-22
+
+NOT RELEASE-READY. Phase 03 COMPLETE at verified pushed `8c73491`; accepted progress **4/22**. Phase 04 lifecycle/header storage awaits owner/ChatGPT review. No Phase 05 or sensitive evidence use. All routine automated verification remains Codex-owned under the permanent policy preserved below.
+
+From the project directory with Node 22+/npm, run `npm run verify`. Dependencies and lockfile are unchanged; prior Phase 03 clean `npm ci` is historical, not rerun in Phase 04. For a fresh checkout run `npm ci` and `npx playwright install chromium` first. Never use an owner profile or existing Odoo server; tests allocate synthetic loopback ports and remove isolated sandboxed Chromium profiles.
+
+Production `.output/chrome-mv3` now has activeTab + storage and a packaged MV3 worker. No hosts/optional grants/content scripts/collectors/networking. Dev output separately adds WXT tabs/scripting/localhost/reload code; never distribute. connect-src none retained; HMR remains NOT TESTED. The audit script checks both generated manifests and terminates its dev process group.
+
+Invoke on the intended eligible tab, type exact displayed origin, select Local Development or authorized remote HTTPS Test/Staging, confirm site/data-owner authorization, Start. Recording is lifecycle only, zero diagnostic signals. Pause/Revoke invalidates approval. Refresh then freshly authorize explicit Resume. Stop is terminal; Delete acts only on the selected retained case and its revision. Closing the popup leaves an explicitly started lifecycle intact; navigation/reload/tab/window/revocation events pause. Reopening never supplies reusable approval.
+
+Worker restart recovers PAUSED with a new epoch. A browser/extension restart may clear the binding, so Resume of that retained header is denied; Stop/Delete and start a new case instead. Failed controls: refresh scope/status and re-confirm; never replay stale revisions. Storage/init error: controls remain disabled for that worker, badge ERR, no signals collected; after resolving browser storage, a healthy worker restart recovers paused. No retry loops, permission escalation or keepalive. Native parent-window focus flags are not treated as activeTab proof; browser-selected tab/window identity is checked independently.
+
+Header-only proposals: 30-minute lifetime including pauses, 10 cases, 24-hour TTL, 5 MiB/case and 20 MiB serialized app bytes. At count capacity delete a selected retained header; no silent eviction. Cleanup runs on access/wake, not an exact sleeping-browser timer. Sensitive retention/encryption remain unresolved; no app encryption, physical erase or downloaded-file guarantees.
+
+Automation adds native genuine `ServiceWorker.stopWorker` termination with stopped-event observation and explicit Resume, plus real Chromium quota enforcement via `Storage.overrideQuotaForOrigin` in disposable profiles. These are browser controls, not mocked storage/grant APIs. Direct-popup retention/invalid-row/concurrent-delete tests are labeled separately. Missing native prerequisites remain mandatory BLOCKED. Synthetic window/tab/origin and failure/concurrency checks are distinguished in [Phase 04](Phases/PHASE_04.md).
+
+Current evidence: `/tmp/tracebridge-phase04-evidence.zip`; reports `.artifacts/verification.json`, unit.json, e2e.json, browser/*/browser.json, real screenshots and traces. No routine owner browser checks required. Review Phase 04; accepted progress remains 4/22. STOP. No commit/push or next phase.
+
+## Historical runbook snapshots (current workflow above supersedes old Phase 03-only actions)
+
 ## Current status
 
 NOT RELEASE-READY. Phase 03 **PROVISIONAL**, accepted **3/22**, pending owner/ChatGPT review; no Phase 04. Local Development is an approved primary use case. Historical Phase 02 Brave popup smoke PASSED (owner-attested); Google Chrome Stable NOT TESTED. The old manual owner smoke checklist below is preserved only as historical evidence; Codex now owns routine verification.

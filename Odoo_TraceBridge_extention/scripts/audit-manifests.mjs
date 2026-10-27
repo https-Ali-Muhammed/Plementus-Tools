@@ -5,11 +5,12 @@ import { setTimeout } from 'node:timers/promises';
 
 const production = JSON.parse(await readFile('.output/chrome-mv3/manifest.json', 'utf8'));
 assert.equal(production.manifest_version, 3);
-assert.deepEqual(production.permissions, ['activeTab']);
+assert.deepEqual(production.permissions, ['activeTab', 'storage']);
+assert.equal(production.background.service_worker, 'background.js');
 assert.equal(production.incognito, 'not_allowed');
 assert.equal(production.action.default_popup, 'popup.html');
 assert.match(production.content_security_policy.extension_pages, /connect-src 'none'/);
-for (const key of ['host_permissions', 'optional_permissions', 'optional_host_permissions', 'background', 'content_scripts', 'web_accessible_resources', 'externally_connectable']) assert.equal(production[key], undefined, key);
+for (const key of ['host_permissions', 'optional_permissions', 'optional_host_permissions', 'content_scripts', 'web_accessible_resources', 'externally_connectable']) assert.equal(production[key], undefined, key);
 
 await rm('.output/chrome-mv3-dev/manifest.json', { force: true });
 const child = spawn(process.execPath, ['node_modules/wxt/bin/wxt.mjs', '-b', 'chrome', '--host', '127.0.0.1', '--port', '0'], { detached: true, stdio: 'inherit' });
@@ -22,7 +23,7 @@ try {
     await setTimeout(200);
   }
   assert.ok(development, 'Development manifest generated within 30 seconds');
-  assert.deepEqual([...development.permissions].sort(), ['activeTab', 'scripting', 'tabs']);
+  assert.deepEqual([...development.permissions].sort(), ['activeTab', 'scripting', 'storage', 'tabs']);
   assert.deepEqual(development.host_permissions, ['http://localhost/*']);
   assert.ok(development.background.service_worker);
   assert.match(development.content_security_policy.extension_pages, /connect-src 'none'/);

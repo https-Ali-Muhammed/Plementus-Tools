@@ -1,5 +1,26 @@
 # Blockers and Decisions
 
+## Current Phase 04 gate — 2026-10-22
+
+Phase 03 COMPLETE: owner/ChatGPT acceptance 2026-10-22, verified pushed `8c73491`; accepted **4/22**. Phase 04 **PROVISIONAL**, awaiting review. Historical provisional/blocker records below remain intact and are superseded only where stated here.
+
+| ID | Current disposition | Next action / limit |
+|---|---|---|
+| P03-REVIEW | RESOLVED — Phase 03 accepted; 123 unit/integration and 10 Chromium PASS (9 native/1 direct) retained | Chrome Stable, Brave Phase 03 and real Odoo remain NOT TESTED |
+| P03-LOCAL / P03-AUTOMATION | APPROVED and preserved | First-class exact loopback; Codex owns permanent routine automated verification |
+| P04-REVIEW | OPEN — PROVISIONAL; accepted progress stays 4/22 | Owner/ChatGPT reviews Phase 04 report and ZIP; Phase 05 NOT STARTED |
+| P01-RETENTION | OPEN for sensitive evidence; header-only proposals implemented/tested | Review 30-minute lifetime, 10 cases, 24-hour TTL, 5 MiB/case, 20 MiB aggregate; zero diagnostic events permitted. Future 5,000-event constant is not event persistence |
+| P01-CRYPT | OPEN before sensitive persistence | Only generated non-sensitive headers persist; operational binding ephemeral. No app encryption or confidential-at-rest claim |
+| P04-ACCESS | LIMITATION before Phase 05 | Lifecycle revalidates native activeTab URL visibility; future document/injection rights need independent validation. No scripting/host grants added. Temporary grant-removal events not universal |
+| P04-RECOVERY | IMPLEMENTED / bounded tests | Actual MV3 termination → PAUSED/fresh epoch; lost browser/extension binding blocks Resume. Browser crash/power loss/disable-update UX NOT TESTED |
+| P04-STORAGE | IMPLEMENTED / bounded tests | Actual IndexedDB, expiration, concurrency and browser-enforced quota failure. Real disk exhaustion/physical erasure/OS backup deletion NOT TESTED; cleanup only on access/wake |
+| P04-BROWSER | Synthetic Chromium only | Native keyboard action is authentic; Chrome Stable/Brave/minimum-version/other OS/physical mouse/full WCAG remain NOT TESTED |
+| P03-AUTH / ODOO-ENV | EXISTING LIMITATION | Authority/environment remain user stated; no production/Odoo detector, no customer/production/real Odoo access |
+
+No current mandatory synthetic automation blocker after final verification; exact counts in [Phase 04](Phases/PHASE_04.md). Sensitive evidence storage remains an explicit future acceptance gate, not a reason to expand Phase 04 policy. STOP for review; no publication.
+
+## Historical records
+
 Date: 2026-10-22. Phases 00–02 COMPLETE; accepted progress **3/22**. Phase 03 **PROVISIONAL**; Phase 03 Chrome/Brave smoke NOT TESTED. Historical decisions/evidence below are superseded by dated reconciliations where stated.
 
 ## Current blockers and pending decisions

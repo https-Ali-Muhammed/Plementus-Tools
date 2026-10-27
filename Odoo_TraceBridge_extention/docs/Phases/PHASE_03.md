@@ -1,6 +1,8 @@
 # PHASE_03 — Permissions & Consent
 
-> Current 2026-10-22 result: see [Automated completion and loopback policy](#automated-completion-and-loopback-policy--2026-10-22-africacairo). Earlier sections preserve historical execution snapshots; old HTTPS-only/manual-testing restrictions are superseded.
+> Accepted 2026-10-22: Phase 03 **COMPLETE**, owner/ChatGPT accepted; verified pushed commit `8c7349150cf40adae0bdb015064a8d61aebdc74a`. Accepted progress **4/22**. Evidence: **123 unit/integration PASS; 10 Chromium PASS (9 native invocation, 1 direct popup)**. Local Development and permanent Codex-owned automated verification approved. Chrome Stable, Brave Phase 03 and real Odoo remain NOT TESTED. Historical provisional records and limitations below are preserved.
+
+> Historical 2026-10-22 result: see [Automated completion and loopback policy](#automated-completion-and-loopback-policy--2026-10-22-africacairo). Earlier sections preserve historical execution snapshots; old HTTPS-only/manual-testing restrictions are superseded.
 
 ## Scope and owner authorization
 

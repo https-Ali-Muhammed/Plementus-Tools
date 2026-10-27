@@ -3,10 +3,11 @@
 ## Current ledger
 - Documentation Bootstrap (DB): ACCEPTED per owner; committed/pushed at `f3cdea5`, verified 2026-10-20.
 - Verified repository: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; project path `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root `/home/https_ali_muhammed/Plementus/Tools`.
-- Implementation branch: `feature/odoo-tracebridge`; verified HEAD/upstream/live remote `fe90532b11e043344aa2abfb7a539a0156e30cd5`. Whole-repository worktree clean at Phase 03 preflight.
-- Accepted progress: **3/22**.
+- Implementation branch: `feature/odoo-tracebridge`; verified HEAD/upstream/live remote `8c7349150cf40adae0bdb015064a8d61aebdc74a`. Whole-repository worktree clean at Phase 04 preflight.
+- Accepted progress: **4/22**.
 - Phases 00–02: COMPLETE. Phase 02 owner/ChatGPT acceptance dated 2026-10-21; owner-attested Brave popup smoke PASSED, Google Chrome NOT TESTED. Historical Phase 02 evidence preserved.
-- Phase 03: **PROVISIONAL**, permission/consent only; pending owner/ChatGPT review and browser smoke. Phases 04–20 NOT STARTED.
+- Phase 03: **COMPLETE**, owner/ChatGPT accepted 2026-10-22 at pushed `8c73491`: 123 unit/integration PASS; 10 Chromium PASS (9 native, 1 direct). Chrome Stable, Brave Phase 03 and real Odoo NOT TESTED.
+- Phase 04: **PROVISIONAL**, worker lifecycle and bounded non-sensitive headers; pending owner/ChatGPT review. Accepted progress stays 4/22. Phases 05–20 NOT STARTED.
 - Phase 21: OPTIONAL future Plemo discovery only; NOT STARTED and not part of the AI-free v1 gate.
 - No phase may begin without the preceding gate and owner authorization.
 
@@ -57,3 +58,7 @@ Detailed roadmap §10 places the single-case MVP at 16 and automated comparison 
 Phase 03 remains PROVISIONAL, progress 3/22; no Phase 04. The owner approves Local Development as a primary use case on explicitly authorized exact localhost/127.0.0.1/[::1] origins and valid loopback ports, including HTTP. This supersedes HTTPS-only loopback restrictions. Remote HTTP/LAN/custom DNS and production/unknown remain denied; authorized remote HTTPS Test/Staging is retained.
 
 Every implementation phase must add appropriate tests, run build/strict typecheck/lint/unit/integration/regression/security negatives and applicable actual extension E2E, audit both manifests, record exact commands/versions/machine results and sanitized screenshots/traces, fix in-scope failures, and provide a verified evidence archive before review. Codex owns fixtures, execution and evidence; owner reviews and authorizes publication. FAIL/BLOCKED/NOT TESTED must remain explicit; mandatory blocked coverage prevents a fully verified claim. Full policy and commands: [runbook](06_DEPLOYMENT_RUNBOOK.md#permanent-codex-owned-phase-verification-policy). This updates all future phase gates without authorizing their implementation.
+
+## Phase 04 review gate — 2026-10-22
+
+Current owner scope supersedes historical no-Phase-04 instructions above. Implemented worker authority, fresh Start/Resume validation, conservative restart/navigation recovery, atomic bounded header-only persistence/deletion and Codex-owned automated tests. P01-RETENTION/P01-CRYPT remain unresolved for sensitive evidence; numeric values are proposals tested only against headers. See [Phase 04](Phases/PHASE_04.md). STOP for owner/ChatGPT review; Phase 05 NOT STARTED. No commit/push.

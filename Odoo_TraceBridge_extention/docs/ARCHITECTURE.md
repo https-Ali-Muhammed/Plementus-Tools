@@ -1,5 +1,7 @@
 # Architecture — Phase 01
 
+> Current 2026-10-22 gate: Phase 03 COMPLETE; accepted **4/22**. Phase 04 lifecycle/header-only persistence **PROVISIONAL**; see the Phase 04 section at the end. All earlier snapshots below are historical. No diagnostic capture or sensitive-storage policy approval.
+
 > Current gate (2026-10-21): Phase 01 accepted by owner/ChatGPT; original design snapshot below is historical and future contracts remain phase gated. Phases 00–02 COMPLETE, 3/22 accepted; Phase 03 PROVISIONAL. See the Phase 03 implementation note at the end for the narrow working boundary. No capture/compatibility/security certification.
 
 Date: **2026-10-21 (Africa/Cairo)**. **PROVISIONAL — pending owner acceptance; NOT IMPLEMENTED**. Design requirements below are future contracts, not working features. Accepted progress 1/22. [Security policy](SECURITY_PRIVACY.md) defines sensitive choices; [ADRs](02_ARCHITECTURE_DECISIONS.md) distinguish accepted sequencing from proposed engineering choices.
@@ -159,3 +161,30 @@ URL visibility does not prove future injection authority or organizational permi
 Playwright 1.64.1 launches sandbox-enabled persistent bundled Chromium with the actual production MV3 and a temporary isolated profile. OS-allocated HTTP fixture servers bind only IPv4/IPv6 loopback. Native action tests configure Chromium's built-in Activate Extension shortcut through browser UI in that profile; xdotool delivers real input to the unique fixture window and observes actual activeTab/native popup. A pinned internal Playwright other-target hook exposes that popup; no production worker/test permissions are added. Direct popup rendering is counted separately from native grants; isolated policy/controller tests remain explicitly synthetic/mocked.
 
 The verification runner serializes build/typecheck/lint/unit/regression, assertion-based production/development manifest audit and E2E, writing JSON/logs with screenshots/traces. Native prerequisites missing → explicit skip/BLOCKED, never fully verified. Profiles/contexts/servers/dev child processes clean up after execution. No owner browser profile, normal sessions or existing Odoo server is accessed. See [permanent testing policy](06_DEPLOYMENT_RUNBOOK.md#permanent-codex-owned-phase-verification-policy). 123 unit/integration and 10 Chromium specs pass; real Odoo/browser compatibility is still unverified. This remains Phase 03-only infrastructure, not session/capture implementation.
+
+## Phase 04 implemented boundary — PROVISIONAL, 2026-10-22
+
+Phase 03 accepted at pushed `8c73491`, progress **4/22**; historical snapshots above remain intact. Current implementation: `Popup.tsx` → strict runtime control message → `background.ts` → `src/session/controller.ts` → `store.ts` / `model.ts`. The old popup-local consent gate is removed; its reusable URL/declaration policy remains and worker tests replace obsolete mocked popup-controller tests. No collectors, injection, diagnostic/event writes or Phase 05 code.
+
+| Operation | Valid transition / precondition | Invalidation |
+|---|---|---|
+| Inspect | idle → permission_pending when eligible selected scope exists; no persisted consent | New one-use worker review challenge; replaces prior review |
+| Start | permission_pending → recording; no open recording/paused case; explicit valid authorization + fresh browser-selected scope twice | New random session ID and epoch; exact original tab/window/origin binding |
+| Pause / Revoke | recording → paused | Rotate epoch; invalidate review before waiting |
+| Resume | paused → recording; original ephemeral binding and exact selected scope; new explicit authorization/review | Rotate epoch; stopped/error/deleted cannot Resume |
+| Stop | recording/paused → stopped | Terminal; rotate epoch and remove operational binding |
+| Delete | any retained header → removed; view returns idle/pending based on current review | Atomic selected-ID removal; stale revisions/nonexistent IDs rejected; binding cleanup |
+| Navigation/reload/tab/window/revocation event | recording → paused; paused stays paused | Synchronous generation increment; fresh epoch for open header; review cleared |
+| Worker recovery | recording/paused → paused | Epoch rotation, no recovered authorization/challenge; explicit Resume only |
+| Expiry | open → stopped at 30-minute logical limit; any header removed at 24-hour TTL | Enforced on wake/read/write, not a sleeping-browser deadline |
+| Storage/init failure | controls → error | Fail-closed worker latch and error badge; no collection; healthy restart recovers paused |
+
+`error` is a fail-closed controller/view state, not a persisted authorization. Header validation accepts the terminal error enum for conservative compatible reads; no current operation creates an error evidence record. One worker queue serializes initialization/read/write/delete. An in-memory generation invalidates in-flight async approval immediately; durable case epoch guards every control. Restart discards all review challenges and rotates active epochs before accepting commands. IndexedDB atomic transactions prevent half-deletes/writes; no cross-store atomicity is claimed. Binding is written before Start commit, removed after deletion; recovery reconciles orphan bindings. Interrupted Start cannot manufacture a header, successful Delete cannot be reversed by stale session state.
+
+IndexedDB schema `tracebridge` v1, store `cases` (`id` key): `{schema:1,id:UUIDv4,epoch:UUIDv4,state:recording|paused|stopped|error,createdAt:integer,updatedAt:integer}`. Unknown keys/invalid records purged; inconsistent aggregate state fails closed. Future/rolled-back timestamps are dropped conservatively. Only this store exists. No origin/environment/consent, arbitrary strings, events, notes, URLs or customer values. `storage.session.binding = {id,target:{tabId,windowId,origin}}` is ephemeral and restricted to TRUSTED_CONTEXTS. No chrome.storage.local/sync usage. No app encryption.
+
+Before every write, schema/count/single-open/serialized-byte bounds are checked. Proposed 10 cases, 24-hour TTL, 30-minute lifetime, 5 MiB/case / 20 MiB application bytes are applied to non-sensitive headers only. A header is approximately 200 bytes; Phase 04 accepts zero events, so future 5,000-event capacity is not a collector implementation. Sensitive retention/encryption acceptance remains blocked by P01-RETENTION/P01-CRYPT. Browser internal disk overhead/backups are outside the serialized-byte accounting and deletion guarantee.
+
+Production permission budget is activeTab + storage; background worker and session storage are the only phase-required additions. No hosts/scripting/alarms/keepalive, observers, RPC, services or fixed five-second lease. action badge/title reflects last processed lifecycle (`ON`, `II`, `ERR`), explicitly no diagnostic capture. It can remain stale until wake after termination/time expiry; popup refresh revalidates. URL visibility establishes lifecycle access only; future document/injection authority remains gated in Phase 05.
+
+Official platform references rechecked 2026-10-22: [MV3 worker lifecycle](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle), [session storage/access levels](https://developer.chrome.com/docs/extensions/reference/api/storage), [runtime sender metadata](https://developer.chrome.com/docs/extensions/reference/api/runtime#type-MessageSender), [tab events](https://developer.chrome.com/docs/extensions/reference/api/tabs#event-onUpdated). Product guarantees above are bounded by [actual tests and limitations](Phases/PHASE_04.md), not documentation alone.

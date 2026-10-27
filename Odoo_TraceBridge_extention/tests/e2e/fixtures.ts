@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process';
 process.env.PW_CHROMIUM_ATTACH_TO_OTHER = '1';
 
 const extensionPath = resolve('.output/chrome-mv3');
-// Chromium derives unpacked IDs from the absolute path; production has no worker to discover.
+// Chromium derives unpacked IDs from the absolute path; validate against the real packaged popup.
 const extensionId = [...createHash('sha256').update(extensionPath).digest().subarray(0, 16)]
   .flatMap(byte => [byte >> 4, byte & 15]).map(n => String.fromCharCode(97 + n)).join('');
 
@@ -26,7 +26,7 @@ async function listen(host: string, title: string): Promise<{ server: Server; or
 }
 
 export const test = base.extend<{
-  fixture: { origin: string; secondOrigin: string; ipv6Origin?: string; title: string };
+  fixture: { origin: string; secondOrigin: string; ipv6Origin?: string; syntheticHttpsOrigin: string; title: string };
   context: BrowserContext;
   popup: Page;
   invoke: (target: Page) => Promise<Page>;
@@ -41,24 +41,29 @@ export const test = base.extend<{
       let ipv6Origin: string | undefined;
       try { const ipv6 = await listen('::1', title); servers.push(ipv6.server); ipv6Origin = ipv6.origin; }
       catch (error) { if (!['EADDRNOTAVAIL', 'EAFNOSUPPORT'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error; }
-      await use({ origin: first.origin, secondOrigin: second.origin, ipv6Origin, title });
+      await use({ origin: first.origin, secondOrigin: second.origin, ipv6Origin, syntheticHttpsOrigin: 'https://tracebridge-staging.example', title });
     } finally {
       await Promise.all(servers.map(server => new Promise<void>((done, reject) => {
         server.close(error => error ? reject(error) : done()); server.closeAllConnections();
       })));
     }
   },
-  context: async ({}, use, info) => {
+  context: async ({ fixture }, use, info) => {
     const profile = await mkdtemp(join(tmpdir(), 'tracebridge-e2e-'));
     let context: BrowserContext | undefined;
     const logs: string[] = [];
     const requests: string[] = [];
     const errors: string[] = [];
+    const intercepted: string[] = [];
     let version: string | undefined;
     try {
       context = await chromium.launchPersistentContext(profile, {
         channel: 'chromium', headless: process.env.TRACEBRIDGE_HEADED !== '1', chromiumSandbox: true,
         args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+      });
+      await context.route(`${fixture.syntheticHttpsOrigin}/**`, async route => {
+        intercepted.push(route.request().url());
+        await route.fulfill({ contentType: 'text/html', body: `<!doctype html><title>${fixture.title}</title><h1>Synthetic HTTPS-origin policy fixture; no TLS or remote endpoint.</h1>` });
       });
       version = context.browser()?.version();
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
@@ -79,11 +84,11 @@ export const test = base.extend<{
         }
       } finally {
         await rm(profile, { recursive: true, force: true });
-        await writeFile(info.outputPath('browser.json'), JSON.stringify({ version, logs, requests, errors, profileRemoved: true, sandboxEnabled: true }, null, 2));
+        await writeFile(info.outputPath('browser.json'), JSON.stringify({ version, logs, requests, syntheticHttpsIntercepts: intercepted, errors, profileRemoved: true, sandboxEnabled: true }, null, 2));
       }
       expect(errors, 'No unexpected page runtime errors').toEqual([]);
       expect(logs.filter(line => line.startsWith('error:')), 'No console errors').toEqual([]);
-      expect(requests.filter(url => !/^(chrome-extension:|chrome:|http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?\/)/.test(url)), 'No non-loopback browser-context requests').toEqual([]);
+      expect(requests.filter(url => !intercepted.includes(url) && !/^(chrome-extension:|chrome:|http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?\/)/.test(url)), 'No non-loopback browser-context requests').toEqual([]);
     }
   },
   popup: async ({ context }, use) => {

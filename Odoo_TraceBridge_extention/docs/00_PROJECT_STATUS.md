@@ -1,5 +1,46 @@
 # Odoo TraceBridge — Project Status
 
+Date: **2026-10-22 (Africa/Cairo)**. This current ledger supersedes historical Phase 03-only instructions below.
+
+## Current gate
+
+- Phases 00–03 **COMPLETE**; accepted progress **4/22**.
+- Phase 03 accepted by owner/ChatGPT on 2026-10-22 at verified pushed **8c73491**. Historical provisional evidence retained: **123 unit/integration PASS; 10 Chromium PASS (9 native invocation/1 direct popup)**. Local Development and permanent Codex-owned automated verification approved. Chrome Stable, Brave Phase 03 and real Odoo remain NOT TESTED.
+- Phase 04 **PROVISIONAL — owner/ChatGPT acceptance UNREVIEWED**. Worker-owned lifecycle and bounded non-sensitive case headers implemented and automated synthetic verification complete. **STOP after Phase 04; Phase 05 NOT STARTED.**
+- Recording is lifecycle only: **zero diagnostic events/signals collected**. No action/navigation capture, client-error/network observers, RPC, telemetry, services or Plemo. No production/customer/real Odoo access.
+
+## Deliverables and verification
+
+Worker Start/Pause/Resume/Stop/Delete with strict packaged-UI controls, browser-selected tab/window/exact-origin validation, fresh explicit authorization, one open session, UUID epochs/challenges and serialized mutation/recovery. Restart recovers PAUSED, never recording. Navigation/reload/tab/window/close/revocation invalidate; stale/delayed/replayed requests cannot restore a successfully deleted header. Popup shows no-capture status and selected-case controls. Storage/init failure closes controls safely.
+
+IndexedDB only `{schema,id,epoch,state,createdAt,updatedAt}` headers. One normalized ephemeral binding in trusted storage.session; no origin/authorization/environment/URL/customer/credential evidence persists, no local/sync settings or app encryption. Proposals evaluated for headers: 30-minute lifetime including pauses, 10 cases, 24-hour TTL, 5 MiB/case / 20 MiB aggregate serialized app bytes; future 5,000 events constant does not admit events. **P01-RETENTION/P01-CRYPT OPEN before sensitive evidence storage.** Bounds before atomic writes, expiry on access/wake, selected deletion plus binding cleanup; no instant closed-browser cleanup/physical erase promise. Unacknowledged interrupted Delete may roll back; successful Delete has no restore path.
+
+| Current verification | PASS | FAIL | BLOCKED / skipped |
+|---|---|---|---|
+| Unit/integration/security/regression (4 files) | **158** | 0 | 0 |
+| Actual packaged Chromium extension | **18** | 0 | 0 |
+| Aggregate npm run verify gates | **7** | 0 | 0 |
+
+Final `npm run verify` **PASS / exit 0**: production build, strict TypeScript/lint, tests, separately generated manifest audits, browser and git diff --check. Browser specs: **16 native invocation, 2 direct popup**; true browser-granted activeTab, no grant/API mocks. Genuine MV3 termination/stopped observation → PAUSED/fresh explicit Resume; real browser one-byte quota enforcement → safe failure/no header. Localhost/IPv4/IPv6, reload/navigation/close/window/case isolation, deletion/replay, real IDB bounds/expiry/invalid-record and no-prohibited-persistence checks. HTTPS-origin staging/production policy uses a fully intercepted synthetic page; TLS/remote endpoint not tested. All routine verification Codex-owned.
+
+Production manifest/grants: **activeTab + storage only**, background.js, incognito disabled; no host/optional/content/scripting/network grants; CSP connect-src none. Development adds WXT tabs/scripting/localhost/reload exceptions, separately audited; never distribute. No new dependencies/lock changes; fresh npm ci NOT RUN this phase, Phase 03 clean-install result historical. Context logs show no unexpected JS errors/unhandled non-fixture requests; source/manifests/storage inspected. No security certification or OS-wide traffic claim.
+
+## Limits and next action
+
+P04-REVIEW OPEN; proposed sensitive retention/encryption policy and future collector document/injection authority remain gates. Environment/organization authorization user stated, no Odoo/production detector. NOT TESTED: Chrome Stable, Brave Phase 03/04, minimum Chrome/other OS/browser; physical toolbar mouse click; browser UI site-grant removal/withholding/incognito/disable-update-reenable; full browser restart/crash/power loss/physical disk exhaustion/natural undebugged idle timing; TLS/remote HTTPS/Odoo.sh/real Odoo/customer/production/performance/noninterference/security certification; dev HMR/Xvfb/full WCAG. Historical Phase 02 Brave owner-attested PASS retained.
+
+**Next action: owner/ChatGPT reviews [Phase 04](Phases/PHASE_04.md), [test evidence](04_TEST_EVIDENCE.md), [decisions](05_BLOCKERS_AND_DECISIONS.md) and `/tmp/tracebridge-phase04-evidence.zip`; accepts or requests Phase 04 corrections. STOP and await review.** No routine owner browser tests, Git publication or Phase 05.
+
+## Git and evidence
+
+Project `/home/https_ali_muhammed/Plementus/Tools/Odoo_TraceBridge_extention`; Git root `/home/https_ali_muhammed/Plementus/Tools`; origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; branch **feature/odoo-tracebridge**; unchanged starting/ending HEAD **8c7349150cf40adae0bdb015064a8d61aebdc74a**; upstream **origin/feature/odoo-tracebridge**; local/tracking/live remote baseline verified. Whole-root worktree clean before edits; final **29 project-only changed files (22 modified / 7 new), 0 staged**, all unstaged/uncommitted. No clone/switch/reset/commit/push/deployment/customer access; canonical references/package-lock/unrelated projects unchanged.
+
+Evidence **/tmp/tracebridge-phase04-evidence.zip**, verified CRC/inventory/member SHA-256/current-source/docs equality after this final status. Includes relevant source/tests/config/package-lock, prod/dev manifests, logs/machine reports, real sanitized screenshots/traces and updated documentation. Excludes node_modules/profiles/secrets/real Odoo/customer data/unrelated projects/unnecessary bundles. Final check and archive verification JSON outside Git. Detailed evidence/transition/schema/limit matrix in Phase 04 report.
+
+Skills/tools actually used: Ponytail full; functions shell/Git/npm/Python, official Chrome web docs, Playwright/Chromium/CDP/native xdotool and local image inspection. No agents/CUA/real Odoo; WarpGrep/Superpowers/Valyu unavailable. Status updated **LAST**, immediately after handoff **SECOND LAST**; only read-only project checks and external evidence packaging follow.
+
+## Historical status snapshots — superseded by the current ledger above
+
 Date: **2026-10-22 (Africa/Cairo)**. This current record supersedes earlier CUA-only, manual-owner-testing and HTTPS-only loopback restrictions preserved below.
 
 ## Current phase and review gate

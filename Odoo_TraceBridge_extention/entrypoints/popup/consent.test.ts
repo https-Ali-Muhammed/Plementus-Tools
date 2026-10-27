@@ -1,15 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
-import { createConsentGate, declarationAllows, identifyTab, type SelectedTab } from './consent';
+import { describe, expect, it } from 'vitest';
+import { declarationAllows, identifyTab, type SelectedTab } from './consent';
 
 const tab: SelectedTab = { id: 12, windowId: 1, active: true, incognito: false, status: 'complete', url: 'https://odoo.example/web?token=synthetic#private' };
 const declaration = { origin: 'https://odoo.example', environment: 'test', authorized: true };
-function fixture() {
-  const read = vi.fn<() => Promise<SelectedTab | undefined>>().mockResolvedValue({ ...tab });
-  const notify = vi.fn();
-  return { read, notify, gate: createConsentGate(read, notify) };
-}
-
 describe('exact selected-tab policy (synthetic fixtures)', () => {
   it('keeps only tab, window and exact origin; drops path/query/fragment', () => {
     expect(identifyTab(tab)).toEqual({ tabId: 12, windowId: 1, origin: 'https://odoo.example' });
@@ -89,100 +82,5 @@ describe('explicit loopback development policy', () => {
   });
   it.each(['invalid', 'http://remote.example', 'http://localhost:80', 'http://localhost/path'])('fails closed for forged target %s', origin => {
     expect(declarationAllows({ tabId: 1, windowId: 1, origin }, { origin, environment: 'local', authorized: true })).toBe(false);
-  });
-  it.each(['http://127.0.0.1:8069', 'http://localhost:8070', 'https://localhost:8069'])('rejects stale local target %s during approval', async url => {
-    const read = vi.fn<() => Promise<SelectedTab>>().mockResolvedValue({ ...tab, url: 'http://localhost:8069/web' });
-    const gate = createConsentGate(read, vi.fn());
-    await gate.inspect();
-    read.mockResolvedValue({ ...tab, url });
-    await gate.approve({ origin: 'http://localhost:8069', environment: 'local', authorized: true });
-    expect(gate.getState().consent).toBe('tab-changed');
-  });
-});
-
-describe('popup consent gate + browser lookup integration (mock browser)', () => {
-  it('requires inspect and explicit approval; invocation alone never consents', async () => {
-    const { gate, read } = fixture();
-    await gate.approve(declaration);
-    expect(read).not.toHaveBeenCalled();
-    await gate.inspect();
-    expect(gate.getState().consent).toBe('required');
-    await gate.approve(declaration);
-    expect(read).toHaveBeenCalledTimes(2);
-    expect(gate.getState().consent).toBe('approved');
-    expect(gate.getState()).not.toHaveProperty('recording');
-  });
-  it('accepts an explicitly authorized staging declaration', async () => {
-    const { gate } = fixture(); await gate.inspect();
-    await gate.approve({ ...declaration, environment: 'staging' });
-    expect(gate.getState().consent).toBe('approved');
-  });
-  it('denies missing confirmation even if UI controls are bypassed', async () => {
-    const { gate } = fixture(); await gate.inspect();
-    await gate.approve({ ...declaration, authorized: false });
-    expect(gate.getState().consent).toBe('denied');
-  });
-  it.each([{ id: 13 }, { windowId: 2 }, { url: 'https://unrelated.example' }])('rejects stale target at approval %j', async patch => {
-    const { gate, read } = fixture(); await gate.inspect(); read.mockResolvedValue({ ...tab, ...patch });
-    await gate.approve(declaration);
-    expect(gate.getState().consent).toBe('tab-changed');
-    expect(gate.getState().target).toBeUndefined();
-  });
-  it('reports browser lookup failure as unavailable', async () => {
-    const { gate, read } = fixture(); read.mockRejectedValue(new Error('synthetic denial'));
-    await gate.inspect(); expect(gate.getState().access).toBe('unavailable');
-  });
-  it('reports missing URL/access on invocation as unavailable', async () => {
-    const { gate, read } = fixture(); read.mockResolvedValue({ ...tab, url: undefined });
-    await gate.inspect(); expect(gate.getState().access).toBe('unavailable');
-  });
-  it.each(['missing', 'error'])('revokes on lost browser access: %s', async mode => {
-    const { gate, read } = fixture(); await gate.inspect();
-    if (mode === 'missing') read.mockResolvedValue({ ...tab, url: undefined });
-    else read.mockRejectedValue(new Error('synthetic revoked access'));
-    await gate.approve(declaration); expect(gate.getState().access).toBe('revoked');
-  });
-  it.each(['denied', 'tab-changed', 'revoked'] as const)('invalidates approval and cannot reuse it after %s', async reason => {
-    const { gate } = fixture(); await gate.inspect(); await gate.approve(declaration);
-    gate.invalidate(reason); await gate.approve(declaration);
-    expect(gate.getState().consent).toBe(reason);
-    expect(gate.getState().target).toBeUndefined();
-  });
-  it.each(['inspect', 'approve'] as const)('drops late %s results after invalidation', async action => {
-    const { gate, read } = fixture();
-    if (action === 'approve') await gate.inspect();
-    let finish!: (value: SelectedTab) => void;
-    read.mockReturnValue(new Promise(resolve => { finish = resolve; }));
-    const pending = action === 'inspect' ? gate.inspect() : gate.approve(declaration);
-    gate.invalidate('tab-changed'); finish(tab); await pending;
-    expect(gate.getState().consent).toBe('tab-changed');
-  });
-  it('reopening starts without the prior popup approval', async () => {
-    const { gate } = fixture(); await gate.inspect(); await gate.approve(declaration);
-    const reopened = fixture().gate; await reopened.inspect();
-    expect(reopened.getState().consent).toBe('required');
-  });
-});
-
-describe('Phase 03 source boundary', () => {
-  const source = readdirSync('entrypoints/popup').filter(name => /\.(ts|tsx)$/.test(name) && !name.includes('.test.'))
-    .map(name => readFileSync(`entrypoints/popup/${name}`, 'utf8')).join('\n');
-  it('has no capture, injection, persistence, page messaging or network API', () => {
-    expect(source).not.toMatch(/\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|indexedDB|localStorage|sessionStorage|executeScript|captureVisibleTab|sendMessage|postMessage)\b|browser\.(storage|scripting|webRequest|debugger|cookies)|dangerouslySetInnerHTML/);
-    expect(readdirSync('entrypoints')).toEqual(['popup']);
-  });
-  it('never offers Start and wires invalidation signals', () => {
-    expect(source).toContain('<button disabled>Start unavailable — Phase 04</button>');
-    for (const event of ['tabs.onActivated', 'tabs.onUpdated', 'tabs.onRemoved', 'tabs.onReplaced', 'windows.onFocusChanged', 'permissions.onRemoved']) {
-      expect(source).toContain(`browser.${event}.addListener`);
-      expect(source).toContain(`browser.${event}.removeListener`);
-    }
-  });
-  it('declares only activeTab with no broad/optional host permissions', () => {
-    const config = readFileSync('wxt.config.ts', 'utf8');
-    expect(config).toContain("permissions: ['activeTab']");
-    expect(config).toContain("incognito: 'not_allowed'");
-    expect(config).toContain("connect-src 'none'");
-    expect(config).not.toMatch(/host_permissions|optional_permissions|<all_urls>|https?:\/\/\*/);
   });
 });

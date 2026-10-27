@@ -10,12 +10,6 @@ export interface SelectedTab {
 
 export interface Target { tabId: number; windowId: number; origin: string }
 export interface Declaration { origin: string; environment: string; authorized: boolean }
-export type ConsentState = {
-  access: 'checking' | 'available' | 'unavailable' | 'revoked';
-  consent: 'required' | 'approved' | 'denied' | 'tab-changed' | 'revoked';
-  target?: Target;
-  reason: string;
-};
 
 function isLoopback(url: URL): boolean {
   return ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
@@ -56,52 +50,4 @@ export function declarationAllows(target: Target, declaration: Declaration): boo
       (isLoopback(url) ? declaration.environment === 'local' :
         ['test', 'staging'].includes(declaration.environment));
   } catch { return false; }
-}
-
-// Popup-local decisions only. No session, capture authority or persisted consent exists in Phase 03.
-export function createConsentGate(readTab: () => Promise<SelectedTab | undefined>,
-  notify: (state: ConsentState) => void) {
-  let revision = 0;
-  let state: ConsentState = { access: 'checking', consent: 'required', reason: 'Checking selected tab.' };
-  function publish(next: ConsentState) { state = next; notify(state); }
-  function invalidate(consent: 'denied' | 'tab-changed' | 'revoked') {
-    revision++;
-    publish({ access: consent === 'revoked' ? 'revoked' : 'unavailable', consent,
-      reason: consent === 'denied' ? 'Consent denied. Nothing is recorded.' :
-        consent === 'revoked' ? 'Access or consent revoked. Reopen the toolbar popup to review again.' :
-          'Tab, window or document changed. Reopen the toolbar popup and confirm again.' });
-  }
-  return {
-    invalidate,
-    async inspect() {
-      const current = ++revision;
-      try {
-        const target = identifyTab(await readTab());
-        if (current !== revision) return;
-        publish(target ? { access: 'available', consent: 'required', target,
-          reason: 'Selected-tab URL access is available. Recording consent is still required.' } :
-          { access: 'unavailable', consent: 'required',
-            reason: 'Selected tab unavailable: missing access, restricted/unsupported URL, incognito or loading page.' });
-      } catch {
-        if (current === revision) publish({ access: 'unavailable', consent: 'required', reason: 'Browser access check failed. Nothing is recorded.' });
-      }
-    },
-    async approve(declaration: Declaration) {
-      if (state.access !== 'available' || state.consent !== 'required' || !state.target) return;
-      const target = state.target;
-      if (!declarationAllows(target, declaration)) { invalidate('denied'); return; }
-      const current = ++revision;
-      try {
-        const live = identifyTab(await readTab());
-        if (current !== revision) return;
-        if (!live) { invalidate('revoked'); return; }
-        if (live.tabId !== target.tabId || live.windowId !== target.windowId || live.origin !== target.origin) {
-          invalidate('tab-changed'); return;
-        }
-        publish({ access: 'available', consent: 'approved', target,
-          reason: 'Consent approved for this tab/origin in this popup only. Nothing is recording; Start is unavailable until Phase 04.' });
-      } catch { if (current === revision) invalidate('revoked'); }
-    },
-    getState: () => state,
-  };
 }
