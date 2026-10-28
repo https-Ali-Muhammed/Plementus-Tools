@@ -1,6 +1,6 @@
 # Blockers and decisions
 
-Current status: **1/20 master phases; 5/72 micro-phases accepted**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
+Current status: **1/20 master phases; 6/72 micro-phases accepted**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
 
 | ID | State / owner | Impact | Required decision or input | Resolution gate / evidence |
 |---|---|---|---|---|
@@ -9,7 +9,7 @@ Current status: **1/20 master phases; 5/72 micro-phases accepted**. Entries rema
 | B-03 GitHub sandbox and rights | OPEN / owner | Live-write acceptance cannot be inferred from mocks. | Identify an approved disposable sandbox, organization, account, permissions, write scope and recovery plan. | Explicit authorization and observed sandbox result for relevant gates; unavailable sandbox can block live-write acceptance. |
 | B-04 Odoo.sh access and UI | BLOCKED for live acceptance / owner | Project, Production, module, Staging and UI feasibility remain unverified. | Supply authorized demo account, entitlement, scope, cost and recovery plan. | Phase 18: approved real demo and observable result; fixtures alone cannot close it. |
 | B-05 Plementus access and contract | BLOCKED for live acceptance / owner | Actual form, permissions and native `pl_auth` Connect behavior are unverified. | Provide authorized Plementus demo access and contract inspection scope. | Phase 19: observed real fields and native Connect behavior under approval. |
-| D-06 Browser, MV3 layout and UX | OPEN / owner and implementer | Tooling, browser support, popup/side panel and exact host permissions are undecided. | Review baseline evidence and select a minimal compatible design. | Phases 01–03; no browser setup occurred in Phase 00. |
+| D-06 Browser, MV3 layout and UX | PARTIALLY RESOLVED / ADR-005 | Vanilla modules, action popup, no initial permissions/host access, and future Node/Playwright testing boundaries are selected; implementation and browser loading remain unverified. | Confirm future host origins, side-panel need and extension-local Playwright version when their phases are authorized. | Phase 02 scaffold and later local fixture/MV3 evidence. |
 | D-07 Data, privacy and incident policy | OPEN / OWNER DECISION REQUIRED; owner/security reviewer | Retention, deletion, encryption, access, screenshots, evidence handling and incident response details cannot be inferred. | Approve a policy consistent with the explicit prohibition on storing credentials/tokens. | Scoped security review and documented policy; no implied retention or cleanup. |
 | D-08 Utilities, domains and release | OPEN / owner | Private utility access, deploy-key public handoff, DNS ownership and distribution readiness are unverified. | Supply approved utility paths/access and domain/distribution decisions when relevant. | Phases 11–12, 18–19 with authorized evidence; operator controls DNS and release. |
 

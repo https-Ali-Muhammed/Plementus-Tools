@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **1/20 master phases; 5/72 micro-phases accepted**; 01.02 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **1/20 master phases; 6/72 micro-phases accepted**; 01.03 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -24,8 +24,12 @@ Read-only inventory verified the current feature branch, upstream, worktree, doc
 
 ## 2026-10-28: clean-branch remediation
 
-Created local branch `feature/sh-project-setup-extension-clean` in `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` from `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`. Migrated 19 extension documents and two authoritative source Markdown files from preserved `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec`; all 21 file hashes matched. The branch is not committed or published. See [Git remediation](Phases/GIT_BRANCH_REMEDIATION.md).
+Historical remediation created local branch `feature/sh-project-setup-extension-clean` from `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5` and migrated 19 extension documents plus two authoritative source Markdown files from preserved `feature/sh-project-setup-extension`; all 21 migration-file hashes matched. At that historical point it was unpublished. Later, owner commit `47a0fb38171b3b21c7317c787e746c12272059d3` published the 22-file baseline; owner-created successor `0d7f169b8013e587b637eb7fec1bffb85f1614c7` published the 01.02 documentation records. See [Git remediation](Phases/GIT_BRANCH_REMEDIATION.md).
 
 ## 2026-10-28: 01.02, ready for review
 
 Read-only tooling audit verified the requested root, origin, branch, upstream, expected HEAD `47a0fb38171b3b21c7317c787e746c12272059d3`, clean worktree, remote feature publication and `origin/main` ancestry. It recorded Ubuntu 22.04.5 x86_64, Node 24.19.0, npm 11.17.0, pnpm 11.25.0, Corepack 0.35.0, absent Yarn, unavailable system Chromium Snap wrapper, and a usable local Playwright-managed Chrome for Testing 151.0.7922.34. The extension remains documentation-only with no package/build/test setup. See [01.02 audit](Phases/PHASE_01_02.md). No installation, external-site access, Git mutation, application test, or 01.03 work occurred.
+
+## 2026-10-28: 01.03, ready for review
+
+Selected the minimal MV3 baseline: vanilla browser ES modules without a bundler or framework, an action popup, event-driven worker boundary, no initial permissions/host access, and deferred storage/adapters. Node's built-in runner is the future pure-logic baseline; Playwright is deferred until an extension-local dependency is explicitly added for local unpacked-extension/fixture testing. No source, manifest, dependency, browser extension load, provider access, or application test occurred. See [ADR-005](02_ARCHITECTURE_DECISIONS.md) and [01.03 report](Phases/PHASE_01_03.md).
