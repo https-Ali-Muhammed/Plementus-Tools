@@ -9,6 +9,6 @@
 
 ## Verify
 
-The popup should show **Plementus Project Setup** and **Setup automation is not yet implemented.** In `chrome://extensions`, open the extension's service-worker inspection link and confirm there are no errors. The manifest currently requests no permissions or host access.
+The popup should show the **Set Up New Customer** wizard with local input validation and a redacted review. Navigation and module selection remain disabled; setup automation is not implemented. In `chrome://extensions`, open the extension's service-worker inspection link and confirm there are no errors. The manifest currently requests no permissions or host access.
 
 Use an isolated local profile for testing. No account, provider site, or customer data is required.

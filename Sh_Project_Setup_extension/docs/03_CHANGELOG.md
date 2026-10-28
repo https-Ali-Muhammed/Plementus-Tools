@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **3/20 master phases; 13/72 micro-phases accepted**; 03.04 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 14/72 micro-phases accepted**; 04.01 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -61,3 +61,7 @@ Added local GitHub organization, repository selection/name and repeatable option
 ## 2026-10-29: 03.04, ready for review
 
 Reconciled 03.03 as accepted per owner instruction. Added in-memory branch and domain validation and a safely rendered, subscription-reference-redacted summary. Node and local Chrome checks passed; no provider access occurred. See [03.04 report](Phases/PHASE_03_04.md).
+
+## 2026-10-29: 04.01, ready for review
+
+Reconciled Phase 03 and 03.04 as accepted per owner instruction. Added a pure state transition module and Node tests; documented the deferred requested-module selection gap. See [04.01 report](Phases/PHASE_04_01.md).

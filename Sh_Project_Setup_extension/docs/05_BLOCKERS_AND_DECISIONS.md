@@ -1,6 +1,6 @@
 # Blockers and decisions
 
-Current status: **1/20 master phases; 6/72 micro-phases accepted**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
+Current status: **4/20 master phases; 14/72 micro-phases accepted; 04.01 READY_FOR_REVIEW**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
 
 | ID | State / owner | Impact | Required decision or input | Resolution gate / evidence |
 |---|---|---|---|---|
@@ -12,5 +12,7 @@ Current status: **1/20 master phases; 6/72 micro-phases accepted**. Entries rema
 | D-06 Browser, MV3 layout and UX | PARTIALLY RESOLVED / ADR-005 | Vanilla modules, action popup, no initial permissions/host access, and future Node/Playwright testing boundaries are selected; implementation and browser loading remain unverified. | Confirm future host origins, side-panel need and extension-local Playwright version when their phases are authorized. | Phase 02 scaffold and later local fixture/MV3 evidence. |
 | D-07 Data, privacy and incident policy | OPEN / OWNER DECISION REQUIRED; owner/security reviewer | Retention, deletion, encryption, access, screenshots, evidence handling and incident response details cannot be inferred. | Approve a policy consistent with the explicit prohibition on storing credentials/tokens. | Scoped security review and documented policy; no implied retention or cleanup. |
 | D-08 Utilities, domains and release | OPEN / owner | Private utility access, deploy-key public handoff, DNS ownership and distribution readiness are unverified. | Supply approved utility paths/access and domain/distribution decisions when relevant. | Phases 11–12, 18–19 with authorized evidence; operator controls DNS and release. |
+
+| D-09 Requested-module selection | DEFERRED PHASE 03 SCOPE GAP / OWNER DECISION REQUIRED | The wizard does not collect requested modules; module-installation workflows cannot be considered ready. | Owner-approved later implementation must define and implement selection and validation. | Close with scoped implementation and verification before module-installation workflows. |
 
 Never store passwords, MFA codes, private keys, cookies, access tokens or customer credentials. See [security](09_SECURITY_AND_SECRETS.md), [contracts](08_INTEGRATION_CONTRACTS.md) and [feasibility](12_BROWSER_AUTOMATION_FEASIBILITY.md). Owner access or a stated plan is not itself live verification.

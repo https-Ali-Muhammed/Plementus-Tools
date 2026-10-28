@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **3/20 master phases; 13/72 micro-phases accepted; 03.04 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 14/72 micro-phases accepted; 04.01 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -21,6 +21,8 @@ Current evidence includes documentation, read-only Git/tooling inspection, stati
 
 | 03.04 | **LOCAL_BROWSER_TESTED / PASS:** Nine Node cases and Chrome smoke passed, including prior validation regressions, branch/domain inputs, safe summary rendering, redaction, permissions and no external requests. | [03.04 report](Phases/PHASE_03_04.md) records commands and limitations. |
 
+| 04.01 | **PASS:** 5 pure state tests and 9 popup regression tests; 0 failed, 0 skipped. | [04.01 report](Phases/PHASE_04_01.md) records commands and limits. No workflow execution or persistence was tested. |
+
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 
 ## Evidence tiers
@@ -29,4 +31,4 @@ The plan defines `SIMULATED`, `LOCAL_BROWSER_TESTED`, `GITHUB_SANDBOX_VERIFIED`,
 
 ## Not run / future coverage
 
-Integration, fixture, workflow, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and Phase 03 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
+Integration, fixture, workflow execution, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and Phase 03 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
