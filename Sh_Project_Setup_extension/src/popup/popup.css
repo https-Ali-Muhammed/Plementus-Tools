@@ -130,6 +130,17 @@ select:disabled {
   color: #68748a;
 }
 
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: #b42318;
+}
+
+.field-error {
+  margin: 0.35rem 0 0;
+  color: #b42318;
+  font-size: 0.8rem;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 2fr;
