@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-28 (Africa/Cairo). **Phase 00 and 00.01–00.04, 01.01–01.03, and 02.01–02.02 are ACCEPTED per owner.** Progress: **2/20 master phases; 9/72 micro-phases accepted.** Phase 02.03 is READY_FOR_REVIEW. The MV3 manifest, listener-only worker, and static popup are the only application artifacts.
+Recorded 2026-10-28 (Africa/Cairo). **Phase 00, Phase 01, Phase 02 and 00.01–00.04, 01.01–01.03, and 02.01–02.03 are ACCEPTED per owner.** Progress: **3/20 master phases; 10/72 micro-phases accepted.** Phase 03.01 is READY_FOR_REVIEW. The MV3 manifest, listener-only worker, and preview-only wizard shell are the only application artifacts.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -13,7 +13,8 @@ Recorded 2026-10-28 (Africa/Cairo). **Phase 00 and 00.01–00.04, 01.01–01.03,
 | 01.03 | ACCEPTED | [Minimal MV3 architecture decision](Phases/PHASE_01_03.md) |
 | 02.01 | ACCEPTED | [Minimal MV3 manifest](Phases/PHASE_02_01.md) |
 | 02.02 | ACCEPTED | [MV3 worker and static popup](Phases/PHASE_02_02.md) |
-| 02.03 | READY_FOR_REVIEW | [Unpacked Chrome loading and smoke test](Phases/PHASE_02_03.md) |
+| 02.03 | ACCEPTED | [Unpacked Chrome loading and smoke test](Phases/PHASE_02_03.md) |
+| 03.01 | READY_FOR_REVIEW | [Basic customer setup wizard layout](Phases/PHASE_03_01.md) |
 
 Historical reports retain their contemporaneous pending-review language. The owner supplied acceptance for Phase 00, Phase 01, and 00.01–00.04 and 01.01–01.03. The [master plan](01_MASTER_PLAN.md) and Amendment A remain verbatim, including publication-time progress and unknowns. This status file is the current progress record.
 
@@ -39,4 +40,4 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes, Odoo.sh/Plementus access, and privacy policy remain open. See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of Phase 02.03.** Do not start Phase 03 without a later scoped request.
+**STOP for ChatGPT acceptance of Phase 03.01.** Do not start Phase 03.02 without a later scoped request.

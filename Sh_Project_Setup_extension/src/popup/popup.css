@@ -5,18 +5,146 @@
 
 body {
   margin: 0;
-  min-width: 18rem;
+  min-width: 20rem;
+  max-width: 28rem;
+  max-height: 36rem;
+  overflow-y: auto;
+  background: #f7f8fc;
 }
 
 main {
   padding: 1rem;
 }
 
-h1 {
-  font-size: 1.1rem;
-  margin: 0 0 0.5rem;
+h1,
+h2,
+p {
+  margin-top: 0;
 }
 
-p {
-  margin: 0;
+h1 {
+  font-size: 1.35rem;
+  margin-bottom: 0.35rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.35rem;
+  color: #53627c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notice {
+  margin-bottom: 1rem;
+  color: #5c2d00;
+  font-size: 0.875rem;
+}
+
+.progress {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.progress li {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #5f6b80;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.progress span {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #dfe4ef;
+  font-weight: 700;
+}
+
+.progress .current {
+  color: #1d4ed8;
+}
+
+.progress .current span {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+section {
+  margin-bottom: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid #dfe4ef;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+section p {
+  margin-bottom: 0;
+  color: #53627c;
+  font-size: 0.875rem;
+}
+
+label {
+  display: block;
+  margin: 0.55rem 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+input,
+select,
+button {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid #c8d0df;
+  border-radius: 0.35rem;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+}
+
+input:disabled,
+select:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+input:disabled,
+select:disabled {
+  background: #f2f4f8;
+  color: #68748a;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.5rem;
+}
+
+button:disabled {
+  border-color: #aeb9cc;
+  background: #dfe4ef;
+  color: #59657a;
+  font-weight: 700;
+}
+
+@media (max-width: 22rem) {
+  body {
+    min-width: 0;
+  }
 }

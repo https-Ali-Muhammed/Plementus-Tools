@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, and an isolated local Chrome smoke test. **2/20 master phases; 9/72 micro-phases accepted; 02.03 READY_FOR_REVIEW.** The unpacked extension smoke test is **LOCAL_BROWSER_TESTED / PASS**. Workflow, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, and isolated local Chrome smoke tests. **3/20 master phases; 10/72 micro-phases accepted; 03.01 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -15,6 +15,7 @@ Current evidence includes documentation, read-only Git/tooling inspection, stati
 | 02.01 | Node parsed `manifest.json`; required MV3 fields and absence of permissions, host permissions, remote code, and file references passed. | [02.01 report](Phases/PHASE_02_01.md) records the exact command and assertions. Browser loading did not run. |
 | 02.02 | Static manifest, referenced-file, JavaScript syntax, popup HTML/path, permission, remote-code, source-preservation, and scoped-delta checks. | [02.02 report](Phases/PHASE_02_02.md) records the exact commands and results. Browser loading did not run. |
 | 02.03 | **LOCAL_BROWSER_TESTED / PASS:** Isolated Playwright-managed Chrome smoke test loaded the unpacked extension, registered its worker, rendered the popup, and observed empty permissions and host access with no page errors. | [02.03 report](Phases/PHASE_02_03.md) records Chrome version, exact command, result, and limits. No provider site or account was used. |
+| 03.01 | **LOCAL_BROWSER_TESTED / PASS:** Fresh verification for the evidence-repair turn ran the reproducible static assertions and isolated Chrome/Playwright popup test. Chrome rendered all four sections, verified seven label targets and disabled controls/actions, and reported no page errors; static assertions confirmed local-only references and empty permissions. | [03.01 report](Phases/PHASE_03_01.md) contains the complete executable commands, actual outcomes, browser version, and evidence limits. Functional validation, persistence, workflow, GitHub sandbox, and provider tests remain **NOT RUN**. No provider site, account, sensitive value, or workflow action was used. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 
@@ -24,4 +25,4 @@ The plan defines `SIMULATED`, `LOCAL_BROWSER_TESTED`, `GITHUB_SANDBOX_VERIFIED`,
 
 ## Not run / future coverage
 
-Unit, integration, fixture, workflow, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. MV3 unpacked loading is the sole **LOCAL_BROWSER_TESTED / PASS** result in this phase. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
+Unit, integration, fixture, workflow, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and 03.01 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
