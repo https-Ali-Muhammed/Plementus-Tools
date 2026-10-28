@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 15/72 micro-phases accepted; 04.02 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 16/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 READY_FOR_REVIEW for synthetic decisions only.** The current unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**; earlier startup timeouts are preserved below. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -23,7 +23,9 @@ Current evidence includes documentation, read-only Git/tooling inspection, stati
 
 | 04.01 | **PASS:** 5 pure state tests and 9 popup regression tests; 0 failed, 0 skipped. | [04.01 report](Phases/PHASE_04_01.md) records commands and limits. No workflow execution or persistence was tested. |
 
-| 04.02 | **SIMULATED / PASS:** 20 Node cases (6 record, 5 state, 9 popup validation); 0 failures or skips. The original 03.03 smoke run failed at its obsolete disabled-Production assertion; the narrow repair now expects the accepted enabled behavior. The corrected scripts are currently **BLOCKED** by Chrome service-worker startup timeout in this environment. | [04.02 report](Phases/PHASE_04_02.md) records both results, the corrective test change and the exact browser blocker. Real persistence remains BLOCKED. |
+| 04.02 | **SIMULATED / PASS:** 20 Node cases (6 record, 5 state, 9 popup validation); 0 failures or skips. The original 03.03 smoke run failed at its obsolete disabled-Production assertion; the narrow repair now expects the accepted enabled behavior. The corrected scripts timed out on that attempt; both passed in 04.03 after the worker was observed. The prior cause is unknown. | [04.02 report](Phases/PHASE_04_02.md) records both results, the corrective test change and the exact browser blocker. Real persistence remains BLOCKED. |
+
+| 04.03 | **SIMULATED / PASS:** 23 Node tests, including 3 recovery cases; both existing Chrome smokes PASS after worker observation. | [04.03 report](Phases/PHASE_04_03.md); real storage, worker restart and provider recovery remain BLOCKED / NOT RUN. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 
@@ -33,4 +35,4 @@ The plan defines `SIMULATED`, `LOCAL_BROWSER_TESTED`, `GITHUB_SANDBOX_VERIFIED`,
 
 ## Not run / future coverage
 
-Integration, fixture, workflow execution, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and Phase 03 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
+Integration, fixture, workflow execution, security, real interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and Phase 03 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.

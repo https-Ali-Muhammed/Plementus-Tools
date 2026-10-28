@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 15/72 micro-phases accepted**; 04.02 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 16/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 is READY_FOR_REVIEW for synthetic decisions only. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -69,3 +69,7 @@ Reconciled Phase 03 and 03.04 as accepted per owner instruction. Added a pure st
 ## 2026-10-29: 04.02, ready for review
 
 Reconciled 04.01 as accepted per owner instruction. Added strict run-record validation and a dependency-injected repository tested with a synthetic in-memory fake. Real browser persistence remains blocked pending policy. See [04.02 report](Phases/PHASE_04_02.md), including the older 03.03 smoke test failure.
+
+## 2026-10-29: 04.03, ready for review
+
+Owner accepted 04.02 for its simulated foundation only. Added a read-only synthetic recovery decision and tests; no workflow actions or durable storage. Chrome startup and both popup smokes passed on this run; the previous startup timeouts remain unexplained and preserved. See [04.03 report](Phases/PHASE_04_03.md).

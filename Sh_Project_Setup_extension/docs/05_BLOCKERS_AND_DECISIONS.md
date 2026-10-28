@@ -1,6 +1,6 @@
 # Blockers and decisions
 
-Current status: **4/20 master phases; 15/72 micro-phases accepted; 04.02 READY_FOR_REVIEW**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
+Current status: **4/20 master phases; 16/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 READY_FOR_REVIEW for synthetic decisions only**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
 
 | ID | State / owner | Impact | Required decision or input | Resolution gate / evidence |
 |---|---|---|---|---|
@@ -16,3 +16,5 @@ Current status: **4/20 master phases; 15/72 micro-phases accepted; 04.02 READY_F
 | D-09 Requested-module selection | DEFERRED PHASE 03 SCOPE GAP / OWNER DECISION REQUIRED | The wizard does not collect requested modules; module-installation workflows cannot be considered ready. | Owner-approved later implementation must define and implement selection and validation. | Close with scoped implementation and verification before module-installation workflows. |
 
 Never store passwords, MFA codes, private keys, cookies, access tokens or customer credentials. See [security](09_SECURITY_AND_SECRETS.md), [contracts](08_INTEGRATION_CONTRACTS.md) and [feasibility](12_BROWSER_AUTOMATION_FEASIBILITY.md). Owner access or a stated plan is not itself live verification.
+
+Real durable checkpoint storage and worker/tab restart recovery remain **BLOCKED** pending approved retention, deletion, access and encryption policy (D-07), a separately scoped implementation, and real lifecycle verification. Synthetic decisions do not satisfy that gate. The earlier Chrome timeouts remain unexplained; current worker observation and smoke results are in [04.03](Phases/PHASE_04_03.md).

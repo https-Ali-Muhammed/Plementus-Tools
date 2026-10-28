@@ -1,11 +1,12 @@
 # Phase 04: Durable workflow state
 
-**Status: IN_PROGRESS.** 2026-10-29. Progress: **4/20 master phases; 15/72 micro-phases accepted.**
+**Status: IN_PROGRESS.** 2026-10-29. Progress: **4/20 master phases; 16/72 micro-phases accepted.**
 
 | Micro-phase | Status |
 |---|---|
 | 04.01 State types and transitions | ACCEPTED; [report](PHASE_04_01.md) |
-| 04.02 Sanitized record foundation | READY_FOR_REVIEW; [report](PHASE_04_02.md); real persistence BLOCKED |
-| 04.03 and later | NOT STARTED |
+| 04.02 Sanitized record foundation | ACCEPTED FOR SIMULATED FOUNDATION ONLY; [report](PHASE_04_02.md); real persistence BLOCKED |
+| 04.03 Safe recovery | READY_FOR_REVIEW for synthetic decisions only; [report](PHASE_04_03.md) |
+| 04.04 and later | NOT STARTED |
 
-The isolated schema and repository are exercised only against an in-memory fake. Real persistence is BLOCKED pending owner-approved data policy; journaling, interruption handling and execution remain future work. Stop for ChatGPT acceptance of 04.02.
+The repository and recovery decision use only injected synthetic data. Real persistence and worker/tab restart recovery remain BLOCKED pending approved policy and later implementation and verification. Stop for ChatGPT acceptance of 04.03.
