@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 17/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 is ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 is READY_FOR_REVIEW for pure validation and simulation only. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 is OWNER_APPROVED / IMPLEMENTATION_NOT_STARTED; parent Phase 04 remains IN_PROGRESS / BLOCKED.
 
 ## 2026-10-28: 00.01, accepted
 
@@ -77,3 +77,7 @@ Owner accepted 04.02 for its simulated foundation only. Added a read-only synthe
 ## 2026-10-29: 04.04, ready for review
 
 Owner accepted 04.03 for synthetic decisions only. Added pure expected-state and revision transition proposals with simulated conflict tests and conservative reconciliation handling. Parent Phase 04 remains in progress; see [04.04](Phases/PHASE_04_04.md).
+
+## 2026-10-29: SEC-01 policy approved
+
+Recorded owner approval of the durable-checkpoint security, privacy, retention, and recovery policy. It permits only the sanitized checkpoint schema plus immutable creation time, seven-day non-renewable local retention, guarded access, and fail-closed reconciliation. Implementation, device-control verification, incident contacts, lifecycle testing, and parent Phase 04 acceptance remain open. See [SEC-01](Phases/PHASE_04_SEC01_APPROVED_POLICY.md).

@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 17/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 is ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 is READY_FOR_REVIEW for pure validation and simulation only; real persistence and restart recovery are BLOCKED. The popup validates project, subscription, GitHub and Utilities inputs in memory.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 is OWNER_APPROVED / IMPLEMENTATION_NOT_STARTED. Parent Phase 04 remains IN_PROGRESS / BLOCKED.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -26,7 +26,7 @@ Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and
 
 | 04.03 | ACCEPTED FOR SYNTHETIC DECISIONS ONLY | [Safe recovery](Phases/PHASE_04_03.md) |
 
-| 04.04 | READY_FOR_REVIEW (pure validation and simulation only) | [Transition protection](Phases/PHASE_04_04.md) |
+| 04.04 | ACCEPTED FOR PURE VALIDATION AND SIMULATION ONLY | [Transition protection](Phases/PHASE_04_04.md) |
 
 Historical reports retain their contemporaneous pending-review language. The owner supplied acceptance for Phase 00, Phase 01, and 00.01–00.04 and 01.01–01.03. The [master plan](01_MASTER_PLAN.md) and Amendment A remain verbatim, including publication-time progress and unknowns. This status file is the current progress record.
 
@@ -36,7 +36,7 @@ Historical reports retain their contemporaneous pending-review language. The own
 |---|---|
 | Canonical root | `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` |
 | Origin fetch/push | `https://github.com/https-Ali-Muhammed/Plementus-Tools.git` |
-| Branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `4a59b8450bb11005524b879ada0d7fd6fb8fea91` |
+| Branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `7f763bd1f205a98de0a167e4f4195ccfd9da30ac` |
 | Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication was verified historically; current remote tip not checked |
 | Preserved historical source | `/home/https_ali_muhammed/Plementus/Tools`, `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec` |
 
@@ -50,6 +50,6 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 ## Blockers and next action
 
-The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes, Odoo.sh/Plementus access, and privacy policy remain open. See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
+The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 privacy and retention policy is owner-approved; implementation, lifecycle verification, incident contacts, and device-security activation checks remain outstanding. See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of Phase 04.04.**
+**STOP for ChatGPT review of SEC-01 policy recording.**
