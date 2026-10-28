@@ -1,0 +1,21 @@
+# Browser automation feasibility
+
+Status: planning only, 00.03. **All real Odoo.sh, customer Odoo and Plementus UI automation is CANDIDATE_ONLY / UNVERIFIED.** No sites, browsers or providers were accessed in this phase. Candidate mechanisms are hypotheses, not observed APIs, selectors or functionality. All risky live operations need separate owner authorization.
+
+Evidence tiers from the [master plan](01_MASTER_PLAN.md): `SIMULATED` for fixtures; `LOCAL_BROWSER_TESTED` for a real local browser against fixtures; `GITHUB_SANDBOX_VERIFIED` only for an observed approved sandbox operation; `MANUALLY_ATTESTED` for operator confirmation; `ODOO_SH_DEMO_VERIFIED` and `PLEMENTUS_DEMO_VERIFIED` only for actual authorized demos. None of these tiers was achieved by 00.03. Fixture evidence cannot be promoted to live proof.
+
+| Target workflow action | Candidate mechanism and current status | Dependencies / approval boundary | Required future evidence / manual fallback |
+|---|---|---|---|
+| Select subscription and create Odoo.sh project | Candidate UI adapter; CANDIDATE_ONLY / UNVERIFIED | Authorized account, entitlement, target review and explicit project-creation approval | Actual resulting project in authorized demo or labeled operator attestation; operator creates project manually |
+| Read/create private GitHub repo | Applicable official API candidate; implementation and exact scope UNVERIFIED | Approved org/auth/sandbox; explicit create approval | Observed approved sandbox read/write or mock labeled SIMULATED; operator selects/creates repo |
+| Prepare Git branches | Official API or operator-controlled Git, exact capability UNVERIFIED | Verified repo/base SHA; approval for any branch write | Observe intended branch/SHA; operator prepares branch, no force push |
+| Associate Production branch and wait for build/database | Odoo.sh UI candidate; CANDIDATE_ONLY / UNVERIFIED | Correct project/account; approval for Production changes | Observe actual build/database readiness in authorized demo; operator confirms state |
+| Select/attach Utilities and authorize access | GitHub-supported operations and public-key/UI handoff candidates; CANDIDATE_ONLY / UNVERIFIED for Odoo.sh | Approved repo/path/revision; permission and mutation approval; no private key collection | Verify Gitlink/path and access separately; operator handles setup and public-key handoff |
+| Discover/install selected apps including pl_auth | Customer Odoo UI candidate; CANDIDATE_ONLY / UNVERIFIED | Customer origin/account/environment; explicit Production-install approval | Verify each installed state; operator installs and attests; repository attachment is insufficient |
+| Create/verify Staging and neutralized Production-derived copy | Odoo.sh UI candidate; CANDIDATE_ONLY / UNVERIFIED | Authorized demo and approval of database implications | Observe actual Staging copy and app state; operator checks environment; branch creation is insufficient |
+| Capture default URLs / coordinate custom domains | Odoo.sh UI candidate; CANDIDATE_ONLY / UNVERIFIED | Correct environment; domain owner controls DNS/TLS and approves changes | Observe applicable URLs; operator collects them and manages DNS/TLS |
+| Fill Plementus Database INFO | Plementus UI candidate; CANDIDATE_ONLY / UNVERIFIED | Authorized demo, verified real fields/origin/account and explicit form-write approval | Observe actual saved fields in authorized demo; operator fills form |
+| Connect Live/Test using existing pl_auth workflow | Native Plementus UI checkpoint; CANDIDATE_ONLY / UNVERIFIED | Authorized account, verified native contract and owner-approved validation | Observe native behavior in authorized demo; operator uses Connect without token collection |
+| Sign-in, MFA, CAPTCHA and unexpected prompts | Manual only | Operator presence and authorized account | Operator completes or cancels; extension never bypasses challenges |
+
+Unknown selectors, policy, account or resulting state require a stop and manual checkpoint. A timeout after a possible write requires reconciliation before retry. Phases 18 and 19 remain blocked from live acceptance without the authorized Odoo.sh and Plementus access/contracts. See [requirements](07_REQUIREMENTS_AND_SCOPE.md), [contracts](08_INTEGRATION_CONTRACTS.md), and [security](09_SECURITY_AND_SECRETS.md).

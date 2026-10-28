@@ -1,0 +1,27 @@
+# Project changelog
+
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **1/20 master phases; 5/72 micro-phases accepted**; 01.02 is not started. Current state: [project status](00_PROJECT_STATUS.md).
+
+## 2026-10-28: 00.01, accepted
+
+Codex reported verifying the existing Git root, origin, branch, HEAD and worktree, then creating `feature/sh-project-setup-extension` from `feature/odoo-tracebridge` at `39a6e97e637dd227aadea5529b2d1a80e2d4c531`. The two untracked source documents were preserved. This was Git preparation only. The owner subsequently reported acceptance. Historical evidence and limits: [00.01 retrospective](Phases/PHASE_00_01.md).
+
+## 2026-10-28: 00.02, accepted
+
+Created status, verbatim master plan, architecture decisions, the parent report and the 00.01 retrospective. Prior Codex reported documentation/source/20–72 checks and worktree preservation; no application tests ran. The owner reported acceptance and created documentation-only commit `881d431371c75afebebddc6984c2626e5623518a`. See [00.02 retrospective](Phases/PHASE_00_02.md).
+
+## 2026-10-28: 00.03, accepted
+
+Created requirements, integration, security and feasibility documents and the 00.02/00.03 reports; updated status and the parent report. Prior Codex reported source preservation, ordered counts, 44 local link targets and scoped pattern checks. The owner reported acceptance and created documentation-only commit `d7a3a5ee6c07eacc2810402e6e8d687e9c2c0b73`; 00.04 verified its direct parent and eight-path delta. Historical checks and limitations: [00.03 report](Phases/PHASE_00_03.md).
+
+## 2026-10-28: 00.04, accepted
+
+Added this changelog, [test evidence](04_TEST_EVIDENCE.md), [blockers and decisions](05_BLOCKERS_AND_DECISIONS.md), [handoff](06_HANDOFF.md), [test matrix](10_TEST_MATRIX.md), [operations runbook](11_OPERATIONS_RUNBOOK.md), and [00.04 report](Phases/PHASE_00_04.md). Updated status and parent Phase 00. No extension code, browser operation, provider access or Git mutation. Documentation checks and actual results are recorded in the 00.04 report. The owner subsequently accepted 00.04 and parent Phase 00.
+
+## 2026-10-28: 01.01, ready for review
+
+Read-only inventory verified the current feature branch, upstream, worktree, documentation-only 00.04 successor commit, extension contents and tracked/untracked/ignored states. It found 18 tracked documentation files, 1 new untracked Phase 01.01 report, and 2 preserved untracked source Markdown files; no extension implementation, manifest, test, fixture or package configuration exists. It also recorded that the branch remains 29 commits ahead of `main` and 3 ahead of the inherited TraceBridge tip. See [01.01 inventory](Phases/PHASE_01_01.md). No application, browser, provider, package-manager or Git mutation occurred.
+
+## 2026-10-28: clean-branch remediation
+
+Created local branch `feature/sh-project-setup-extension-clean` in `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` from `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`. Migrated 19 extension documents and two authoritative source Markdown files from preserved `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec`; all 21 file hashes matched. The branch is not committed or published. See [Git remediation](Phases/GIT_BRANCH_REMEDIATION.md).

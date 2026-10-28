@@ -1,0 +1,22 @@
+# Test and validation evidence
+
+Current evidence is documentation and read-only Git inspection only. **0/20 master phases; 3/72 micro-phases accepted; 00.04 READY_FOR_REVIEW.** Application, browser and provider tests: **NOT RUN**. No verified runtime, security certification or real-site capability follows from these checks.
+
+## Actual evidence
+
+| Phase | Actual check / outcome | Evidence and limits |
+|---|---|---|
+| 00.01 | Prior Codex reported Git identity, branch conflict and pre/post preservation checks PASS. | [Retrospective](Phases/PHASE_00_01.md); prior live branch listing is historical. No application tests. |
+| 00.02 | Prior Codex reported five meaningful docs, verbatim plan, 20/72 ordering, 14 local link targets and file preservation PASS. | [Retrospective](Phases/PHASE_00_02.md); historic output, not a new runtime test. |
+| 00.03 | Prior Codex reported eight scoped docs, 20/72 counts, 44 local link targets, common secret-pattern checks and preservation PASS. | [Report](Phases/PHASE_00_03.md) records the exact Python command, output and corrected first checker attempt. Pattern scans are not proof of absence of all secrets. |
+| 00.04 | Read-only Git/source and foundation validation. | [00.04 report](Phases/PHASE_00_04.md) records executed commands, actual outcomes and exact delta. |
+
+Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
+
+## Evidence tiers
+
+The plan defines `SIMULATED`, `LOCAL_BROWSER_TESTED`, `GITHUB_SANDBOX_VERIFIED`, `MANUALLY_ATTESTED`, `ODOO_SH_DEMO_VERIFIED`, and `PLEMENTUS_DEMO_VERIFIED`. No tier has been earned for product behavior in Phase 00. Git/documentation checks must not be relabeled as fixture, browser, sandbox or demo evidence. A manual attestation is distinct from observed automatic verification.
+
+## Not run / future coverage
+
+Unit, integration, fixture, MV3 loading, security, interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. Browser/version, runtime, tools, commands and test totals are not yet established. Record future exact commands, environment, exit codes and pass/fail/skip counts only after execution.
