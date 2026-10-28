@@ -23,15 +23,22 @@
         </ol>
       </nav>
 
-      <form aria-label="New customer setup preview">
+      <form id="project-subscription-form" aria-label="New customer setup preview" novalidate>
         <section aria-labelledby="customer-heading">
           <h2 id="customer-heading">Customer, project and subscription</h2>
           <label for="customer-name">Customer or project name</label>
-          <input id="customer-name" type="text" placeholder="Available in a future phase" disabled>
+          <input id="customer-name" name="projectName" type="text" maxlength="100" autocomplete="off" aria-describedby="customer-name-error">
+          <p id="customer-name-error" class="field-error" role="alert" hidden></p>
           <label for="subscription">Subscription type</label>
-          <select id="subscription" disabled>
-            <option>Choose a subscription type</option>
+          <select id="subscription" name="subscriptionMode" aria-describedby="subscription-error">
+            <option value="">Choose a subscription type</option>
+            <option value="customer">Customer Subscription</option>
+            <option value="partner-trial">Partner Trial</option>
           </select>
+          <p id="subscription-error" class="field-error" role="alert" hidden></p>
+          <label for="subscription-reference">Subscription reference</label>
+          <input id="subscription-reference" name="subscriptionReference" type="password" maxlength="160" autocomplete="off" aria-describedby="subscription-reference-error">
+          <p id="subscription-reference-error" class="field-error" role="alert" hidden></p>
         </section>
 
         <section aria-labelledby="repository-heading">
@@ -63,5 +70,6 @@
         </div>
       </form>
     </main>
+    <script type="module" src="popup.js"></script>
   </body>
 </html>
