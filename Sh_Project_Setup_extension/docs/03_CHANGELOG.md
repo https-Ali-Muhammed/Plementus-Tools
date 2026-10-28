@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **2/20 master phases; 7/72 micro-phases accepted**; 02.01 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **2/20 master phases; 9/72 micro-phases accepted**; 02.03 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -38,6 +38,10 @@ Selected the minimal MV3 baseline: vanilla browser ES modules without a bundler 
 
 Created the minimal MV3 `manifest.json` with only `manifest_version`, name, and version. Node parsed the JSON and confirmed MV3 required fields, no permissions, host permissions, runtime-file references, or remote code. Browser loading and provider tests did not run. See [02.01 report](Phases/PHASE_02_01.md).
 
-## 2026-10-28: 02.02, ready for review
+## 2026-10-28: 02.02, accepted
 
 Added the module MV3 worker and the accessible static popup, referenced only by the manifest. Static checks cover manifest references, JavaScript syntax, HTML local paths, absence of permissions and remote code, source preservation, and scoped changes. Browser loading and provider tests did not run. See [02.02 report](Phases/PHASE_02_02.md).
+
+## 2026-10-28: 02.03, ready for review
+
+Added local unpacked-installation instructions. Playwright-managed Chrome for Testing 151.0.7922.34 loaded the extension in a disposable profile, registered the worker, rendered the popup's title and status message, and reported empty permissions and host access without page errors. No provider site or account was used. See [02.03 report](Phases/PHASE_02_03.md).

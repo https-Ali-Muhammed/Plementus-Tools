@@ -1,16 +1,16 @@
 # Operations runbook
 
-**PLANNED ONLY:** no extension manifest, executable extension, browser installation, runtime or approved test tools exist in this phase. These are future operator requirements, not commands verified in Phase 00. Actual application/browser/provider tests: **NOT RUN**. Follow [security](09_SECURITY_AND_SECRETS.md) and [blockers](05_BLOCKERS_AND_DECISIONS.md).
+**CURRENT LOCAL EVIDENCE:** Phase 02.03 loaded the unpacked extension in a disposable Chrome for Testing profile and verified its worker, popup, and empty permission baseline. Provider tests remain **NOT RUN**. Follow [security](09_SECURITY_AND_SECRETS.md) and [blockers](05_BLOCKERS_AND_DECISIONS.md).
 
 ## Before future local testing
 
 1. Verify the current Git root, branch, HEAD and full worktree, and obtain a scoped implementation/testing request. Preserve source documents and unrelated files.
-2. Confirm a later phase has delivered an installable MV3 build, an owner-approved isolated test browser/profile and fixture data. Record browser/version, extension build identity, origin permissions and test scope without customer data. Do not reuse a customer profile or real production data by assumption.
+2. Use an isolated local browser profile. Record browser/version, extension build identity, origin permissions and test scope without customer data. Do not reuse a customer profile or real production data by assumption.
 3. Review the extension's manifest and requested permissions. Limit access to explicitly approved local fixture origins. Stop for unexpected broad permissions, remote executable code or unfamiliar origins.
 
 ## Planned unpacked loading and inspection
 
-Once an actual build and local browser are available and the relevant phase authorizes testing, an operator can use the browser's extensions management interface, enable its developer mode if appropriate, select the verified unpacked build directory and load it. The actual build path, browser/version and steps are UNVERIFIED; follow the later implementation's reviewed instructions. Inspect the extension UI and service-worker errors in that isolated profile. Record sanitized errors and permissions, not cookies, passwords, access tokens, customer data or subscription references. No browser actions were taken in 00.04.
+Open `chrome://extensions` in an isolated local profile, enable Developer mode, select Load unpacked, and choose `Sh_Project_Setup_extension`. Open the toolbar popup and confirm its name and static status message. Inspect the service-worker link in `chrome://extensions` for errors. Record sanitized errors and permissions, not cookies, passwords, access tokens, customer data or subscription references. Phase 02.03 verified this flow with Chrome for Testing 151.0.7922.34 in a temporary profile.
 
 ## Safe fixtures, interruption and recovery
 
