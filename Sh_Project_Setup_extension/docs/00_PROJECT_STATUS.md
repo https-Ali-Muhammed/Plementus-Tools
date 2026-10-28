@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 and CP2 are ACCEPTED; CP3 is READY_FOR_REVIEW. Parent Phase 04 remains IN_PROGRESS / BLOCKED.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP3 are ACCEPTED; [CP4 readiness review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) is READY_FOR_REVIEW. Parent Phase 04 remains IN_PROGRESS / BLOCKED; activation is NO_GO.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -36,11 +36,11 @@ Historical reports retain their contemporaneous pending-review language. The own
 |---|---|
 | Canonical root | `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` |
 | Origin fetch/push | `https://github.com/https-Ali-Muhammed/Plementus-Tools.git` |
-| Branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `f07a1baf83772e9f71b64865529a2c9fcc6e822d` |
+| Branch / CP4 entry HEAD | `feature/sh-project-setup-extension-clean` / `7d0861c3f8750e0be741562ecf235f11c5b7e7e8` (equal to local upstream; no fetch) |
 | Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication was verified historically; current remote tip not checked |
 | Preserved historical source | `/home/https_ali_muhammed/Plementus/Tools`, `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec` |
 
-The clean local branch was created from verified `origin/main`; current remote publication is unverified. The 19 tracked extension documents and two authoritative source documents were copied byte-for-byte from the preserved historical source; the owner-created successors recorded Phase 01.02 and Phase 01.03. Their verification and reconciliation are recorded in the [Git remediation report](Phases/GIT_BRANCH_REMEDIATION.md). Historical reports retain their recorded source-branch baselines.
+The clean local branch was created from verified `origin/main`. The owner reports CP3 commit `7d0861c` as published; CP4 verified local HEAD equals local `origin/feature/sh-project-setup-extension-clean` without a fresh remote fetch. The 19 tracked extension documents and two authoritative source documents were copied byte-for-byte from the preserved historical source; the owner-created successors recorded Phase 01.02 and Phase 01.03. Their verification and reconciliation are recorded in the [Git remediation report](Phases/GIT_BRANCH_REMEDIATION.md). Historical reports retain their recorded source-branch baselines.
 
 ## Documentation foundation and delta
 
@@ -50,6 +50,6 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 ## Blockers and next action
 
-The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1 and CP2 are accepted; CP3 is READY_FOR_REVIEW after direct worker lifecycle evidence. Production storage, closed-browser deletion, incident routing, and device-control checks remain outstanding. See [CP1](Phases/PHASE_04_SEC01_CP1.md). See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
+The clean integration base and prior remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1–CP3 are accepted within their documented scope. Closed-browser seven-day deletion, trusted time, incident routing, device checks, real operator authorization, runtime access controls and activation approval remain outstanding. See [CP4](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) and the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT review of [SEC-01 CP3](Phases/PHASE_04_SEC01_CP3.md).**
+**STOP for ChatGPT acceptance of [SEC-01 CP4](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md). Activation NO_GO.**

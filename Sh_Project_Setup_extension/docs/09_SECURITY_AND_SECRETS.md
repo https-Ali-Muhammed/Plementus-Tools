@@ -1,6 +1,6 @@
 # Security and secrets requirements
 
-Status: SEC-01 checkpoint policy is owner-approved; implementation and security verification are NOT RUN. Other controls remain proposed. Source: [SEC-01](Phases/PHASE_04_SEC01_APPROVED_POLICY.md), [master plan](01_MASTER_PLAN.md), and [architecture](02_ARCHITECTURE_DECISIONS.md).
+Status: SEC-01 checkpoint policy is owner-approved. CP1–CP3 are ACCEPTED for pure guards, a disconnected synthetic service and isolated Chrome lifecycle evidence; production runtime security and device verification are NOT RUN. [CP4](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) is READY_FOR_REVIEW; activation is NO_GO. Other controls remain proposed. Source: [SEC-01](Phases/PHASE_04_SEC01_APPROVED_POLICY.md), [master plan](01_MASTER_PLAN.md), and [architecture](02_ARCHITECTURE_DECISIONS.md).
 
 ## Permissions, origin and isolation
 
@@ -10,7 +10,7 @@ Request only necessary MV3 permissions and explicitly selected site origins; pre
 
 The operator signs in through the provider's official flow and handles MFA and CAPTCHA. Never capture, store or log passwords, MFA codes, CAPTCHA solutions, private keys, cookies, access tokens or customer credentials. Never embed client secrets in extension assets. The user-specified no-token-storage rule applies to every provider and storage location. GitHub authentication that can satisfy these rules is **OPEN / OWNER DECISION REQUIRED**; this document does not approve a workaround.
 
-Treat subscription references, customer identifiers, database names/users, URLs and form data as sensitive. SEC-01 permits only six sanitized checkpoint fields plus immutable `createdAt`, device/profile-local storage, seven-day non-renewable retention, and no export, sync, screenshots, raw errors, or telemetry. It does not authorize implementation. Disk encryption, screen lock, protected profile, incident contacts, notification route, and activation verification remain required before activation. A public deploy key is not a private key; verify it is public before an operator-approved handoff.
+Treat subscription references, customer identifiers, database names/users, URLs and form data as sensitive. SEC-01 permits only six sanitized checkpoint fields plus immutable `createdAt`, device/profile-local storage, seven-day non-renewable retention, and no export, sync, screenshots, raw errors, or telemetry. It does not authorize production activation. Expiry denies use but does not delete bytes; current cleanup requires Chrome and a caller, so deletion by the deadline while Chrome is closed is unproven. Clock rollback across restarts is also unresolved. Disk encryption, screen lock, protected profile, incident contacts, notification route, real operator authorization and runtime access verification remain required before activation. See [CP4 retention and gate review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md). A public deploy key is not a private key; verify it is public before an operator-approved handoff.
 
 ## Approvals, recovery and incidents
 

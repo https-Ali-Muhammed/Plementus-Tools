@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 is ACCEPTED; CP2 is READY_FOR_REVIEW, pending acceptance; parent Phase 04 remains IN_PROGRESS / BLOCKED.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP3 are ACCEPTED; CP4 is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
 
 ## 2026-10-28: 00.01, accepted
 
@@ -93,3 +93,7 @@ Implemented a disconnected injected-factory transactional service and synthetic 
 ## 2026-10-29: SEC-01 CP3, ready for review
 
 CP2 accepted. Isolated Chrome IndexedDB, direct CDP worker stop/reactivation, and browser-process restart tests passed in a disposable profile. See [CP3](Phases/PHASE_04_SEC01_CP3.md).
+
+## 2026-10-29: SEC-01 CP4, ready for review
+
+Reconciled ChatGPT acceptance of CP3 and the owner-reported published commit `7d0861c` (local HEAD equals local upstream; no fetch). Added a documentation-only [readiness review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) with activation NO_GO and unresolved retention, clock, incident, device, operator and runtime gates. No security or browser tests were run for CP4.
