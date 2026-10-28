@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **1/20 master phases; 6/72 micro-phases accepted**; 01.03 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **2/20 master phases; 7/72 micro-phases accepted**; 02.01 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -30,6 +30,10 @@ Historical remediation created local branch `feature/sh-project-setup-extension-
 
 Read-only tooling audit verified the requested root, origin, branch, upstream, expected HEAD `47a0fb38171b3b21c7317c787e746c12272059d3`, clean worktree, remote feature publication and `origin/main` ancestry. It recorded Ubuntu 22.04.5 x86_64, Node 24.19.0, npm 11.17.0, pnpm 11.25.0, Corepack 0.35.0, absent Yarn, unavailable system Chromium Snap wrapper, and a usable local Playwright-managed Chrome for Testing 151.0.7922.34. The extension remains documentation-only with no package/build/test setup. See [01.02 audit](Phases/PHASE_01_02.md). No installation, external-site access, Git mutation, application test, or 01.03 work occurred.
 
-## 2026-10-28: 01.03, ready for review
+## 2026-10-28: 01.03, accepted
 
 Selected the minimal MV3 baseline: vanilla browser ES modules without a bundler or framework, an action popup, event-driven worker boundary, no initial permissions/host access, and deferred storage/adapters. Node's built-in runner is the future pure-logic baseline; Playwright is deferred until an extension-local dependency is explicitly added for local unpacked-extension/fixture testing. No source, manifest, dependency, browser extension load, provider access, or application test occurred. See [ADR-005](02_ARCHITECTURE_DECISIONS.md) and [01.03 report](Phases/PHASE_01_03.md).
+
+## 2026-10-28: 02.01, ready for review
+
+Created the minimal MV3 `manifest.json` with only `manifest_version`, name, and version. Node parsed the JSON and confirmed MV3 required fields, no permissions, host permissions, runtime-file references, or remote code. Browser loading and provider tests did not run. See [02.01 report](Phases/PHASE_02_01.md).
