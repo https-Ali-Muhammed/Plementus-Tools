@@ -45,4 +45,8 @@ Integration, fixture, workflow execution, security, real interruption/recovery, 
 
 ## SEC-01 CP2
 
-Synthetic transactional service tests and limitations are recorded in [CP2](Phases/PHASE_04_SEC01_CP2.md). Real browser atomicity and lifecycle remain NOT RUN.
+Synthetic transactional service tests and limitations are recorded in [CP2](Phases/PHASE_04_SEC01_CP2.md). At CP2, real browser atomicity and lifecycle were NOT RUN.
+
+## SEC-01 CP3
+
+**ISOLATED REAL BROWSER:** 10 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED; Node regressions 40 PASS. CDP directly observed the synthetic worker stop and reactivation, with a new in-memory boot identifier and persisted revision. Browser-process restart passed. See [CP3](Phases/PHASE_04_SEC01_CP3.md) for scope and limitations.

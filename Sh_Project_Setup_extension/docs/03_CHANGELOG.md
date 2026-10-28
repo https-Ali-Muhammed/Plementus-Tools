@@ -89,3 +89,7 @@ Implemented disconnected v2 schema and retention guards with synthetic Node test
 ## 2026-10-29: SEC-01 CP2, ready for review
 
 Implemented a disconnected injected-factory transactional service and synthetic tests; CP1 is accepted. No runtime or browser storage activation. See [CP2](Phases/PHASE_04_SEC01_CP2.md).
+
+## 2026-10-29: SEC-01 CP3, ready for review
+
+CP2 accepted. Isolated Chrome IndexedDB, direct CDP worker stop/reactivation, and browser-process restart tests passed in a disposable profile. See [CP3](Phases/PHASE_04_SEC01_CP3.md).

@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 is ACCEPTED; CP2 synthetic transactional service is READY_FOR_REVIEW, pending acceptance. Parent Phase 04 remains IN_PROGRESS / BLOCKED.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 and CP2 are ACCEPTED; CP3 is READY_FOR_REVIEW. Parent Phase 04 remains IN_PROGRESS / BLOCKED.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -50,6 +50,6 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 ## Blockers and next action
 
-The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1 is accepted and CP2 is ready for review; durable storage, closed-browser deletion, lifecycle verification, incident routing, and device-control checks remain outstanding. See [CP1](Phases/PHASE_04_SEC01_CP1.md). See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
+The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1 and CP2 are accepted; CP3 is READY_FOR_REVIEW after direct worker lifecycle evidence. Production storage, closed-browser deletion, incident routing, and device-control checks remain outstanding. See [CP1](Phases/PHASE_04_SEC01_CP1.md). See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of [SEC-01 CP2](Phases/PHASE_04_SEC01_CP2.md).**
+**STOP for ChatGPT review of [SEC-01 CP3](Phases/PHASE_04_SEC01_CP3.md).**
