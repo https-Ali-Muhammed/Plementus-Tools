@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **3/20 master phases; 11/72 micro-phases accepted**; 03.02 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **3/20 master phases; 12/72 micro-phases accepted**; 03.03 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -50,6 +50,10 @@ Added local unpacked-installation instructions. Playwright-managed Chrome for Te
 
 Replaced the static popup with a responsive, scrollable preview-only “Set Up New Customer” wizard shell. It exposes labelled, disabled controls and headings for customer/subscription, GitHub/Utilities, Production/Staging/modules/domains, and review/confirmation; navigation remains disabled. It has no JavaScript, validation, storage, provider connection, or data collection. Static structure/permission checks and the isolated local Chrome popup smoke test passed. See [03.01 report](Phases/PHASE_03_01.md).
 
-## 2026-10-28: 03.02, ready for review
+## 2026-10-28: 03.02, accepted
 
 Enabled only the customer/project name, subscription mode, and masked subscription-reference inputs. Added a small in-memory browser module and Node tests for required, whitespace, valid customer/partner-trial, and length-limit cases. Inline errors are generic and accessible; the reference is not included in an error, console output, storage, or network request. The local Chrome popup smoke test passed. See [03.02 report](Phases/PHASE_03_02.md).
+
+## 2026-10-29: 03.03, ready for review
+
+Added local GitHub organization, repository selection/name and repeatable optional Utilities fields. Validation covers supported GitHub URLs, credentials, relative paths, and duplicates; Enter cannot submit the form. Node and local Chrome checks passed. No GitHub access or submodule operation occurred. See [03.03 report](Phases/PHASE_03_03.md).

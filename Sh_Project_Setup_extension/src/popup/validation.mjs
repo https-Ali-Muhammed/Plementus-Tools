@@ -38,3 +38,41 @@ export function validateProjectSubscription({
     ),
   };
 }
+
+const organizationPattern = /^(?=.{1,39}$)[a-z\d]+(?:-[a-z\d]+)*$/i;
+const repositoryPattern = /^(?!\.{1,2}$)[a-z\d_.-]{1,100}$/i;
+
+export function validateGithub({ organization = "", repository = "", mode = "" } = {}) {
+  return {
+    organization: organizationPattern.test(organization.trim()) ? "" : "Enter a valid GitHub organization.",
+    repository: repositoryPattern.test(repository.trim()) && !repository.trim().toLowerCase().endsWith(".git")
+      ? "" : "Enter a valid repository name.",
+    mode: ["new", "existing"].includes(mode) ? "" : "Choose a repository selection.",
+  };
+}
+
+function repositoryKey(value) {
+  const match = /^(?:https:\/\/github\.com\/|git@github\.com:|ssh:\/\/git@github\.com\/)([a-z\d-]+)\/([a-z\d_.-]+?)(?:\.git)?$/i.exec(value.trim());
+  if (!match || !organizationPattern.test(match[1]) || !repositoryPattern.test(match[2])) return "";
+  return `${match[1]}/${match[2]}`.toLowerCase();
+}
+
+function safePath(value) {
+  const path = value.trim();
+  return path.length <= 200 && path.split("/").every(part =>
+    /^[a-z\d_-][a-z\d_.-]*$/i.test(part) &&
+    !part.endsWith(".") && !part.toLowerCase().endsWith(".lock") &&
+    !/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part),
+  );
+}
+
+export function validateUtilities(entries) {
+  const keys = entries.map(entry => repositoryKey(entry.url));
+  const paths = entries.map(entry => entry.path.trim().toLowerCase());
+  return entries.map((entry, index) => ({
+    url: !keys[index] ? "Enter a valid GitHub HTTPS or SSH repository URL." :
+      keys.indexOf(keys[index]) !== keys.lastIndexOf(keys[index]) ? "Duplicate Utilities repository." : "",
+    path: !safePath(entry.path) ? "Enter a safe relative submodule path." :
+      paths.indexOf(paths[index]) !== paths.lastIndexOf(paths[index]) ? "Duplicate submodule path." : "",
+  }));
+}

@@ -43,10 +43,32 @@
 
         <section aria-labelledby="repository-heading">
           <h2 id="repository-heading">GitHub repository and Utilities</h2>
-          <label for="repository">Repository</label>
-          <input id="repository" type="text" placeholder="Not connected" disabled>
-          <label for="utilities">Utilities repository</label>
-          <input id="utilities" type="text" placeholder="Not connected" disabled>
+          <label for="github-organization">GitHub organization</label>
+          <input id="github-organization" type="text" maxlength="39" autocomplete="off" aria-describedby="github-organization-error">
+          <p id="github-organization-error" class="field-error" role="alert" hidden></p>
+          <label for="repository-mode">Repository selection</label>
+          <select id="repository-mode" aria-describedby="repository-mode-error">
+            <option value="">Choose a repository selection</option>
+            <option value="new">New Private Repository</option>
+            <option value="existing">Existing Repository</option>
+          </select>
+          <p id="repository-mode-error" class="field-error" role="alert" hidden></p>
+          <label for="repository">Repository name</label>
+          <input id="repository" type="text" maxlength="100" autocomplete="off" aria-describedby="repository-error">
+          <p id="repository-error" class="field-error" role="alert" hidden></p>
+          <h3>Utilities (optional)</h3>
+          <div id="utilities-list"></div>
+          <button id="add-utility" type="button">Add Utilities repository</button>
+          <template id="utility-template">
+            <fieldset>
+              <legend>Utilities repository</legend>
+              <label>GitHub repository URL <input class="utility-url" type="text" maxlength="250" autocomplete="off"></label>
+              <p class="utility-url-error field-error" role="alert" hidden></p>
+              <label>Submodule path <input class="utility-path" type="text" maxlength="200" autocomplete="off"></label>
+              <p class="utility-path-error field-error" role="alert" hidden></p>
+              <button class="remove-utility" type="button">Remove Utilities repository</button>
+            </fieldset>
+          </template>
         </section>
 
         <section aria-labelledby="environment-heading">

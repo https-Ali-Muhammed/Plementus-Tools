@@ -5,6 +5,8 @@ import {
   MAX_PROJECT_NAME_LENGTH,
   MAX_SUBSCRIPTION_REFERENCE_LENGTH,
   validateProjectSubscription,
+  validateGithub,
+  validateUtilities,
 } from "../src/popup/validation.mjs";
 
 const validReference = "subscription-reference";
@@ -15,6 +17,44 @@ test("rejects empty project, mode, and reference without exposing the reference"
     subscriptionMode: "Choose a subscription type.",
     subscriptionReference: "Enter a subscription reference.",
   });
+});
+
+test("validates organization, repository and repository selection", () => {
+  for (const mode of ["new", "existing"]) {
+    assert.deepEqual(validateGithub({ organization: "My-Org", repository: "my.repo_1", mode }),
+      { organization: "", repository: "", mode: "" });
+  }
+  for (const organization of ["", "-org", "org--name", "org/name", "a".repeat(40)]) {
+    assert.ok(validateGithub({ organization }).organization);
+  }
+  for (const repository of ["", "..", "name/path", "name.git", "a".repeat(101)]) {
+    assert.ok(validateGithub({ repository }).repository);
+  }
+  assert.ok(validateGithub({ mode: "public" }).mode);
+});
+
+test("accepts GitHub HTTPS and SSH URLs and safe paths", () => {
+  for (const url of ["https://github.com/Org/repo.git", "git@github.com:Org/repo.git", "ssh://git@github.com/Org/repo"]) {
+    assert.deepEqual(validateUtilities([{ url, path: "addons/utilities-v2" }]), [{ url: "", path: "" }]);
+  }
+  assert.deepEqual(validateUtilities([]), []);
+});
+
+test("rejects malformed URLs, credentials, and unsafe paths", () => {
+  for (const url of ["", "https://token@github.com/org/repo", "https://user:pass@github.com/org/repo", "https://github.com.evil/org/repo", "http://github.com/org/repo", "git@github.com:org/repo/extra", "https://github.com/org/repo?token=x"]) {
+    assert.ok(validateUtilities([{ url, path: "addons/util" }])[0].url);
+  }
+  for (const path of ["", "/absolute", "../outside", "foo/../bar", "foo//bar", ".git/config", "foo/.git", "foo\\bar", "foo/CON", "foo/bar.lock", "foo/bar."]) {
+    assert.ok(validateUtilities([{ url: "https://github.com/org/repo", path }])[0].path);
+  }
+});
+
+test("detects duplicate repositories across URL forms and duplicate paths", () => {
+  const errors = validateUtilities([
+    { url: "https://github.com/Org/Repo.git", path: "addons/utility" },
+    { url: "git@github.com:org/repo", path: "ADDONS/UTILITY" },
+  ]);
+  assert.ok(errors.every(error => error.url && error.path));
 });
 
 test("rejects whitespace-only project and subscription reference", () => {
