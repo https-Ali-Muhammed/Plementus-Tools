@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 is READY_FOR_REVIEW; pure v2 guards are implemented pending acceptance; parent Phase 04 remains IN_PROGRESS / BLOCKED.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1 is ACCEPTED; CP2 is READY_FOR_REVIEW, pending acceptance; parent Phase 04 remains IN_PROGRESS / BLOCKED.
 
 ## 2026-10-28: 00.01, accepted
 
@@ -85,3 +85,7 @@ Recorded owner approval of the durable-checkpoint security, privacy, retention, 
 ## 2026-10-29: SEC-01 CP1, ready for review
 
 Implemented disconnected v2 schema and retention guards with synthetic Node tests. No migration, database, persistence, or runtime integration. See [CP1](Phases/PHASE_04_SEC01_CP1.md).
+
+## 2026-10-29: SEC-01 CP2, ready for review
+
+Implemented a disconnected injected-factory transactional service and synthetic tests; CP1 is accepted. No runtime or browser storage activation. See [CP2](Phases/PHASE_04_SEC01_CP2.md).

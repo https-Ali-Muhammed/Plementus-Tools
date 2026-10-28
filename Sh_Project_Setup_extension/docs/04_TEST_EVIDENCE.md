@@ -42,3 +42,7 @@ Integration, fixture, workflow execution, security, real interruption/recovery, 
 ## SEC-01 CP1
 
 **SIMULATED / PASS:** 32 Node tests (5 new and 27 existing), 0 failed, 0 skipped; two syntax checks passed. No browser or lifecycle test ran. Commands and limits: [CP1](Phases/PHASE_04_SEC01_CP1.md).
+
+## SEC-01 CP2
+
+Synthetic transactional service tests and limitations are recorded in [CP2](Phases/PHASE_04_SEC01_CP2.md). Real browser atomicity and lifecycle remain NOT RUN.

@@ -7,7 +7,7 @@ Snapshot: 2026-10-29. **4/20 master phases; 18/72 micro-phases accepted.** Phase
 - Canonical Git root: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`
 - Extension: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/Sh_Project_Setup_extension`
 - Origin fetch/push: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`
-- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `f07a1baf83772e9f71b64865529a2c9fcc6e822d`, CP1 preflight clean and was equal to local upstream `origin/feature/sh-project-setup-extension-clean` (no fetch).
+- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `f7ceaaf88536bf4d9b405e693665747509fec5a0`, CP2 preflight clean and was equal to local upstream `origin/feature/sh-project-setup-extension-clean` (no fetch).
 - Phase 03.03 adds in-memory GitHub/Utilities validation and no permissions, provider access, storage, or external network calls. `Phases/PHASE_02.md` is committed and remains unchanged. See [03.03 evidence](Phases/PHASE_03_03.md).
 
 - Phase 03.04 adds local branch/domain validation and a redacted review; see [03.04 evidence](Phases/PHASE_03_04.md).
@@ -26,6 +26,6 @@ Phase 04.02 adds a validated repository interface and synthetic in-memory fake t
 
 Phase 04.03 makes read-only synthetic recovery decisions with an injected fake adapter; real durable storage and worker/tab restart recovery remain BLOCKED. See [04.03 evidence](Phases/PHASE_04_03.md).
 
-Phase 04.04 is accepted for pure validation and simulation only. SEC-01 is owner-approved for durable checkpoint privacy, retention, and recovery policy but CP1 pure v2 guards are implemented and pending acceptance. It requires local-only storage, immutable expiry after seven days, reconciliation without replay, and a single guarded storage service; incident contacts, notification route, and device-control verification remain unset. Historical master-plan D-07 concerns private Utilities SSH/submodules, while [D-07 draft](Phases/PHASE_04_D07_DECISION_DRAFT.md) remains historical decision preparation. See [SEC-01](Phases/PHASE_04_SEC01_APPROVED_POLICY.md).
+Phase 04.04 is accepted for pure validation and simulation only. SEC-01 is owner-approved for durable checkpoint privacy, retention, and recovery policy but CP1 pure v2 guards are ACCEPTED; CP2 synthetic transactional service is READY_FOR_REVIEW, pending acceptance. It requires local-only storage, immutable expiry after seven days, reconciliation without replay, and a single guarded storage service; incident contacts, notification route, and device-control verification remain unset. Historical master-plan D-07 concerns private Utilities SSH/submodules, while [D-07 draft](Phases/PHASE_04_D07_DECISION_DRAFT.md) remains historical decision preparation. See [SEC-01](Phases/PHASE_04_SEC01_APPROVED_POLICY.md).
 
-**STOP for ChatGPT acceptance of [SEC-01 CP1](Phases/PHASE_04_SEC01_CP1.md).** No schema migration, database, persistence or runtime integration was performed. Closed-browser deletion, incident routing and device-control gates remain unresolved. Do not implement storage, change Git history, or access a provider without a later scoped request.
+**STOP for ChatGPT acceptance of [SEC-01 CP2](Phases/PHASE_04_SEC01_CP2.md).** No production schema migration, browser persistence or runtime integration was performed. Closed-browser deletion, incident routing and device-control gates remain unresolved. Do not implement storage, change Git history, or access a provider without a later scoped request.
