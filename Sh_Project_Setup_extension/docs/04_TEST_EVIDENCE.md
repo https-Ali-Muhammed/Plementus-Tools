@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 17/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 READY_FOR_REVIEW for pure validation and simulation only.** The current unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**; earlier startup timeouts are preserved below. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 18/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 ACCEPTED FOR PURE VALIDATION AND SIMULATION ONLY.** The current unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**; earlier startup timeouts are preserved below. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -38,3 +38,7 @@ The plan defines `SIMULATED`, `LOCAL_BROWSER_TESTED`, `GITHUB_SANDBOX_VERIFIED`,
 ## Not run / future coverage
 
 Integration, fixture, workflow execution, security, real interruption/recovery, GitHub sandbox, real Odoo.sh and real Plementus tests: **NOT RUN**. The Phase 02.03 and Phase 03 popup checks are **LOCAL_BROWSER_TESTED / PASS** only. The future coverage, conditions and evidence required are in [test matrix](10_TEST_MATRIX.md). Real demos require separate authorization and access; unsupported capabilities remain UNVERIFIED. The Phase 01.02 report records the current browser/runtime/tool versions and exact prerequisite-check results; no product test total is claimed.
+
+## SEC-01 CP1
+
+**SIMULATED / PASS:** 32 Node tests (5 new and 27 existing), 0 failed, 0 skipped; two syntax checks passed. No browser or lifecycle test ran. Commands and limits: [CP1](Phases/PHASE_04_SEC01_CP1.md).
