@@ -76,3 +76,25 @@ export function validateUtilities(entries) {
       paths.indexOf(paths[index]) !== paths.lastIndexOf(paths[index]) ? "Duplicate submodule path." : "",
   }));
 }
+
+function validBranch(value) {
+  return value.length <= 200 && /^[a-zA-Z0-9_][a-zA-Z0-9._/-]*$/.test(value) &&
+    !value.includes("..") && !value.includes("//") && !value.endsWith("/") &&
+    !value.endsWith(".") && value.split("/").every(part => part && !part.startsWith(".") && !part.endsWith(".lock"));
+}
+
+function validHostname(value) {
+  return value.length <= 253 && value.includes(".") && value.split(".").every(label =>
+    label.length <= 63 && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i.test(label)) &&
+    /[a-z]/i.test(value.split(".").at(-1));
+}
+
+export function validateEnvironment({ production = "", staging = "", domainMode = "", productionDomain = "", stagingDomain = "" } = {}) {
+  return {
+    production: validBranch(production.trim()) ? "" : "Enter a valid Production branch.",
+    staging: validBranch(staging.trim()) ? "" : "Enter a valid Staging branch.",
+    domainMode: ["default", "custom"].includes(domainMode) ? "" : "Choose a domain preference.",
+    productionDomain: domainMode !== "custom" || validHostname(productionDomain.trim()) ? "" : "Enter a valid Production hostname.",
+    stagingDomain: domainMode !== "custom" || validHostname(stagingDomain.trim()) ? "" : "Enter a valid Staging hostname.",
+  };
+}

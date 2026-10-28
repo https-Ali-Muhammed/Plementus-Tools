@@ -1,14 +1,16 @@
 # Project handoff
 
-Snapshot: 2026-10-29. **3/20 master phases; 12/72 micro-phases accepted.** Phase 00, Phase 01, Phase 02, 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.02 are ACCEPTED per owner; 03.03 is READY_FOR_REVIEW. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
+Snapshot: 2026-10-29. **3/20 master phases; 13/72 micro-phases accepted.** Phase 00, Phase 01, Phase 02, 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.03 are ACCEPTED per owner; 03.04 is READY_FOR_REVIEW. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
 
 ## Verified Git and worktree
 
 - Canonical Git root: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`
 - Extension: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/Sh_Project_Setup_extension`
 - Origin fetch/push: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`
-- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `f6fe125bdf702cae1e7667cda7b001cc5ba0a606`, clean at preflight; upstream `origin/feature/sh-project-setup-extension-clean`.
+- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `1e914f9e3de25d1bf6ade5cd9ee10c896d8475f6`, clean at preflight; upstream `origin/feature/sh-project-setup-extension-clean`.
 - Phase 03.03 adds in-memory GitHub/Utilities validation and no permissions, provider access, storage, or external network calls. `Phases/PHASE_02.md` is committed and remains unchanged. See [03.03 evidence](Phases/PHASE_03_03.md).
+
+- Phase 03.04 adds local branch/domain validation and a redacted review; see [03.04 evidence](Phases/PHASE_03_04.md).
 
 ## Key documents
 
@@ -18,4 +20,4 @@ Snapshot: 2026-10-29. **3/20 master phases; 12/72 micro-phases accepted.** Phase
 
 The isolated Chrome smoke test verified generic inline errors, repeatable Utilities rows, duplicate detection, form submission safety, no page/console errors, zero external requests, and empty permission arrays. Odoo.sh and Plementus real-demo acceptance remain blocked without authorized access and contracts. Privacy, retention and incident policies remain OPEN. Provider tests are NOT RUN. Real UI automation is CANDIDATE_ONLY / UNVERIFIED. Fixtures cannot prove real-site behavior.
 
-**STOP for ChatGPT acceptance of Phase 03.03.** Do not start Phase 03.04, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.
+**STOP for ChatGPT acceptance of Phase 03.04.** Do not start a later phase, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.

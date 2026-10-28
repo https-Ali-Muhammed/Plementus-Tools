@@ -7,6 +7,7 @@ import {
   validateProjectSubscription,
   validateGithub,
   validateUtilities,
+  validateEnvironment,
 } from "../src/popup/validation.mjs";
 
 const validReference = "subscription-reference";
@@ -97,4 +98,22 @@ test("rejects invalid mode and overlong values", () => {
     `Must be ${MAX_SUBSCRIPTION_REFERENCE_LENGTH} characters or fewer.`,
   );
   assert.equal(JSON.stringify(errors).includes(reference), false);
+});
+
+test("validates branch names and domain preferences locally", () => {
+  for (const branch of ["main", "master", "develop", "feature/release-1"]) {
+    assert.equal(validateEnvironment({ production: branch, staging: branch, domainMode: "default" }).production, "");
+  }
+  for (const branch of ["", "-bad", "a..b", "a//b", "a/.hidden", "a.lock", "a/", "a.", "a b", "a@{b", "a~b", "a\\b", "a".repeat(201)]) {
+    assert.ok(validateEnvironment({ production: branch }).production);
+    assert.ok(validateEnvironment({ staging: branch }).staging);
+  }
+  assert.deepEqual(validateEnvironment({ production: "main", staging: "develop", domainMode: "custom", productionDomain: "live.example.com", stagingDomain: "test.example.com" }),
+    { production: "", staging: "", domainMode: "", productionDomain: "", stagingDomain: "" });
+  for (const host of ["", "localhost", "-bad.example", "bad-.example", "a..example", "https://example.com", "example.com:443", "127.0.0.1", "a".repeat(64) + ".com"]) {
+    assert.ok(validateEnvironment({ domainMode: "custom", productionDomain: host, stagingDomain: host }).productionDomain);
+    assert.ok(validateEnvironment({ domainMode: "custom", productionDomain: host, stagingDomain: host }).stagingDomain);
+  }
+  assert.ok(validateEnvironment({ domainMode: "other" }).domainMode);
+  assert.equal(validateEnvironment({ domainMode: "default" }).productionDomain, "");
 });

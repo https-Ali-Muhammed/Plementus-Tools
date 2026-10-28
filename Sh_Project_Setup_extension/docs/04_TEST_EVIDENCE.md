@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **3/20 master phases; 12/72 micro-phases accepted; 03.03 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **3/20 master phases; 13/72 micro-phases accepted; 03.04 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -18,6 +18,8 @@ Current evidence includes documentation, read-only Git/tooling inspection, stati
 | 03.01 | **LOCAL_BROWSER_TESTED / PASS:** Fresh verification for the evidence-repair turn ran the reproducible static assertions and isolated Chrome/Playwright popup test. Chrome rendered all four sections, verified seven label targets and disabled controls/actions, and reported no page errors; static assertions confirmed local-only references and empty permissions. | [03.01 report](Phases/PHASE_03_01.md) contains the complete executable commands, actual outcomes, browser version, and evidence limits. Functional validation, persistence, workflow, GitHub sandbox, and provider tests remain **NOT RUN**. No provider site, account, sensitive value, or workflow action was used. |
 | 03.02 | **LOCAL_BROWSER_TESTED / PASS:** Node's built-in runner passed four isolated validator cases. Chrome for Testing rendered generic accessible inline errors, trimmed valid text input, reported no page or console errors, made no external requests, and retained zero permissions. | [03.02 report](Phases/PHASE_03_02.md) contains executable commands and actual results. Browser rendering does not prove durable state, workflow behavior, or provider integration. |
 | 03.03 | **LOCAL_BROWSER_TESTED / PASS:** Eight Node tests passed, including the 03.02 regressions. Chrome exercised local validation, duplicate entries, removal, focus, disabled actions and form submission safety; it observed no console or external network requests. | [03.03 report](Phases/PHASE_03_03.md) records commands, results, and limitations. No provider access or actual Git operation occurred. |
+
+| 03.04 | **LOCAL_BROWSER_TESTED / PASS:** Nine Node cases and Chrome smoke passed, including prior validation regressions, branch/domain inputs, safe summary rendering, redaction, permissions and no external requests. | [03.04 report](Phases/PHASE_03_04.md) records commands and limitations. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 

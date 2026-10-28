@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.02 are ACCEPTED per owner.** Progress: **3/20 master phases; 12/72 micro-phases accepted.** Phase 03.03 is READY_FOR_REVIEW. The popup validates project, subscription, GitHub and Utilities inputs in memory.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.03 are ACCEPTED per owner.** Progress: **3/20 master phases; 13/72 micro-phases accepted.** Phase 03.04 is READY_FOR_REVIEW. The popup validates project, subscription, GitHub and Utilities inputs in memory.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -16,7 +16,9 @@ Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02 and 00.01–0
 | 02.03 | ACCEPTED | [Unpacked Chrome loading and smoke test](Phases/PHASE_02_03.md) |
 | 03.01 | ACCEPTED | [Basic customer setup wizard layout](Phases/PHASE_03_01.md) |
 | 03.02 | ACCEPTED | [Project and subscription validation](Phases/PHASE_03_02.md) |
-| 03.03 | READY_FOR_REVIEW | [GitHub and Utilities validation](Phases/PHASE_03_03.md) |
+| 03.03 | ACCEPTED | [GitHub and Utilities validation](Phases/PHASE_03_03.md) |
+
+| 03.04 | READY_FOR_REVIEW | [Branches, domains and review](Phases/PHASE_03_04.md) |
 
 Historical reports retain their contemporaneous pending-review language. The owner supplied acceptance for Phase 00, Phase 01, and 00.01–00.04 and 01.01–01.03. The [master plan](01_MASTER_PLAN.md) and Amendment A remain verbatim, including publication-time progress and unknowns. This status file is the current progress record.
 
@@ -26,11 +28,11 @@ Historical reports retain their contemporaneous pending-review language. The own
 |---|---|
 | Canonical root | `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` |
 | Origin fetch/push | `https://github.com/https-Ali-Muhammed/Plementus-Tools.git` |
-| Clean branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `f6fe125bdf702cae1e7667cda7b001cc5ba0a606` |
-| Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication verified at expected HEAD |
+| Clean branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `1e914f9e3de25d1bf6ade5cd9ee10c896d8475f6` |
+| Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication was verified historically; current remote tip not checked |
 | Preserved historical source | `/home/https_ali_muhammed/Plementus/Tools`, `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec` |
 
-The clean local branch was created from verified `origin/main` and is published at the entry HEAD. The 19 tracked extension documents and two authoritative source documents were copied byte-for-byte from the preserved historical source; the owner-created successors recorded Phase 01.02 and Phase 01.03. Their verification and reconciliation are recorded in the [Git remediation report](Phases/GIT_BRANCH_REMEDIATION.md). Historical reports retain their recorded source-branch baselines.
+The clean local branch was created from verified `origin/main`; current remote publication is unverified. The 19 tracked extension documents and two authoritative source documents were copied byte-for-byte from the preserved historical source; the owner-created successors recorded Phase 01.02 and Phase 01.03. Their verification and reconciliation are recorded in the [Git remediation report](Phases/GIT_BRANCH_REMEDIATION.md). Historical reports retain their recorded source-branch baselines.
 
 ## Documentation foundation and delta
 
@@ -42,4 +44,4 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes, Odoo.sh/Plementus access, and privacy policy remain open. See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of Phase 03.03.** Do not start Phase 03.04 without a later scoped request.
+**STOP for ChatGPT acceptance of Phase 03.04.**

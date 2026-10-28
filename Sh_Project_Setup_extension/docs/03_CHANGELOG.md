@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **3/20 master phases; 12/72 micro-phases accepted**; 03.03 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **3/20 master phases; 13/72 micro-phases accepted**; 03.04 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -57,3 +57,7 @@ Enabled only the customer/project name, subscription mode, and masked subscripti
 ## 2026-10-29: 03.03, ready for review
 
 Added local GitHub organization, repository selection/name and repeatable optional Utilities fields. Validation covers supported GitHub URLs, credentials, relative paths, and duplicates; Enter cannot submit the form. Node and local Chrome checks passed. No GitHub access or submodule operation occurred. See [03.03 report](Phases/PHASE_03_03.md).
+
+## 2026-10-29: 03.04, ready for review
+
+Reconciled 03.03 as accepted per owner instruction. Added in-memory branch and domain validation and a safely rendered, subscription-reference-redacted summary. Node and local Chrome checks passed; no provider access occurred. See [03.04 report](Phases/PHASE_03_04.md).

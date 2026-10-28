@@ -73,17 +73,36 @@
 
         <section aria-labelledby="environment-heading">
           <h2 id="environment-heading">Production, Staging, modules and domains</h2>
-          <label for="production">Production target</label>
-          <input id="production" type="text" placeholder="Not configured" disabled>
-          <label for="staging">Staging target</label>
-          <input id="staging" type="text" placeholder="Not configured" disabled>
-          <label for="modules">Modules and domains</label>
+          <label for="production">Production branch</label>
+          <input id="production" type="text" maxlength="200" placeholder="main or master" autocomplete="off" aria-describedby="production-error">
+          <p id="production-error" class="field-error" role="alert" hidden></p>
+          <label for="staging">Staging branch</label>
+          <input id="staging" type="text" maxlength="200" placeholder="develop" autocomplete="off" aria-describedby="staging-error">
+          <p id="staging-error" class="field-error" role="alert" hidden></p>
+          <p>Branch names are suggestions only; existence and environments are not verified.</p>
+          <label for="domain-mode">Domain preference</label>
+          <select id="domain-mode" aria-describedby="domain-mode-error">
+            <option value="default">Default Odoo.sh URLs</option>
+            <option value="custom">Custom domains</option>
+          </select>
+          <p id="domain-mode-error" class="field-error" role="alert" hidden></p>
+          <div id="custom-domains" hidden>
+            <label for="production-domain">Production hostname</label>
+            <input id="production-domain" type="text" maxlength="253" autocomplete="off" aria-describedby="production-domain-error">
+            <p id="production-domain-error" class="field-error" role="alert" hidden></p>
+            <label for="staging-domain">Staging hostname</label>
+            <input id="staging-domain" type="text" maxlength="253" autocomplete="off" aria-describedby="staging-domain-error">
+            <p id="staging-domain-error" class="field-error" role="alert" hidden></p>
+          </div>
+          <p>Hostnames are checked locally; ownership and DNS are not verified.</p>
+          <label for="modules">Modules</label>
           <input id="modules" type="text" placeholder="Not configured" disabled>
         </section>
 
         <section aria-labelledby="review-heading">
           <h2 id="review-heading">Review and confirmation</h2>
-          <p>Setup details will appear here after future validation phases are complete.</p>
+          <p>Preview of current selections; values have not been verified.</p>
+          <dl id="review-summary"></dl>
         </section>
 
         <div class="actions">
