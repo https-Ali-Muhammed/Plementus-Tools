@@ -1,6 +1,6 @@
 # Phase 03.04: Branches, domains and review summary
 
-**Status: READY_FOR_REVIEW.** 2026-10-29 (Africa/Cairo). **3/20 master phases; 13/72 micro-phases accepted.** Phase 03.03 is accepted per owner instruction. Evidence: **LOCAL_BROWSER_TESTED**.
+**Status: ACCEPTED per owner instruction.** 2026-10-29 (Africa/Cairo). **4/20 master phases; 14/72 micro-phases accepted.** Phase 03.03 is accepted per owner instruction. Evidence: **LOCAL_BROWSER_TESTED**.
 
 ## Preflight and scope
 
@@ -22,4 +22,4 @@ git diff --check
 
 Nine Node tests passed, including prior project, subscription, GitHub and Utilities cases. An initial new test exposed acceptance of a leading-hyphen branch; the validator was corrected and the suite passed. Both JavaScript syntax checks passed. Chrome for Testing 151.0.7922.34 loaded the extension in a disposable profile: regressions, safe rendering of synthetic markup, reference redaction, domain switching, disabled actions, empty permission declarations, no external requests and no console/page errors passed. No screenshots or secrets were recorded. `git diff --check` passed.
 
-Provider, actual branch, DNS, Odoo.sh and live environment tests: **NOT RUN**. Ownership, actual branch existence and database state: **UNVERIFIED**. Stop for ChatGPT acceptance; no Phase 04 work.
+Provider, actual branch, DNS, Odoo.sh and live environment tests: **NOT RUN**. Ownership, actual branch existence and database state: **UNVERIFIED**. Historical review boundary for this phase; Phase 04.01 is now separately requested.
