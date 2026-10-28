@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 14/72 micro-phases accepted**; 04.01 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 15/72 micro-phases accepted**; 04.02 is READY_FOR_REVIEW. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -65,3 +65,7 @@ Reconciled 03.03 as accepted per owner instruction. Added in-memory branch and d
 ## 2026-10-29: 04.01, ready for review
 
 Reconciled Phase 03 and 03.04 as accepted per owner instruction. Added a pure state transition module and Node tests; documented the deferred requested-module selection gap. See [04.01 report](Phases/PHASE_04_01.md).
+
+## 2026-10-29: 04.02, ready for review
+
+Reconciled 04.01 as accepted per owner instruction. Added strict run-record validation and a dependency-injected repository tested with a synthetic in-memory fake. Real browser persistence remains blocked pending policy. See [04.02 report](Phases/PHASE_04_02.md), including the older 03.03 smoke test failure.

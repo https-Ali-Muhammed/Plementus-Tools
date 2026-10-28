@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 14/72 micro-phases accepted; 04.01 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
+Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 15/72 micro-phases accepted; 04.02 READY_FOR_REVIEW.** The unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 ## Actual evidence
 
@@ -22,6 +22,8 @@ Current evidence includes documentation, read-only Git/tooling inspection, stati
 | 03.04 | **LOCAL_BROWSER_TESTED / PASS:** Nine Node cases and Chrome smoke passed, including prior validation regressions, branch/domain inputs, safe summary rendering, redaction, permissions and no external requests. | [03.04 report](Phases/PHASE_03_04.md) records commands and limitations. |
 
 | 04.01 | **PASS:** 5 pure state tests and 9 popup regression tests; 0 failed, 0 skipped. | [04.01 report](Phases/PHASE_04_01.md) records commands and limits. No workflow execution or persistence was tested. |
+
+| 04.02 | **SIMULATED / PASS:** 20 Node cases (6 record, 5 state, 9 popup validation); 0 failures or skips. The original 03.03 smoke run failed at its obsolete disabled-Production assertion; the narrow repair now expects the accepted enabled behavior. The corrected scripts are currently **BLOCKED** by Chrome service-worker startup timeout in this environment. | [04.02 report](Phases/PHASE_04_02.md) records both results, the corrective test change and the exact browser blocker. Real persistence remains BLOCKED. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 

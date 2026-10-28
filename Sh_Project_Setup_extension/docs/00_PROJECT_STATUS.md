@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 14/72 micro-phases accepted.** Phase 04.01 is READY_FOR_REVIEW. The popup validates project, subscription, GitHub and Utilities inputs in memory.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 15/72 micro-phases accepted.** Phase 04.02 is READY_FOR_REVIEW; real persistence is BLOCKED. The popup validates project, subscription, GitHub and Utilities inputs in memory.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -20,7 +20,9 @@ Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and
 
 | 03.04 | ACCEPTED | [Branches, domains and review](Phases/PHASE_03_04.md) |
 
-| 04.01 | READY_FOR_REVIEW | [Workflow state transitions](Phases/PHASE_04_01.md) |
+| 04.01 | ACCEPTED | [Workflow state transitions](Phases/PHASE_04_01.md) |
+
+| 04.02 | READY_FOR_REVIEW | [Sanitized run-record foundation](Phases/PHASE_04_02.md) |
 
 Historical reports retain their contemporaneous pending-review language. The owner supplied acceptance for Phase 00, Phase 01, and 00.01–00.04 and 01.01–01.03. The [master plan](01_MASTER_PLAN.md) and Amendment A remain verbatim, including publication-time progress and unknowns. This status file is the current progress record.
 
@@ -30,7 +32,7 @@ Historical reports retain their contemporaneous pending-review language. The own
 |---|---|
 | Canonical root | `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` |
 | Origin fetch/push | `https://github.com/https-Ali-Muhammed/Plementus-Tools.git` |
-| Clean branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `a25bb6b989c3c2f596a2e67b9066f1e58a9e29d0` |
+| Branch / entry HEAD | `feature/sh-project-setup-extension-clean` / `395e3383a2d5ccb94dd5b506f1606c2fea16c7af` |
 | Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication was verified historically; current remote tip not checked |
 | Preserved historical source | `/home/https_ali_muhammed/Plementus/Tools`, `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec` |
 
@@ -46,4 +48,4 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 The clean integration base and remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes, Odoo.sh/Plementus access, and privacy policy remain open. See the [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of Phase 04.01.**
+**STOP for ChatGPT acceptance of Phase 04.02.**

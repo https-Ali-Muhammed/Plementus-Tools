@@ -1,13 +1,13 @@
 # Project handoff
 
-Snapshot: 2026-10-29. **4/20 master phases; 14/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner; 04.01 is READY_FOR_REVIEW. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
+Snapshot: 2026-10-29. **4/20 master phases; 15/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, 03.01–03.04, and 04.01 are ACCEPTED per owner; 04.02 is READY_FOR_REVIEW. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
 
 ## Verified Git and worktree
 
 - Canonical Git root: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`
 - Extension: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/Sh_Project_Setup_extension`
 - Origin fetch/push: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`
-- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `a25bb6b989c3c2f596a2e67b9066f1e58a9e29d0`, owner-authored Phase 03.04 successor, clean at preflight; upstream `origin/feature/sh-project-setup-extension-clean`.
+- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `395e3383a2d5ccb94dd5b506f1606c2fea16c7af`, owner-authored Phase 04.01 successor; one owner-authorized historical report modification at preflight; upstream `origin/feature/sh-project-setup-extension-clean`.
 - Phase 03.03 adds in-memory GitHub/Utilities validation and no permissions, provider access, storage, or external network calls. `Phases/PHASE_02.md` is committed and remains unchanged. See [03.03 evidence](Phases/PHASE_03_03.md).
 
 - Phase 03.04 adds local branch/domain validation and a redacted review; see [03.04 evidence](Phases/PHASE_03_04.md).
@@ -22,4 +22,6 @@ The isolated Chrome smoke test verified generic inline errors, repeatable Utilit
 
 Phase 04.01 adds only pure state transitions; no runtime connection or persistence. Requested-module selection is a deferred Phase 03 gap, requiring owner-approved implementation before module-installation workflows. See [04.01](Phases/PHASE_04_01.md) and [Phase 04](Phases/PHASE_04.md).
 
-**STOP for ChatGPT acceptance of Phase 04.01.** Do not start a later phase, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.
+Phase 04.02 adds a validated repository interface and synthetic in-memory fake tests only. Real browser persistence is BLOCKED pending owner-approved retention, deletion, access and encryption policy. The older 03.03 browser smoke has a stale disabled-field expectation; 03.04 smoke passes. See [04.02 evidence](Phases/PHASE_04_02.md).
+
+**STOP for ChatGPT acceptance of Phase 04.02.** Do not start a later phase, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.

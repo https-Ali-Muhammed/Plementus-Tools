@@ -1,6 +1,6 @@
 # Blockers and decisions
 
-Current status: **4/20 master phases; 14/72 micro-phases accepted; 04.01 READY_FOR_REVIEW**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
+Current status: **4/20 master phases; 15/72 micro-phases accepted; 04.02 READY_FOR_REVIEW**. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence. They do not block documentation review unless explicitly stated.
 
 | ID | State / owner | Impact | Required decision or input | Resolution gate / evidence |
 |---|---|---|---|---|

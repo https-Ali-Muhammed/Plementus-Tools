@@ -5,6 +5,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 
 const extension = path.resolve("Sh_Project_Setup_extension");
+// This covers the earlier Phase 03.03 behaviors against the current wizard.
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), "sh-project-setup-03-03-"));
 let context;
 
@@ -61,7 +62,7 @@ try {
   await page.locator("#subscription-reference").fill("synthetic-reference");
   await page.locator("#repository").press("Enter");
   assert.equal(new URL(page.url()).search, "");
-  assert.equal(await page.locator("#production").isDisabled(), true);
+  assert.equal(await page.locator("#production").isEnabled(), true);
   assert.equal(await page.locator(".actions button:disabled").count(), 2);
   assert.deepEqual(messages, []);
   assert.deepEqual(external, []);
