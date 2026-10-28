@@ -22,7 +22,7 @@ The isolated Chrome smoke test verified generic inline errors, repeatable Utilit
 
 Phase 04.01 adds only pure state transitions; no runtime connection or persistence. Requested-module selection is a deferred Phase 03 gap, requiring owner-approved implementation before module-installation workflows. See [04.01](Phases/PHASE_04_01.md) and [Phase 04](Phases/PHASE_04.md).
 
-Phase 04.02 adds a validated repository interface and synthetic in-memory fake tests only. Real browser persistence is BLOCKED pending owner-approved retention, deletion, access and encryption policy. The 03.03 stale disabled-field expectation was corrected in 04.02. Both recent 04.02 reruns timed out before assertions; in 04.03 Chrome observed the worker and both corrected smoke scripts passed. The earlier timeout cause remains unknown. See [04.02 evidence](Phases/PHASE_04_02.md).
+Phase 04.02 adds a validated repository interface and synthetic in-memory fake tests only. At that stage, real browser persistence was BLOCKED pending owner-approved retention, deletion, access and encryption policy; SEC-01 is now owner-approved, while implementation and verification remain blocked. The 03.03 stale disabled-field expectation was corrected in 04.02. Both recent 04.02 reruns timed out before assertions; in 04.03 Chrome observed the worker and both corrected smoke scripts passed. The earlier timeout cause remains unknown. See [04.02 evidence](Phases/PHASE_04_02.md).
 
 Phase 04.03 makes read-only synthetic recovery decisions with an injected fake adapter; real durable storage and worker/tab restart recovery remain BLOCKED. See [04.03 evidence](Phases/PHASE_04_03.md).
 
