@@ -34,6 +34,10 @@ Read-only tooling audit verified the requested root, origin, branch, upstream, e
 
 Selected the minimal MV3 baseline: vanilla browser ES modules without a bundler or framework, an action popup, event-driven worker boundary, no initial permissions/host access, and deferred storage/adapters. Node's built-in runner is the future pure-logic baseline; Playwright is deferred until an extension-local dependency is explicitly added for local unpacked-extension/fixture testing. No source, manifest, dependency, browser extension load, provider access, or application test occurred. See [ADR-005](02_ARCHITECTURE_DECISIONS.md) and [01.03 report](Phases/PHASE_01_03.md).
 
-## 2026-10-28: 02.01, ready for review
+## 2026-10-28: 02.01, accepted
 
 Created the minimal MV3 `manifest.json` with only `manifest_version`, name, and version. Node parsed the JSON and confirmed MV3 required fields, no permissions, host permissions, runtime-file references, or remote code. Browser loading and provider tests did not run. See [02.01 report](Phases/PHASE_02_01.md).
+
+## 2026-10-28: 02.02, ready for review
+
+Added the module MV3 worker and the accessible static popup, referenced only by the manifest. Static checks cover manifest references, JavaScript syntax, HTML local paths, absence of permissions and remote code, source preservation, and scoped changes. Browser loading and provider tests did not run. See [02.02 report](Phases/PHASE_02_02.md).

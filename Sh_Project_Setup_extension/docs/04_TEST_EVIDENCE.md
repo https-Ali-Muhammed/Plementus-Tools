@@ -1,6 +1,6 @@
 # Test and validation evidence
 
-Current evidence includes documentation, read-only Git/tooling inspection, and static manifest validation. **2/20 master phases; 7/72 micro-phases accepted; 02.01 READY_FOR_REVIEW.** Browser loading and provider tests: **NOT RUN**. No verified product runtime, security certification or real-site capability follows from these checks.
+Current evidence includes documentation, read-only Git/tooling inspection, and static MV3 artifact validation. **2/20 master phases; 8/72 micro-phases accepted; 02.02 READY_FOR_REVIEW.** Browser loading and provider tests: **NOT RUN**. No verified product runtime, security certification or real-site capability follows from these checks.
 
 ## Actual evidence
 
@@ -13,6 +13,7 @@ Current evidence includes documentation, read-only Git/tooling inspection, and s
 | 01.02 | Read-only environment/tooling audit; local Playwright data-URL prerequisite smoke check passed. | [01.02 report](Phases/PHASE_01_02.md) records exact versions, missing tools, exit results and limits. The smoke check did not load an extension or external site. |
 | 01.03 | Read-only documentation architecture decision and owner-created 01.02 successor verification. | [01.03 report](Phases/PHASE_01_03.md) records the exact Git checks and selected baseline. No MV3/browser/product test ran. |
 | 02.01 | Node parsed `manifest.json`; required MV3 fields and absence of permissions, host permissions, remote code, and file references passed. | [02.01 report](Phases/PHASE_02_01.md) records the exact command and assertions. Browser loading did not run. |
+| 02.02 | Static manifest, referenced-file, JavaScript syntax, popup HTML/path, permission, remote-code, source-preservation, and scoped-delta checks. | [02.02 report](Phases/PHASE_02_02.md) records the exact commands and results. Browser loading did not run. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 
