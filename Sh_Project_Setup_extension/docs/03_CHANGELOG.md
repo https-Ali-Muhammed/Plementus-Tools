@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 16/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 is READY_FOR_REVIEW for synthetic decisions only. Current state: [project status](00_PROJECT_STATUS.md).
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 17/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 is ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 is READY_FOR_REVIEW for pure validation and simulation only. Current state: [project status](00_PROJECT_STATUS.md).
 
 ## 2026-10-28: 00.01, accepted
 
@@ -73,3 +73,7 @@ Reconciled 04.01 as accepted per owner instruction. Added strict run-record vali
 ## 2026-10-29: 04.03, ready for review
 
 Owner accepted 04.02 for its simulated foundation only. Added a read-only synthetic recovery decision and tests; no workflow actions or durable storage. Chrome startup and both popup smokes passed on this run; the previous startup timeouts remain unexplained and preserved. See [04.03 report](Phases/PHASE_04_03.md).
+
+## 2026-10-29: 04.04, ready for review
+
+Owner accepted 04.03 for synthetic decisions only. Added pure expected-state and revision transition proposals with simulated conflict tests and conservative reconciliation handling. Parent Phase 04 remains in progress; see [04.04](Phases/PHASE_04_04.md).

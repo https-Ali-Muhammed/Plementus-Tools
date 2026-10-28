@@ -1,13 +1,13 @@
 # Project handoff
 
-Snapshot: 2026-10-29. **4/20 master phases; 16/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, 03.01–03.04, and 04.01 are ACCEPTED per owner; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY and 04.03 is READY_FOR_REVIEW for synthetic decisions only. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
+Snapshot: 2026-10-29. **4/20 master phases; 17/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, 03.01–03.04, and 04.01 are ACCEPTED per owner; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY and 04.03 is ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 is READY_FOR_REVIEW for pure validation and simulation only. [Project status](00_PROJECT_STATUS.md) is the current progress record; the [master plan](01_MASTER_PLAN.md) preserves its publication-time status and Amendment A verbatim.
 
 ## Verified Git and worktree
 
 - Canonical Git root: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`
 - Extension: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/Sh_Project_Setup_extension`
 - Origin fetch/push: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`
-- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `395e3383a2d5ccb94dd5b506f1606c2fea16c7af`, owner-authored Phase 04.01 successor; one owner-authorized historical report modification at preflight; upstream `origin/feature/sh-project-setup-extension-clean`.
+- Branch/entry HEAD: `feature/sh-project-setup-extension-clean` / `4a59b8450bb11005524b879ada0d7fd6fb8fea91`, verified Phase 04.03 successor; preflight clean and equal to local upstream `origin/feature/sh-project-setup-extension-clean` (no fetch).
 - Phase 03.03 adds in-memory GitHub/Utilities validation and no permissions, provider access, storage, or external network calls. `Phases/PHASE_02.md` is committed and remains unchanged. See [03.03 evidence](Phases/PHASE_03_03.md).
 
 - Phase 03.04 adds local branch/domain validation and a redacted review; see [03.04 evidence](Phases/PHASE_03_04.md).
@@ -26,4 +26,6 @@ Phase 04.02 adds a validated repository interface and synthetic in-memory fake t
 
 Phase 04.03 makes read-only synthetic recovery decisions with an injected fake adapter; real durable storage and worker/tab restart recovery remain BLOCKED. See [04.03 evidence](Phases/PHASE_04_03.md).
 
-**STOP for ChatGPT acceptance of Phase 04.03.** Do not start a later phase, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.
+Phase 04.04 adds pure expected-state/revision transition proposals requiring operator review, with simulated atomic conflict checks. It is not connected to the extension runtime; direct repository updates do not enforce transition rules. Real durability and worker/tab restart acceptance remain blocked pending policy, an authorized implementation, and real lifecycle tests. See [04.04 evidence](Phases/PHASE_04_04.md).
+
+**STOP for ChatGPT acceptance of Phase 04.04.** Do not start a later phase, change Git history or access a provider without the relevant subsequent request. Recheck root, origin, branch, HEAD and full status on the next turn.
