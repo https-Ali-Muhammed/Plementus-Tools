@@ -1,6 +1,6 @@
 # Phase 04: Durable workflow state
 
-**Status: IN_PROGRESS / BLOCKED.** 2026-10-29. Progress: **4/20 master phases; 18/72 micro-phases accepted.** SEC-01 CP1–CP4, the [disconnected cleanup gate](PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup](PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are ACCEPTED within their documented scopes. [Option B retention](PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) remains OWNER_APPROVED. The [clock-trust decision draft](PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) is CLOCK_TRUST_DECISION READY_FOR_OWNER_REVIEW; no clock policy is selected. Production activation is NO_GO.
+**Status: IN_PROGRESS / BLOCKED.** 2026-10-29. Progress: **4/20 master phases; 18/72 micro-phases accepted.** SEC-01 CP1–CP4, the [disconnected cleanup gate](PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup](PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are ACCEPTED within their documented scopes. [Option B retention](PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) remains OWNER_APPROVED. Clock Option B is OWNER_APPROVED_AS_DIRECTION_ONLY; operational policy is not complete or implementation-authorized. The [manual-resolution decision](PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) is OWNER_DECISION_REQUIRED and the retention conflict is UNRESOLVED. Production activation is NO_GO.
 
 | Micro-phase | Status |
 |---|---|
@@ -13,6 +13,6 @@ Synthetic decisions and fake-adapter conflict checks do not establish production
 
 The [Option B cleanup and clock-safety design](PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md) remains the historical design. Its disconnected service gate now has isolated real IndexedDB, worker and browser-restart evidence; production wiring, trusted time across restarts and security/activation gates remain unresolved.
 
-The [clock-trust decision draft](PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) recommends fail-closed handling for owner/security review only. It identifies a conflict between avoiding deletion on uncertain time and approved next-execution retention. No clock-policy approval, trusted elapsed-time guarantee or production activation follows from this review.
+The owner approved Clock Option B as direction only from the historical [clock-trust decision draft](PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md). The [separate decision package](PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) recommends holding uncertain records blocked pending authorized review and asks the owner to settle destructive disposition, manual authority/evidence and an additional retention amendment. No trusted elapsed-time guarantee, operational policy or production activation follows from direction approval.
 
-Stop for ChatGPT and owner review of the clock-trust decision draft. Review does not authorize activation, runtime integration or Phase 05.
+Stop for ChatGPT and explicit owner approval of the separate manual-resolution decision. Review does not authorize activation, runtime integration or Phase 05.

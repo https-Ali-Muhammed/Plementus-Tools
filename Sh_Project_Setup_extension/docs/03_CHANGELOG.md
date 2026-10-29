@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 and the disconnected cleanup gate are ACCEPTED; Option B remains OWNER_APPROVED; isolated browser cleanup is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B is OWNER_APPROVED; Clock Option B is OWNER_APPROVED_AS_DIRECTION_ONLY. Manual resolution is OWNER_DECISION_REQUIRED; the retention conflict is UNRESOLVED. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+
+## 2026-10-29: SEC-01 Clock B manual-resolution decision, owner review pending
+
+At clean HEAD `14ca7d6ec0af6994fe72a1c087b6efab97a253bb`, recorded the owner's Clock B direction-only approval. Added a [separate decision package](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) comparing blocked retention, approved destructive deletion and automatic discard; proposed manual rules and separately labeled, unapproved retention-amendment wording. No operational policy, implementation or activation was approved. Documentation validation only; no application or browser tests, storage write, provider action, commit or push.
 
 ## 2026-10-29: SEC-01 isolated real-browser cleanup, ready for review
 
