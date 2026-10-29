@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-10-29: Phase 05.04 deterministic failure fixtures, ready for review
+
+Owner accepted 05.03, raising progress to 4/20 and 21/72. Added a pure [failure-state catalog](../fixtures/scenarios/failure-states.mjs), Node contract tests and [05.04 report](Phases/PHASE_05_04.md). No provider, worker, storage or network integration was added. Phase 04 remains blocked, real provider behavior UNVERIFIED and activation NO_GO.
+
 ## 2026-10-29: Phase 05.02 mock Odoo.sh pages, ready for review
 
 Owner accepted 05.01, bringing progress to 4/20 and 19/72. Added three invented local Odoo.sh-like pages, structural tests and [05.02 report](Phases/PHASE_05_02.md). Node and local browser checks passed. These fixtures are test infrastructure for the future online extension; no provider, worker, storage or network integration was added. Phase 04 remains blocked and activation NO_GO.
