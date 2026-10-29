@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-10-29: Phase 05 parent acceptance, documentation closure
+
+Owner/ChatGPT accepted 05.01–05.04 and passed the [Phase 05 parent exit review](Phases/PHASE_05.md). Progress is **5/20 master phases; 22/72 micro-phases accepted**. The five invented provider-like HTML pages, pure v1 contract and F01–F07 scenarios satisfy local Phase 05 criteria; the recorded Node suite had **75 PASS**, with prior bounded fixture-browser checks of **12 PASS** and **22 PASS**. Mock evidence does not verify real provider behavior. The final product remains an online-capable Chrome extension; Phase 04 runtime-security gates remain unresolved and production NO_GO. No Phase 06 or production implementation is authorized. This entry changes documentation only.
+
 ## 2026-10-29: Phase 05.04 deterministic failure fixtures, ready for review
 
 Owner accepted 05.03, raising progress to 4/20 and 21/72. Added a pure [failure-state catalog](../fixtures/scenarios/failure-states.mjs), Node contract tests and [05.04 report](Phases/PHASE_05_04.md). No provider, worker, storage or network integration was added. Phase 04 remains blocked, real provider behavior UNVERIFIED and activation NO_GO.
@@ -12,7 +16,7 @@ Owner accepted 05.01, bringing progress to 4/20 and 19/72. Added three invented 
 
 Owner-approved offline sequencing exception while Phase 04 remains blocked. Added a pure v1 provider-neutral contract, Node tests and [05.01 report](Phases/PHASE_05_01.md). No provider, browser, storage or worker integration. Progress remains 4/20 and 18/72; production NO_GO.
 
-Chronological project record; no entry implies application functionality or live provider verification. Current progress is **4/20 master phases; 19/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B remains OWNER_APPROVED; COMBINED_AB_OPERATIONAL_POLICY and UNCERTAIN_TIME_RETENTION_AMENDMENT are OWNER_APPROVED. SEC-01 operational implementation is not authorized. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Current progress is **5/20 master phases; 22/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B remains OWNER_APPROVED; COMBINED_AB_OPERATIONAL_POLICY and UNCERTAIN_TIME_RETENTION_AMENDMENT are OWNER_APPROVED. SEC-01 operational implementation is not authorized. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
 
 ## 2026-10-29: SEC-01 combined A+B operational policy and uncertainty amendment approved
 

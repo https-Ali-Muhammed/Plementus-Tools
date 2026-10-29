@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 21/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the [disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup verification](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are **ACCEPTED within their documented scopes**. [Retention Option B](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md), the [combined A+B operational policy](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md), and its [uncertain-time retention amendment](Phases/PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md) are **OWNER_APPROVED**. SEC-01 operational implementation remains unauthorized. Parent Phase 04 remains IN_PROGRESS / BLOCKED; production activation is NO_GO.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03, Phase 05 and their recorded micro-phases are ACCEPTED per owner/ChatGPT.** Phase 05 parent-level exit review passed. Progress: **5/20 master phases; 22/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the [disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup verification](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are **ACCEPTED within their documented scopes**. [Retention Option B](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md), the [combined A+B operational policy](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md), and its [uncertain-time retention amendment](Phases/PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md) are **OWNER_APPROVED**. SEC-01 operational implementation remains unauthorized. Parent Phase 04 remains IN_PROGRESS / BLOCKED; production activation is NO_GO.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -32,9 +32,9 @@ Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and
 | 05.02 | ACCEPTED; local simulated pages only | [Mock Odoo.sh fixtures](Phases/PHASE_05_02.md) |
 
 | 05.03 | ACCEPTED; local simulated pages only | [Customer Odoo and Plementus fixtures](Phases/PHASE_05_03.md) |
-| 05.04 | READY_FOR_REVIEW; deterministic synthetic states only | [Failure and unknown fixtures](Phases/PHASE_05_04.md) |
+| 05.04 | ACCEPTED; deterministic synthetic states only | [Failure and unknown fixtures](Phases/PHASE_05_04.md) |
 
-Phase 05 is [IN_PROGRESS](Phases/PHASE_05.md). These fixtures support testing of the future online extension; Phase 04 remains **IN_PROGRESS / BLOCKED**, production **NO_GO**, and accepted progress **4/20 and 21/72**. Actual online-provider behavior remains **UNVERIFIED**.
+Phase 05 is [ACCEPTED](Phases/PHASE_05.md) for its local fixture and contract exit criteria. These fixtures support testing of the final online-capable Chrome extension; mock evidence does not verify real provider behavior. Phase 04 runtime-security gates remain **IN_PROGRESS / BLOCKED**, production **NO_GO**. No Phase 06 or production implementation is authorized. Actual online-provider behavior remains **UNVERIFIED**.
 
 Historical reports retain their contemporaneous pending-review language. The owner supplied acceptance for Phase 00, Phase 01, and 00.01–00.04 and 01.01–01.03. The [master plan](01_MASTER_PLAN.md) and Amendment A remain verbatim, including publication-time progress and unknowns. This status file is the current progress record.
 
