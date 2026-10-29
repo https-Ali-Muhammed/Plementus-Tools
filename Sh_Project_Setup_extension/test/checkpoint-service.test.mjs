@@ -62,7 +62,7 @@ test("expiry is exact and never renewed; expired records cannot be read or updat
   const { service, clock, factory } = await setup(); await service.create(record());
   clock(1000 + RETENTION_MS - 1, RETENTION_MS - 1); await service.transition(id, "draft", 0, "ready");
   assert.equal((await service.read(id)).createdAt, 1000);
-  clock(1000 + RETENTION_MS, RETENTION_MS); await rejected(service.read(id)); await rejected(service.transition(id, "ready", 1, "running"));
+  clock(1000 + RETENTION_MS, RETENTION_MS + 0.2); await rejected(service.read(id)); await rejected(service.transition(id, "ready", 1, "running"));
   assert.equal(factory.snapshot(id), undefined); assert.equal(await service.cleanup(), 0);
 });
 
@@ -75,7 +75,7 @@ test("authorized and acknowledged deletion guard state and revision", async () =
 
 test("cleanup is one atomic transaction and reports committed deletion", async () => {
   const { service, factory, clock } = await setup(); await service.create(record());
-  await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS);
+  await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   const before = factory.transactionCount();
   assert.equal(await service.cleanup(), 2);
   assert.equal(factory.transactionCount(), before + 1);
@@ -84,7 +84,7 @@ test("cleanup is one atomic transaction and reports committed deletion", async (
 
 test("abort after a staged deletion rolls back every expired record", async () => {
   const { service, factory, clock } = await setup(); await service.create(record());
-  await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS);
+  await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   factory.abortAfterDeletes(1); await rejected(service.cleanup());
   assert.deepEqual(factory.snapshot(id), record()); assert.deepEqual(factory.snapshot(secondId), record({ runId: secondId }));
   assert.equal(await service.cleanup(), 2);
@@ -92,14 +92,14 @@ test("abort after a staged deletion rolls back every expired record", async () =
 
 test("a failed deletion aborts cleanup without partial commit or record disclosure", async () => {
   const { service, factory, clock } = await setup();
-  await service.create(record()); await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS);
+  await service.create(record()); await service.create(record({ runId: secondId })); clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   factory.failNextDelete(); await rejected(service.cleanup());
   assert.deepEqual(factory.snapshot(id), record()); assert.deepEqual(factory.snapshot(secondId), record({ runId: secondId }));
 });
 
 test("a stored primary-key mismatch aborts cleanup and preserves every row", async () => {
   const { service, factory, clock } = await setup();
-  await service.create(record()); factory.seed(record({ runId: secondId }), "mismatched-key"); clock(1000 + RETENTION_MS, RETENTION_MS);
+  await service.create(record()); factory.seed(record({ runId: secondId }), "mismatched-key"); clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   await rejected(service.cleanup());
   assert.deepEqual(factory.snapshot(id), record());
   assert.deepEqual(factory.snapshot("mismatched-key"), record({ runId: secondId }));
@@ -162,7 +162,7 @@ test("time is rechecked after a pending cleanup before reading or writing", asyn
   const before = factory.transactionCount();
   const release = factory.pauseNextCommit(); const pending = service.read(id);
   await waitForTransaction(factory, before + 1);
-  clock(1000 + RETENTION_MS, RETENTION_MS); release(); await rejected(pending);
+  clock(1000 + RETENTION_MS, RETENTION_MS + 0.2); release(); await rejected(pending);
   assert.deepEqual(factory.snapshot(id), record());
   await rejected(service.read(id)); assert.equal(factory.snapshot(id), undefined);
 });
@@ -221,9 +221,9 @@ test("unexplained forward time blocks access and preserves uncertain expiry", as
 test("advancing time without monotonic evidence and invalid monotonic samples latch", async () => {
   const factory = fakeIndexedDB(); let wall = 1000;
   const service = await createCheckpointService(factory, { now: () => wall, authorize: () => true });
-  await service.create(record()); wall = 1001;
+  await rejected(service.create(record())); wall = 1001;
   await rejected(service.read(id)); wall = 1000;
-  await rejected(service.cleanup()); assert.deepEqual(factory.snapshot(id), record());
+  await rejected(service.cleanup()); assert.equal(factory.snapshot(id), undefined);
 
   const second = fakeIndexedDB(); let tick = 0;
   const withMonotonic = await createCheckpointService(second, { now: () => 1000, monotonicNow: () => tick, authorize: () => true });
@@ -232,9 +232,84 @@ test("advancing time without monotonic evidence and invalid monotonic samples la
   await rejected(withMonotonic.cleanup()); assert.deepEqual(second.snapshot(id), record());
 });
 
+test("integer wall precision and bounded fractional brackets permit ordinary progress", async () => {
+  const factory = fakeIndexedDB(); let wall = 1000, edge = 0;
+  const service = await createCheckpointService(factory, {
+    now: () => wall,
+    monotonicNow: () => edge++ * 0.05,
+    authorize: () => true,
+  });
+  await service.create(record());
+  wall = 1001;
+  assert.deepEqual(await service.read(id), record());
+  edge = 20; wall = 1002;
+  assert.deepEqual(await service.read(id), record());
+});
+
+test("a one-millisecond sampling bracket is accepted at its boundary", async () => {
+  const factory = fakeIndexedDB(); let edge = 0;
+  const service = await createCheckpointService(factory, { now: () => 1000, monotonicNow: () => edge++, authorize: () => true });
+  await service.create(record());
+  assert.deepEqual(await service.read(id), record());
+});
+
+test("sleep-like monotonic pause is uncertain and permanently blocks cleanup", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(6000, 1); await rejected(service.cleanup());
+  clock(1001, 2); await rejected(service.read(id));
+  assert.deepEqual(factory.snapshot(id), record());
+});
+
+test("small repeated wall advances cannot hide a paused monotonic clock", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(1001, 0); assert.deepEqual(await service.read(id), record());
+  clock(1002, 0); await rejected(service.read(id));
+  clock(1002, 2); await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record());
+});
+
+test("reversed, wide and regressing monotonic brackets latch without changing a row", async () => {
+  for (const bad of [[2, 1], [2, 3.01], [NaN, 2], [-1, 0], [Number.MAX_SAFE_INTEGER + 1, Number.MAX_SAFE_INTEGER + 1]]) {
+    const factory = fakeIndexedDB(); let bracket = [0, 0], edge = 0;
+    const service = await createCheckpointService(factory, { now: () => 1000, monotonicNow: () => bracket[edge++ % 2], authorize: () => true });
+    await service.create(record()); bracket = bad;
+    await rejected(service.read(id)); bracket = [3, 3];
+    await rejected(service.cleanup()); assert.deepEqual(factory.snapshot(id), record());
+  }
+  const factory = fakeIndexedDB(); let bracket = [5, 5], edge = 0;
+  const service = await createCheckpointService(factory, { now: () => 1000, monotonicNow: () => bracket[edge++ % 2], authorize: () => true });
+  await service.create(record()); bracket = [4, 4];
+  await rejected(service.read(id)); assert.deepEqual(factory.snapshot(id), record());
+});
+
+test("wall expiry never borrows detection allowance from insufficient elapsed proof", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(1000 + RETENTION_MS, RETENTION_MS - 0.05);
+  await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record());
+  clock(1000 + RETENTION_MS + 1, RETENTION_MS + 1);
+  await rejected(service.cleanup()); assert.deepEqual(factory.snapshot(id), record());
+});
+
+test("seven-day deletion requires a conservative same-instance monotonic lower bound", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(1000 + RETENTION_MS - 1, RETENTION_MS + 0.2);
+  assert.deepEqual(await service.read(id), record());
+  clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
+  assert.equal(await service.cleanup(), 1);
+  assert.equal(factory.snapshot(id), undefined);
+});
+
+test("the first guarded cleanup after the exact seven-day boundary deletes", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(1000 + RETENTION_MS + 1, RETENTION_MS + 1.2);
+  assert.equal(await service.cleanup(), 1);
+  assert.equal(factory.snapshot(id), undefined);
+});
+
 test("expired cleanup reports deletion only after transaction completion", async () => {
   const { service, factory, clock } = await setup(); await service.create(record());
-  clock(1000 + RETENTION_MS, RETENTION_MS);
+  clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   const before = factory.transactionCount(), release = factory.pauseNextCommit();
   let settled = false;
   const pending = service.cleanup().then(value => { settled = true; return value; });

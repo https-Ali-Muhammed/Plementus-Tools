@@ -71,8 +71,45 @@ try {
     await h.service();
   });
 
+  await check('normal Chromium wall and monotonic samples stay within candidate bracket bounds', async () => {
+    const metrics = await run(() => {
+      let maxWidth = 0, maxExcess = -Infinity, reversed = 0, fractional = 0, bounded = 0, previous;
+      for (let i = 0; i < 20000; i++) {
+        const before = performance.now(), wall = Date.now(), after = performance.now();
+        maxWidth = Math.max(maxWidth, after - before);
+        if (after - before <= 1) bounded++;
+        if (after < before) reversed++;
+        if (!Number.isInteger(before)) fractional++;
+        if (previous) maxExcess = Math.max(maxExcess, wall - previous.wall - (after - previous.before));
+        previous = { before, wall };
+      }
+      return { maxWidth, maxExcess, reversed, fractional, bounded };
+    });
+    console.log(`CLOCK_SAMPLE ${JSON.stringify(metrics)}`);
+    assert.equal(metrics.reversed, 0); assert.ok(metrics.fractional > 0);
+    assert.ok(metrics.bounded > 19000); assert.ok(metrics.maxExcess <= 1.1);
+  });
+  await check('guarded record survives ordinary real Chromium scheduling', async () => {
+    const result = await run(async r => {
+      await h.reset(); let calls = 0, origin;
+      const { createCheckpointService } = await import('./storage/checkpoint-service.mjs');
+      const service = await createCheckpointService(indexedDB, {
+        now: () => { if (++calls === 3) origin = performance.now(); return origin === undefined ? 1000 : 1000 + Math.floor(performance.now() - origin); },
+        monotonicNow: () => performance.now(), authorize: () => true,
+      });
+      const created = await service.create(r);
+      const reads = [];
+      for (let i = 0; i < 20; i++) reads.push(await service.read(r.runId));
+      return { created, reads, stored: await h.get(r.runId) };
+    }, record(ids[0]));
+    assert.equal(result.reads.length, 20);
+    assert.ok(result.reads.every(r => r.createdAt === result.created.createdAt));
+    assert.deepEqual(result.stored, result.created);
+  });
+
   await check('extension origin and seven-field guarded create', async () => {
     const result = await run(async r => {
+      await h.reset();
       const service = await h.service(); const created = await service.create(r); const read = await service.read(r.runId);
       return { created, read, stored: await h.get(r.runId), events: h.events.slice(), origin: location.protocol };
     }, record(ids[0]));
@@ -121,7 +158,7 @@ try {
       await service.create({ schemaVersion: 2, runId: id, state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 });
       h.clock += day7 - 1; h.tick += day7 - 1;
       const before = await service.transition(id, 'draft', 0, 'ready'); const eligible = await service.read(id);
-      h.clock++; h.tick++; h.events.length = 0;
+      h.clock++; h.tick += 1.2; h.events.length = 0;
       const count = await service.cleanup(); const events = h.events.slice(); const absent = await h.get(id);
       return { before, eligible, count, events, absent, denied: await h.rejected(service.read(id)) };
     }, { id: ids[0], day7 });
@@ -153,7 +190,7 @@ try {
       await h.reset(); const service = await h.service();
       await service.create({ schemaVersion: 2, runId: ids[0], state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 });
       await service.create({ schemaVersion: 2, runId: ids[1], state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 });
-      h.clock += day7; h.tick += day7;
+      h.clock += day7; h.tick += day7 + 0.2;
       const count = await service.cleanup();
       await service.create({ schemaVersion: 2, runId: ids[2], state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: h.clock });
       return { count, rows: await Promise.all(ids.map(id => h.get(id))), fresh: await service.read(ids[2]) };
@@ -166,7 +203,7 @@ try {
     const result = await run(async ({ ids, day7 }) => {
       await h.reset(); const service = await h.service(); await service.create({ schemaVersion: 2, runId: ids[0], state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 });
       await h.raw('readwrite', store => store.put({ schemaVersion: 1, runId: ids[1], state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 }));
-      h.clock += day7; h.tick += day7; h.events.length = 0;
+      h.clock += day7; h.tick += day7 + 0.2; h.events.length = 0;
       const denied = await h.rejected(service.cleanup());
       return { denied, events: h.events.slice(), first: await h.get(ids[0]), legacy: await h.get(ids[1]) };
     }, { ids, day7 });

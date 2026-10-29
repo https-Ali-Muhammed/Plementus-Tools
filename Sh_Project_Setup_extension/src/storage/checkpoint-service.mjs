@@ -1,8 +1,10 @@
-import { checkpointEligibility, validateCheckpointStructure, validateCheckpointUpdate } from "./checkpoint-policy.mjs";
+import { RETENTION_MS, checkpointEligibility, validateCheckpointStructure, validateCheckpointUpdate } from "./checkpoint-policy.mjs";
 import { decideTransition } from "../workflow/transition-decision.mjs";
 
 const failure = () => new Error("Checkpoint operation failed");
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+// Candidate bounds: 1 ms wall quantization, 0.1 ms documented timer precision; width cap is one wall quantum.
+const TIMER_PRECISION_MS = 0.1, MAX_BRACKET_MS = 1;
 
 // The factory, clock and authorization are injected; none establishes runtime identity.
 export async function createCheckpointService(factory, { now, monotonicNow, authorize } = {}) {
@@ -19,22 +21,33 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
       request.onerror = request.onblocked = () => reject(failure());
     });
   } catch { throw failure(); }
-  let previousTime, previousMonotonic, clockBlocked = false;
-  const known = new Set();
+  let firstSample, previousSample, clockBlocked = false;
+  const known = new Map();
   let cleanupInFlight;
   function time() {
     if (clockBlocked) throw failure();
     try {
-      const value = now(), tick = monotonicNow?.();
-      if (!Number.isSafeInteger(value) || value < 0 ||
-          (monotonicNow && (!Number.isFinite(tick) || tick < 0 || tick > Number.MAX_SAFE_INTEGER)) ||
-          (previousTime !== undefined && (value < previousTime ||
-            (monotonicNow && tick < previousMonotonic) ||
-            value - previousTime > (monotonicNow ? tick - previousMonotonic : 0)))) throw failure();
-      previousTime = value;
-      previousMonotonic = tick;
-      return value;
+      const before = monotonicNow?.(), wall = now(), after = monotonicNow?.();
+      if (!Number.isSafeInteger(wall) || wall < 0 ||
+          !Number.isFinite(before) || before < 0 || before > Number.MAX_SAFE_INTEGER ||
+          !Number.isFinite(after) || after < before || after > Number.MAX_SAFE_INTEGER ||
+          after - before > MAX_BRACKET_MS ||
+          (previousSample && (wall < previousSample.wall || before < previousSample.after ||
+            wall - previousSample.wall > after - previousSample.before + 1 + TIMER_PRECISION_MS)) ||
+          (firstSample && wall - firstSample.wall > after - firstSample.before + 1 + TIMER_PRECISION_MS)) throw failure();
+      const sample = { before, wall, after };
+      firstSample ??= sample;
+      return previousSample = sample;
     } catch { clockBlocked = true; throw failure(); }
+  }
+  function eligibilityFor(record, sample) {
+    const result = checkpointEligibility(record, sample.wall);
+    const creation = known.get(record?.runId);
+    if (!creation || record.createdAt !== creation.wall) { clockBlocked = true; throw failure(); }
+    if (result === "expired" && sample.before - creation.after - TIMER_PRECISION_MS < RETENTION_MS) {
+      clockBlocked = true; throw failure();
+    }
+    return result;
   }
   function transaction(mode, execute) {
     return new Promise((resolve, reject) => {
@@ -58,7 +71,7 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
   }
   function requireRecord(record, id, instant, eligibility = "eligible") {
     if (record !== undefined && !known.has(id)) { clockBlocked = true; throw failure(); }
-    if (!validateCheckpointStructure(record) || record.runId !== id || checkpointEligibility(record, instant) !== eligibility) throw failure();
+    if (!validateCheckpointStructure(record) || record.runId !== id || eligibilityFor(record, instant) !== eligibility) throw failure();
   }
   async function remove(id, revision, reason) {
     checkedId(id);
@@ -84,7 +97,7 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
           const record = cursor.value;
           if (!known.has(cursor.primaryKey)) { clockBlocked = true; throw failure(); }
           if (!validateCheckpointStructure(record) || cursor.primaryKey !== record.runId) throw failure();
-          const eligibility = checkpointEligibility(record, instant);
+          const eligibility = eligibilityFor(record, instant);
           if (eligibility === "invalid") throw failure();
           if (eligibility === "expired") {
             const deletion = cursor.delete();
@@ -114,12 +127,14 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
       await gate();
       if (!validateCheckpointStructure(record) || record.revision !== 0) throw failure();
       const copy = { ...record };
+      let creation;
       const created = await transaction("readwrite", (store, done, abort) => get(store, copy.runId, existing => {
         const instant = time();
-        if (existing !== undefined || checkpointEligibility(copy, instant) !== "eligible" || copy.createdAt !== instant) throw failure();
+        if (existing !== undefined || checkpointEligibility(copy, instant.wall) !== "eligible" || copy.createdAt !== instant.wall) throw failure();
+        creation = instant;
         store.add(copy); done({ ...copy });
       }, abort));
-      known.add(copy.runId);
+      known.set(copy.runId, creation);
       return created;
     }),
     read: id => safe(async () => {
@@ -139,7 +154,7 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
         const decision = decideTransition({ ...old, schemaVersion: 1 }, expectedState, expectedRevision, targetState);
         if (authorize("transition") !== true) throw failure();
         const proposed = { ...decision.record, schemaVersion: 2, createdAt };
-        if (!validateCheckpointUpdate(current, proposed, instant)) throw failure();
+        if (!validateCheckpointUpdate(current, proposed, instant.wall)) throw failure();
         store.put(proposed); done({ decision: "operator_review", record: { ...proposed } });
       }, abort));
     }),

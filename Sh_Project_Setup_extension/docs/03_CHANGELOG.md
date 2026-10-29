@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-10-29: SEC-01 combined clock and restart remediation, ready for review
+
+Updated the disconnected checkpoint service for bracketed clock sampling, cumulative forward-jump detection, volatile creation-time evidence and conservative seven-day cleanup. Added synthetic regressions and isolated Chromium timing checks; final results were **88 Node PASS** and **13 + 9 Chromium PASS**. The [combined report](Phases/PHASE_04_SEC01_RUNTIME_CLOCK_COMBINED_REMEDIATION.md) records candidate numerical assumptions, restart retention and remaining security gates. Progress remains **5/20 and 22/72**; Phase 04 **IN_PROGRESS / BLOCKED**, production **NO_GO**. No production wiring, commit or push.
+
 ## 2026-10-29: SEC-01 clock-safety Chromium regression, ready for review
 
 Updated the two historical browser scripts for the accepted fail-closed clock and known-record rules, preserving guarded create, transaction, revision, terminal, schema, authorization and lifecycle coverage. The [new report](Phases/PHASE_04_SEC01_CLOCK_SAFETY_BROWSER.md) records baseline failures, final 80 Node PASS, 20 isolated Chromium PASS, direct worker stop/reactivation and same-profile browser restart. Only test scripts and current documentation changed. Progress remains **5/20 and 22/72**; Phase 04 **IN_PROGRESS / BLOCKED**, activation **NO_GO**. No commit or push.
@@ -32,7 +36,7 @@ At clean HEAD `49ed3c48c5fbaf658c8980d26e95e97a47e2cd5f`, with equal upstream an
 
 ## 2026-10-29: SEC-01 Clock B manual-resolution decision, owner review pending
 
-At clean HEAD `14ca7d6ec0af6994fe72a1c087b6efab97a253bb`, recorded the owner's Clock B direction-only approval. Added a [separate decision package](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) comparing blocked retention, approved destructive deletion and automatic discard; proposed manual rules and separately labeled, unapproved retention-amendment wording. No operational policy, implementation or activation was approved. Documentation validation only; no application or browser tests, storage write, provider action, commit or push.
+At clean HEAD `14ca7d6ec0af6994fe72a1c088b6efab97a253bb`, recorded the owner's Clock B direction-only approval. Added a [separate decision package](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) comparing blocked retention, approved destructive deletion and automatic discard; proposed manual rules and separately labeled, unapproved retention-amendment wording. No operational policy, implementation or activation was approved. Documentation validation only; no application or browser tests, storage write, provider action, commit or push.
 
 ## 2026-10-29: SEC-01 isolated real-browser cleanup, ready for review
 
@@ -52,7 +56,7 @@ Created status, verbatim master plan, architecture decisions, the parent report 
 
 ## 2026-10-28: 00.03, accepted
 
-Created requirements, integration, security and feasibility documents and the 00.02/00.03 reports; updated status and the parent report. Prior Codex reported source preservation, ordered counts, 44 local link targets and scoped pattern checks. The owner reported acceptance and created documentation-only commit `d7a3a5ee6c07eacc2810402e6e8d687e9c2c0b73`; 00.04 verified its direct parent and eight-path delta. Historical checks and limitations: [00.03 report](Phases/PHASE_00_03.md).
+Created requirements, integration, security and feasibility documents and the 00.02/00.03 reports; updated status and the parent report. Prior Codex reported source preservation, ordered counts, 44 local link targets and scoped pattern checks. The owner reported acceptance and created documentation-only commit `d7a3a5ee6c07eacc2810402e6e8d688e9c2c0b73`; 00.04 verified its direct parent and eight-path delta. Historical checks and limitations: [00.03 report](Phases/PHASE_00_03.md).
 
 ## 2026-10-28: 00.04, accepted
 
@@ -64,11 +68,11 @@ Read-only inventory verified the current feature branch, upstream, worktree, doc
 
 ## 2026-10-28: clean-branch remediation
 
-Historical remediation created local branch `feature/sh-project-setup-extension-clean` from `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5` and migrated 19 extension documents plus two authoritative source Markdown files from preserved `feature/sh-project-setup-extension`; all 21 migration-file hashes matched. At that historical point it was unpublished. Later, owner commit `47a0fb38171b3b21c7317c787e746c12272059d3` published the 22-file baseline; owner-created successor `0d7f169b8013e587b637eb7fec1bffb85f1614c7` published the 01.02 documentation records. See [Git remediation](Phases/GIT_BRANCH_REMEDIATION.md).
+Historical remediation created local branch `feature/sh-project-setup-extension-clean` from `origin/main` at `9a818495593c88ef6d4a1376e7f81be26513e0b5` and migrated 19 extension documents plus two authoritative source Markdown files from preserved `feature/sh-project-setup-extension`; all 21 migration-file hashes matched. At that historical point it was unpublished. Later, owner commit `47a0fb38171b3b21c7317c788e746c12272059d3` published the 22-file baseline; owner-created successor `0d7f169b8013e588b637eb7fec1bffb85f1614c7` published the 01.02 documentation records. See [Git remediation](Phases/GIT_BRANCH_REMEDIATION.md).
 
 ## 2026-10-28: 01.02, ready for review
 
-Read-only tooling audit verified the requested root, origin, branch, upstream, expected HEAD `47a0fb38171b3b21c7317c787e746c12272059d3`, clean worktree, remote feature publication and `origin/main` ancestry. It recorded Ubuntu 22.04.5 x86_64, Node 24.19.0, npm 11.17.0, pnpm 11.25.0, Corepack 0.35.0, absent Yarn, unavailable system Chromium Snap wrapper, and a usable local Playwright-managed Chrome for Testing 151.0.7922.34. The extension remains documentation-only with no package/build/test setup. See [01.02 audit](Phases/PHASE_01_02.md). No installation, external-site access, Git mutation, application test, or 01.03 work occurred.
+Read-only tooling audit verified the requested root, origin, branch, upstream, expected HEAD `47a0fb38171b3b21c7317c788e746c12272059d3`, clean worktree, remote feature publication and `origin/main` ancestry. It recorded Ubuntu 22.04.5 x86_64, Node 24.19.0, npm 11.17.0, pnpm 11.25.0, Corepack 0.35.0, absent Yarn, unavailable system Chromium Snap wrapper, and a usable local Playwright-managed Chrome for Testing 151.0.7922.34. The extension remains documentation-only with no package/build/test setup. See [01.02 audit](Phases/PHASE_01_02.md). No installation, external-site access, Git mutation, application test, or 01.03 work occurred.
 
 ## 2026-10-28: 01.03, accepted
 

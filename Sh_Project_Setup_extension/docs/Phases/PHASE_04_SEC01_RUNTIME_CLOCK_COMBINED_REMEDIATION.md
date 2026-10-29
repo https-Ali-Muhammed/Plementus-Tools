@@ -1,0 +1,41 @@
+# Phase 04 SEC-01: combined runtime clock and restart remediation
+
+**Status: DISCONNECTED_CANDIDATE READY_FOR_REVIEW (2026-10-29).** Independent ChatGPT acceptance of the numerical criteria and implementation is pending. Progress remains **5/20 master phases; 22/72 micro-phases accepted**. Phase 04 remains **IN_PROGRESS / BLOCKED**; production is **NO_GO**. The [runtime clock-source decision](PHASE_04_SEC01_RUNTIME_CLOCK_SOURCE_DECISION.md) remains **PROPOSED**, not OWNER_APPROVED. No production worker/recovery integration, manual owner-deletion path or activation is included.
+
+## Problems and changes
+
+**P1, false clock blocks.** The prior service sampled wall then monotonic and rejected any positive wall delta greater than the monotonic delta. Millisecond integer wall quantization, fractional monotonic precision and call order can produce that difference without a clock change. `time()` now takes a synchronous monotonic-before → wall → monotonic-after bracket. It rejects invalid wall or monotonic values, reversed or wider-than-1-ms brackets, monotonic regression, wall rollback and unexplained forward movement. It compares both consecutive samples and the first service-instance sample so repeated small advances cannot hide a paused clock. All detected clock uncertainty latches the instance and returns only `Checkpoint operation failed`.
+
+**P2, restart safety.** The service keeps known-record creation brackets only in a volatile `Map`. A new instance cannot inherit them. Its cleanup scan rejects an unknown persisted row before any deletion, and checkpoint-dependent create/read/transition/delete also fail. A plausible wall value or reset monotonic timer never restores that row. Empty storage still permits guarded fresh creation. This disconnected service has no replay runner; isolated worker and browser restart tests observed blocked reads and unchanged rows. The unresolved physical-retention obligation remains governed by the [owner-approved combined A+B decision](PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) and [uncertain-time retention amendment](PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md), with no guaranteed maximum hold. No manual deletion or owner identity check was implemented.
+
+**Exact expiry.** `createdAt` remains immutable. The seven persisted fields remain exactly `schemaVersion`, `runId`, `state`, `step`, `evidenceTier`, `revision`, `createdAt`. Normal automatic deletion requires wall time at or beyond `createdAt + 604800000` and a same-instance conservative monotonic lower bound of at least `604800000` ms, computed as current bracket's before edge minus the creation bracket's after edge minus the 0.1 ms timer-precision allowance. The 1.1 ms jump-detection allowance never counts toward expiry. Insufficient evidence latches blocking and retains the row. Existing atomic cleanup, revision, terminal-state, authorization, transaction-completion and generic-error guards remain exercised.
+
+## Clock evidence, assumptions and residual risk
+
+The candidate forward comparison permits wall advance no greater than the maximum bracketed monotonic advance plus **1.1 ms**. The 1 ms component bounds integer wall quantization; 0.1 ms is the [documented non-isolated high-resolution timer precision cited by the decision draft](PHASE_04_SEC01_RUNTIME_CLOCK_SOURCE_DECISION.md). These are detection assumptions, not permission to shorten retention. The **1 ms maximum bracket width** is a conservative sampling-duration criterion tied to one wall-clock quantum, not a guarantee about scheduler behavior. An exploratory 20,000-bracket Chromium run had 0.8 ms maximum width, 1 ms maximum positive discrepancy, no reversed brackets and 18,345 fractional before values. The final browser run had 0.6 ms maximum width, 1 ms discrepancy, no reversals, and 17,585 fractional before values; all 20,000 final brackets met the 1 ms width cap. An intermediate exploratory run exceeded that cap and failed the preliminary all-samples assertion; its exact maximum was not captured. Such a delayed bracket intentionally fails closed and may burden owners with a false block. These values need independent owner/security review across supported platforms; they are **not accepted clock-source guarantees**.
+
+`Date.now()` can change, and `performance.now()` can be coarsened, pause during sleep on some systems, or reset across worker/browser lifetimes. The source itself is injected and remains unapproved for production. A malicious clock change within the candidate allowance or a platform precision change can evade detection; a slow clock or scheduling delay can retain a row longer. Seven continuous days in one MV3 service instance are unlikely, so most persisted rows may require the approved owner-controlled retention process. Synthetic seven-day jumps prove branching and transaction handling, not seven real elapsed days or tamper resistance. IndexedDB deletion is not forensic erasure.
+
+## Validation and environment
+
+Run from `Sh_Project_Setup_extension`, separately:
+
+| Command | Result |
+|---|---|
+| `node --test test/*.test.mjs` | **88 PASS, 0 FAIL, 0 SKIP, 0 CANCELLED** |
+| `node --check src/storage/checkpoint-service.mjs` | PASS |
+| `node --check test/checkpoint-service.test.mjs` | PASS |
+| `node --check test/sec01-cleanup-browser.mjs` | PASS |
+| `node --check test/sec01-cp3-browser.mjs` | PASS |
+| `node test/sec01-cleanup-browser.mjs` | **13 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED**, remote page requests 0, profile cleanup PASS |
+| `node test/sec01-cp3-browser.mjs` | **9 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED**, remote page requests 0, profile cleanup PASS |
+
+Node v24.19.0; Linux 6.8.0-138-generic; installed Playwright Chromium 151.0.7922.34 at `/home/https_ali_muhammed/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome`. The browser scripts used test-only extension files and owned disposable profiles, closed Chromium, then verified removal, including test failure paths. No OS clock was changed, no dependency was downloaded, and no normal Chrome/Brave profile was accessed. The cleanup script measured real `Date.now()`/`performance.now()` brackets; its guarded scheduling test used a synthetic integer wall derived from real `performance.now()` to keep `createdAt` exact. Other anomaly and seven-day values were injected. CP3 separately observed worker stop/reactivation and a same-profile browser-process restart. The harness has no workflow runner, so no-replay evidence is bounded to its synthetic worker.
+
+Node test-first runs observed the old service fail on ordinary precision and conservative expiry cases; a later test observed the incremental-pause gap before the first-to-current comparison was added. The final commands above supersede intermediate test failures. The Git preflight matched root, branch `feature/sh-project-setup-extension-clean`, local/upstream/live remote SHA `60d1ab5cb584dd73e986f9268b07e94cd9ff7275`, both origin URLs and a clean whole worktree. `git ls-remote` was a read-only Git preflight; no fetch, commit or push occurred.
+
+## Scope and remaining decisions
+
+Changed files: `src/storage/checkpoint-service.mjs`, `test/checkpoint-service.test.mjs`, `test/sec01-cleanup-browser.mjs`, this report, `docs/Phases/PHASE_04.md`, `docs/00_PROJECT_STATUS.md`, `docs/03_CHANGELOG.md`, `docs/04_TEST_EVIDENCE.md`, and `docs/06_HANDOFF.md`. `test/sec01-cp3-browser.mjs` was run unchanged. Approved policies, `checkpoint-policy.mjs`, runtime decision draft, background, recovery, manifest, dependencies, permissions, master plan and source remain unchanged. No provider or customer data, provider action, production runtime write, automatic uncertain deletion or replay was introduced.
+
+Owner/security acceptance is still required for the 1.1 ms detection rule, 1 ms bracket cap, 0.1 ms monotonic precision assumption, supported platforms and false-block burden; for the within-instance expiry criterion; and for the remaining clock-source risk. Real project-owner authorization, device controls, incident route, protected runtime access, worker/recovery wiring, provider behavior and final security review remain **OPEN / NOT VERIFIED**. Stop for independent ChatGPT acceptance. Production remains **NO_GO**.
