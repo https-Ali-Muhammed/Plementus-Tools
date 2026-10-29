@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED; Option B is OWNER_APPROVED / IMPLEMENTATION_PARTIAL; the disconnected cleanup gate is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 and the disconnected cleanup gate are ACCEPTED; Option B remains OWNER_APPROVED; isolated browser cleanup is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+
+## 2026-10-29: SEC-01 isolated real-browser cleanup, ready for review
+
+Owner-authorized synthetic verification used a disposable Chrome profile and the current disconnected storage modules in a test-only MV3 extension. Node suite: 50 PASS; real Chrome cleanup: 11 PASS, 0 FAIL/SKIP/BLOCKED, including atomic rollback, direct worker stop/reactivation and browser-process restart. The [browser report](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) records commands, observed ordering, harness corrections and limits. Production code, permissions and runtime integration were unchanged; no provider action, commit or push occurred.
 
 ## 2026-10-29: SEC-01 disconnected cleanup gate, ready for review
 

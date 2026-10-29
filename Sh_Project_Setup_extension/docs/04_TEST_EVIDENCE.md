@@ -2,7 +2,7 @@
 
 Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 18/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 ACCEPTED FOR PURE VALIDATION AND SIMULATION ONLY.** The current unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**; earlier startup timeouts are preserved below. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
-The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) is **CLEANUP_GATE READY_FOR_REVIEW** under **OPTION_B OWNER_APPROVED / IMPLEMENTATION_PARTIAL**. Its current Node run is **50 PASS, 0 FAIL, 0 SKIP** (39 retained cases, 11 new cases; 10 net additional), with three syntax checks passing. This is synthetic service evidence only; the prior isolated Chrome results did not exercise the new gate.
+The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) is **ACCEPTED** under **OPTION_B OWNER_APPROVED**. Its Node run is **50 PASS, 0 FAIL, 0 SKIP**. The new [isolated real-browser cleanup report](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) is **BROWSER_CLEANUP READY_FOR_REVIEW**, with **11 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED** in Chrome for Testing. Production integration and security acceptance remain blocked.
 
 ## Actual evidence
 
@@ -31,7 +31,8 @@ The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEM
 
 | 04.04 | **SIMULATED / PASS:** 27 Node tests (23 existing, 4 transition-proposal cases); no skips or failures. Browser smoke NOT RUN for this isolated module. | [04.04 report](Phases/PHASE_04_04.md); real durability and lifecycle recovery remain unverified. |
 
-| SEC-01 cleanup gate | **SYNTHETIC / PASS:** Node v24.19.0, 50 tests passed, 0 failed/skipped; three changed JavaScript modules passed syntax checks. | [Implementation report](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md); the fake cannot prove real IndexedDB scheduling, cross-context concurrency, restart-clock trust or production startup cleanup. No browser test in this task. |
+| SEC-01 cleanup gate | **SYNTHETIC / PASS:** Node v24.19.0, 50 tests passed, 0 failed/skipped; three changed JavaScript modules passed syntax checks in the earlier task. | [Implementation report](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md); the fake alone cannot prove real IndexedDB scheduling or restart-clock trust. |
+| SEC-01 isolated browser cleanup | **LOCAL_BROWSER_TESTED / PASS:** Chrome 151.0.7922.34, 11 checks passed, 0 failed/skipped/blocked; test syntax passed and disposable-profile cleanup passed. | [Browser report](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md); verified disconnected real IndexedDB cleanup, atomicity and lifecycle, not production worker integration or clock trust. |
 
 Historical 00.02 commit comparison `git --no-optional-locks diff --check 39a6e97e637dd227aadea5529b2d1a80e2d4c531 HEAD` in 00.03 returned exit 2 for source-preserved Markdown hard-break whitespace. This was not an application test and its `HEAD` referred to that historical run. Do not alter the authoritative plan to remove it.
 
