@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B is OWNER_APPROVED; Clock Option B is OWNER_APPROVED_AS_DIRECTION_ONLY. Manual resolution is OWNER_DECISION_REQUIRED; the retention conflict is UNRESOLVED. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B is OWNER_APPROVED; combined A+B is COMBINED_AB_DIRECTION OWNER_APPROVED / DIRECTION_APPROVED_ONLY. Operational policy is OWNER_DECISION_REQUIRED; the proposed retention amendment is NOT_APPROVED. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+
+## 2026-10-29: SEC-01 combined A+B direction, consolidated owner decision pending
+
+At clean HEAD `49ed3c48c5fbaf658c8980d26e95e97a47e2cd5f`, with equal upstream and live origin, recorded the owner's combined hold plus separately authorized deletion direction. Revised the existing [manual-resolution package](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) to propose one set of operating rules, explain why browser-only time cannot enforce a guaranteed maximum hold, and present one decision register and unapproved amendment wording. No operating policy, implementation, test, browser write, provider operation, commit, push or activation was authorized or performed.
 
 ## 2026-10-29: SEC-01 Clock B manual-resolution decision, owner review pending
 
