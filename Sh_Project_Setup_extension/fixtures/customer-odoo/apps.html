@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Simulated customer Odoo Apps</title>
+  <style>body{font:1rem system-ui;max-width:46rem;margin:2rem auto;padding:0 1rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}button{font:inherit}</style>
+</head>
+<body data-fixture="customer-odoo-apps" data-database-id="fixture-customer-db-001">
+  <header><strong>SIMULATED TEST FIXTURE — NOT REAL CUSTOMER SYSTEM</strong><h1>Customer Odoo Apps</h1></header>
+  <main>
+    <p>Fictional database: Cedar Workshop Demo (fixture-customer-db-001)</p>
+    <section aria-labelledby="environment-heading" data-fixture="environment-selection" data-selected="production">
+      <h2 id="environment-heading">Environment</h2>
+      <p data-fixture="production-indicator" data-state="selected">Production — selected for preview only</p>
+      <p data-fixture="test-indicator" data-state="available">Test — available as a separate target</p>
+    </section>
+    <section aria-labelledby="apps-heading" data-fixture="module-list">
+      <h2 id="apps-heading">Simulated modules</h2>
+      <table><caption>Availability and installation are separate states</caption><thead><tr><th scope="col">Module</th><th scope="col">Availability</th><th scope="col">Installation</th></tr></thead><tbody>
+        <tr data-fixture="module-pl-auth" data-availability="available" data-installation="not-installed"><th scope="row">pl_auth (candidate)</th><td>Available</td><td>Not installed</td></tr>
+        <tr data-fixture="module-cedar-labels" data-availability="available" data-installation="installed"><th scope="row">cedar_labels (invented)</th><td>Available</td><td>Installed (simulated)</td></tr>
+      </tbody></table>
+      <p>Repository attachment and module availability do not prove installation. Real installation needs independent state verification and approval.</p>
+    </section>
+    <section aria-labelledby="preview-heading" data-fixture="module-approval-checkpoint" data-state="awaiting-approval">
+      <h2 id="preview-heading">Selected-module preview and approval checkpoint</h2>
+      <p>Candidate: pl_auth; target: Production; current simulated state: not installed. No approval has been given.</p>
+      <button type="button" data-fixture="install-control" disabled>Install unavailable in fixture</button>
+    </section>
+  </main>
+</body>
+</html>
