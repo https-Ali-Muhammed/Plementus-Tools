@@ -1,5 +1,9 @@
 # Test and validation evidence
 
+Phase 05.01 offline contract: `node --test test/*.test.mjs` **58 PASS, 0 FAIL, 0 SKIP** after a new validator correction; both requested `node --check` commands PASS. Pure synthetic values only. [Report](Phases/PHASE_05_01.md). No new browser/provider verification; progress remains 4/20 and 18/72.
+
+Phase 05.01 fix-only remediation: the existing 58 tests and two new R1/R2 regressions pass; full Node suite **60 PASS, 0 FAIL, 0 SKIP** and both syntax checks pass. The prior result above is historical. No provider or browser test was added.
+
 Current evidence includes documentation, read-only Git/tooling inspection, static MV3 artifact validation, Node validation tests, and isolated local Chrome smoke tests. **4/20 master phases; 18/72 micro-phases accepted; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 ACCEPTED FOR PURE VALIDATION AND SIMULATION ONLY.** The current unpacked extension smoke tests are **LOCAL_BROWSER_TESTED / PASS**; earlier startup timeouts are preserved below. Workflow execution, security, provider, and real-site tests remain **NOT RUN**. No provider or production capability follows from this local result.
 
 The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) is **ACCEPTED** under **OPTION_B OWNER_APPROVED**. Its Node run is **50 PASS, 0 FAIL, 0 SKIP**. The new [isolated real-browser cleanup report](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) is **BROWSER_CLEANUP READY_FOR_REVIEW**, with **11 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED** in Chrome for Testing. Production integration and security acceptance remain blocked.

@@ -1,5 +1,7 @@
 # Proposed integration contracts
 
+Phase 05.01 adds the [pure v1 contract](Phases/PHASE_05_01.md) for the three site adapters under an owner-approved offline sequencing exception. It is READY_FOR_REVIEW and does not verify any real provider capability or alter the later integration gates. The historical design text below remains a proposal where no implementation exists.
+
 Status: DESIGN REQUIREMENTS ONLY, not implemented or verified. [Master plan](01_MASTER_PLAN.md) sections 2–3 and 5 are the source. No site, provider or sandbox was accessed in 00.03. Real Odoo.sh, customer Odoo and Plementus UI capabilities are **CANDIDATE_ONLY / UNVERIFIED**.
 
 ## Common boundary

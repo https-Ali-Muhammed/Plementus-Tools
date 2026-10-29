@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B remains OWNER_APPROVED; COMBINED_AB_OPERATIONAL_POLICY and UNCERTAIN_TIME_RETENTION_AMENDMENT are OWNER_APPROVED. Documentation only; implementation is not authorized. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+## 2026-10-29: Phase 05.01 versioned adapter contract, ready for review
+
+Owner-approved offline sequencing exception while Phase 04 remains blocked. Added a pure v1 provider-neutral contract, Node tests and [05.01 report](Phases/PHASE_05_01.md). No provider, browser, storage or worker integration. Progress remains 4/20 and 18/72; production NO_GO.
+
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B remains OWNER_APPROVED; COMBINED_AB_OPERATIONAL_POLICY and UNCERTAIN_TIME_RETENTION_AMENDMENT are OWNER_APPROVED. SEC-01 operational implementation is not authorized. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
 
 ## 2026-10-29: SEC-01 combined A+B operational policy and uncertainty amendment approved
 

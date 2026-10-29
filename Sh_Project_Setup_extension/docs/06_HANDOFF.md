@@ -1,5 +1,7 @@
 # Project handoff
 
+**Phase 05.01 sequencing exception (2026-10-29):** Owner authorized only offline versioned adapter interfaces while Phase 04 remains IN_PROGRESS / BLOCKED. [05.01](Phases/PHASE_05_01.md) is READY_FOR_REVIEW; [Phase 05](Phases/PHASE_05.md) is IN_PROGRESS; 05.02–05.04 are NOT_STARTED. Progress remains **4/20 and 18/72**. Production NO_GO. Stop for ChatGPT independent acceptance; no provider/runtime action, commit or push.
+
 Snapshot: 2026-10-29. **4/20 master phases; 18/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, 03.01–03.04, and 04.01 are ACCEPTED per owner; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY, 04.03 for SYNTHETIC DECISIONS ONLY, and 04.04 for PURE VALIDATION AND SIMULATION ONLY. Parent Phase 04 remains IN_PROGRESS / BLOCKED. [Project status](00_PROJECT_STATUS.md) is the current progress record.
 
 The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) and [isolated browser cleanup verification](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are **ACCEPTED within their bounded scopes**; the latter reported Node 50 PASS and Chrome 11 PASS. Option B **retention** remains **OWNER_APPROVED**. The [combined A+B operational policy](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) and [uncertain-time retention amendment](Phases/PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md) are **OWNER_APPROVED / DOCUMENTATION_ONLY**. Implementation is **NOT AUTHORIZED**; production activation is **NO_GO**.
