@@ -167,6 +167,23 @@ try {
     assert.deepEqual(result.events, ['start:readwrite','complete:readwrite']);
     assert.equal(result.absent, undefined); assert.equal(result.denied, true);
   });
+  await check('stalled wall at seven monotonic days blocks all access and preserves the checkpoint', async () => {
+    const result = await run(async ({ r, fresh, day7 }) => {
+      await h.reset(); const service = await h.service(); await service.create(r);
+      h.tick = day7 + 0.2;
+      const denied = [];
+      for (const operation of [() => service.read(r.runId),
+        () => service.transition(r.runId, 'draft', 0, 'ready'),
+        () => service.delete(r.runId, 0, 'explicit'),
+        () => service.create(fresh), () => service.cleanup()]) denied.push(await h.rejected(operation()));
+      h.clock += day7;
+      const stillBlocked = await h.rejected(service.cleanup());
+      return { denied, stillBlocked, stored: await h.get(r.runId), fresh: await h.get(fresh.runId) };
+    }, { r: record(ids[0]), fresh: record(ids[1]), day7 });
+    assert.deepEqual(result.denied, [true, true, true, true, true]);
+    assert.equal(result.stillBlocked, true);
+    assert.deepEqual(result.stored, record(ids[0])); assert.equal(result.fresh, undefined);
+  });
   await check('rollback blocks the same instance after apparent repair without deletion', async () => {
     const result = await run(async r => {
       await h.reset(); const service = await h.service(); await service.create(r); await service.read(r.runId);

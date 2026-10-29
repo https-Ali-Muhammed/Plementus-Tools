@@ -44,7 +44,9 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
     const result = checkpointEligibility(record, sample.wall);
     const creation = known.get(record?.runId);
     if (!creation || record.createdAt !== creation.wall) { clockBlocked = true; throw failure(); }
-    if (result === "expired" && sample.before - creation.after - TIMER_PRECISION_MS < RETENTION_MS) {
+    const elapsed = sample.before - creation.after - TIMER_PRECISION_MS;
+    if ((result === "expired" && elapsed < RETENTION_MS) ||
+        (result === "eligible" && elapsed >= RETENTION_MS)) {
       clockBlocked = true; throw failure();
     }
     return result;

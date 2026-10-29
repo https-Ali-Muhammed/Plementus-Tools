@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-10-29: SEC-01 stalled-wall safety fix and restart resolution, ready for review
+
+The disconnected checkpoint service now latches uncertainty when conservative same-instance monotonic time reaches seven days while wall time still claims eligibility. It blocks access and retains the row. Added test-first Node regression and isolated Chromium coverage for stalled wall, tab closure, worker reactivation and same-profile browser restart. The [bounded report](Phases/PHASE_04_SEC01_STALLED_WALL_AND_RESTART_RESOLUTION.md) proposes operator-assisted fresh work after reconciliation and fresh authorization; implementation remains blocked by the existing global gate and missing production controls. Final validation: **89 Node PASS; 14 + 10 Chromium PASS**, 0 FAIL/SKIP/BLOCKED. Progress **5/20 and 22/72**; Phase 04 blocked, production NO_GO. No commit or push.
+
 ## 2026-10-29: SEC-01 combined clock and restart remediation, ready for review
 
 Updated the disconnected checkpoint service for bracketed clock sampling, cumulative forward-jump detection, volatile creation-time evidence and conservative seven-day cleanup. Added synthetic regressions and isolated Chromium timing checks; final results were **88 Node PASS** and **13 + 9 Chromium PASS**. The [combined report](Phases/PHASE_04_SEC01_RUNTIME_CLOCK_COMBINED_REMEDIATION.md) records candidate numerical assumptions, restart retention and remaining security gates. Progress remains **5/20 and 22/72**; Phase 04 **IN_PROGRESS / BLOCKED**, production **NO_GO**. No production wiring, commit or push.

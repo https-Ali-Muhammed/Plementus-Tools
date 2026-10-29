@@ -1,5 +1,7 @@
 # Phase 04: Durable workflow state
 
+**Current bounded review:** The [stalled-wall fix and restart-resolution report](PHASE_04_SEC01_STALLED_WALL_AND_RESTART_RESOLUTION.md) is **READY_FOR_REVIEW** for the disconnected safety fix and verified fail-closed restart behavior. Operator-assisted fresh-work recovery is a proposed design only; the current service blocks fresh creation beside an unresolved row. Automatic cross-restart resumability remains blocked under the approved seven-field architecture. Progress remains **5/20 and 22/72**; production **NO_GO**.
+
 **Status: IN_PROGRESS / BLOCKED.** 2026-10-29. Progress: **5/20 master phases; 22/72 micro-phases accepted.** SEC-01 CP1–CP4, the [disconnected cleanup gate](PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup](PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are ACCEPTED within their documented scopes. [Option B retention](PHASE_04_SEC01_RETENTION_AMENDMENT_B.md), [combined A+B operational policy](PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) and [uncertain-time retention amendment](PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md) are OWNER_APPROVED. The [combined disconnected clock/restart remediation](PHASE_04_SEC01_RUNTIME_CLOCK_COMBINED_REMEDIATION.md) is READY_FOR_REVIEW. Production integration is not authorized; activation is NO_GO.
 
 | Micro-phase | Status |

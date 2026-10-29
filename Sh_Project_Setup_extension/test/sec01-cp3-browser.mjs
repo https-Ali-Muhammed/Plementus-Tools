@@ -77,7 +77,13 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   (async () => {
     clock = message.now ?? clock; tick = message.tick ?? tick;
     service ??= await createCheckpointService(indexedDB, { now: () => clock, monotonicNow: () => tick, authorize: () => true });
-    try { return { bootId, record: message.action === 'create' ? await service.create(message.record) : await service.read(message.id) }; }
+    try { return { bootId, record: await ({
+      create: () => service.create(message.record),
+      read: () => service.read(message.id),
+      transition: () => service.transition(message.id, 'draft', 0, 'ready'),
+      delete: () => service.delete(message.id, 0, 'explicit'),
+      cleanup: () => service.cleanup(),
+    })[message.action]() }; }
     catch { return { bootId, error: true }; }
   })().then(reply, () => reply({ bootId, error: true }));
   return true;
@@ -147,6 +153,11 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     const read = await run(id => chrome.runtime.sendMessage({ action: 'read', id, now: 1000, tick: 0 }), ids[2]);
     assert.deepEqual(read.record, record(ids[2])); assert.equal(read.bootId, workerBefore.bootId);
   });
+  await check('tab close preserves worker authority while that worker remains alive', async () => {
+    await page.close(); await openPage();
+    const after = await run(id => chrome.runtime.sendMessage({ action: 'read', id, now: 1000, tick: 0 }), ids[2]);
+    assert.deepEqual(after.record, record(ids[2])); assert.equal(after.bootId, workerBefore.bootId);
+  });
   try {
     await check('direct worker stop, observed reactivation and blocked persisted row', async () => {
       const cdp = await context.newCDPSession(page), versions = [];
@@ -164,8 +175,16 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         });
         const after = await run(id => chrome.runtime.sendMessage({ action: 'read', id, now: 1000, tick: 0 }), ids[2]);
         assert.equal(after.error, true); assert.notEqual(after.bootId, workerBefore.bootId);
+        const denied = await run(async ({ id, fresh }) => Promise.all([
+          chrome.runtime.sendMessage({ action: 'transition', id, now: 1000, tick: 0 }),
+          chrome.runtime.sendMessage({ action: 'delete', id, now: 1000, tick: 0 }),
+          chrome.runtime.sendMessage({ action: 'cleanup', now: 1000, tick: 0 }),
+          chrome.runtime.sendMessage({ action: 'create', record: fresh, now: 1000, tick: 0 }),
+        ]), { id: ids[2], fresh: record(ids[1]) });
+        assert.ok(denied.every(x => x.error === true));
         assert.ok(versions.some(v => v.versionId === active.versionId && v.runningStatus === 'running' && versions.indexOf(v) > versions.findIndex(x => x.versionId === active.versionId && x.runningStatus === 'stopped')));
         assert.deepEqual(await run(id => h.get(id), ids[2]), record(ids[2]));
+        assert.equal(await run(id => h.get(id), ids[1]), undefined);
       } finally { await cdp.send('ServiceWorker.disable'); await cdp.detach(); }
     });
   } catch (error) {
@@ -178,10 +197,18 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     const before = await run(id => h.get(id), ids[2]);
     assert.deepEqual(before, record(ids[2]));
     const response = await run(id => chrome.runtime.sendMessage({ action: 'read', id, now: 1000 + 604800000, tick: 0 }), ids[2]);
+    const denied = await run(async ({ id, fresh }) => Promise.all([
+      chrome.runtime.sendMessage({ action: 'transition', id, now: 1000 + 604800000, tick: 0 }),
+      chrome.runtime.sendMessage({ action: 'delete', id, now: 1000 + 604800000, tick: 0 }),
+      chrome.runtime.sendMessage({ action: 'cleanup', now: 1000 + 604800000, tick: 0 }),
+      chrome.runtime.sendMessage({ action: 'create', record: fresh, now: 1000 + 604800000, tick: 0 }),
+    ]), { id: ids[2], fresh: { ...record(ids[1]), createdAt: 1000 + 604800000 } });
     const pageDenied = await run(id => h.rejected(service.read(id)), ids[2]);
     const after = await run(id => h.get(id), ids[2]);
-    assert.equal(response.error, true); assert.equal(pageDenied, true); assert.deepEqual(after, before);
+    assert.equal(response.error, true); assert.ok(denied.every(x => x.error === true));
+    assert.equal(pageDenied, true); assert.deepEqual(after, before);
     assert.equal(after.state, 'draft'); assert.equal(after.revision, 0);
+    assert.equal(await run(id => h.get(id), ids[1]), undefined);
   });
   assert.equal(remoteRequests, 0, 'unexpected non-extension request');
   console.log(`RESULT pass=${passed} fail=0 skip=0 blocked=${blocked} remote=${remoteRequests}`);

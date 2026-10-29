@@ -291,10 +291,24 @@ test("wall expiry never borrows detection allowance from insufficient elapsed pr
   await rejected(service.cleanup()); assert.deepEqual(factory.snapshot(id), record());
 });
 
+test("stalled wall at seven monotonic days latches every checkpoint operation and retains the row", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  clock(1000, RETENTION_MS + 0.2);
+  for (const operation of [() => service.read(id), () => service.transition(id, "draft", 0, "ready"),
+    () => service.delete(id, 0, "explicit"), () => service.create(record({ runId: secondId })),
+    () => service.cleanup()]) await rejected(operation());
+  assert.deepEqual(factory.snapshot(id), record());
+  assert.equal(factory.snapshot(secondId), undefined);
+  clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
+  await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record());
+});
+
 test("seven-day deletion requires a conservative same-instance monotonic lower bound", async () => {
   const { service, factory, clock } = await setup(); await service.create(record());
-  clock(1000 + RETENTION_MS - 1, RETENTION_MS + 0.2);
+  clock(1000 + RETENTION_MS - 1, RETENTION_MS - 1);
   assert.deepEqual(await service.read(id), record());
+  assert.deepEqual(factory.snapshot(id), record());
   clock(1000 + RETENTION_MS, RETENTION_MS + 0.2);
   assert.equal(await service.cleanup(), 1);
   assert.equal(factory.snapshot(id), undefined);
@@ -320,12 +334,14 @@ test("expired cleanup reports deletion only after transaction completion", async
 
 test("a restarted service retains a checkpoint and never replays possible writes", async () => {
   const { service, factory } = await setup(); await service.create(record());
-  const saved = (await service.transition(id, "draft", 0, "ready")).record;
+  await service.transition(id, "draft", 0, "ready");
+  await service.transition(id, "ready", 1, "running");
+  const saved = (await service.transition(id, "running", 2, "reconcile_required")).record;
   const restarted = await createCheckpointService(factory, { now: () => 1000 + RETENTION_MS, monotonicNow: () => 0, authorize: () => true });
   for (const operation of [() => restarted.create(record({ runId: secondId, createdAt: 1000 + RETENTION_MS })),
-    () => restarted.read(id), () => restarted.transition(id, "ready", 1, "running"),
-    () => restarted.delete(id, 1, "explicit"), () => restarted.cleanup()]) await rejected(operation());
+    () => restarted.read(id), () => restarted.transition(id, "reconcile_required", 3, "cancelled"),
+    () => restarted.delete(id, 3, "explicit"), () => restarted.cleanup()]) await rejected(operation());
   assert.deepEqual(factory.snapshot(id), saved);
-  assert.equal(factory.snapshot(id).revision, 1);
+  assert.equal(factory.snapshot(id).revision, 3);
   assert.equal(factory.snapshot(secondId), undefined);
 });
