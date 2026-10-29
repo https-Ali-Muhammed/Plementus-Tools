@@ -5,12 +5,18 @@ import { RETENTION_MS } from "../src/storage/checkpoint-policy.mjs";
 import { fakeIndexedDB } from "./fake-indexeddb.mjs";
 
 const id = "12345678-1234-4123-8123-123456789abc";
+const secondId = "12345678-1234-4123-8123-123456789abd";
 const record = (overrides = {}) => ({ schemaVersion: 2, runId: id, state: "draft", step: 0, evidenceTier: "none", revision: 0, createdAt: 1000, ...overrides });
 const rejected = promise => assert.rejects(promise, { message: "Checkpoint operation failed" });
 async function setup() {
   const factory = fakeIndexedDB(); let current = 1000, allowed = true;
   const service = await createCheckpointService(factory, { now: () => current, authorize: () => allowed });
   return { factory, service, clock: value => { current = value; }, auth: value => { allowed = value; } };
+}
+const nextTurn = () => new Promise(resolve => setImmediate(resolve));
+async function waitForTransaction(factory, count) {
+  for (let attempt = 0; attempt < 10 && factory.startedTransactionCount() < count; attempt++) await nextTurn();
+  assert.equal(factory.startedTransactionCount(), count);
 }
 
 test("initialization, strict schema, duplicates, immutability and generic errors", async () => {
@@ -35,8 +41,10 @@ test("transactional updates serialize competing revisions and preserve creation 
 
 test("transaction abort rolls back both update and deletion", async () => {
   const { service, factory } = await setup(); await service.create(record());
-  factory.abortNext(); await rejected(service.transition(id, "draft", 0, "ready")); assert.deepEqual(await service.read(id), record());
-  factory.abortNext(); await rejected(service.delete(id, 0, "explicit")); assert.deepEqual(await service.read(id), record());
+  factory.beforeTransaction(() => factory.beforeTransaction(() => factory.abortNext()));
+  await rejected(service.transition(id, "draft", 0, "ready")); assert.deepEqual(await service.read(id), record());
+  factory.beforeTransaction(() => factory.beforeTransaction(() => factory.abortNext()));
+  await rejected(service.delete(id, 0, "explicit")); assert.deepEqual(await service.read(id), record());
 });
 
 test("terminal and reconciliation guards, authorization is synthetic", async () => {
@@ -54,7 +62,7 @@ test("expiry is exact and never renewed; expired records cannot be read or updat
   clock(1000 + RETENTION_MS - 1); await service.transition(id, "draft", 0, "ready");
   assert.equal((await service.read(id)).createdAt, 1000);
   clock(1000 + RETENTION_MS); await rejected(service.read(id)); await rejected(service.transition(id, "ready", 1, "running"));
-  assert.equal(factory.snapshot(id).createdAt, 1000); assert.equal(await service.cleanup(), 1); assert.equal(factory.snapshot(id), undefined);
+  assert.equal(factory.snapshot(id), undefined); assert.equal(await service.cleanup(), 0);
 });
 
 test("authorized and acknowledged deletion guard state and revision", async () => {
@@ -64,22 +72,112 @@ test("authorized and acknowledged deletion guard state and revision", async () =
   await rejected(service.read(id)); factory.seed(record({ state: "completed" })); await service.delete(id, 0, "acknowledged"); assert.equal(factory.snapshot(id), undefined);
 });
 
-test("cleanup rejects conflicts and aborts while preserving records", async () => {
-  const { service, factory, clock } = await setup(); await service.create(record()); clock(1000 + RETENTION_MS);
-  // The second transaction is deletion: replace the record after the scan commits.
-  const cleanup = service.cleanup();
-  queueMicrotask(() => factory.beforeTransaction(() => factory.seed(record({ revision: 1 }))));
-  await rejected(cleanup); assert.equal(factory.snapshot(id).revision, 1);
-  factory.abortNext(); await rejected(service.cleanup()); assert.equal(factory.snapshot(id).revision, 1);
-  const abortedDelete = service.cleanup();
-  queueMicrotask(() => factory.beforeTransaction(() => factory.abortNext()));
-  await rejected(abortedDelete); assert.equal(factory.snapshot(id).revision, 1);
+test("cleanup is one atomic transaction and reports committed deletion", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  factory.seed(record({ runId: secondId })); clock(1000 + RETENTION_MS);
+  const before = factory.transactionCount();
+  assert.equal(await service.cleanup(), 2);
+  assert.equal(factory.transactionCount(), before + 1);
+  assert.equal(factory.snapshot(id), undefined); assert.equal(factory.snapshot(secondId), undefined);
+});
+
+test("abort after a staged deletion rolls back every expired record", async () => {
+  const { service, factory, clock } = await setup(); await service.create(record());
+  factory.seed(record({ runId: secondId })); clock(1000 + RETENTION_MS);
+  factory.abortAfterDeletes(1); await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record()); assert.deepEqual(factory.snapshot(secondId), record({ runId: secondId }));
+  assert.equal(await service.cleanup(), 2);
+});
+
+test("a failed deletion aborts cleanup without partial commit or record disclosure", async () => {
+  const { service, factory, clock } = await setup();
+  factory.seed(record()); factory.seed(record({ runId: secondId })); clock(1000 + RETENTION_MS);
+  factory.failNextDelete(); await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record()); assert.deepEqual(factory.snapshot(secondId), record({ runId: secondId }));
+});
+
+test("a stored primary-key mismatch aborts cleanup and preserves every row", async () => {
+  const { service, factory, clock } = await setup();
+  factory.seed(record()); factory.seed(record({ runId: secondId }), "mismatched-key"); clock(1000 + RETENTION_MS);
+  await rejected(service.cleanup());
+  assert.deepEqual(factory.snapshot(id), record());
+  assert.deepEqual(factory.snapshot("mismatched-key"), record({ runId: secondId }));
+});
+
+test("first and subsequent operations run cleanup before their own transaction", async () => {
+  const { service, factory } = await setup();
+  assert.equal(factory.transactionCount(), 0);
+  await service.create(record()); assert.equal(factory.transactionCount(), 2);
+  await service.read(id); assert.equal(factory.transactionCount(), 4);
+  await service.transition(id, "draft", 0, "ready"); assert.equal(factory.transactionCount(), 6);
+  await service.delete(id, 1, "explicit"); assert.equal(factory.transactionCount(), 8);
+  await rejected(service.read(id)); assert.equal(factory.transactionCount(), 10);
+});
+
+test("startup-style explicit cleanup deletes expired records before access", async () => {
+  const factory = fakeIndexedDB(); factory.seed(record());
+  const service = await createCheckpointService(factory, { now: () => 1000 + RETENTION_MS, authorize: () => true });
+  assert.equal(await service.cleanup(), 1);
+  assert.equal(factory.snapshot(id), undefined);
+  await rejected(service.read(id));
+});
+
+test("concurrent operations share the pending cleanup and wait for commit", async () => {
+  const { service, factory } = await setup(); factory.seed(record());
+  const release = factory.pauseNextCommit();
+  const first = service.read(id), second = service.transition(id, "draft", 0, "ready");
+  await waitForTransaction(factory, 1);
+  assert.equal(factory.transactionCount(), 1); assert.equal(factory.snapshot(id).revision, 0);
+  release();
+  assert.deepEqual(await first, record());
+  assert.equal((await second).record.revision, 1);
+  assert.equal(factory.transactionCount(), 3);
+});
+
+test("failed shared cleanup blocks requests, then a fresh request retries without replay", async () => {
+  const { service, factory } = await setup(); factory.seed(record());
+  factory.abortNext();
+  const first = service.transition(id, "draft", 0, "ready"), second = service.read(id);
+  await rejected(first); await rejected(second);
+  assert.equal(factory.transactionCount(), 1); assert.deepEqual(factory.snapshot(id), record());
+  assert.deepEqual(await service.read(id), record());
+  assert.equal(factory.snapshot(id).revision, 0);
+});
+
+test("aborted cleanup blocks create, read, update and delete", async () => {
+  const { service, factory } = await setup(); factory.seed(record());
+  for (const operation of [() => service.create(record({ runId: secondId })), () => service.read(id),
+    () => service.transition(id, "draft", 0, "ready"), () => service.delete(id, 0, "explicit")]) {
+    const before = factory.transactionCount(); factory.abortNext(); await rejected(operation());
+    assert.equal(factory.transactionCount(), before + 1);
+    assert.deepEqual(factory.snapshot(id), record()); assert.equal(factory.snapshot(secondId), undefined);
+  }
+});
+
+test("time is rechecked after a pending cleanup before reading or writing", async () => {
+  const { service, factory, clock } = await setup(); factory.seed(record());
+  const release = factory.pauseNextCommit(); const pending = service.read(id);
+  await waitForTransaction(factory, 1);
+  clock(1000 + RETENTION_MS); release(); await rejected(pending);
+  assert.deepEqual(factory.snapshot(id), record());
+  await rejected(service.read(id)); assert.equal(factory.snapshot(id), undefined);
+});
+
+test("invalid and backward clock samples block cleanup and access", async () => {
+  const { service, factory, clock } = await setup(); factory.seed(record());
+  clock(NaN); await rejected(service.read(id)); assert.equal(factory.transactionCount(), 0);
+  clock(1001); await service.read(id);
+  clock(1000); await rejected(service.read(id)); assert.deepEqual(factory.snapshot(id), record());
+  clock(1002); await service.read(id);
 });
 
 test("missing, corrupt, legacy, unknown versions and unavailable databases fail closed", async () => {
   const { service, factory } = await setup(); await rejected(service.read(id)); await rejected(service.delete(id, 0, "explicit"));
   for (const value of [record({ schemaVersion: 1 }), record({ schemaVersion: 3 }), record({ secret: "sensitive" })]) {
-    factory.seed(value); await rejected(service.read(id)); await rejected(service.delete(id, 0, "explicit")); await rejected(service.cleanup()); assert.deepEqual(factory.snapshot(id), value);
+    factory.seed(value); await rejected(service.create(record({ runId: secondId })));
+    await rejected(service.read(id)); await rejected(service.transition(id, "draft", 0, "ready"));
+    await rejected(service.delete(id, 0, "explicit")); await rejected(service.cleanup());
+    assert.deepEqual(factory.snapshot(id), value); assert.equal(factory.snapshot(secondId), undefined);
   }
   const unavailable = fakeIndexedDB(); unavailable.failOpen(); await rejected(createCheckpointService(unavailable, { now: () => 1000, authorize: () => true }));
   await rejected(createCheckpointService(null, { now: () => 1000, authorize: () => true }));

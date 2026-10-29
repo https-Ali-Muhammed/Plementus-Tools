@@ -19,6 +19,7 @@ export async function createCheckpointService(factory, { now, authorize }) {
     });
   } catch { throw failure(); }
   let previousTime;
+  let cleanupInFlight;
   function time() {
     const value = now();
     if (!Number.isSafeInteger(value) || value < 0 || (previousTime !== undefined && value < previousTime)) throw failure();
@@ -52,15 +53,50 @@ export async function createCheckpointService(factory, { now, authorize }) {
     checkedId(id);
     if (!Number.isSafeInteger(revision) || revision < 0) throw failure();
     return transaction("readwrite", (store, done, abort) => get(store, id, record => {
-      requireRecord(record, id, time(), reason === "expired" ? "expired" : "eligible");
+      requireRecord(record, id, time());
       if (record.revision !== revision || (reason === "acknowledged" && !["completed", "cancelled"].includes(record.state)) ||
-          (reason !== "expired" && authorize(reason) !== true)) throw failure();
+          authorize(reason) !== true) throw failure();
       store.delete(id); done();
     }, abort));
   }
+  function cleanupPass() {
+    const instant = time();
+    return transaction("readwrite", (store, done, abort) => {
+      let deleted = 0;
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        try {
+          const cursor = request.result;
+          if (!cursor) { done(deleted); return; }
+          const record = cursor.value;
+          if (!validateCheckpointStructure(record) || cursor.primaryKey !== record.runId) throw failure();
+          const eligibility = checkpointEligibility(record, instant);
+          if (eligibility === "invalid") throw failure();
+          if (eligibility === "expired") {
+            const deletion = cursor.delete();
+            deletion.onerror = abort;
+            deleted++;
+          }
+          cursor.continue();
+        } catch { abort(); }
+      };
+      request.onerror = abort;
+    });
+  }
+  async function gate() {
+    const pass = cleanupInFlight ??= cleanupPass();
+    try {
+      const deleted = await pass;
+      time();
+      return deleted;
+    } finally {
+      if (cleanupInFlight === pass) cleanupInFlight = undefined;
+    }
+  }
   async function safe(fn) { try { return await fn(); } catch { throw failure(); } }
   return Object.freeze({
-    create: record => safe(() => {
+    create: record => safe(async () => {
+      await gate();
       if (!validateCheckpointStructure(record) || record.revision !== 0) throw failure();
       const copy = { ...record };
       return transaction("readwrite", (store, done, abort) => get(store, copy.runId, existing => {
@@ -69,13 +105,15 @@ export async function createCheckpointService(factory, { now, authorize }) {
         store.add(copy); done({ ...copy });
       }, abort));
     }),
-    read: id => safe(() => {
+    read: id => safe(async () => {
+      await gate();
       checkedId(id);
       return transaction("readonly", (store, done, abort) => get(store, id, record => {
         requireRecord(record, id, time()); done({ ...record });
       }, abort));
     }),
-    transition: (id, expectedState, expectedRevision, targetState) => safe(() => {
+    transition: (id, expectedState, expectedRevision, targetState) => safe(async () => {
+      await gate();
       checkedId(id);
       return transaction("readwrite", (store, done, abort) => get(store, id, current => {
         const instant = time();
@@ -88,30 +126,11 @@ export async function createCheckpointService(factory, { now, authorize }) {
         store.put(proposed); done({ decision: "operator_review", record: { ...proposed } });
       }, abort));
     }),
-    delete: (id, revision, reason) => safe(() => {
+    delete: (id, revision, reason) => safe(async () => {
+      await gate();
       if (!["explicit", "acknowledged"].includes(reason)) throw failure();
       return remove(id, revision, reason);
     }),
-    cleanup: () => safe(async () => {
-      const instant = time();
-      const expired = await transaction("readonly", (store, done, abort) => {
-        const entries = []; const request = store.openCursor();
-        request.onsuccess = () => {
-          try {
-            const cursor = request.result;
-            if (!cursor) { done(entries); return; }
-            const record = cursor.value;
-            if (!validateCheckpointStructure(record) || cursor.primaryKey !== record.runId) throw failure();
-            const eligibility = checkpointEligibility(record, instant);
-            if (eligibility === "invalid") throw failure();
-            if (eligibility === "expired") entries.push([record.runId, record.revision]);
-            cursor.continue();
-          } catch { abort(); }
-        };
-        request.onerror = abort;
-      });
-      for (const [id, revision] of expired) await remove(id, revision, "expired");
-      return expired.length;
-    }),
+    cleanup: () => safe(() => gate()),
   });
 }

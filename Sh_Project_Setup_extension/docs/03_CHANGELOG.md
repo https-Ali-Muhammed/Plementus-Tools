@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED; Option B is OWNER_APPROVED / IMPLEMENTATION_NOT_VERIFIED; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED; Option B is OWNER_APPROVED / IMPLEMENTATION_PARTIAL; the disconnected cleanup gate is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+
+## 2026-10-29: SEC-01 disconnected cleanup gate, ready for review
+
+The owner authorized the service-only cleanup gate and synthetic tests. The existing injected service now gates all public checkpoint operations, shares an in-flight cleanup pass, and deletes expired valid records atomically in one readwrite transaction. Node v24.19.0 reported 50 PASS, 0 FAIL, 0 SKIP; three changed JavaScript modules passed syntax checks. The [implementation report](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) records commands, failures, limitations and the remaining production blockers. No worker integration, browser test, provider action, commit or push occurred.
 
 ## 2026-10-28: 00.01, accepted
 
