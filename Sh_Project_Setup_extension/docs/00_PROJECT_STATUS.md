@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP3 are ACCEPTED; [CP4 readiness review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) is READY_FOR_REVIEW. Parent Phase 04 remains IN_PROGRESS / BLOCKED; activation is NO_GO.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED. [Retention amendment B](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) is **OPTION_B OWNER_APPROVED / IMPLEMENTATION_NOT_VERIFIED** and ready for ChatGPT documentation acceptance. Parent Phase 04 remains IN_PROGRESS / BLOCKED; production activation is NO_GO.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -36,7 +36,7 @@ Historical reports retain their contemporaneous pending-review language. The own
 |---|---|
 | Canonical root | `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` |
 | Origin fetch/push | `https://github.com/https-Ali-Muhammed/Plementus-Tools.git` |
-| Branch / CP4 entry HEAD | `feature/sh-project-setup-extension-clean` / `7d0861c3f8750e0be741562ecf235f11c5b7e7e8` (equal to local upstream; no fetch) |
+| Branch / amendment entry HEAD | `feature/sh-project-setup-extension-clean` / `9a8b28e749d6f40334036300b21d79fbb92afb83` (equal to local upstream; no fetch) |
 | Clean base | `origin/main` at `9a818495593c87ef6d4a1376e7f81be26513e0b5`; remote feature publication was verified historically; current remote tip not checked |
 | Preserved historical source | `/home/https_ali_muhammed/Plementus/Tools`, `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec` |
 
@@ -50,6 +50,6 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 ## Blockers and next action
 
-The clean integration base and prior remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1–CP3 are accepted within their documented scope. Closed-browser seven-day deletion, trusted time, incident routing, device checks, real operator authorization, runtime access controls and activation approval remain outstanding. See [CP4](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) and the [decision register](05_BLOCKERS_AND_DECISIONS.md).
+The clean integration base and prior remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1–CP4 are accepted within their documented scope. Option B replaces the strict physical-deletion deadline while Chrome is closed; automatic cleanup at next execution, clock trust, incident routing, device checks, real operator authorization, runtime access controls and final security approval remain outstanding. See the [amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md), historical [CP4 review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) and [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of [SEC-01 CP4](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md). Activation NO_GO.**
+**STOP for ChatGPT acceptance of the [Option B documentation amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md). Production activation NO_GO.**

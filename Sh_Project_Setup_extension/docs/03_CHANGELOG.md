@@ -1,6 +1,6 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP3 are ACCEPTED; CP4 is READY_FOR_REVIEW; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED; Option B is OWNER_APPROVED / IMPLEMENTATION_NOT_VERIFIED; parent Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
 
 ## 2026-10-28: 00.01, accepted
 
@@ -97,3 +97,7 @@ CP2 accepted. Isolated Chrome IndexedDB, direct CDP worker stop/reactivation, an
 ## 2026-10-29: SEC-01 CP4, ready for review
 
 Reconciled ChatGPT acceptance of CP3 and the owner-reported published commit `7d0861c` (local HEAD equals local upstream; no fetch). Added a documentation-only [readiness review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) with activation NO_GO and unresolved retention, clock, incident, device, operator and runtime gates. No security or browser tests were run for CP4.
+
+## 2026-10-29: SEC-01 Option B retention amendment, owner-approved
+
+Reconciled ChatGPT acceptance of CP4. The owner approved logical expiry at seven days and physical deletion at the next available extension execution if Chrome was closed at expiry. Added the dated [Option B amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) and updated the [authoritative policy](Phases/PHASE_04_SEC01_APPROVED_POLICY.md). The historical CP4 NO_GO review remains unchanged; automatic cleanup, clock trust and other activation controls remain unverified. Documentation only; no tests or activation.
