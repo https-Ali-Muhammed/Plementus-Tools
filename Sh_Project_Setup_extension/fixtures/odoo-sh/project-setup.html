@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Simulated project setup</title>
+  <style>body{font:1rem system-ui;max-width:42rem;margin:2rem auto;padding:0 1rem}fieldset{margin:1rem 0}label{display:block;margin:.5rem 0}input,select,button{font:inherit}</style>
+</head>
+<body data-fixture="odoo-sh-project-setup" data-project-id="fixture-project-001">
+  <header><strong>SIMULATED TEST FIXTURE — NOT REAL ODOO.SH</strong><h1>Project setup</h1></header>
+  <main>
+    <p>Fictional project: Cedar Demo (fixture-project-001)</p>
+    <fieldset data-fixture="subscription-mode"><legend>Subscription mode</legend>
+      <label><input type="radio" name="subscription-mode" value="customer" checked> Customer subscription</label>
+      <label><input type="radio" name="subscription-mode" value="partner-trial"> Partner trial</label>
+    </fieldset>
+    <label for="repository">Repository</label>
+    <select id="repository" data-fixture="repository-selection"><option value="fixture-repo-001">fixture-repo-001 (fictional)</option></select>
+    <p data-fixture="branch-reference">Git branch: main</p>
+    <p data-fixture="environment-reference">Target environment: Production</p>
+    <button type="button" data-fixture="simulate-project-creation">Simulate project creation (inert test control)</button>
+  </main>
+</body>
+</html>

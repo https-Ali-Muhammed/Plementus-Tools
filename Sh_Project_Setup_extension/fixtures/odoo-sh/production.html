@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Simulated Production environment</title>
+  <style>body{font:1rem system-ui;max-width:42rem;margin:2rem auto;padding:0 1rem}button{font:inherit}</style>
+</head>
+<body data-fixture="odoo-sh-production" data-project-id="fixture-project-001" data-environment-id="fixture-production-001">
+  <header><strong>SIMULATED TEST FIXTURE — NOT REAL ODOO.SH</strong><h1>Production environment</h1></header>
+  <main>
+    <p>Fictional project: Cedar Demo (fixture-project-001)</p>
+    <p data-fixture="branch-reference">Git branch: main</p>
+    <p data-fixture="build-readiness" data-state="ready">Simulated build: ready</p>
+    <p data-fixture="database-readiness" data-state="ready">Simulated database: ready</p>
+    <section aria-labelledby="utility-heading" data-fixture="utility-access-checkpoint">
+      <h2 id="utility-heading">Utility access checkpoint</h2>
+      <p>Simulated review required; no repository access is granted here.</p>
+      <button type="button" disabled>Utility access review unavailable in fixture</button>
+    </section>
+    <section aria-labelledby="module-heading" data-fixture="module-installation-checkpoint">
+      <h2 id="module-heading">Module installation checkpoint</h2>
+      <p>Simulated review required; no module is installed here.</p>
+      <button type="button" disabled>Module installation unavailable in fixture</button>
+    </section>
+  </main>
+</body>
+</html>

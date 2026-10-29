@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Simulated Staging environment</title>
+  <style>body{font:1rem system-ui;max-width:42rem;margin:2rem auto;padding:0 1rem}button{font:inherit}</style>
+</head>
+<body data-fixture="odoo-sh-staging" data-project-id="fixture-project-001" data-environment-id="fixture-staging-001">
+  <header><strong>SIMULATED TEST FIXTURE — NOT REAL ODOO.SH</strong><h1>Staging environment</h1></header>
+  <main>
+    <p>Fictional project: Cedar Demo (fixture-project-001)</p>
+    <p data-fixture="branch-reference" data-state="created">Git branch: develop (simulated created)</p>
+    <p data-fixture="environment-state" data-state="awaiting-copy">Simulated environment: awaiting database copy</p>
+    <p data-fixture="build-readiness" data-state="pending">Simulated build: pending</p>
+    <p data-fixture="database-readiness" data-state="pending">Simulated database: pending</p>
+    <section aria-labelledby="copy-heading" data-fixture="database-copy-checkpoint" data-state="not-copied">
+      <h2 id="copy-heading">Neutralized database-copy checkpoint</h2>
+      <p>Creating a Git branch does not copy a database. No neutralized Production database copy has occurred.</p>
+      <button type="button" disabled>Database copy unavailable in fixture</button>
+    </section>
+  </main>
+</body>
+</html>
