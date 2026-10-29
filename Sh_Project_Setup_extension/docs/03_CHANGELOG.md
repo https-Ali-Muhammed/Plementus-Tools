@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-10-29: SEC-01 clock-safety Chromium regression, ready for review
+
+Updated the two historical browser scripts for the accepted fail-closed clock and known-record rules, preserving guarded create, transaction, revision, terminal, schema, authorization and lifecycle coverage. The [new report](Phases/PHASE_04_SEC01_CLOCK_SAFETY_BROWSER.md) records baseline failures, final 80 Node PASS, 20 isolated Chromium PASS, direct worker stop/reactivation and same-profile browser restart. Only test scripts and current documentation changed. Progress remains **5/20 and 22/72**; Phase 04 **IN_PROGRESS / BLOCKED**, activation **NO_GO**. No commit or push.
+
 ## 2026-10-29: Phase 05 parent acceptance, documentation closure
 
 Owner/ChatGPT accepted 05.01–05.04 and passed the [Phase 05 parent exit review](Phases/PHASE_05.md). Progress is **5/20 master phases; 22/72 micro-phases accepted**. The five invented provider-like HTML pages, pure v1 contract and F01–F07 scenarios satisfy local Phase 05 criteria; the recorded Node suite had **75 PASS**, with prior bounded fixture-browser checks of **12 PASS** and **22 PASS**. Mock evidence does not verify real provider behavior. The final product remains an online-capable Chrome extension; Phase 04 runtime-security gates remain unresolved and production NO_GO. No Phase 06 or production implementation is authorized. This entry changes documentation only.
