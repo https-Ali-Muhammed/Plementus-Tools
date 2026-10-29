@@ -1,6 +1,10 @@
 # Project changelog
 
-Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B is OWNER_APPROVED; combined A+B is COMBINED_AB_DIRECTION OWNER_APPROVED / DIRECTION_APPROVED_ONLY. Operational policy is OWNER_DECISION_REQUIRED; the proposed retention amendment is NOT_APPROVED. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+Chronological project record; no entry implies application functionality or live provider verification. Progress is **4/20 master phases; 18/72 micro-phases accepted**; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4, the disconnected cleanup gate and isolated browser cleanup are ACCEPTED within their scopes. Retention Option B remains OWNER_APPROVED; COMBINED_AB_OPERATIONAL_POLICY and UNCERTAIN_TIME_RETENTION_AMENDMENT are OWNER_APPROVED. Documentation only; implementation is not authorized. Phase 04 remains IN_PROGRESS / BLOCKED and activation is NO_GO.
+
+## 2026-10-29: SEC-01 combined A+B operational policy and uncertainty amendment approved
+
+At clean, published HEAD `6e83eff869436dc8c7e385d5c11c34eedf5e8274`, the owner approved the final [combined operational policy](Phases/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) and a separate [uncertain-time retention amendment](Phases/PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md). The exception permits blocked local retention without a guaranteed maximum and case-specific project-owner-approved deletion when expiry cannot be established; no delegation or old-checkpoint replay is approved. The original SEC-01 and Retention Option B policies and historical reports remain unchanged. Documentation only; implementation, browser/storage writes, tests, provider work, commit and push were not performed.
 
 ## 2026-10-29: SEC-01 combined A+B direction, consolidated owner decision pending
 
