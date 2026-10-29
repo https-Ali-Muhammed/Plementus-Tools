@@ -5,10 +5,11 @@ const failure = () => new Error("Checkpoint operation failed");
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 // The factory, clock and authorization are injected; none establishes runtime identity.
-export async function createCheckpointService(factory, { now, authorize }) {
+export async function createCheckpointService(factory, { now, monotonicNow, authorize } = {}) {
   let db;
   try {
-    if (!factory || typeof factory.open !== "function" || typeof now !== "function" || typeof authorize !== "function") throw failure();
+    if (!factory || typeof factory.open !== "function" || typeof now !== "function" ||
+        (monotonicNow !== undefined && typeof monotonicNow !== "function") || typeof authorize !== "function") throw failure();
     db = await new Promise((resolve, reject) => {
       const request = factory.open("sec01-checkpoints", 1);
       request.onupgradeneeded = () => {
@@ -18,13 +19,22 @@ export async function createCheckpointService(factory, { now, authorize }) {
       request.onerror = request.onblocked = () => reject(failure());
     });
   } catch { throw failure(); }
-  let previousTime;
+  let previousTime, previousMonotonic, clockBlocked = false;
+  const known = new Set();
   let cleanupInFlight;
   function time() {
-    const value = now();
-    if (!Number.isSafeInteger(value) || value < 0 || (previousTime !== undefined && value < previousTime)) throw failure();
-    previousTime = value;
-    return value;
+    if (clockBlocked) throw failure();
+    try {
+      const value = now(), tick = monotonicNow?.();
+      if (!Number.isSafeInteger(value) || value < 0 ||
+          (monotonicNow && (!Number.isFinite(tick) || tick < 0 || tick > Number.MAX_SAFE_INTEGER)) ||
+          (previousTime !== undefined && (value < previousTime ||
+            (monotonicNow && tick < previousMonotonic) ||
+            value - previousTime > (monotonicNow ? tick - previousMonotonic : 0)))) throw failure();
+      previousTime = value;
+      previousMonotonic = tick;
+      return value;
+    } catch { clockBlocked = true; throw failure(); }
   }
   function transaction(mode, execute) {
     return new Promise((resolve, reject) => {
@@ -47,35 +57,39 @@ export async function createCheckpointService(factory, { now, authorize }) {
     request.onerror = abort;
   }
   function requireRecord(record, id, instant, eligibility = "eligible") {
+    if (record !== undefined && !known.has(id)) { clockBlocked = true; throw failure(); }
     if (!validateCheckpointStructure(record) || record.runId !== id || checkpointEligibility(record, instant) !== eligibility) throw failure();
   }
   async function remove(id, revision, reason) {
     checkedId(id);
     if (!Number.isSafeInteger(revision) || revision < 0) throw failure();
-    return transaction("readwrite", (store, done, abort) => get(store, id, record => {
+    const result = await transaction("readwrite", (store, done, abort) => get(store, id, record => {
       requireRecord(record, id, time());
       if (record.revision !== revision || (reason === "acknowledged" && !["completed", "cancelled"].includes(record.state)) ||
           authorize(reason) !== true) throw failure();
       store.delete(id); done();
     }, abort));
+    known.delete(id);
+    return result;
   }
   function cleanupPass() {
     const instant = time();
     return transaction("readwrite", (store, done, abort) => {
-      let deleted = 0;
+      const deleted = [];
       const request = store.openCursor();
       request.onsuccess = () => {
         try {
           const cursor = request.result;
           if (!cursor) { done(deleted); return; }
           const record = cursor.value;
+          if (!known.has(cursor.primaryKey)) { clockBlocked = true; throw failure(); }
           if (!validateCheckpointStructure(record) || cursor.primaryKey !== record.runId) throw failure();
           const eligibility = checkpointEligibility(record, instant);
           if (eligibility === "invalid") throw failure();
           if (eligibility === "expired") {
             const deletion = cursor.delete();
             deletion.onerror = abort;
-            deleted++;
+            deleted.push(cursor.primaryKey);
           }
           cursor.continue();
         } catch { abort(); }
@@ -87,8 +101,9 @@ export async function createCheckpointService(factory, { now, authorize }) {
     const pass = cleanupInFlight ??= cleanupPass();
     try {
       const deleted = await pass;
+      for (const id of deleted) known.delete(id);
       time();
-      return deleted;
+      return deleted.length;
     } finally {
       if (cleanupInFlight === pass) cleanupInFlight = undefined;
     }
@@ -99,11 +114,13 @@ export async function createCheckpointService(factory, { now, authorize }) {
       await gate();
       if (!validateCheckpointStructure(record) || record.revision !== 0) throw failure();
       const copy = { ...record };
-      return transaction("readwrite", (store, done, abort) => get(store, copy.runId, existing => {
+      const created = await transaction("readwrite", (store, done, abort) => get(store, copy.runId, existing => {
         const instant = time();
         if (existing !== undefined || checkpointEligibility(copy, instant) !== "eligible" || copy.createdAt !== instant) throw failure();
         store.add(copy); done({ ...copy });
       }, abort));
+      known.add(copy.runId);
+      return created;
     }),
     read: id => safe(async () => {
       await gate();
