@@ -113,3 +113,7 @@ Reconciled ChatGPT acceptance of CP4. The owner approved logical expiry at seven
 ## 2026-10-29: SEC-01 Option B cleanup and clock-safety design, ready for review
 
 Documented the proposed local MV3 [cleanup gate, transaction ordering, clock limits and test plan](Phases/PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md). No code, browser test, storage write, permission, provider action or activation. Clock trust across restarts and the other security gates remain open; progress is unchanged.
+
+## 2026-10-29: SEC-01 clock-trust decision draft, ready for owner review
+
+Verified owner-published browser-cleanup commit `90d369d4917b30c4d5d55b3485200b73d45ec161`, exact eight-file scope, clean whole-repository worktree and live origin equality. Recorded acceptance of the bounded browser-cleanup verification. Added the [clock-trust decision draft](Phases/PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) and updated current status, blocker, handoff, security and Phase 04 records. **No clock policy is selected.** Option B retention remains owner-approved; Phase 04 remains IN_PROGRESS / BLOCKED, progress 4/20 and 18/72, activation NO_GO. Documentation validation only; no implementation or test run.

@@ -2,14 +2,14 @@
 
 Snapshot: 2026-10-29. **4/20 master phases; 18/72 micro-phases accepted.** Phase 00–03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, 03.01–03.04, and 04.01 are ACCEPTED per owner; 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY, 04.03 for SYNTHETIC DECISIONS ONLY, and 04.04 for PURE VALIDATION AND SIMULATION ONLY. Parent Phase 04 remains IN_PROGRESS / BLOCKED. [Project status](00_PROJECT_STATUS.md) is the current progress record.
 
-The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) is **ACCEPTED** and Option B remains **OWNER_APPROVED**. [Isolated browser cleanup verification](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) is **BROWSER_CLEANUP READY_FOR_REVIEW**: Node 50 PASS and Chrome 11 PASS, with no failures, skips or blocks. Production activation is **NO_GO**.
+The [SEC-01 disconnected cleanup gate](Phases/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) and [isolated browser cleanup verification](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are **ACCEPTED within their bounded scopes**; the latter reported Node 50 PASS and Chrome 11 PASS. Option B **retention** remains **OWNER_APPROVED**. The [clock-trust decision draft](Phases/PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) is **CLOCK_TRUST_DECISION READY_FOR_OWNER_REVIEW**; no clock policy is selected. Production activation is **NO_GO**.
 
 ## Verified Git and worktree
 
 - Canonical Git root: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`
 - Extension: `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/Sh_Project_Setup_extension`
 - Origin fetch/push: `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`
-- Branch/browser-test entry HEAD: `feature/sh-project-setup-extension-clean` / `aa1e8301da1555d2d0200cde96bb5de424d1ebdb`, clean with upstream `origin/feature/sh-project-setup-extension-clean` (no fetch). Earlier baselines remain in historical reports.
+- Branch/clock-review entry HEAD: `feature/sh-project-setup-extension-clean` / `90d369d4917b30c4d5d55b3485200b73d45ec161`, with configured upstream `origin/feature/sh-project-setup-extension-clean`. Preflight found a clean whole-repository worktree, exact eight-file browser-verification commit scope and equal live origin branch HEAD. Earlier baselines remain in historical reports.
 - Phase 03.03 adds in-memory GitHub/Utilities validation and no permissions, provider access, storage, or external network calls. `Phases/PHASE_02.md` is committed and remains unchanged. See [03.03 evidence](Phases/PHASE_03_03.md).
 
 - Phase 03.04 adds local branch/domain validation and a redacted review; see [03.04 evidence](Phases/PHASE_03_04.md).
@@ -32,6 +32,8 @@ Phase 04.04 is accepted for pure validation and simulation only. SEC-01 CP1–CP
 
 The [Option B cleanup and clock-safety design](Phases/PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md) is the preserved design record. The disconnected service has synthetic and [isolated Chrome evidence](Phases/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) for cleanup ordering, atomicity, and restart behavior. The seven-field schema cannot prove trusted elapsed time across restarts; the owner/security reviewer must decide how to handle that limit. This closes no operator, incident, device, runtime-caller or activation gate.
 
-**STOP for ChatGPT acceptance of isolated browser cleanup verification.** Production activation remains NO_GO. No production schema migration, normal-profile persistence or runtime integration was performed. Later worker integration, device checks and provider activity require separate authorization.
+The [clock-trust draft](Phases/PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) compares residual-risk acceptance, fail-closed uncertainty and continued activation block. It recommends fail-closed handling only as a candidate; unresolved time can delay physical deletion beyond the next execution, so the owner/security reviewer must decide the retention conflict and manual resolution rules. No trusted elapsed-time guarantee or clock-policy approval exists.
+
+**STOP for ChatGPT and owner review of the clock-trust decision draft.** Production activation remains NO_GO. No production schema migration, normal-profile persistence or runtime integration was performed. Later worker integration, device checks and provider activity require separate authorization.
 
 Historical CP3 preflight HEAD `fcded6b71aa2b7243db807e20f3666ff4b0a8356` matched its local upstream. Real extension-origin IndexedDB, direct CDP worker stop/reactivation, and browser-process restart passed in a disposable profile; see the unchanged [CP3 report](Phases/PHASE_04_SEC01_CP3.md). Synthetic authorization is not real operator verification. CP4 ran no browser or operational security tests.

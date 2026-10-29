@@ -1,6 +1,6 @@
 # Phase 04: Durable workflow state
 
-**Status: IN_PROGRESS / BLOCKED.** 2026-10-29. Progress: **4/20 master phases; 18/72 micro-phases accepted.** SEC-01 CP1–CP4 and the [disconnected cleanup gate](PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) are ACCEPTED. [Option B](PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) remains OWNER_APPROVED. [Isolated real-browser cleanup](PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) is BROWSER_CLEANUP READY_FOR_REVIEW. Production activation is NO_GO.
+**Status: IN_PROGRESS / BLOCKED.** 2026-10-29. Progress: **4/20 master phases; 18/72 micro-phases accepted.** SEC-01 CP1–CP4, the [disconnected cleanup gate](PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md), and [isolated browser cleanup](PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) are ACCEPTED within their documented scopes. [Option B retention](PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) remains OWNER_APPROVED. The [clock-trust decision draft](PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) is CLOCK_TRUST_DECISION READY_FOR_OWNER_REVIEW; no clock policy is selected. Production activation is NO_GO.
 
 | Micro-phase | Status |
 |---|---|
@@ -13,4 +13,6 @@ Synthetic decisions and fake-adapter conflict checks do not establish production
 
 The [Option B cleanup and clock-safety design](PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md) remains the historical design. Its disconnected service gate now has isolated real IndexedDB, worker and browser-restart evidence; production wiring, trusted time across restarts and security/activation gates remain unresolved.
 
-Stop for ChatGPT acceptance of the isolated browser cleanup gate. Acceptance would not authorize activation, runtime integration or Phase 05.
+The [clock-trust decision draft](PHASE_04_SEC01_CLOCK_TRUST_DECISION_DRAFT.md) recommends fail-closed handling for owner/security review only. It identifies a conflict between avoiding deletion on uncertain time and approved next-execution retention. No clock-policy approval, trusted elapsed-time guarantee or production activation follows from this review.
+
+Stop for ChatGPT and owner review of the clock-trust decision draft. Review does not authorize activation, runtime integration or Phase 05.
