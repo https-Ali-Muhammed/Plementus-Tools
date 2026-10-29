@@ -101,3 +101,7 @@ Reconciled ChatGPT acceptance of CP3 and the owner-reported published commit `7d
 ## 2026-10-29: SEC-01 Option B retention amendment, owner-approved
 
 Reconciled ChatGPT acceptance of CP4. The owner approved logical expiry at seven days and physical deletion at the next available extension execution if Chrome was closed at expiry. Added the dated [Option B amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) and updated the [authoritative policy](Phases/PHASE_04_SEC01_APPROVED_POLICY.md). The historical CP4 NO_GO review remains unchanged; automatic cleanup, clock trust and other activation controls remain unverified. Documentation only; no tests or activation.
+
+## 2026-10-29: SEC-01 Option B cleanup and clock-safety design, ready for review
+
+Documented the proposed local MV3 [cleanup gate, transaction ordering, clock limits and test plan](Phases/PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md). No code, browser test, storage write, permission, provider action or activation. Clock trust across restarts and the other security gates remain open; progress is unchanged.

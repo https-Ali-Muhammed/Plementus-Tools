@@ -1,6 +1,6 @@
 # Project status
 
-Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED. [Retention amendment B](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) is **OPTION_B OWNER_APPROVED / IMPLEMENTATION_NOT_VERIFIED** and ready for ChatGPT documentation acceptance. Parent Phase 04 remains IN_PROGRESS / BLOCKED; production activation is NO_GO.
+Recorded 2026-10-29 (Africa/Cairo). **Phase 00, Phase 01, Phase 02, Phase 03 and 00.01–00.04, 01.01–01.03, 02.01–02.03, and 03.01–03.04 are ACCEPTED per owner.** Progress: **4/20 master phases; 18/72 micro-phases accepted.** Phase 04.02 is ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 for SYNTHETIC DECISIONS ONLY; 04.04 for PURE VALIDATION AND SIMULATION ONLY. SEC-01 CP1–CP4 are ACCEPTED. [Retention amendment B](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) is **OPTION_B OWNER_APPROVED / IMPLEMENTATION_NOT_VERIFIED**. The [cleanup and clock-safety design](Phases/PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md) is **READY_FOR_REVIEW**. Parent Phase 04 remains IN_PROGRESS / BLOCKED; production activation is NO_GO.
 
 | Micro-phase | State | Evidence |
 |---|---|---|
@@ -52,4 +52,4 @@ Documentation validation and Git preservation checks are distinct from applicati
 
 The clean integration base and prior remote publication are verified; the ancestry blocker is CLOSED. GitHub authentication under the no-token-storage rule for future writes and Odoo.sh/Plementus access remain open. SEC-01 CP1–CP4 are accepted within their documented scope. Option B replaces the strict physical-deletion deadline while Chrome is closed; automatic cleanup at next execution, clock trust, incident routing, device checks, real operator authorization, runtime access controls and final security approval remain outstanding. See the [amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md), historical [CP4 review](Phases/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) and [decision register](05_BLOCKERS_AND_DECISIONS.md).
 
-**STOP for ChatGPT acceptance of the [Option B documentation amendment](Phases/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md). Production activation NO_GO.**
+**STOP for ChatGPT acceptance of the [cleanup and clock-safety design](Phases/PHASE_04_SEC01_CLEANUP_CLOCK_DESIGN.md). Production activation NO_GO.**
