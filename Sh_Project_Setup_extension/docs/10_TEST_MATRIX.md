@@ -1,6 +1,6 @@
 # Planned test matrix
 
-All product tests below are **PLANNED / NOT RUN**. There is no extension implementation or verified browser/tooling baseline in Phase 00. Documentation and Git checks actually executed are recorded separately in [test evidence](04_TEST_EVIDENCE.md) and [00.04 report](Phases/PHASE_00_04.md).
+All product tests below are **PLANNED / NOT RUN**. There is no extension implementation or verified browser/tooling baseline in Phase 00. Documentation and Git checks actually executed are recorded separately in [test evidence](04_TEST_EVIDENCE.md) and [00.04 report](Phases/phase00/PHASE_00_04.md).
 
 | Coverage | Planned cases | Prerequisite / future evidence | Current result |
 |---|---|---|---|

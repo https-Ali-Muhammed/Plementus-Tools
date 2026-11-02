@@ -48,7 +48,7 @@ merge-base HEAD origin/main = 54018867756fd0a2807f145e65ebe02c3d7a7ea9
 rev-list --left-right --count origin/main...HEAD = 0 26
 ```
 
-Against this local remote-tracking ref, HEAD includes 26 commits beyond the common ancestor. A future PR to that base could include inherited TraceBridge changes. These counts do not establish the live remote main state. The 00.01 live-remote snapshot differs; see the [retrospective](Phases/PHASE_00_01.md). No fetch or branch correction was performed here.
+Against this local remote-tracking ref, HEAD includes 26 commits beyond the common ancestor. A future PR to that base could include inherited TraceBridge changes. These counts do not establish the live remote main state. The 00.01 live-remote snapshot differs; see the [retrospective](Phases/phase00/PHASE_00_01.md). No fetch or branch correction was performed here.
 
 Decision: preserve the accepted branch and HEAD. The owner/reviewer must choose the integration base and assess inherited changes before future publication. Do not rebase, cherry-pick, reset or switch in 00.02. Exact future PR contents and the cause/timing of historical ref differences remain UNVERIFIED.
 

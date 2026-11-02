@@ -73,6 +73,7 @@ export function createApprovalCheckpoint(input) {
           review.approvalReference !== preview.approvalReference ||
           target.provider !== preview.target.provider || target.reference !== preview.target.reference ||
           target.environment !== preview.target.environment || !["approve", "deny", "defer", "cancel"].includes(review.choice)) fail();
+      if (current.terminal) fail();
       current = decision("review_recorded", review.choice);
       return current;
     }),
