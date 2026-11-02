@@ -1,5 +1,41 @@
 # Test and validation evidence
 
+## Phase 07.02 — documentation-only evidence, 2026-11-02 (Africa/Cairo)
+
+[Decision package](Phases/phase07/PHASE_07_02.md) is **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**, not accepted or approved. Supplied **07.01 ACCEPTED at published `b04d0d4`** reconciled in current tracking only; its whole report and historical evidence remain byte-identical. Progress **5/20 and 27/72**; twelve decisions PENDING; D-04/B-02 OPEN; Phase 04 BLOCKED/POSTPONED; Phase 06 parent PARTIAL/BLOCKED/NOT ACCEPTED; production NO_GO; 07.03 NOT_STARTED/NOT_AUTHORIZED.
+
+Preflight: root, branch, exact HEAD `b04d0d49005e9a0aa44b207e6008a92d82d10a14`, all origin fetch/push URLs, upstream name/SHA and live remote tip match. Complete whole-repository staged/unstaged/untracked baseline empty; both linked worktrees inventoried. Sole ignored `.idea/workspace.xml` was never read, hashed, edited, removed or staged. Git operations were read-only; no fetch. The repeated live-tip check disabled credential helpers/prompts against the exact public origin/ref.
+
+Public official-document research: accepted 07.01 register used as baseline; material flow, lifetime, callback, organization and permission claims reverified with `web.run`. Packet source register contains **16 official URL references across 15 unique public pages**: 13 baseline references plus three supplemental REST endpoint references, two sharing the installations page. No authenticated provider response, credential or private value was collected. One guessed permissions-guide URL was inaccessible and excluded; endpoint-specific official sections support all five read-permission rows. This is documentation capability evidence, not GITHUB_SANDBOX_VERIFIED or runtime security evidence.
+
+### Measured documentation verification
+
+From the canonical Git root: `python3 /tmp/phase0702-review-iw_psgck/verify.py`; checker, baseline and measured JSON remain outside the repository. The checker uses Python standard-library assertions and read-only Git commands. The results below describe documentation checks only, not product tests.
+
+| Check | Result |
+|---|---|
+| Exact scope and complete inventory | **7 documentation paths: six unstaged existing files and one untracked new report; zero staged or unexpected untracked paths** |
+| Git identity/index/worktrees | Expected root/branch/origin URLs/upstream; HEAD/upstream/live tip at full `b04d0d4` SHA; index entries identical; two-worktree inventory unchanged |
+| Protected byte preservation | **211 of 217 tracked files** outside the six authorized modifications byte-identical to HEAD and baseline; includes 07.01, Phase 04/SEC-01, all Phase 06, architecture/contracts/security, code/manifest/tests/fixtures/dependencies and both source files |
+| Master/source equality | Master plan equals canonical `_source/ODOO_SH_PROJECT_SETUP_MASTER_PLAN.md`; SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91**; unchanged |
+| History preservation | Five tracking-document original bodies remain exact suffixes below new current entries; 07.01 whole report unchanged; original 06.04 acceptance reconciliation paragraph in Phase 07 parent unchanged |
+| Local Markdown links | **268 local destinations, including six fragment targets; zero broken** across the seven changed documents, including every new local link |
+| Official citations and permissions | Official-domain/URL/date assertions plus manual source-to-claim review; all five proposed GET/token/permission mappings supported by official endpoint sections; actual grants/SSO/access/response behavior UNVERIFIED |
+| Policy/status gates | All twelve decision items PENDING; no active-policy amendment or D-04/B-02 closure; 07.02 exact review label; Phase 04 and Phase 06 parent still blocked; counters 5/20 and 27/72; 07.03 unauthorized |
+| Credentials/private values | Added lines/new packet pattern scan and manual review: no token/private-key/secret values or private provider data; only public repo paths/URLs, protocol field names and candidate limits. Pattern scans cannot exclude all possible secrets |
+| Whitespace | `git diff --check` and `git diff --cached --check` PASS; new-report trailing-whitespace/CR/final-newline checks PASS |
+| Ignored metadata | Only `.idea/workspace.xml`, preserved without reading or changing contents |
+
+Checker-only correction: the first run reached the final new-file whitespace check and treated `git diff --no-index --check` exit 1 as failure. That exit reports the expected new-file difference; there was no whitespace output. The checker now accepts 0/1 only with empty diagnostics, alongside explicit whitespace/newline assertions. The full rerun passes; no repository defect or product-test failure was involved.
+
+**Application tests: NOT RUN. Browser tests: NOT RUN. Authentication/authenticated-provider/backend/operational-security tests: NOT RUN.** No app registration, OAuth consent, token exchange, credential prompt, backend creation, account configuration, sandbox or GitHub API call. No manifest/permission, code/test/fixture/dependency or protected-policy change. No staging, commit or push.
+
+Skills used: Superpowers using-superpowers, brainstorming assessment principles and verification-before-completion; stop-slop; Ponytail full-mode constraints. Tools used: shell/Git/Python via `functions.exec` and `web.run` public documentation. No authenticated GitHub connector, browser automation or subagent. WarpGrep/Valyu unavailable. **STOP FOR INDEPENDENT CHATGPT REVIEW AND OWNER/SECURITY DECISION.**
+
+## Historical Phase 07.01 evidence — preserved
+
+The prior section below retains its original preflight, eight-file scope, counts and pending-review status as historical evidence. It is not a new test run or the current 07.02 inventory.
+
 ## Phase 07.01 — documentation-only evidence, 2026-11-02 (Africa/Cairo)
 
 [Assessment and official source register](Phases/phase07/PHASE_07_01.md). Preflight **PASS**: canonical root, expected branch, exact HEAD `5f9f588ca04c5742e218f76bc18c8191bc1fd833`, all origin fetch/push URLs, configured upstream and live tip match. `git status --porcelain=v1 --untracked-files=all`, staged/unstaged inventories were empty. `git ls-files --others --ignored --exclude-standard` showed only `.idea/workspace.xml`; contents never opened. The origin query disabled credential helpers/prompts and used `git ls-remote` only, with no fetch or authenticated API access.

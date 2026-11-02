@@ -1,5 +1,23 @@
 # Blockers and decisions
 
+## Current Phase 07.02 decision package — 2026-11-02 (Africa/Cairo)
+
+**5/20 master phases; 27/72 official micro-phases accepted.** Supplied 07.01 acceptance at published `b04d0d4` is documentation-only; original report/evidence preserved. [07.02 packet](Phases/phase07/PHASE_07_02.md) **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**; no method/policy decision approved. All twelve register items PENDING.
+
+| ID | Current state / responsible roles | Required decision and closure gate |
+|---|---|---|
+| D-04 GitHub authentication/org/sandbox | **OPEN / OWNER DECISION REQUIRED**; project owner and security reviewer | Review packet items 01–12 individually: direction, backend exception/ownership, transient/durable credentials, sessions, identities/repos, endpoints, registration/callbacks, Chrome/distribution, incidents and future validation. No selection or external configuration follows from the packet |
+| B-02 GitHub authentication | **OPEN / OWNER DECISION REQUIRED**; project owner and security reviewer | Existing no-backend/no-credential rules remain binding. Approve a coherent method and explicit handling/storage/session rules through later authorized policy records; memory/encryption/backend custody is no automatic exception. Documentation acceptance alone cannot close this blocker |
+| B-03 GitHub sandbox and rights | **OPEN**; owner | No sandbox, app registration, sign-in/consent or live read/write authorized. Require later explicit identities/targets/operations and security-evidence boundaries |
+
+Candidate A remains a proposal. B permits only separately authorized mock/public discovery and manual private work; C's documented secret-free device exchange still needs token/lifecycle/phishing review. No change to SEC-01, D-04/B-02 status or existing incident/retention policy. Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**; Phase 05 ACCEPTED; Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**.
+
+**STOP FOR INDEPENDENT CHATGPT REVIEW AND OWNER/SECURITY DECISION.** No 07.03 implementation follows from publication or documentation review.
+
+## Historical Phase 07.01 tracking snapshot — preserved
+
+The section below records its original task state; this current record supersedes its progress and next-action wording without amending security policy.
+
 ## Current Phase 07.01 assessment — 2026-11-02 (Africa/Cairo)
 
 **5/20 master phases; 26/72 official micro-phases accepted.** Supplied 06.04 acceptance at published `5f9f588` is offline only; its historical evidence remains intact. Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**; Phase 05 **ACCEPTED**; Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**; 07.01 **READY_FOR_REVIEW**, not accepted; 07.02/07.03 **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**.

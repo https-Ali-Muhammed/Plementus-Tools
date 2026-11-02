@@ -1,12 +1,16 @@
 # Phase 07: GitHub authentication assessment and future read-only connector
 
-**Parent: IN_PROGRESS / NOT ACCEPTED.** 2026-11-02 (Africa/Cairo). Only the documentation-only 07.01 assessment is authorized. Accepted progress remains **5/20 master phases; 26/72 official micro-phases** pending independent ChatGPT review. Production **NO_GO**.
+**Parent: IN_PROGRESS / NOT ACCEPTED.** 2026-11-02 (Africa/Cairo). Only the documentation-only 07.02 decision package is currently authorized. Accepted progress is **5/20 master phases; 27/72 official micro-phases**; 07.02 adds no accepted progress. Production **NO_GO**.
 
 | Micro-phase | Current state | Evidence / gate |
 |---|---|---|
-| 07.01 Compare authentication options and threat model | **READY_FOR_REVIEW; not accepted** | [Assessment, comparison matrices, official sources and verification](PHASE_07_01.md) |
-| 07.02 Obtain authorization for a chosen least-privilege approach | **NOT_STARTED / NOT_AUTHORIZED** | Owner/security decisions, including D-04, credential handling and any backend scope exception |
+| 07.01 Compare authentication options and threat model | **ACCEPTED at published `b04d0d4`**, per supplied owner acceptance | [Historical assessment and source register preserved](PHASE_07_01.md) |
+| 07.02 Obtain authorization for a chosen least-privilege approach | **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW** | [Three options, twelve PENDING decisions and controls](PHASE_07_02.md); no selected or approved approach |
 | 07.03 Implement read-only connector and mocked tests | **NOT_STARTED / NOT_AUTHORIZED** | Accepted design, explicit implementation scope and the verification prerequisites in 07.01 |
+
+## Current acceptance and decision boundary
+
+Owner supplies **07.01 ACCEPTED at published `b04d0d49005e9a0aa44b207e6008a92d82d10a14` (`b04d0d4`)**. Current entry HEAD/upstream/live tip match. The whole 07.01 report remains byte-identical; its earlier pending-review statements are historical. Git verifies publication, not acceptance authority. The 07.02 packet prepares owner/security choices only; all twelve decision items remain PENDING. Documentation review/publication does not approve backend or credential/session handling and does not authorize 07.03.
 
 ## Prior acceptance reconciliation
 
@@ -20,6 +24,6 @@ For owner/security consideration only: assess GitHub App user authorization thro
 
 No sign-in, consent, token exchange, app registration, permission change, backend or connector was created. Official-documentation verification establishes provider capabilities only; this extension has no working GitHub connector. The parent exit criteria for an approved approach, non-secret storage and read-only connector tests remain unsatisfied.
 
-Only two new reports and six existing documentation files change. [Current status](../../00_PROJECT_STATUS.md), [security requirements](../../09_SECURITY_AND_SECRETS.md), [decisions](../../05_BLOCKERS_AND_DECISIONS.md) and [handoff](../../06_HANDOFF.md) record the review boundary. No code, tests, fixtures, manifest, dependencies, SEC-01 policy or canonical plan changes.
+For 07.02, exactly one new packet and six existing documentation files change. [Current status](../../00_PROJECT_STATUS.md), [security requirements](../../09_SECURITY_AND_SECRETS.md), [decisions](../../05_BLOCKERS_AND_DECISIONS.md) and [handoff](../../06_HANDOFF.md) record the review boundary. No code, tests, fixtures, manifest, dependencies, SEC-01 policy or canonical plan changes.
 
-**NEXT: STOP FOR INDEPENDENT CHATGPT REVIEW of 07.01.** No acceptance, 07.02/07.03 authorization, commit or push follows.
+**NEXT: STOP FOR INDEPENDENT CHATGPT REVIEW AND OWNER/SECURITY DECISION on 07.02.** 07.02 is not accepted/approved; 07.03 remains NOT_STARTED / NOT_AUTHORIZED. No commit or push.
