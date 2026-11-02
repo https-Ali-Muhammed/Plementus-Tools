@@ -1,5 +1,9 @@
 # Project changelog
 
+## 2026-11-02: Phase 06.01 offline ordered coordinator, ready for review
+
+Owner authorized a bounded sequencing exception postponing Phase 04 and implementing only [06.01](Phases/PHASE_06_01.md). Added a pure in-memory coordinator and focused tests using existing v1 capability/request/result validators and unmodified F01–F07 fixtures. Fixed synthetic operation semantics, full-plan validation/tamper detection, ordered result identity, mutation stops, latched failures/reconciliation, generic errors and duplicate protection; no executor or retry/approval/resume API. Added [Phase 06 parent report](Phases/PHASE_06.md); updated status, evidence and handoff only. Node **14 focused / 127 full PASS**, syntax checks pass. Phase 04 **IN_PROGRESS / BLOCKED**, Phase 05 **ACCEPTED**, Phase 06 **IN_PROGRESS**, progress **5/20 and 22/72**, production **NO_GO**. Stop for independent ChatGPT acceptance; no commit or push.
+
 ## 2026-10-29: SEC-01 stalled-wall safety fix and restart resolution, ready for review
 
 The disconnected checkpoint service now latches uncertainty when conservative same-instance monotonic time reaches seven days while wall time still claims eligibility. It blocks access and retains the row. Added test-first Node regression and isolated Chromium coverage for stalled wall, tab closure, worker reactivation and same-profile browser restart. The [bounded report](Phases/PHASE_04_SEC01_STALLED_WALL_AND_RESTART_RESOLUTION.md) proposes operator-assisted fresh work after reconciliation and fresh authorization; implementation remains blocked by the existing global gate and missing production controls. Final validation: **89 Node PASS; 14 + 10 Chromium PASS**, 0 FAIL/SKIP/BLOCKED. Progress **5/20 and 22/72**; Phase 04 blocked, production NO_GO. No commit or push.
