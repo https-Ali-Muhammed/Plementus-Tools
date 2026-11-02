@@ -7,9 +7,10 @@ const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a
 const TIMER_PRECISION_MS = 0.1, MAX_BRACKET_MS = 1;
 
 // The factory, clock and authorization are injected; none establishes runtime identity.
-export async function createCheckpointService(factory, { now, monotonicNow, authorize } = {}) {
-  let db;
+export async function createCheckpointService(factory, options = {}) {
+  let db, now, monotonicNow, authorize;
   try {
+    ({ now, monotonicNow, authorize } = options);
     if (!factory || typeof factory.open !== "function" || typeof now !== "function" ||
         (monotonicNow !== undefined && typeof monotonicNow !== "function") || typeof authorize !== "function") throw failure();
     db = await new Promise((resolve, reject) => {
@@ -127,8 +128,9 @@ export async function createCheckpointService(factory, { now, monotonicNow, auth
   return Object.freeze({
     create: record => safe(async () => {
       await gate();
-      if (!validateCheckpointStructure(record) || record.revision !== 0) throw failure();
+      if (!validateCheckpointStructure(record)) throw failure();
       const copy = { ...record };
+      if (copy.revision !== 0) throw failure();
       let creation;
       const created = await transaction("readwrite", (store, done, abort) => get(store, copy.runId, existing => {
         const instant = time();

@@ -118,6 +118,30 @@ try {
     assert.deepEqual(result.stored, record(ids[0])); assert.equal(Object.keys(result.stored).length, 7);
     assert.deepEqual(result.events.slice(0, 4), ['start:readwrite', 'complete:readwrite', 'start:readwrite', 'complete:readwrite']);
   });
+  await check('malformed initialization options expose only a generic error', async () => {
+    const denied = await run(async () => {
+      const { createCheckpointService } = await import('./storage/checkpoint-service.mjs');
+      const options = { now: () => 1000, monotonicNow: () => 0, authorize: () => true };
+      const inputs = [null];
+      for (const key of Object.keys(options)) inputs.push(Object.defineProperty({ ...options }, key, {
+        get() { throw Error('synthetic-private-marker'); },
+      }));
+      return Promise.all(inputs.map(input => h.rejected(createCheckpointService(indexedDB, input))));
+    });
+    assert.deepEqual(denied, [true, true, true, true]);
+  });
+  await check('creation checks the copied revision before writing IndexedDB', async () => {
+    const result = await run(async r => {
+      await h.reset(); const service = await h.service();
+      const input = new Proxy(r, { get(target, key) {
+        if (key === 'evidenceTier') target.revision = 1;
+        return Reflect.get(target, key);
+      } });
+      const denied = await h.rejected(service.create(input));
+      return { denied, stored: await h.get(r.runId) };
+    }, record(ids[0]));
+    assert.equal(result.denied, true); assert.equal(result.stored, undefined);
+  });
   await check('each bounded operation has a committed cleanup gate', async () => {
     const events = await run(async id => {
       await h.reset(); const service = await h.service(); await service.create({ schemaVersion: 2, runId: id, state: 'draft', step: 0, evidenceTier: 'none', revision: 0, createdAt: 1000 });

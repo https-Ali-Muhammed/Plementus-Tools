@@ -29,6 +29,34 @@ test("initialization, strict schema, duplicates, immutability and generic errors
   assert.deepEqual(input, record()); assert.deepEqual(factory.snapshot(id), input);
 });
 
+test("initialization sanitizes null options and throwing option properties", async () => {
+  const options = { now: () => 1000, monotonicNow: () => 0, authorize: () => true };
+  const revoked = Proxy.revocable(options, {}); revoked.revoke();
+  const inputs = [null, revoked.proxy];
+  for (const key of Object.keys(options)) {
+    inputs.push(Object.defineProperty({ ...options }, key, { get() { throw Error("synthetic-private-marker"); } }));
+  }
+  for (const input of inputs) {
+    const factory = fakeIndexedDB();
+    await rejected(createCheckpointService(factory, input));
+    assert.equal(factory.transactionCount(), 0);
+    assert.equal(factory.snapshot(id), undefined);
+  }
+});
+
+test("creation rejects a nonzero revision introduced while copying caller input", async () => {
+  const { service, factory } = await setup();
+  const input = new Proxy(record(), { get(target, key) {
+    if (key === "evidenceTier") target.revision = 1;
+    return Reflect.get(target, key);
+  } });
+  await rejected(service.create(input));
+  assert.equal(factory.snapshot(id), undefined);
+  assert.equal(factory.transactionCount(), 1, "only the mandatory cleanup gate ran");
+  assert.deepEqual(await service.create(record()), record());
+  assert.deepEqual(factory.snapshot(id), record());
+});
+
 test("transactional updates serialize competing revisions and preserve creation time", async () => {
   const { service } = await setup(); await service.create(record());
   const outcomes = await Promise.allSettled([service.transition(id, "draft", 0, "ready"), service.transition(id, "draft", 0, "cancelled")]);

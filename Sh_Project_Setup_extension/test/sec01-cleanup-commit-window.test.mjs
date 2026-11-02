@@ -95,3 +95,34 @@ for (const [name, changedWall] of [["backward wall", expiredWall - 1], ["excessi
     assert.equal(factory.transactionCount(), before + 1, "post-commit clock latch blocks subsequent transactions");
   });
 }
+
+for (const abort of [true, false]) {
+  test(`all five public operations share cleanup and stay blocked after ${abort ? "verified abort" : "commit with clock uncertainty"}`, async () => {
+    const { factory, service, clock } = await setup();
+    clock(expiredWall, expiredMonotonic);
+    const { release, outcome, before } = await pausedCleanup(factory, service);
+    const fresh = { ...record, runId: "12345678-1234-4123-8123-123456789abd", createdAt: expiredWall };
+    const waiting = Promise.allSettled([
+      service.create(fresh), service.read(id), service.transition(id, "draft", 0, "ready"),
+      service.delete(id, 0, "explicit"), service.cleanup(),
+    ]);
+    assert.equal(factory.transactionCount(), before + 1, "all callers wait on the same pass");
+    if (abort) factory.abortNext();
+    else clock(expiredWall - 1);
+    release();
+    assert.deepEqual(await outcome, { status: "rejected", message: "Checkpoint operation failed" });
+    for (const result of await waiting) {
+      assert.equal(result.status, "rejected");
+      assert.equal(result.reason.message, "Checkpoint operation failed");
+    }
+    assert.equal(factory.transactionCount(), before + 1, "no caller starts its own transaction");
+    assert.deepEqual(factory.snapshot(id), abort ? record : undefined);
+    assert.equal(factory.snapshot(fresh.runId), undefined, "no fresh-run workaround");
+    clock(expiredWall, expiredMonotonic);
+    if (abort) assert.equal(await service.cleanup(), 1, "only a fresh guarded request follows a verified abort");
+    else {
+      await assert.rejects(service.cleanup(), { message: "Checkpoint operation failed" });
+      assert.equal(factory.transactionCount(), before + 1, "committed-but-uncertain pass stays latched");
+    }
+  });
+}
