@@ -1,5 +1,39 @@
 # Test and validation evidence
 
+## Phase 07.01 — documentation-only evidence, 2026-11-02 (Africa/Cairo)
+
+[Assessment and official source register](Phases/phase07/PHASE_07_01.md). Preflight **PASS**: canonical root, expected branch, exact HEAD `5f9f588ca04c5742e218f76bc18c8191bc1fd833`, all origin fetch/push URLs, configured upstream and live tip match. `git status --porcelain=v1 --untracked-files=all`, staged/unstaged inventories were empty. `git ls-files --others --ignored --exclude-standard` showed only `.idea/workspace.xml`; contents never opened. The origin query disabled credential helpers/prompts and used `git ls-remote` only, with no fetch or authenticated API access.
+
+Public official documentation was retrieved through `web.run` on **2026-11-02**: 18 GitHub sources and four Chrome sources, all linked with retrieval dates in the assessment. Documentation review establishes protocol support, not runtime success. No credentials/provider response samples were collected or copied.
+
+Supplied 06.04 acceptance is reconciled at published `5f9f588`; its **39 focused / 213 full PASS** results are historical only. The 06.04 and parent reports remain protected, including RED and migration evidence. Current counters **5/20 and 26/72**; no 07.01 acceptance increment.
+
+**Application tests: NOT RUN. Browser tests: NOT RUN. Authenticated provider/backend/security acceptance tests: NOT RUN.** No auth method/configuration, permission, application code, tests, fixtures, dependency, protected security policy, account or provider state changed. No commit or push. Final documentation verification results follow in this current section; older evidence below remains historical.
+
+### Measured documentation verification
+
+Command: `python3 /tmp/phase0701-review-8mlf6ar2/verify.py` from the canonical Git root. The checker uses Python standard-library path/URL parsing, heading/fragment validation, SHA-256 comparisons and read-only Git subprocesses. Baseline, checker and measured JSON are retained in that temporary evidence directory; no verification script is added to the repository.
+
+| Check | Verified result |
+|---|---|
+| Exact authorized scope / final inventory | **8 paths: six unstaged existing Markdown files + two untracked reports; zero staged paths**, no other drift |
+| Final Git identity and live origin | Root/branch/all origin fetch/push URLs/upstream correct; HEAD, local upstream and live branch tip **`5f9f588ca04c5742e218f76bc18c8191bc1fd833`** |
+| Commands used for identity/inventory | `git rev-parse --show-toplevel`; `git branch --show-current`; `git rev-parse HEAD`; `git remote get-url --all origin`; `git remote get-url --push --all origin`; upstream name/SHA; `git -c credential.helper= ls-remote --exit-code` against the explicit origin URL and branch; `git status --porcelain=v1 --untracked-files=all`; `git ls-files --stage`; staged/unstaged diff inventories |
+| Local Markdown destinations in all eight affected documents | **328 checked, including 53 fragment targets; 0 broken**; covers every newly added local link plus existing links in those documents |
+| Official citations | **22 unique official URLs / 22 retrieval-date records**, 18 GitHub and four Chrome; successful public-document retrieval through `web.run`, source/claim review and official-domain/date assertions |
+| Protected tracked files / index | **209 of 215 tracked files unchanged**; six authorized existing document additions only; index entries identical to preflight |
+| Historical/security wording | Original bodies of five updated tracking files retained exactly; original security document retained as an exact prefix. SEC-01 implementation/all phase04 reports, architecture/contracts, Phase 06 parent and 06.04 report unchanged |
+| Master and canonical source | Byte-equal to each other and baseline; SHA-256 **`d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91`**; both canonical `_source` files unchanged |
+| Code / permissions / tests / fixtures / dependencies | All protected tracked bytes unchanged; no auth configuration, runtime integration or backend added |
+| Credential material review | No credentials collected; pattern scan of added lines and new reports finds **0 GitHub token/private-key/secret-value matches**; manual review confirms only protocol/field names and public documentation, no copied credential examples. Pattern scanning alone cannot exclude every possible secret |
+| Whitespace | `git diff --check` and `git diff --cached --check` **PASS**; separate trailing-whitespace/CR/final-newline assertions for both new reports **PASS** |
+| Ignored inventory | Only `.idea/workspace.xml`, preserved without opening or modifying it; unrelated IDE activity remains allowed |
+| Provider activity | Public official documentation and required read-only Git tip queries only; no authentication, consent, token exchange, authenticated API session/call, sandbox or account/repository mutation |
+
+These checks verify documentation scope and preservation, not operational security acceptance. **07.01 READY_FOR_REVIEW**, **D-04 OPEN**, **07.02/07.03 NOT_STARTED / NOT_AUTHORIZED**. Skills actually used: Ponytail; Superpowers using-superpowers, brainstorming assessment principles and verification-before-completion. Tools actually used: shell/Git/Python and `apply_patch` through `functions.exec`; public official research through `web.run`. **STOP FOR INDEPENDENT CHATGPT REVIEW; no commit or push.**
+
+## Historical evidence below — unchanged
+
 **Historical initial Phase 06.04 — SIMULATED; review packet READY_FOR_REVIEW / technical REWORK_REQUIRED (2026-11-02).** [Report and retained regression](Phases/phase06/PHASE_06_04.md). Node v24.19.0, commands from extension directory: `node --test test/phase-06-idempotency-reconciliation.test.mjs` **35 PASS / 1 FAIL** (36); `node --test test/step-coordinator.test.mjs` **14 PASS**; `node --test test/approval-checkpoint.test.mjs` **21 PASS**; `node --test test/pause-control.test.mjs` **26 PASS**; `node --test test/*.test.mjs` **209 PASS / 1 FAIL** (210); `node --check test/phase-06-idempotency-reconciliation.test.mjs` PASS. Every run has 0 SKIP/CANCELLED/TODO. The initial focused run reproduced the same failure. Failing assertion: `approval reflection cannot overwrite a terminal denial recorded during the same submission`; a proxy reflection trap records nested denial, then the outer approval overwrites that terminal intent. This valid RED regression remains enabled; protected code/accepted tests are unchanged. No GREEN repair is claimed or authorized; both intents retain `executionAuthorized: false`.
 
 New coverage exercises all 12 F01–F07 variants, ordered/repeated/duplicate results around pause/resume, wrong identities/targets/provider/operation, cross-instance/stale/copied/serialized/consumed checkpoints, all review choices without authority, uncertainty retained through cancellation/replay attempts, denial versus unknown writes, evidence spoofing, malformed/accessor/exotic/proxy inputs, generic errors/privacy and frozen decisions. Global sentinels record zero network/browser/storage/retry-timer accesses. This is offline synthetic evidence, not authenticated authority, actual reconciliation, durable idempotency or runtime recovery. Browser/provider/production tests NOT RUN; existing SEC-01 tests in the full suite do not grant security acceptance.

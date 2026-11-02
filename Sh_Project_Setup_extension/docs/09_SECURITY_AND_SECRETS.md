@@ -35,3 +35,16 @@ For suspected exposure, stop affected actions, notify the owner through an autho
 | Unverified site behavior or inappropriate automation | Fixture-first development; real-site acceptance only under authorized gates | UNVERIFIED |
 
 Nothing here certifies security or browser permissions. See [integration contracts](08_INTEGRATION_CONTRACTS.md) and [feasibility](12_BROWSER_AUTOMATION_FEASIBILITY.md).
+
+
+## Phase 07.01 GitHub assessment — proposed requirements only
+
+2026-11-02 (Africa/Cairo). [Authentication comparison, threat model and official citations](Phases/phase07/PHASE_07_01.md) is **READY_FOR_REVIEW; not accepted**. **D-04 and B-02 remain OPEN / OWNER DECISION REQUIRED**. 07.02 and 07.03 remain **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**.
+
+The current authentication prohibition above is unchanged. No-token-storage applies to every location: memory/session storage or encryption is not an approved exception. Any future transient token/code/verifier handling, backend custody, refresh material or backend session credential requires an explicit owner/security decision. No plaintext token, OAuth client secret, App private key or reusable credential may be embedded in extension source/assets. A distributed extension cannot make a bundled secret confidential; PKCE is not evidence that GitHub waives its documented web-exchange secret requirement.
+
+Conditional candidate for consideration only: GitHub App **user** authorization with a separately approved backend. This would require an explicit exception to the no-backend architecture and reviewed credential/session policy. It is not selection, owner approval or authorization to register/configure an app. Device flow and fine-grained PATs have documented capabilities but do not remove the current token-handling/storage blocker.
+
+Proposed controls include exact redirect/state/S256 validation, issuer/client/transaction binding, authenticated GitHub identity and org/repository revalidation, tenant isolation, read-route/permission allowlists, cancellation/late-response handling, explicit logout vs revocation status and owner-led incident recovery. Installation authority cannot substitute for the operator's authority; existing simulated approval references cannot authorize real writes. Backend session credentials are also sensitive authorization material, even if GitHub tokens never reach the extension. These controls are not implemented or verified.
+
+All existing SEC-01 fields, retention, uncertainty, cleanup, trusted-clock, operator/device/incident requirements and blocked production gates remain unchanged. Authentication material must never enter the non-secret checkpoint schema or its recovery paths. Any later writes, account validation, sandbox or provider session needs separate explicit scope. This documentation assessment initiated none. Application and browser tests **NOT RUN**. **STOP FOR INDEPENDENT CHATGPT REVIEW.**

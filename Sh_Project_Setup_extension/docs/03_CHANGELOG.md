@@ -1,5 +1,13 @@
 # Project changelog
 
+## 2026-11-02: Phase 07.01 documentation-only GitHub authentication assessment
+
+Created [Phase 07 parent](Phases/phase07/PHASE_07.md) and [07.01 assessment](Phases/phase07/PHASE_07_01.md): verified current official GitHub/Chrome sources, capability/candidate comparison matrices, threat model, conditional recommendation, and separate owner/implementation gates. Updated only status, this changelog, test evidence, blockers, handoff and security requirements (eight files total). No method selection/configuration or implementation.
+
+Recorded supplied **06.04 ACCEPTED at published `5f9f588`**, offline only, without modifying its report, parent report or historical RED/GREEN/migration evidence. Accepted progress remains **5/20 and 26/72**. 07.01 **READY_FOR_REVIEW**, not accepted; 07.02/07.03 **NOT_STARTED / NOT_AUTHORIZED**. D-04/B-02 remain OPEN. Backend and credential handling are owner decisions; no policy exception follows from the recommendation. Phase 04 **BLOCKED / POSTPONED**, Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**, production **NO_GO**.
+
+Preflight verified clean tracked/untracked state, exact root/branch/HEAD/origin/upstream/live tip. The sole ignored `.idea/workspace.xml` was not opened or changed. Documentation verification is recorded in [evidence](04_TEST_EVIDENCE.md); application/browser/provider tests **NOT RUN**. No sign-in, consent, token exchange, authenticated API call, provider mutation, manifest/code/test/fixture/dependency/SEC-01 change, commit or push. **STOP FOR INDEPENDENT CHATGPT REVIEW.** Earlier entries retain historical results.
+
 ## 2026-11-02: Historical initial Phase 06.04 regression verification and numbered report migration
 
 Reconciled [06.03 acceptance](Phases/phase06/PHASE_06_03.md) at published `5ed2e2c`, retaining historical wording/evidence except required link repairs. Added only a [36-test interaction suite](../test/phase-06-idempotency-reconciliation.test.mjs) and [06.04 report with complete 60-file mapping](Phases/phase06/PHASE_06_04.md). Focused **35 PASS / 1 FAIL**, full **209 PASS / 1 FAIL** (210); unchanged coordinator/approval/pause **14 / 21 / 26 PASS**; syntax PASS. Retained REWORK-06-04-01: reentrant approval reflection overwrites a terminal denial with approval, while execution authority remains false. Protected implementations/accepted tests/fixtures are unchanged; repair is not authorized.

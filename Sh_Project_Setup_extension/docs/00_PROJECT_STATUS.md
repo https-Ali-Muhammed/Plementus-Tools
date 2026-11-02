@@ -1,5 +1,31 @@
 # Project status
 
+## Current Phase 07.01 assessment — 2026-11-02 (Africa/Cairo)
+
+**Phase 07.01 READY_FOR_REVIEW; not accepted.** [Authentication options, threat model and official sources](Phases/phase07/PHASE_07_01.md); [Phase 07 parent](Phases/phase07/PHASE_07.md) **IN_PROGRESS / NOT ACCEPTED**. Owner authorization covers documentation-only assessment. No method is selected, configured or implemented; there is no working GitHub connector.
+
+**06.04 is ACCEPTED at published commit `5f9f588ca04c5742e218f76bc18c8191bc1fd833` (`5f9f588`), within offline scope, per the supplied owner acceptance.** Entry HEAD, upstream and live origin tip match that commit. The [06.04 historical report](Phases/phase06/PHASE_06_04.md) and [Phase 06 parent report](Phases/phase06/PHASE_06.md) retain their original bytes and evidence; their earlier pending-review language is superseded for current tracking by this reconciliation. Historical RED/GREEN/migration results were not rerun or rewritten.
+
+| Current gate | State |
+|---|---|
+| Accepted progress | **5/20 master phases; 26/72 official micro-phases**, unchanged pending 07.01 ChatGPT review |
+| Phase 04 | **IN_PROGRESS / BLOCKED / POSTPONED** |
+| Phase 05 | **ACCEPTED** |
+| Phase 06.01–06.04 | **ACCEPTED within offline scope** |
+| Phase 06 parent | **PARTIAL / BLOCKED / NOT ACCEPTED** |
+| Phase 07.01 | **READY_FOR_REVIEW; not accepted** |
+| Phase 07.02 and 07.03 | **NOT_STARTED / NOT_AUTHORIZED** |
+| D-04 / B-02 | **OPEN / OWNER DECISION REQUIRED** |
+| Production | **NO_GO** |
+
+Candidate recommendation for consideration only: GitHub App user authorization with a separately approved backend. The no-backend architecture and prohibition on token storage remain binding; neither is amended. Exactly two new and six existing documentation files change. Git/Markdown/preservation checks are recorded in [test evidence](04_TEST_EVIDENCE.md); application/browser/provider tests **NOT RUN**. No credential, permission, code, dependency, external account, commit or push change.
+
+**NEXT: STOP FOR INDEPENDENT CHATGPT REVIEW of 07.01.** This does not accept 07.01 or authorize later phases.
+
+## Historical snapshots below — preserved evidence
+
+Earlier progress, Git inventories, review language and authorization limits below describe their original tasks. The current record above governs this assessment; protected security decisions remain unchanged.
+
 **Historical initial Phase 06.04 attempt (2026-11-02): review packet READY_FOR_REVIEW; technical REWORK_REQUIRED, not accepted.** [Offline idempotency/reconciliation and migration report](Phases/phase06/PHASE_06_04.md). Phase 06.03 is **ACCEPTED at published `5ed2e2c5b2c9e0914b22d6b1a68743e9902753c1`**; [acceptance reconciliation](Phases/phase06/PHASE_06_03.md) preserves its historical evidence. Accepted progress remains **5/20 master phases; 25/72 official micro-phases**; 06.04 adds no acceptance. Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**, Phase 05 **ACCEPTED**, Phase 06 parent **IN_PROGRESS / PARTIAL / BLOCKED / NOT ACCEPTED**, production **NO_GO**. Focused Node **35 PASS / 1 FAIL** (36); full **209 PASS / 1 FAIL** (210); unchanged coordinator/approval/pause suites **14 / 21 / 26 PASS**; new test syntax PASS, all 0 SKIP/CANCELLED. REWORK-06-04-01: reentrant proxy reflection can overwrite a terminal denial with approval; execution authority stays false. The failing regression is preserved; protected code is unchanged and repair needs separate authorization. Browser/provider/runtime/durable recovery tests **NOT RUN**.
 
 Exactly **60** original phase reports moved with `git mv` into `Phases/phase00/` through `Phases/phase06/`; **331** local link destinations repaired in **42** existing documents. [Complete mapping and exact Git scope](Phases/phase06/PHASE_06_04.md#complete-old-to-new-mapping) are recorded. Non-numbered `Phases/GIT_BRANCH_REMEDIATION.md` stays in place. Master plan and canonical sources retain their bytes; their illustrative historical paths are unchanged. New scope is one test and one report, the 60 moves and nine necessary non-phase documentation edits. The moves are staged; subsequent documentation edits are unstaged; the new test/report are untracked. No commit/push or production/provider/persistence integration. **NEXT: STOP FOR INDEPENDENT CHATGPT REVIEW of 06.04 and the migration.** Earlier snapshots below retain their historical authorization statements and evidence.

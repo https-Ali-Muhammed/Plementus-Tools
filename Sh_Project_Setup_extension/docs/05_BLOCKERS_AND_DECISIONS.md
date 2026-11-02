@@ -1,5 +1,23 @@
 # Blockers and decisions
 
+## Current Phase 07.01 assessment — 2026-11-02 (Africa/Cairo)
+
+**5/20 master phases; 26/72 official micro-phases accepted.** Supplied 06.04 acceptance at published `5f9f588` is offline only; its historical evidence remains intact. Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**; Phase 05 **ACCEPTED**; Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**; 07.01 **READY_FOR_REVIEW**, not accepted; 07.02/07.03 **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**.
+
+| ID | Current state / owner | Assessment and unresolved gate |
+|---|---|---|
+| D-04 (master-plan GitHub authentication/org/sandbox decision) | **OPEN / OWNER DECISION REQUIRED**; owner and security reviewer | [07.01](Phases/phase07/PHASE_07_01.md) recommends a candidate for consideration only. Decide method, identity/org/repository scope, exact permissions, credential/session handling, any no-backend exception, callback/distribution and later validation scope before approval. No selection or configuration is authorized. |
+| B-02 GitHub authentication | **OPEN / OWNER DECISION REQUIRED** | The existing prohibition on access-token storage remains unchanged. PKCE does not remove the documented web-flow client-secret requirement. A backend or transient-memory design is not an approved workaround. See the assessment's separate gates before 07.02/07.03. |
+| B-03 GitHub sandbox and rights | **OPEN** | No account, sandbox or live-provider validation authorized; documentation and mocks cannot close live-read/write acceptance. |
+
+The proposed direction is GitHub App **user** authorization with a separately approved backend; it does not select installation-token authority or approve server credential custody. If both the no-backend and strict no-token-handling/storage limits remain, authenticated integration remains blocked. The master plan itself is unchanged; D-04's historical `NOT PROVIDED` entry is preserved there. D-04 is distinct from the later documentation's D-06/D-08/D-09 labels; no decision is renumbered or closed.
+
+All SEC-01 implementation, approved retention/uncertainty rules and unresolved clock/runtime/operator/device/incident gates remain unchanged. **STOP FOR INDEPENDENT CHATGPT REVIEW of 07.01.**
+
+## Historical baseline decisions and evidence — unchanged
+
+The following text is preserved from entry HEAD. Earlier progress and phase-authorization statements are historical; current tracking is above. Existing security decisions retain their original states and wording.
+
 Current status: **5/20 master phases; 22/72 micro-phases accepted; Phase 05 parent exit review PASS / ACCEPTED; 04.02 ACCEPTED FOR SIMULATED FOUNDATION ONLY; 04.03 ACCEPTED FOR SYNTHETIC DECISIONS ONLY; 04.04 ACCEPTED FOR PURE VALIDATION AND SIMULATION ONLY**. Parent Phase 04 remains IN_PROGRESS / BLOCKED. Phase 05 mock evidence does not verify real provider behavior; the final product remains an online-capable Chrome extension. Phase 04 runtime-security gates remain unresolved, production activation is NO_GO, and no Phase 06 or production implementation is authorized. Entries remain open until the owner or the relevant reviewer provides a decision and closure evidence.
 
 | ID | State / owner | Impact | Required decision or input | Resolution gate / evidence |
