@@ -1,5 +1,29 @@
 # Project status
 
+## Current browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
+
+**OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING**; amendment **READY_FOR_INDEPENDENT_CHATGPT_REVIEW**. [Browser-first assessment and feasibility matrix](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md). Owner supplies **07.02 ACCEPTED as documentation**; its historical report and 07.01 remain byte-identical. Documentation acceptance approves neither the twelve historical security decisions nor implementation. Git entry HEAD/upstream/live tip: `f447b3d2cf77072598d6904cedd3e18176b7b28a`.
+
+| Current gate | State |
+|---|---|
+| Accepted progress | **5/20 master phases; 28/72 official micro-phases**; no increment for this amendment |
+| Phase 04 | **IN_PROGRESS / BLOCKED / POSTPONED** |
+| Phase 06.01–06.04 / parent | **ACCEPTED for offline scope** / **PARTIAL / BLOCKED / NOT ACCEPTED** |
+| Phase 07.01 / 07.02 | **ACCEPTED as documentation**, per supplied owner acceptance; reports preserved |
+| Phase 07 parent | **IN_PROGRESS / NOT ACCEPTED** |
+| Phase 07.03 | **NOT_STARTED / NOT_AUTHORIZED** |
+| D-04 / B-02 | **OPEN / OWNER DECISION REQUIRED** |
+| Historical items 01–12 / future browser permissions and live-site authorization | **PENDING** |
+| Production | **NO_GO** |
+
+Owner prefers one Chrome profile and three already signed-in Plementus/GitHub/Odoo.sh tabs, visible UI, explicit per-write approval, observed results and manual fallback. No separate extension OAuth/backend required for this candidate direction. GitHub App/backend **DEFERRED, not selected**; no token/backend exception requested; no credential/session extraction or provider API client. Existing architecture/security restrictions remain binding; protected master/ADR/contracts differences need a later scoped review. Accounts, authority, selectors, site policy and writes remain UNVERIFIED.
+
+Exactly seven documentation paths, one new and six modified; [documentation verification](04_TEST_EVIDENCE.md#browser-first-owner-direction-amendment--2026-11-02-africacairo). Application/browser/provider tests **NOT RUN**. Recommend separately authorized read-only tab recognition and fixture-based feasibility assessment only; no implementation now. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit or push.
+
+## Historical Phase 07.02 tracking snapshot — preserved
+
+The earlier current-state text below records the original packet task. Use the amendment above for present acceptance/progress and prospective direction; all historical security decisions retain their states.
+
 ## Current Phase 07.02 decision package — 2026-11-02 (Africa/Cairo)
 
 **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**; not ACCEPTED or APPROVED. [Decision packet: three directions, twelve PENDING decisions and entry gates](Phases/phase07/PHASE_07_02.md). Owner authorization covers preparation only. No authentication direction is selected and no backend/credential/session exception is approved. [Phase 07 parent](Phases/phase07/PHASE_07.md) remains **IN_PROGRESS / NOT ACCEPTED**.

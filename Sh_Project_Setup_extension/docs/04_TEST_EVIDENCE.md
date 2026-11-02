@@ -1,5 +1,40 @@
 # Test and validation evidence
 
+## Browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
+
+[Assessment](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md): **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING; READY_FOR_INDEPENDENT_CHATGPT_REVIEW**. Supplied 07.02 documentation acceptance recorded; historical reports retain their pending-review text and all twelve PENDING decisions. Progress **5/20 master phases; 28/72 official micro-phases**. D-04/B-02 OPEN; Phase 04 BLOCKED; Phase 06 parent PARTIAL/BLOCKED; Phase 07 parent IN_PROGRESS; production NO_GO; 07.03 NOT_STARTED/NOT_AUTHORIZED. No historical test count is a new run.
+
+Verified Git root/branch/origin fetch and push URLs/upstream name/SHA/live remote tip at `f447b3d2cf77072598d6904cedd3e18176b7b28a`; complete initial staged/unstaged/untracked worktree clean. Ignored IDE contents excluded from inspection and hashing. Tracked-only baseline and checker: `/tmp/phase0702-browser-first-_4h18ail/`. No fetch or Git mutation.
+
+Public documentation: web.run retrieved current official tabs, scripting, content-script isolation, permission declarations/API, activeTab, messaging, MV3 lifecycle and GitHub acceptable-use/terms pages. [Source register](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md#11-current-official-source-register) records ten sources and claim boundaries. Initial activeTab canonical URL timed out; the official query-form page succeeded. No source proves selectors, operator authority, policy compatibility or site writes.
+
+### Amendment verification results
+
+Executed from the verified Git root: `python3 /tmp/phase0702-browser-first-_4h18ail/verify.py` (exit 0). Python standard-library assertions and read-only Git checks produced `/tmp/phase0702-browser-first-_4h18ail/verification.json`; these are documentation checks, not application tests.
+
+| Check | Measured result |
+|---|---|
+| Exact whole-repository scope | **7 paths: six modified, one untracked new report; zero staged or unexpected paths** |
+| Git identity and index | Expected root/branch/origin URLs/upstream/HEAD; index entries and tracked path inventory unchanged |
+| Protected bytes | **212 of 218 tracked files** outside the six modifications equal baseline hashes and HEAD bytes, including historical 07.01/07.02, all Phase 04/06, master/source/ADR/contracts/security, code/manifest/tests/fixtures/dependencies |
+| Historical tracking and acceptance | Original bodies of all six modified documents retained as exact suffixes; prior 07.01/offline 06.04 acceptance records intact; 07.02 later documentation acceptance recorded prospectively |
+| Master/source equality | Byte-identical; unchanged SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91** |
+| Decisions and feasibility | **12 historical PENDING items; 12 prospective PENDING rows; 13 operation rows**; D-04/B-02 OPEN; no implementation/security approval |
+| Current status gates | 5/20 and 28/72; Phase 04 BLOCKED, Phase 06 parent PARTIAL/BLOCKED, Phase 07 parent IN_PROGRESS, production NO_GO; 07.03 NOT_STARTED/NOT_AUTHORIZED |
+| Local Markdown destinations | **281 links, including 11 fragment targets; zero broken** across all seven changed documents |
+| Official source provenance | **10 official Chrome/GitHub source-register entries**; manual source-to-claim review; selectors/policy fit/accounts/live behavior remain UNVERIFIED |
+| Limited secret-pattern scan | Added text/new report: no GitHub-token or private-key pattern matches; manual review found no credentials/customer values. Pattern scanning does not prove absence of every secret |
+| Whitespace and newlines | git diff --check and git diff --cached --check PASS; added lines free of trailing whitespace; all seven files have LF/final newline; historical Markdown hard breaks preserved |
+| Ignored IDE metadata | Content excluded from inspection/hashing/edits; no ignored-metadata preservation claim depends on reading private contents |
+
+The full checker repeated after recording these results with the same checks/counts and exit 0. A repeated live-tip query with credential helpers/prompts disabled returned the expected full `f447b3d2cf77072598d6904cedd3e18176b7b28a` SHA. No forbidden Git operation or product test ran.
+
+**Application tests: NOT RUN. Browser tests: NOT RUN. Provider tests: NOT RUN.** No extension execution, profile/tab/DOM inspection, permission grant, authentication, credential access, provider API client, backend or external write. Skills: Superpowers using-superpowers and verification-before-completion, Ponytail full, Stop Slop. Tools: shell/Git/Python and apply_patch through functions.exec; web.run public research. WarpGrep/Valyu unavailable; no browser-control tool, authenticated connector or subagent used. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit or push.
+
+## Historical Phase 07.02 evidence — preserved
+
+The original measured results below belong to that task, not this amendment. Its historical 27/72 and pending-review wording remain unchanged; the current amendment records supplied documentation acceptance only.
+
 ## Phase 07.02 — documentation-only evidence, 2026-11-02 (Africa/Cairo)
 
 [Decision package](Phases/phase07/PHASE_07_02.md) is **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**, not accepted or approved. Supplied **07.01 ACCEPTED at published `b04d0d4`** reconciled in current tracking only; its whole report and historical evidence remain byte-identical. Progress **5/20 and 27/72**; twelve decisions PENDING; D-04/B-02 OPEN; Phase 04 BLOCKED/POSTPONED; Phase 06 parent PARTIAL/BLOCKED/NOT ACCEPTED; production NO_GO; 07.03 NOT_STARTED/NOT_AUTHORIZED.

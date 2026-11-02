@@ -1,5 +1,13 @@
 # Project changelog
 
+## 2026-11-02: Documentation-only browser-first owner direction amendment
+
+Created [browser-first owner direction](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md) and updated only Phase 07 parent, status, this changelog, evidence, blockers and handoff. Recorded **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING**, one-profile/three-tab assumptions, proposed visible-UI architecture, thirteen-operation feasibility matrix, Chrome permission/isolation/lifecycle assessment, GitHub policy limits, per-write approval/reconciliation and manual fallback. Official Chrome/GitHub sources checked; no live tabs or provider operations.
+
+Reconciled supplied **07.02 ACCEPTED as documentation**; progress **5/20 master phases; 28/72 official micro-phases**. Accepted historical 07.01/07.02 reports remain byte-identical, including all twelve PENDING items. GitHub App/backend **DEFERRED, not selected**; no new OAuth/token/backend exception. D-04 OPEN for verified identities/permissions/targets/site behavior; B-02 OPEN for future authenticated API design, never session-as-API authority. Future browser permissions and live-site authorizations PENDING.
+
+Phase 04 BLOCKED; Phase 06 parent PARTIAL/BLOCKED; Phase 07 parent IN_PROGRESS; production NO_GO. Read-only tab recognition and fixture feasibility is a future recommendation, not 07.03 authorization. [Measured documentation checks](04_TEST_EVIDENCE.md#browser-first-owner-direction-amendment--2026-11-02-africacairo); application/browser/provider tests NOT RUN. No protected plan/source/architecture/contracts/security/history, Phase 04/06, code/manifest/tests/dependencies changed. No commit/push. **STOP FOR INDEPENDENT CHATGPT REVIEW.**
+
 ## 2026-11-02: Phase 07.02 documentation-only authentication decision package
 
 Created [07.02 packet](Phases/phase07/PHASE_07_02.md): compares App user authorization with backend, restricted public/mock discovery and device/other alternatives; records twelve individually reviewable PENDING owner/security decisions, a conditional candidate/fallback, verified minimum read permissions and separate implementation/sandbox/write gates. Reverified material official sources using the accepted 07.01 source register as baseline.

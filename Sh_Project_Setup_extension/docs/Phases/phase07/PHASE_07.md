@@ -1,5 +1,26 @@
 # Phase 07: GitHub authentication assessment and future read-only connector
 
+## Current browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
+
+**Parent IN_PROGRESS / NOT ACCEPTED. OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING.** Owner supplies **07.02 ACCEPTED as documentation**; progress **5/20 master phases; 28/72 official micro-phases**, unchanged by this amendment. [Browser-first architecture, feasibility, threats and prospective decision reconciliation](PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md) is **READY_FOR_INDEPENDENT_CHATGPT_REVIEW**.
+
+| Micro-phase / amendment | Current state | Boundary |
+|---|---|---|
+| 07.01 | **ACCEPTED at published b04d0d4**, supplied owner acceptance | Historical assessment byte-identical |
+| 07.02 | **ACCEPTED as documentation**, supplied owner acceptance | Historical packet byte-identical; twelve security decisions retain PENDING |
+| Browser-first owner direction amendment | **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING** | Visible UI in one Chrome profile across existing Plementus/GitHub/Odoo.sh tabs; no automation/live authorization |
+| 07.03 | **NOT_STARTED / NOT_AUTHORIZED** | Fresh scoped design/implementation authorization required |
+
+Git preflight root/branch/origin URLs/upstream/live tip match entry HEAD `f447b3d2cf77072598d6904cedd3e18176b7b28a`; complete initial worktree clean. Git verifies publication, not reviewer acceptance. Prior 07.01 and offline 06.04 acceptance records below remain intact. Both accepted Phase 07 reports keep their original pending-review wording as historical evidence.
+
+GitHub App/backend candidate **DEFERRED, not selected**. No new OAuth, token handling or backend exception requested; existing restrictions preserved. D-04 remains OPEN for verified identities, permissions, target scope and site behavior; B-02 remains OPEN for future authenticated API design. Website sessions may not be API credentials. Future browser grants and live-site authorizations PENDING; protected API-first architecture/contracts text needs later scoped reconciliation before implementation.
+
+Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**; Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**; production **NO_GO**. Recommend separately authorized read-only three-tab recognition and fixture-based feasibility assessment before writes. No implementation now; application/browser/provider tests **NOT RUN**. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit or push.
+
+## Historical Phase 07.02 parent snapshot — preserved
+
+The original parent text below retains the packet task's progress, Git baseline and review state; the current amendment above records later owner-supplied documentation acceptance and prospective direction without security approval.
+
 **Parent: IN_PROGRESS / NOT ACCEPTED.** 2026-11-02 (Africa/Cairo). Only the documentation-only 07.02 decision package is currently authorized. Accepted progress is **5/20 master phases; 27/72 official micro-phases**; 07.02 adds no accepted progress. Production **NO_GO**.
 
 | Micro-phase | Current state | Evidence / gate |

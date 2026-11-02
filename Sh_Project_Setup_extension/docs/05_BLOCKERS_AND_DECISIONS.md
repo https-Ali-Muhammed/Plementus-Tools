@@ -1,5 +1,25 @@
 # Blockers and decisions
 
+## Current browser-first direction and unresolved decisions — 2026-11-02 (Africa/Cairo)
+
+**OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING.** [Amendment and prospective twelve-item reconciliation](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md#8-prospective-applicability-of-the-twelve-historical-decisions). Owner supplies **07.02 ACCEPTED as documentation**; progress **5/20 master phases; 28/72 official micro-phases**. Historical 07.01/07.02 bytes and all twelve **PENDING** decision states preserved; no security concurrence/closure invented.
+
+| Decision / gate | Current state | Remaining requirement |
+|---|---|---|
+| Owner architecture direction | **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING** | Browser-first visible UI across one profile/three existing authenticated tabs; manual fallback. Validate feasibility/security separately; no implementation authority |
+| GitHub App/backend candidate | **DEFERRED, not selected** | No backend/OAuth/token exception requested. Revisit only under a later explicit authenticated API scope |
+| D-04 identities/permissions/targets/site behavior | **OPEN / OWNER DECISION REQUIRED** | Verify each site's actual operator identity, org/repo/subscription/customer scope, authority, permitted UI behavior and ambiguity controls; login alone proves none of these |
+| B-02 future authenticated API design | **OPEN / OWNER DECISION REQUIRED** | Existing no-backend/no-token rules preserved; browser sessions are not API credentials. No internal endpoints or credential-extraction workaround |
+| B-03 sandbox and rights | **OPEN** | Fresh identities/targets/operations and evidence/cleanup authorization before live access; no write authority from this direction |
+| Browser permissions and live-site authorizations | **PENDING** | Exact origin/tab model, optional grants, dynamic customer domains, policy review and separate explicit live-inspection/write scope |
+| Protected API-first design text | **PROSPECTIVE RECONCILIATION REQUIRED** | Master/ADR/contracts/security stay byte-identical; scope later documentation review before implementation, without weakening credential or phase gates |
+
+SEC-01 and all existing retention/uncertainty/clock/cleanup/operator/device/incident gates remain unchanged. Phase 04 **IN_PROGRESS / BLOCKED / POSTPONED**; Phase 06 parent **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 parent **IN_PROGRESS / NOT ACCEPTED**; production **NO_GO**. Future read-only recognition/fixtures is recommended only; 07.03 **NOT_STARTED / NOT_AUTHORIZED**. Application/browser/provider tests **NOT RUN**. **STOP FOR INDEPENDENT CHATGPT REVIEW.**
+
+## Historical Phase 07.02 decision tracking — preserved
+
+The earlier current-state wording below belongs to the packet task. The new prospective direction supersedes its recommendation for current tracking only; historical security decisions remain PENDING and no blocker is closed.
+
 ## Current Phase 07.02 decision package — 2026-11-02 (Africa/Cairo)
 
 **5/20 master phases; 27/72 official micro-phases accepted.** Supplied 07.01 acceptance at published `b04d0d4` is documentation-only; original report/evidence preserved. [07.02 packet](Phases/phase07/PHASE_07_02.md) **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**; no method/policy decision approved. All twelve register items PENDING.

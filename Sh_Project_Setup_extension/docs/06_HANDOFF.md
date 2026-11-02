@@ -1,5 +1,23 @@
 # Project handoff
 
+## Current handoff — browser-first owner direction, 2026-11-02 (Africa/Cairo)
+
+**STOP FOR INDEPENDENT CHATGPT REVIEW.** [Documentation-only amendment](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md) is **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING; READY_FOR_INDEPENDENT_CHATGPT_REVIEW**. Owner supplies **07.02 ACCEPTED as documentation**. Preserve accepted 07.01/07.02 report bytes, their historical pending-review language and twelve PENDING security decisions. Progress **5/20 master phases; 28/72 official micro-phases**; Phase 04 BLOCKED/POSTPONED, Phase 06 parent PARTIAL/BLOCKED/NOT ACCEPTED, Phase 07 parent IN_PROGRESS/NOT ACCEPTED, production NO_GO.
+
+Verified root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`, extension `Sh_Project_Setup_extension`, branch `feature/sh-project-setup-extension-clean`, HEAD/upstream/live tip `f447b3d2cf77072598d6904cedd3e18176b7b28a`, upstream `origin/feature/sh-project-setup-extension-clean`; all origin fetch/push URLs `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`. Entry worktree tracked/staged/untracked clean. Preserve ignored IDE metadata without content inspection, hashing or edits. No clone/checkout/reset/fetch/staging/commit/push.
+
+Owner prefers one profile with existing authenticated Plementus/GitHub/Odoo.sh tabs, ordinary Odoo.sh GitHub sign-in, one visible wizard, per-write review/approval, observed results and manual fallback. Account/session/authority are separate per site; no site UI was inspected here. GitHub App/backend **DEFERRED, not selected**. No separate OAuth/backend requirement, token handling exception, credential extraction, internal API, provider API client or browser automation implementation.
+
+D-04 remains OPEN for verified identities/permissions/target scope/site behavior. B-02 remains OPEN for future authenticated API design; never use website sessions as API credentials. Chrome permissions and live-site authorizations PENDING. Protected master/ADR/contracts/security still contain historical API-first proposals; record the prospective difference and require later scoped reconciliation before implementation. SEC-01 and Phase 06 synthetic authority/recovery limits remain binding.
+
+Next recommendation: a separately authorized **read-only tab recognition and fixture-based feasibility assessment** covering explicit three-tab choice, exact origins, supported permissions, safe detection and ambiguity fallback, with no credential access or provider writes. This amendment neither implements that work nor authorizes 07.03; live inspection and later writes require separate scopes. All real selectors/behaviors/write paths UNVERIFIED. No successful click counts as external confirmation.
+
+Exactly seven documentation paths, one new and six modified. [Verification](04_TEST_EVIDENCE.md#browser-first-owner-direction-amendment--2026-11-02-africacairo) covers scope/protected bytes/master-source/history/links/whitespace. Application/browser/provider tests **NOT RUN**. No protected files/code/manifest/tests/dependencies changed; no commit or push.
+
+## Historical Phase 07.02 handoff — preserved
+
+The previous handoff below retains its original task context. Use the amendment above for current acceptance, counters, owner direction and next gate; no historical security decision is closed.
+
 ## Current handoff — Phase 07.02, 2026-11-02 (Africa/Cairo)
 
 **STOP FOR INDEPENDENT CHATGPT REVIEW AND OWNER/SECURITY DECISION.** [07.02 authentication decision package](Phases/phase07/PHASE_07_02.md) is **READY_FOR_OWNER_SECURITY_DECISION / READY_FOR_CHATGPT_REVIEW**, not ACCEPTED/APPROVED. All twelve owner/security items PENDING; no method selected, backend allowed or credential/session exception approved. Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED** even if this packet is published or accepted as documentation.
