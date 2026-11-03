@@ -1,5 +1,30 @@
 # Test and validation evidence
 
+## BF-04 documentation verification — 2026-11-03 (Africa/Cairo)
+
+[BF-04 design and source register](Phases/phase07/PHASE_07_BROWSER_FIRST_PERMISSION_LIFECYCLE_DESIGN.md) is **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY; PROPOSED / SECURITY_REVIEW_PENDING**. Entry preflight matched exact root, origin fetch/push, branch, HEAD/upstream/live tip **`efd5757fcb597848ab48bda8feb4704b6dcaadd3`**, upstream `origin/feature/sh-project-setup-extension-clean`, divergence 0/0; complete staged/unstaged/untracked baseline empty. Both worktrees inventoried; **225 tracked paths equal HEAD**. Tracked hashes, raw index hash/entries and history hash saved at `/tmp/bf04-docs-vaadxibr/baseline.json`. Ignored `.idea/workspace.xml` never read, hashed or changed.
+
+Public `web.run` retrieved **13 official Chrome sources**, covering Tabs, activeTab, Scripting, Permissions, declarations, match patterns, webNavigation, worker lifecycle, content scripts, messaging security, MessageSender, action and popup lifecycle. Source-to-claim review distinguishes documented facts from candidate architecture; no source establishes product security approval, human selection or provider compatibility. No Valyu/WarpGrep available; no authenticated connector/browser-control tool used.
+
+**BF-03 independently accepted and published at `efd5757`, per supplied owner instruction, within fixture-only scope.** Publication confirmed read-only by local/upstream/live-tip equality. Its unchanged report/harness retain historical **242 Node PASS; 43 Chrome PASS / 0 FAIL / 5 SKIP/NOT RUN**, **37 LOCAL_BROWSER_TESTED + 6 SIMULATED** passes, earlier failed runs and original review wording. Genuine consent/optional revocation, invoked activeTab, actual popup lifecycle, natural idle/crash/restoration and prerender replacement stay unverified. No historical result was rerun or promoted to human-selection/site/account/write evidence.
+
+Executed from the verified root: `python3 /tmp/bf04-docs-vaadxibr/verify.py` — **PASS, exit 0**. Checker/results are outside Git at `verify.py` and `verification.json` in that directory; these are documentation assertions and read-only Git queries, not application tests.
+
+| Documentation check | Measured result |
+|---|---|
+| Exact complete scope | **8 paths: 7 modified, 1 untracked new report; 0 unexpected/staged** |
+| Protected tracked files | **218 PASS**, equal preflight hashes and HEAD; includes all runtime/source/tests/fixtures, BF-01/BF-02/BF-03 reports/harness, contracts/security/SEC-01, master/canonical sources, Phase 04/06 and unrelated tracked files |
+| Historical preservation | **7 original document bodies** retained as exact suffixes after unchanged titles; includes ADR-006/all historical ADRs, previous test evidence and acceptance/review wording |
+| Index / history / Git identity | Raw index bytes, all index entries, 225 tracked paths and history hash unchanged; root/branch/all origin URLs/upstream/HEAD/live tip rechecked at `efd5757` |
+| Master / canonical master | Original bytes equal, SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91** |
+| Changed Markdown links / anchors | **348 local links / 43 fragment targets / 0 broken** across all eight changed documents |
+| All extension Markdown links / anchors | **86 files; 885 local links / 137 fragment targets / 0 broken**; fenced examples excluded, existing directory links accepted |
+| Source citations | **13 distinct official Chrome source-register entries**; manually reviewed claim support versus prospective choices/evidence limits |
+| Whitespace / final newlines | `git diff --check` PASS; new-report `git diff --no-index --check` produced no diagnostics (exit 1 for new content); all eight files pass explicit LF, trailing-whitespace and single-final-newline assertions |
+| Author and builder check | Scope/requirements/evidence review completed; read-only subagent builder check found no material issue beyond explicit future review/UNVERIFIED gates; not independent ChatGPT acceptance or security approval |
+
+Skills actually applied: Superpowers using-superpowers, brainstorming and verification-before-completion; Ponytail full. Tools actually used: shell/Git/Python and apply_patch through functions.exec, web.run, and a read-only collaboration subagent requested by the brainstorming skill. **Node/application/browser/provider tests NOT RUN**; no Chrome launch, profile/tab inspection, runtime permission request, DOM injection, credential access or external write. Progress **5/20 master phases; 28/72 micro-phases**, Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS/NOT ACCEPTED, 07.03 NOT_STARTED/NOT_AUTHORIZED, D-04/B-02/B-03 OPEN, production NO_GO. **STOP for independent BF-04 review; no BF-05, staging, commit or push.**
+
 ## BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY**, pending independent acceptance. [Report and case matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md). Explicit owner authorization covered only eight paths and invented local fixtures. Entry root, origin fetch/push, branch, upstream and live remote tip matched **`8b9ed8afa53dfc51dd8f52e62357711a953d1c17`**, upstream `origin/feature/sh-project-setup-extension-clean`; divergence 0/0; complete staged/unstaged/untracked baseline empty. Both worktrees inventoried; ignored IDE contents never read/hashed/changed. Baseline: **223 tracked paths**, raw index/entries/history snapshot at `/tmp/bf03-evidence-ah1v1rl7/baseline.json`.

@@ -1,5 +1,11 @@
 # Project changelog
 
+## 2026-11-03: BF-04 candidate permission and tab-lifecycle documentation
+
+Created [BF-04 design](Phases/phase07/PHASE_07_BROWSER_FIRST_PERMISSION_LIFECYCLE_DESIGN.md), added prospective ADR-007 and updated six tracking documents, exactly **seven modified + one new = eight paths**. Compared six permission models; proposed separate per-tab invocation with scripting and optional consented navigation observation, manual fallback, explicit role selection/consent UX, volatile context bindings, lifecycle invalidation, race/message guards and non-secret evidence limits. All are candidates for review, not implemented or approved grants. ADR-006/historical ADRs and complete original tracking bodies preserved.
+
+Recorded supplied BF-03 independent acceptance/publication at **`efd5757`**, fixture-only; original report/harness and **242 Node / 43 Chrome PASS / 5 SKIP** preserved, not rerun. Six simulated selection cases remain simulated; five unsupported groups remain unverified. Current official Chrome sources consulted; [documentation checks](04_TEST_EVIDENCE.md#bf-04-documentation-verification--2026-11-03-africacairo) only. No Node/browser/provider tests, code/manifest/permissions/contracts/security/master/Phase 04/06 changes or real-site access. Progress **5/20; 28/72**, Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS, 07.03 NOT_AUTHORIZED, D-04/B-02/B-03 OPEN, production NO_GO. **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY; STOP.** No BF-05, staging, commit or push.
+
 ## 2026-11-03: BF-03 isolated Chrome three-tab fixture verification
 
 Added only the [standalone browser harness](../test/browser-first-tab-recognition-browser.mjs) and [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); updated six tracking files, exactly eight paths. Generated disposable restricted/metadata/loopback-host MV3 manifests and profiles; tested selected local tab IDs, metadata versus injection, real document identity/navigation and bounded lifecycle loss. Production manifest/permissions/source, accepted BF-01 and all protected contracts/policies unchanged. No BF-01 adaptation, runtime integration, persistence, credentials, real-site access or provider authority.

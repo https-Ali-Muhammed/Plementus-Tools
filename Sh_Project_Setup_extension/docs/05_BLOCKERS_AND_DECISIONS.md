@@ -1,5 +1,13 @@
 # Blockers and decisions
 
+## BF-04 candidate access model and unresolved review — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [BF-04 comparison and proposed safeguards](Phases/phase07/PHASE_07_BROWSER_FIRST_PERMISSION_LIFECYCLE_DESIGN.md); ADR-007 is **PROPOSED / SECURITY_REVIEW_PENDING**, not a permission/security approval. Candidate per-tab activeTab + scripting with optional navigation observation avoids standing host grants; the broader navigation-metadata capability, real invocation/consent, supported browser, UI ownership, dynamic origins, rights checks and lifecycle/races remain **OWNER/SECURITY DECISION REQUIRED / UNVERIFIED**. No implementation or policy exception is authorized; unavailable capability/context leads to manual mode.
+
+Supplied **BF-03 independent acceptance/publication at `efd5757`** applies only to fixture evidence. Historical **242 Node PASS; 43 Chrome PASS / 5 SKIP**, including six SIMULATED selection checks, preserved and not rerun. The five consent/optional revocation, invoked activeTab, popup, natural idle/crash/restoration and genuine replacement groups remain unverified. **D-04/B-02/B-03 OPEN**; twelve historical owner/security decisions PENDING. BF-04 closes no identity, authority, permission, site-policy, SEC-01 or recovery blocker. No additional default OAuth/App/PAT/backend/API client or session extraction workaround.
+
+Progress **5/20; 28/72**; Phase 04 BLOCKED/POSTPONED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS/NOT ACCEPTED, 07.03 NOT_STARTED/NOT_AUTHORIZED; production NO_GO. [Documentation verification](04_TEST_EVIDENCE.md#bf-04-documentation-verification--2026-11-03-africacairo) only; Node/browser/provider tests NOT RUN. Earlier entries remain historical, including BF-03's prior pending-review state. **STOP for independent BF-04 review; no BF-05, implementation, live inspection, staging, commit or push.**
+
 ## BF-03 fixture observations and remaining decisions — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY.** [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [evidence](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Owner authorized only the isolated eight-file fixture spike. Node **242 PASS**; Chrome **151.0.7922.34**, **43 PASS / 0 FAIL / 5 SKIP**, including six SIMULATED selection checks. Real metadata/injection/document/navigation and controlled lifecycle observations do not establish accounts, write authority, real-site behavior or product permission adoption.

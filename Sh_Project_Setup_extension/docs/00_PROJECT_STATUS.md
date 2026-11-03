@@ -1,5 +1,13 @@
 # Project status
 
+## Current BF-04 permission and lifecycle design — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY; PROPOSED / SECURITY_REVIEW_PENDING.** [BF-04 design, matrix, UX and invalidation](Phases/phase07/PHASE_07_BROWSER_FIRST_PERMISSION_LIFECYCLE_DESIGN.md); [ADR-007](02_ARCHITECTURE_DECISIONS.md#adr-007-candidate-permission-and-lifecycle-design--2026-11-03-africacairo); [verification](04_TEST_EVIDENCE.md#bf-04-documentation-verification--2026-11-03-africacairo). Owner's exact eight-path instruction authorizes documentation only. Candidate separate `activeTab` invocations + `scripting`, optional consented `webNavigation`, no `tabs`/host declarations; manual fallback for unavailable consent/context/rights. Candidate review is not product permission adoption or security approval.
+
+**BF-03 independently accepted and published at `efd5757fcb597848ab48bda8feb4704b6dcaadd3`, per supplied owner instruction, fixture-only.** Historical **242 Node PASS; 43 Chrome PASS / 5 SKIP**, including **37 LOCAL_BROWSER_TESTED + 6 SIMULATED** passes, preserved and not rerun. Five unverified consent/invocation/popup/natural-lifecycle/replacement groups remain unverified; no real human-selection evidence. Earlier tracking and reports retain their original bodies/review states; no new BF-02 acceptance inferred.
+
+Git root/origin fetch+push/branch/upstream/live tip matched required `efd5757`; complete entry worktree/index clean, 225 tracked files equal HEAD, both worktrees inventoried. Scope **seven modified + one new documentation file**. No Node/application/browser/provider tests run. Progress **5/20 master phases; 28/72 micro-phases**; Phase 04 **BLOCKED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**, twelve historical decisions PENDING, production **NO_GO**. **STOP for independent BF-04 review; no BF-05, implementation, real-site inspection, staging, commit or push.**
+
 ## Current BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY**, pending independent acceptance. [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [evidence](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Owner explicitly authorized execution of the eight-file isolated fixture scope. Root/origins/branch/upstream/live tip matched required HEAD **`8b9ed8afa53dfc51dd8f52e62357711a953d1c17`**; initial complete worktree clean. No staging/commit/push. Earlier BF-02/BF-01 tracking bodies remain historical; no new independent acceptance claimed.
