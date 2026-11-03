@@ -1,5 +1,17 @@
 # Blockers and decisions
 
+## BF-06 candidate design and remaining authority gates — 2026-11-03 (Africa/Cairo)
+
+[BF-06](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_DESIGN.md) extends BF-04/ADR-007 without approving M2 or its optional navigation exposure. **PROPOSED / SECURITY_REVIEW_PENDING / UNIMPLEMENTED.** Candidate transitions never create account verification or execution authority; worker/review/browser loss cannot revive old bindings. Strict global invalidation requires fresh human selection for all roles. No persistent profile identity, Tab.documentId, durable binding store or replay guarantee is invented.
+
+**BF-05-R1 independently accepted and published at `acbb4f623d78e179ba189a359f7c754aaf208664` (`acbb4f6`), per supplied owner instruction, within LOCAL_FIXTURE_BROWSER_ONLY scope.** Git confirms publication, not reviewer authority. Three genuine invocation events and concurrently usable grants in one isolated session establish neither real-site readiness nor security approval. Historical 242 Node PASS; final Chrome 19 PASS / 0 FAIL / 2 SKIP / 0 BLOCKED; both unsupported lifecycle groups, initial/reopened failures and original BF-05 headless BLOCKED remain preserved, not rerun or relabeled. Surviving Chrome scripting access cannot restore lost application bindings or approval.
+
+**OWNER DECISION REQUIRED:** optional-navigation breadth and permission/UI adoption under ADR-007; bounded page-read/privacy contract and supported environment; dynamic origins, site-policy/account/rights evidence; separately authorized fixture tests. Actual popup lifecycle, natural idle/crash/restored same tabs, prerender/BFCache/replacement, optional consent/removal, races and real-site behavior remain UNVERIFIED. Future per-write authority, result checks/reconciliation, durable duplicate protection and SEC-01/Phase 06 runtime acceptance remain separate prerequisites. New review/reselection cannot clear an unresolved possible-write or cleanup/retention obligation. No security policy is amended.
+
+Progress **5/20 master phases; 28/72 micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical security decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY. STOP for independent review.** No BF-07, Phase 07.03, implementation, real-site inspection, staging, commit or push.
+
 ## BF-05-R1 reopened result and remaining limits — 2026-11-03 (Africa/Cairo)
 
 **Genuine invocation and three-grant coexistence VERIFIED in headed Chrome 151.0.7922.34.** Following the owner’s reopening request, a fresh disposable session established a clean five-tab negative baseline, then observed all three personal toolbar clicks as actual Chrome onClicked events with matching tab IDs and successful bounded scripting reads. Each prior grant remained usable; uninvoked/duplicate/negative tabs stayed inaccessible. No real site identity, account rights or business authority follows. [Current evidence](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_HEADED_REMEDIATION.md#current-reopened-run--2026-11-03-africacairo).

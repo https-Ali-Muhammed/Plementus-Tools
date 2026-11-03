@@ -1,5 +1,34 @@
 # Test and validation evidence
 
+## BF-06 documentation verification — 2026-11-03 (Africa/Cairo)
+
+**DOCUMENTATION_ONLY; application/Node/browser/provider tests NOT RUN.** [BF-06 candidate](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_DESIGN.md) extends BF-04/ADR-007, with prospective ADR-008; no product permission adoption, runtime collector/executor, live-site inspection or new test result. Public current Chrome documentation reviewed with web.run. Read-only builder check returned “nothing important left”; this is not independent ChatGPT acceptance or security approval.
+
+**BF-05-R1 independently accepted and published at `acbb4f623d78e179ba189a359f7c754aaf208664` (`acbb4f6`), per supplied owner instruction, LOCAL_FIXTURE_BROWSER_ONLY.** Git verifies publication, not review authority. Historical evidence remains: 242 Node PASS; three genuine invocation events and concurrently usable grants in one fresh isolated session; Chrome 19 PASS / 0 FAIL / 2 SKIP / 0 BLOCKED, lifecycle 8 PASS / 2 SKIP. Unsupported groups are (1) same-tab grant across crash/session restoration and (2) natural idle, prerender/BFCache, optional prompts, actual action-popup lifecycle. Original BF-05 headless 16 PASS / 10 SKIP / 4 BLOCKED, R1 initial 3 PASS / 1 FAIL / 8 BLOCKED, partial 8 PASS / 9 BLOCKED and reopened 4 PASS / 1 FAIL / 8 BLOCKED remain verbatim. None rerun; no reliability certification, live-site readiness or production security approval.
+
+Preflight: exact root/branch, all fetch/push origin URLs, upstream and live tip matched required `acbb4f623d78e179ba189a359f7c754aaf208664`, divergence 0/0; complete tracked/untracked worktree and staged diff clean. Both linked worktrees inventoried unchanged; sibling not operated on. Baseline `/tmp/bf06-baseline.json`, documentation checker `/tmp/bf06-verify.py`, result `/tmp/bf06-verification.json`. Ignored `.idea/workspace.xml` never read, hashed or edited.
+
+Measured command: `python3 /tmp/bf06-verify.py` — **PASS, exit 0**. This is a documentation/Git checker, not an application test. It re-queries the live remote without fetch and compares tracked bytes to both the preflight hashes and HEAD.
+
+| Documentation check | Measured result |
+|---|---|
+| Exact tracked/untracked scope | **8 allowed paths: 1 new / 7 modified; 0 unexpected; 0 staged** |
+| Protected files / prior bodies | **223 protected tracked files byte-identical to baseline and HEAD; all 7 prior bodies preserved**; full prior ADR file remains an exact prefix |
+| Index/history/worktrees | Raw index, tracked inventory, refs, reflog, HEAD/upstream/live tip and both linked worktrees unchanged |
+| Master/canonical | Byte-equal, original SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Eight changed Markdown files | **411 local links / 75 fragments / 0 broken** |
+| All 89 extension Markdown files | **986 local links / 176 fragments / 0 broken** |
+| Whitespace / line endings / EOF | `git diff --check` exit 0; explicit eight-file trailing-whitespace, LF and single-final-newline checks PASS, including the untracked new report |
+| New runtime evidence | **None**; application/Node/browser/provider tests NOT RUN |
+
+The checker was rerun after inserting these measurements; final JSON retains the same scope/preservation/link results.
+
+All seven existing documentation bodies, ADR-006/007 and the full pre-existing ADR file remain verbatim. No source/manifest/popup/worker/test/fixture/dependency, contract/security-policy, Phase 04/06 or master change. Global binding invalidation is a proposal, not tested product enforcement. Chrome access surviving state loss never supplies account/execution authority; remaining races, actual popup/idle/crash/restore/replacement/consent, real accounts/rights and SEC-01/Phase 06 runtime/security gates remain UNVERIFIED.
+
+Skills/tools actually used: Superpowers using-superpowers, brainstorming and verification-before-completion; Ponytail full; functions.exec with shell/Git/Python, web.run and read-only collaboration builder check. WarpGrep/Valyu unavailable. No application/Node/browser/provider execution or authenticated connector. No staging, commit or push.
+
+Progress **5/20 master phases; 28/72 micro-phases**; Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**, twelve historical security decisions **PENDING**, production **NO_GO**. **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY. STOP.**
+
 ## BF-05-R1 reopened verification — 2026-11-03 (Africa/Cairo)
 
 [Current reopened report/events/lifecycle matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_HEADED_REMEDIATION.md#current-reopened-run--2026-11-03-africacairo). Owner requested reopening after the earlier timeout; three fresh clicks were required in one new disposable session. Pre-reopen structural/Git verification passed at expected **4dcece0ffa8beec20f5ec12ba49901350673f7d0**, clean index/history/protected bytes and only the eight already authorized paths dirty. No normal profile or real site accessed.
