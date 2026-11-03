@@ -1,5 +1,30 @@
 # Test and validation evidence
 
+## BF-02 documentation verification — 2026-11-03 (Africa/Cairo)
+
+[BF-02 report](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) is **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY**, pending independent acceptance. Entry Git root/origin fetch/push/branch/upstream name/SHA/live tip matched required `02862e80ed3275bebfbcc227991954e0a0fd5214`; divergence `0 0`; complete initial staged/unstaged/untracked inventory empty. Baseline: **222 tracked files** equal HEAD; raw index/entries snapshot at `/tmp/bf02-reconciliation-90nbgdh5/baseline.json`. Ignored `.idea/workspace.xml` never read, hashed or changed.
+
+Public `web.run` retrieved eight [official Chrome references](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md#official-references): activeTab, Tabs, Scripting, declarations, Permissions, content scripts, messaging and worker lifecycle. Sources support the stated permission distinctions, optional-request constraints/removal and lifecycle limits; they prove no site support, rights or security acceptance. No permission set/origin selected, credentials collected, authenticated API request or site/browser operation performed.
+
+Executed from the verified Git root: `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/bin/false python3 /tmp/bf02-reconciliation-90nbgdh5/verify.py` — **PASS, exit 0**. Results: `/tmp/bf02-reconciliation-90nbgdh5/verification.json`. The first checker run treated four existing directory links as files; accepting existing directory destinations corrected that checker assumption without editing their protected documents. The complete check then passed.
+
+| Documentation check | Measured result |
+|---|---|
+| Exact whole-repository scope/inventory | **10 paths: nine modified, one new untracked report; zero unexpected/staged paths**; 222 tracked paths unchanged |
+| Protected tracked bytes | **213 PASS**, equal preflight hashes and HEAD, including master/canonical sources, security, historical Phase 07/BF-01, all Phase 04/06, manifest/source/tests/fixtures/dependencies and unrelated tracked files |
+| Raw index / index entries | Byte-identical to preflight; zero staged changes; final HEAD/upstream/live remote tip and origin identity unchanged |
+| Historical document bodies | **9 PASS**, original H1 and complete original body retained; historical ADR-003 reasoning, acceptance wording and test evidence intact |
+| Master / canonical source | Original bytes unchanged and equal; SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91** |
+| Local links / relevant anchors in ten changed Markdown files | **331 local links / 37 fragment targets / 0 broken** |
+| Local links / relevant anchors across all 84 extension Markdown files | **822 local links / 118 fragment targets / 0 broken**; existing directory destinations accepted, fenced examples excluded |
+| Historical decisions | **12 historical PENDING items and 12 prospective PENDING rows**, unchanged |
+| Whitespace / newline | `git diff --check` PASS; `git diff --no-index --check -- /dev/null Sh_Project_Setup_extension/docs/Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md` has no diagnostics (exit 1 for new content); all ten files pass explicit trailing-whitespace, LF and single-final-newline checks |
+| Added-text trust/approval review | Pattern/origin checks plus manual semantic review PASS within documentation scope: no actual credentials/customer origins, invented provider API/selector/runtime support or implicit security approval; no permission set selected |
+
+BF-01's supplied independent acceptance/publication at `02862e8` is recorded prospectively; its protected report and historical **29 focused / 242 full PASS**, earlier 26/239 and RED results remain intact. **No application/browser/provider tests run for BF-02**; historical tests are not new evidence. A text scan is not a security certification or live-site verification.
+
+Progress **5/20 master; 28/72 official micro-phases** unchanged; Phase 04 BLOCKED/POSTPONED, Phase 06 parent PARTIAL/BLOCKED, Phase 07 parent IN_PROGRESS/NOT ACCEPTED, 07.03 NOT_STARTED/NOT_AUTHORIZED; D-04/B-02/B-03 OPEN; twelve decisions, Chrome permissions/live inspection PENDING; production NO_GO. **STOP FOR INDEPENDENT BF-02 REVIEW.** No staging, commit or push.
+
 ## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
 
 [Rework report and precedence contract](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo). Node v24.19.0; commands from the extension directory. Before edits: **26 focused PASS**. Exactly three added tests reproduced missing-prior/current-denial, missing-URL/malformed-document and earlier-role-missing/other-role-denied failures before implementation changed; each received `unknown` instead of `blocked`.

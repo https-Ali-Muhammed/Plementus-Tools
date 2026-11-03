@@ -1,5 +1,13 @@
 # Phase 07: GitHub authentication assessment and future read-only connector
 
+## BF-02 architecture reconciliation — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [BF-02 report](PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) and [ADR-006](../../02_ARCHITECTURE_DECISIONS.md#adr-006-browser-first-three-tab-owner-direction--2026-11-03-africacairo) give the published one-profile/three-signed-in-tab owner direction precedence over historical ADR-003/API-first candidates. Repository/branch website UI remains CANDIDATE_ONLY / UNVERIFIED; no additional website OAuth/App/PAT/backend/authenticated API client needed by default; GitHub App/backend DEFERRED, not approved. Website sign-in, Chrome access, site rights and immediate per-write approval are separate; sessions never become API credentials. No permission set or runtime contract selected.
+
+BF-01 is **independently accepted and published at `02862e8`**, per supplied acceptance, within OFFLINE_SIMULATED scope; historical review wording and **29 focused / 242 full PASS** below/in its report remain intact and were not rerun. BF-02 is a non-counted documentation prerequisite, pending independent acceptance. Earlier snapshots below are historical, including their requests for BF-01 review and later architecture reconciliation.
+
+Progress **5/20 master; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**. D-04/B-02/B-03 OPEN; twelve historical decisions, Chrome permissions and live-site inspection PENDING; production **NO_GO**. Master/security/history/code unchanged; application/browser/provider tests NOT RUN. **STOP FOR INDEPENDENT BF-02 REVIEW.** No BF-03/07.03/browser work, staging, commit or push.
+
 ## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Precedence correction and regression evidence](PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo). The disconnected evaluator now checks available metadata and known mismatches across all selected roles/snapshots before returning `unknown`; known hard failures return `blocked`. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**, both syntax checks PASS. Historical **26/239** results below preserved. No browser capability or security-policy change; account/execution authority stays false. Browser/provider verification NOT RUN.

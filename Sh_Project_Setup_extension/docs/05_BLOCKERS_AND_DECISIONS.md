@@ -1,5 +1,22 @@
 # Blockers and decisions
 
+## BF-02 prospective reconciliation and unresolved gates — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [BF-02](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) supplies the authorized ADR/contracts/feasibility reconciliation previously requested below; independent acceptance is pending, not a runtime/security blocker closure. BF-01 is independently accepted/published at `02862e8` within offline scope, per supplied acceptance; original review wording and **29/242** test evidence preserved, not rerun. Historical entries below remain unchanged.
+
+| Gate | Current disposition / still required |
+|---|---|
+| Architecture route | Confirmed browser-first existing GitHub/Odoo.sh/Plementus tabs in one profile; ADR-006 supersedes ADR-003's API route for current planning; real behavior/rights/policy UNVERIFIED |
+| GitHub App/backend | **DEFERRED, not approved**; no additional website OAuth/PAT/credential collection/authenticated API client needed by default; no session-as-API workaround |
+| D-04 | **OPEN / OWNER DECISION REQUIRED**: independently verified site identities, org/repo/subscription/customer scope, rights and permitted behavior |
+| B-02 | **OPEN / OWNER DECISION REQUIRED** for future authenticated API design; historical credential/backend restrictions remain binding; no API requirement imposed on the default UI candidate |
+| B-03 | **OPEN**: separate disposable targets, rights, live operation/evidence/recovery authorization |
+| Chrome permissions / live inspection | **PENDING**: least-privilege tabs/host/scripting/activeTab/dynamic-origin/revocation design, consent and separately scoped inspection; no permission set selected |
+| Historical owner/security items 01–12 | **PENDING**; prospective applicability in published owner amendment preserved; no implicit approval or policy exception |
+| Protected policy and runtime | SEC-01/Phase 06 unchanged; any necessary policy amendment is a separately **PENDING / OWNER DECISION REQUIRED** item, never accepted by BF-02 |
+
+Official progress **5/20 master; 28/72 micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**, Phase 06 parent **PARTIAL / BLOCKED**, Phase 07 parent **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**, production **NO_GO**. Sensitive-write confirmation remains separate from site login, Chrome consent and account rights; simulated approvals never grant execution. No tests/site operations or staging/commit/push. **STOP FOR INDEPENDENT BF-02 REVIEW.**
+
 ## BF-01-R1 precedence correction — 2026-11-03 (Africa/Cairo)
 
 The [offline rework](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo) fixes missing metadata hiding known hard failures. `blocked` now takes precedence across selected fields, snapshots and roles; unavailable metadata alone remains `unknown`. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**, syntax PASS. Historical **26/239** evidence below is preserved. No runtime/security-policy decision is resolved: D-04/B-02/B-03 remain OPEN, historical security decisions and browser/live-site permissions PENDING; account/execution authority stays false. Existing progress and all blocked gates remain unchanged. Browser/provider verification NOT RUN. **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED; STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.

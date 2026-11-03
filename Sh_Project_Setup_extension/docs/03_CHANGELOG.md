@@ -1,5 +1,11 @@
 # Project changelog
 
+## 2026-11-03: BF-02 browser-first architecture reconciliation
+
+Added [ADR-006](02_ARCHITECTURE_DECISIONS.md#adr-006-browser-first-three-tab-owner-direction--2026-11-03-africacairo), dated prospective integration/feasibility sections and [BF-02 report](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md); minimally updated Phase 07/status/evidence/blockers/handoff. Exactly **ten documentation paths: nine modified, one new**. Current planning follows owner-confirmed visible UI in three existing signed-in tabs/one profile, with separate Chrome grants, site rights, immediate per-write approval, observed results and manual fallback. Historical ADR-003/API proposals and original bodies preserved; App/backend deferred, no credential/session/API workaround or permission selection.
+
+Recorded supplied **BF-01 independently accepted/published at `02862e8`**, offline only; historical review wording and **29/242** evidence unchanged, not rerun. Protected master/source/security, historical reports, Phase 04/06 and all runtime files unchanged. Public official Chrome permission sources checked; [documentation verification](04_TEST_EVIDENCE.md#bf-02-documentation-verification--2026-11-03-africacairo) is separate from application/browser/provider tests, which are NOT RUN. Official progress **5/20; 28/72**, blocked/pending gates and production NO_GO unchanged. **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY; STOP.** No BF-03/07.03/browser implementation, staging, commit or push.
+
 ## 2026-11-03: BF-01-R1 unknown/blocked precedence rework
 
 Fixed early `unknown` termination in the disconnected fixture evaluator: validate available selected metadata and known URL/document mismatches across roles/snapshots before deciding `unknown`; known hard failures return `blocked` with no bindings or authority. Exactly three new regression tests; observed RED **26 PASS / 3 FAIL**, then GREEN **29 focused / 242 full PASS**, both syntax checks PASS. [Rework evidence](04_TEST_EVIDENCE.md#bf-01-r1-rework--2026-11-03-africacairo). Prior **26/239** evidence below is historical and preserved. Only the original nine BF-01 paths change; no runtime/security-policy changes or browser/provider verification. Gates unchanged. **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED; STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.

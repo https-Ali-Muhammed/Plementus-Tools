@@ -1,5 +1,15 @@
 # Project status
 
+## Current BF-02 architecture reconciliation — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY**, pending independent acceptance. [Report and decision matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md); [documentation verification](04_TEST_EVIDENCE.md#bf-02-documentation-verification--2026-11-03-africacairo). ADR-006 and prospective contracts/feasibility reconcile the confirmed browser-first three-tab direction over historical API-first proposals. No additional website OAuth/App/PAT/backend/authenticated API client needed by default; App/backend DEFERRED, not approved. Chrome permissions, site rights and immediate per-write approval remain independent of existing website sign-ins; no session extraction or API conversion.
+
+**BF-01 independently accepted and published at `02862e8`**, per supplied acceptance, OFFLINE_SIMULATED only. Historical pending-review wording and **29 focused / 242 full PASS** evidence remain byte-identical and were not rerun. BF-01 and BF-02 do not increment official progress. Historical snapshots below retain their original Git states/review language; this entry governs current tracking.
+
+Verified root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`, branch `feature/sh-project-setup-extension-clean`, origin fetch/push `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; HEAD/upstream/live tip `02862e80ed3275bebfbcc227991954e0a0fd5214`, upstream `origin/feature/sh-project-setup-extension-clean`; initial complete worktree clean. BF-02 changes only **nine existing + one new documentation file**; zero staging/commit/push.
+
+Progress **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 parent **PARTIAL / BLOCKED**; Phase 07 parent **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**. D-04/B-02/B-03 **OPEN**; twelve historical owner/security decisions, Chrome permissions and live-site inspection **PENDING**; production **NO_GO**. No selected permission set, policy/code change or live verification; application/browser/provider tests NOT RUN. **STOP FOR INDEPENDENT BF-02 REVIEW. No BF-03, 07.03 or browser automation.**
+
 ## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Rework report](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo); [evidence](04_TEST_EVIDENCE.md#bf-01-r1-rework--2026-11-03-africacairo). Known hard failures now take precedence over missing metadata across all selected roles and both snapshots. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**; both syntax checks PASS. Prior **26/239** below remains historical. Same nine paths only, six modified + three untracked; zero staged; HEAD/upstream/live tip remain `40ff873fbf4ad6c97e372b573fddac5176835a63`.
