@@ -1,5 +1,45 @@
 # Test and validation evidence
 
+## BF-05 isolated activeTab invocation verification — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY; M2 BLOCKED BY BROWSER/TEST LIMITATIONS.** [Full report, manifests, invocation attempts and case matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_INVOCATION_SPIKE.md); [harness](../test/browser-first-activetab-browser.mjs). Exact entry root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`, branch `feature/sh-project-setup-extension-clean`, origin fetch/push `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; HEAD/upstream/live tip **`0afe5afd9b3257e5b04c2835bdcf8c09841fb152`**, upstream `origin/feature/sh-project-setup-extension-clean`, divergence 0/0. Complete initial staged/unstaged/untracked inventory empty; 226 tracked hashes equal HEAD, index flags H, both linked worktrees inventoried. Ignored `.idea/workspace.xml` never read, hashed or edited.
+
+**BF-04 independently accepted as documentation and published at `0afe5afd9b3257e5b04c2835bdcf8c09841fb152` (`0afe5af`), per supplied owner instruction.** Its report/ADR-007 and all historical pending wording/evidence remain unchanged. Acceptance adopts no product permission set and supplies no security approval.
+
+| Command / observation | Actual evidence |
+|---|---|
+| `node --test test/*.test.mjs` | **242 PASS**, 0 FAIL/SKIP/CANCELLED/TODO; exit 0 |
+| `node --check test/browser-first-activetab-browser.mjs` | PASS; exit 0 |
+| `node test/browser-first-activetab-browser.mjs` | **16 PASS / 0 FAIL / 10 SKIP / 4 BLOCKED**, 30 cases; exit 1 for blocked invocation |
+| Browser / Node | Chrome for Testing **151.0.7922.34**, Node **v24.19.0**, existing Playwright-managed executable; no installs |
+| Genuine invocation and grant results | **0 observed invocations / 0 verified grants**; three action-role attempts plus one popup attempt BLOCKED/NOT RUN despite registered shortcut; no callback/message/host/CDP-grant fabrication |
+| Negative baseline | Both variants deny scripting/URL metadata after programmatic role activation; duplicate-origin fixture uninvoked and denied; closed duplicate unavailable, reopened ID distinct/denied |
+| Lifecycle evidence | Packaged review close/reopen, forced CDP worker stop/reactivation, controlled browser close/reopen observed; no invoked-grant lifecycle, natural suspension/crash or restoration claim |
+| Evidence split | **16 LOCAL_BROWSER_TESTED** passes; **0 SIMULATED** selection assertions; SKIP/BLOCKED groups **NOT RUN** |
+| Network | **11 loopback fixture GET requests; 0 unexpected page / 0 rejected fixture requests; 65 proxy-rejected requests/CONNECTs**, none forwarded |
+| Cleanup | Both disposable profiles/extensions, all contexts and fixture/proxy servers cleaned in `finally`; failure cleanup also present |
+| Authority | `accountVerified: false`, `executionAuthorized: false`; no provider or security approval |
+
+First observation log: **13 PASS / 0 FAIL / 10 SKIP / 4 BLOCKED**, 9 fixture requests, 60 proxy rejections; no unexpected/rejected traffic; cleanup PASS. Author completeness review added uninvoked duplicate close/reopen and post-worker denial assertions and corrected per-attempt event isolation. Intermediate rerun aborted with unhandled proxy CONNECT `ECONNRESET` after **7 completed PASS / 3 BLOCKED / 6 SKIP**; no aggregate RESULT or finally cleanup. No matching browser survived; its exact owned leftover profile/extension root was manually removed. Proxy CONNECT socket errors now destroy the socket. Temporary extracted-handler regression: **RED 1 assertion FAIL → GREEN 1 SIMULATED proxy-reset PASS**; no invocation simulated. Before/after logs and the failed browser log are retained. Final run above governs current evidence. Scratch `/tmp/bf05-evidence-q77mzx6k/` contains baseline, Node/browser logs and verification script/result. No old BF-03/BF-04 evidence overwritten or rerun as those tasks.
+
+Structural verification: `python3 /tmp/bf05-evidence-q77mzx6k/verify.py` **PASS, exit 0**; final results at `verification.json` in that directory.
+
+| Preservation check | Measured result |
+|---|---|
+| Exact complete scope | **8 paths: 2 new, 6 modified; 0 unexpected/staged** |
+| Protected bytes | **220 tracked files** equal preflight and HEAD, including BF-01–BF-04, BF-03 harness, production files, policies/contracts, Phase 04/06 and master/canonical |
+| Historical bodies | **6 original tracking bodies** retained verbatim after unchanged titles; historical acceptance/test/review/stop wording intact |
+| Index/history/Git identity | Raw index bytes, entries/flags, 226 tracked paths and history hash unchanged; HEAD/upstream/live tip `0afe5af`, all remote URLs and both worktrees rechecked |
+| Master/canonical equality | Equal original SHA-256 **`d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91`** |
+| Seven changed Markdown files | **349 local links / 45 fragment targets / 0 broken** |
+| All 87 extension Markdown files | **912 local links / 143 fragment targets / 0 broken** |
+| Whitespace/newlines | git diff check, both new files' no-index checks, LF/trailing-whitespace/single-final-newline assertions PASS |
+| Disposable artifacts | No remaining `bf05-activetab-*` root after final cleanup; earlier crash root independently removed and recorded |
+
+Author self-review includes manifest boundary, no callback/grant fabrication, per-attempt boot/event equality, read-only probes, unsupported-case labels, proxy-reset handling and cleanup. It is not independent ChatGPT acceptance or security approval.
+
+Current official Chrome activeTab/Scripting/Action/Commands/Tabs/webNavigation/worker lifecycle/declarations/popup sources retrieved through `web.run` and cited in the report. Skills used: Superpowers using-superpowers, authorized-spike brainstorming exception, executing-plans/TDD guidance within spike limits, systematic-debugging, verification-before-completion; Ponytail full. Tools used: functions.exec shell/Git/Python/apply_patch, installed Playwright/Chromium/CDP worker stop, web.run. WarpGrep/Valyu unavailable; author self-review only, no subagent/authenticated connector/computer-use tool. Progress **5/20 master phases; 28/72 micro-phases**, unchanged. Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**, twelve historical decisions PENDING, production **NO_GO**. **STOP for independent BF-05 review. No BF-06, 07.03, real-site inspection, staging, commit or push.**
+
 ## BF-04 documentation verification — 2026-11-03 (Africa/Cairo)
 
 [BF-04 design and source register](Phases/phase07/PHASE_07_BROWSER_FIRST_PERMISSION_LIFECYCLE_DESIGN.md) is **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY; PROPOSED / SECURITY_REVIEW_PENDING**. Entry preflight matched exact root, origin fetch/push, branch, HEAD/upstream/live tip **`efd5757fcb597848ab48bda8feb4704b6dcaadd3`**, upstream `origin/feature/sh-project-setup-extension-clean`, divergence 0/0; complete staged/unstaged/untracked baseline empty. Both worktrees inventoried; **225 tracked paths equal HEAD**. Tracked hashes, raw index hash/entries and history hash saved at `/tmp/bf04-docs-vaadxibr/baseline.json`. Ignored `.idea/workspace.xml` never read, hashed or changed.
