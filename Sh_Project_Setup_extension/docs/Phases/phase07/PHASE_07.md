@@ -1,5 +1,14 @@
 # Phase 07: GitHub authentication assessment and future read-only connector
 
+## BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY; independent acceptance pending.** [Report, case matrix and permission limits](PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [verification](../../04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Explicit owner authorization covered this isolated fixture spike only. Existing Node suite **242 PASS**; Chrome for Testing **151.0.7922.34**, **48 harness cases: 43 PASS (37 LOCAL_BROWSER_TESTED + 6 SIMULATED), 0 FAIL, 5 SKIP/NOT RUN**. Actual metadata/injection boundaries, document/navigation changes, closed/reopened IDs, forced worker loss and controlled browser restart observed. Actual prompt/optional revocation, invoked activeTab, observable popup lifecycle, natural idle/crash and prerender replacement remain unverified.
+
+Exactly **eight paths: two new, six modified**. BF-01 source/tests, BF-01/BF-02 reports, product permissions/code, contracts/security and master/canonical sources unchanged. All observations retain account/execution authority false. Zero unexpected page requests; **68 browser-process requests blocked by the denying proxy**, not forwarded; disposable profiles/extensions cleaned. Earlier snapshots remain historical, including pending BF-02 acceptance; no acceptance is inferred.
+
+Progress **5/20 master; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**, production **NO_GO**. **STOP for independent ChatGPT review. No BF-04, real-site inspection, staging, commit or push.**
+
+
 ## BF-02 architecture reconciliation — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [BF-02 report](PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) and [ADR-006](../../02_ARCHITECTURE_DECISIONS.md#adr-006-browser-first-three-tab-owner-direction--2026-11-03-africacairo) give the published one-profile/three-signed-in-tab owner direction precedence over historical ADR-003/API-first candidates. Repository/branch website UI remains CANDIDATE_ONLY / UNVERIFIED; no additional website OAuth/App/PAT/backend/authenticated API client needed by default; GitHub App/backend DEFERRED, not approved. Website sign-in, Chrome access, site rights and immediate per-write approval are separate; sessions never become API credentials. No permission set or runtime contract selected.

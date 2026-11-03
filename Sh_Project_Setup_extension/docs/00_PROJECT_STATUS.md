@@ -1,5 +1,14 @@
 # Project status
 
+## Current BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY**, pending independent acceptance. [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [evidence](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Owner explicitly authorized execution of the eight-file isolated fixture scope. Root/origins/branch/upstream/live tip matched required HEAD **`8b9ed8afa53dfc51dd8f52e62357711a953d1c17`**; initial complete worktree clean. No staging/commit/push. Earlier BF-02/BF-01 tracking bodies remain historical; no new independent acceptance claimed.
+
+Node **242 PASS**; Chrome for Testing **151.0.7922.34**, **48 cases: 43 PASS (37 LOCAL_BROWSER_TESTED + 6 SIMULATED), 0 FAIL, 5 SKIP/NOT RUN**. Selected IDs/metadata, injection limits, route/reload/document changes, cross-host access loss, forced worker state loss and controlled browser restart observed. Required-host removal rejected; popup API resolved without an observable popup page. Actual consent, optional revocation, invoked activeTab, popup lifecycle, natural idle/crash and prerender swaps unverified. Zero unexpected page requests; **68 proxy-blocked browser-process requests**, none forwarded; disposable profiles/extensions removed.
+
+Exactly **two new + six modified = eight paths**; BF-01 source/tests/reports, product manifest/code, master/canonical sources, contracts/security and index/history preserved. Every result retains `accountVerified: false`, `executionAuthorized: false`; no live-provider evidence tier. Progress **5/20 master; 28/72 official micro-phases**. Phase 04 **BLOCKED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 OPEN; product permissions/live inspection PENDING; production **NO_GO**. **STOP for independent review; no BF-04, 07.03 or real-site work.**
+
+
 ## Current BF-02 architecture reconciliation — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY**, pending independent acceptance. [Report and decision matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md); [documentation verification](04_TEST_EVIDENCE.md#bf-02-documentation-verification--2026-11-03-africacairo). ADR-006 and prospective contracts/feasibility reconcile the confirmed browser-first three-tab direction over historical API-first proposals. No additional website OAuth/App/PAT/backend/authenticated API client needed by default; App/backend DEFERRED, not approved. Chrome permissions, site rights and immediate per-write approval remain independent of existing website sign-ins; no session extraction or API conversion.

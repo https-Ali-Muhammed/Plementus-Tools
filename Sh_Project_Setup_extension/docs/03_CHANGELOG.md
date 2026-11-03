@@ -1,5 +1,12 @@
 # Project changelog
 
+## 2026-11-03: BF-03 isolated Chrome three-tab fixture verification
+
+Added only the [standalone browser harness](../test/browser-first-tab-recognition-browser.mjs) and [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); updated six tracking files, exactly eight paths. Generated disposable restricted/metadata/loopback-host MV3 manifests and profiles; tested selected local tab IDs, metadata versus injection, real document identity/navigation and bounded lifecycle loss. Production manifest/permissions/source, accepted BF-01 and all protected contracts/policies unchanged. No BF-01 adaptation, runtime integration, persistence, credentials, real-site access or provider authority.
+
+[Evidence](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo): Node **242 PASS**; Chrome **151.0.7922.34**, **43 PASS / 0 FAIL / 5 SKIP** across 48 cases, including six SIMULATED selection checks. Zero unexpected page requests, 68 browser-process requests refused by proxy; cleanup PASS. Prompt/optional revocation, invoked activeTab, actual popup lifecycle, natural idle/crash and prerender replacement remain NOT RUN. Progress **5/20; 28/72** and all phase/security gates unchanged; production NO_GO. **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY; STOP.** No staging/commit/push.
+
+
 ## 2026-11-03: BF-02 browser-first architecture reconciliation
 
 Added [ADR-006](02_ARCHITECTURE_DECISIONS.md#adr-006-browser-first-three-tab-owner-direction--2026-11-03-africacairo), dated prospective integration/feasibility sections and [BF-02 report](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md); minimally updated Phase 07/status/evidence/blockers/handoff. Exactly **ten documentation paths: nine modified, one new**. Current planning follows owner-confirmed visible UI in three existing signed-in tabs/one profile, with separate Chrome grants, site rights, immediate per-write approval, observed results and manual fallback. Historical ADR-003/API proposals and original bodies preserved; App/backend deferred, no credential/session/API workaround or permission selection.

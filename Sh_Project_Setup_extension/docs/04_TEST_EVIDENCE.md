@@ -1,5 +1,41 @@
 # Test and validation evidence
 
+## BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY**, pending independent acceptance. [Report and case matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md). Explicit owner authorization covered only eight paths and invented local fixtures. Entry root, origin fetch/push, branch, upstream and live remote tip matched **`8b9ed8afa53dfc51dd8f52e62357711a953d1c17`**, upstream `origin/feature/sh-project-setup-extension-clean`; divergence 0/0; complete staged/unstaged/untracked baseline empty. Both worktrees inventoried; ignored IDE contents never read/hashed/changed. Baseline: **223 tracked paths**, raw index/entries/history snapshot at `/tmp/bf03-evidence-ah1v1rl7/baseline.json`.
+
+| Command / observation | Actual result |
+|---|---|
+| `node --test test/*.test.mjs` | **242 PASS**, 0 FAIL/SKIP/CANCELLED/TODO; exit 0 |
+| `node test/browser-first-tab-recognition-browser.mjs` | **48 cases: 43 PASS, 0 FAIL, 5 SKIP/NOT RUN, 0 prerequisite BLOCKED**; exit 0 |
+| Evidence split | **37 LOCAL_BROWSER_TESTED + 6 SIMULATED** passing checks; no live-provider tier |
+| Browser/environment | Chrome for Testing **151.0.7922.34**, Node **v24.19.0**, existing managed executable `chromium-1234/chrome-linux64/chrome`, headless=new |
+| Actual APIs | Selected `tabs.create/get/remove`, `permissions.contains/remove`, read-only `scripting.executeScript`, `webNavigation.getFrame` and selected main-frame events, runtime messages, action.openPopup attempt; external-driver CDP worker stop |
+| Permission removal / popup | Required-host removal rejected, host access retained. openPopup resolved but no popup page observable; no claim of displayed popup or tested popup lifecycle |
+| Network | **38 loopback fixture requests; 0 unexpected page requests; 68 browser-process HTTP/CONNECT attempts denied by a non-forwarding proxy** |
+| Cleanup | Disposable contexts closed, loopback servers closed, all three profiles/generated extensions removed; cleanup also passed on failed development runs |
+| Non-authority | `accountVerified: false`; `executionAuthorized: false` throughout |
+
+Commands ran from `Sh_Project_Setup_extension`. Final logs `/tmp/bf03-evidence-ah1v1rl7/node-full.txt` and `browser-final.txt` enumerate results. Development logs retain initial opaque-document-ID formatting failure (**24 PASS / 1 FAIL**), intermediate **41 PASS / 5 SKIP**, and added-popup observability failure (**39 PASS / 1 FAIL**). The format assumption was corrected using documented opaque-string semantics/cross-API equality; inaccessible popup lifecycle is explicitly NOT RUN. No production fix or acceptance inferred.
+
+**NOT RUN / unsupported in this harness:** actual Chrome consent accept/deny or optional-grant revocation; invoked activeTab grant/revocation; actual action-popup close/reopen; natural idle suspension, OS/browser crash/session restore; genuine tabs.onReplaced/prerender swaps. Closed/reopened IDs, extension-page state loss, forced worker termination and controlled browser restart are narrower local observations. Pending URL races, account identity/rights, real websites and product security acceptance remain UNVERIFIED.
+
+Final structural verification (`python3 /tmp/bf03-evidence-ah1v1rl7/verify.py`) **PASS**:
+
+| Check | Actual result |
+|---|---|
+| `node --check test/browser-first-tab-recognition-browser.mjs` | PASS, exit 0 |
+| Exact scope | **6 modified + 2 new = 8**, exact allowlist, zero staged |
+| Protected tracked bytes | **217 PASS**, equal preflight and HEAD, including accepted BF-01, all production files, security/contracts/ADRs, Phase 04/06 and existing tests/dependencies |
+| Original tracking bodies | **6 PASS**, retained as exact suffixes after unchanged titles |
+| Index / history / Git identity | Raw index bytes and index entries unchanged; `rev-list --all` unchanged; root/branch/origin/upstream/HEAD/live tip rechecked |
+| Master / canonical source | Byte-identical; SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Markdown links | **325 local links, 33 fragment targets, 0 broken** across seven changed Markdown files |
+| Whitespace / newlines | `git diff --check` and all eight-file newline/trailing-whitespace checks PASS |
+
+Verification code/results: `/tmp/bf03-evidence-ah1v1rl7/verify.py`, `verification.json`. No ignored IDE content inspection; no staging/commit/push. Author self-review explicitly bound the duplicate candidate to an alternate role selection before closure; final browser rerun **43 PASS / 5 SKIP**, 38 fixture requests, 68 proxy denials. Historical BF-01/BF-02 evidence and bodies remain intact. Progress **5/20 master; 28/72 official micro-phases**; Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS, 07.03 NOT_AUTHORIZED; D-04/B-02/B-03 OPEN; production NO_GO. **STOP for independent review. No BF-04, real-site inspection, staging, commit or push.**
+
+
 ## BF-02 documentation verification — 2026-11-03 (Africa/Cairo)
 
 [BF-02 report](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) is **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY**, pending independent acceptance. Entry Git root/origin fetch/push/branch/upstream name/SHA/live tip matched required `02862e80ed3275bebfbcc227991954e0a0fd5214`; divergence `0 0`; complete initial staged/unstaged/untracked inventory empty. Baseline: **222 tracked files** equal HEAD; raw index/entries snapshot at `/tmp/bf02-reconciliation-90nbgdh5/baseline.json`. Ignored `.idea/workspace.xml` never read, hashed or changed.

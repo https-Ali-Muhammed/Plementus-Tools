@@ -1,5 +1,14 @@
 # Blockers and decisions
 
+## BF-03 fixture observations and remaining decisions — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY.** [BF-03 report](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [evidence](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Owner authorized only the isolated eight-file fixture spike. Node **242 PASS**; Chrome **151.0.7922.34**, **43 PASS / 0 FAIL / 5 SKIP**, including six SIMULATED selection checks. Real metadata/injection/document/navigation and controlled lifecycle observations do not establish accounts, write authority, real-site behavior or product permission adoption.
+
+**D-04/B-02/B-03 stay OPEN.** Historical twelve decisions, product Chrome permissions, real identities/rights, site-policy compatibility and live inspection stay PENDING/UNVERIFIED. Required-host removal rejection is not grant revocation; uninvoked activeTab denial is not an invoked grant lifecycle; invisible popup handling is not popup-loss evidence. Actual consent/optional revocation, invoked activeTab, popup lifecycle, natural idle/crash and prerender replacement remain NOT RUN. Future adapter/selection/lifecycle design needs a separate scope; BF-01 HTTPS/synthetic contract is unchanged and no adapter is implemented.
+
+Progress **5/20 master; 28/72 official micro-phases**; Phase 04 BLOCKED/POSTPONED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS/NOT ACCEPTED, 07.03 NOT_STARTED/NOT_AUTHORIZED; production NO_GO. BF-03 execution does not invent independent BF-02 acceptance or close SEC-01/runtime/recovery blockers. **STOP for independent BF-03 review; no BF-04, real-site work, staging, commit or push.**
+
+
 ## BF-02 prospective reconciliation and unresolved gates — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [BF-02](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md) supplies the authorized ADR/contracts/feasibility reconciliation previously requested below; independent acceptance is pending, not a runtime/security blocker closure. BF-01 is independently accepted/published at `02862e8` within offline scope, per supplied acceptance; original review wording and **29/242** test evidence preserved, not rerun. Historical entries below remain unchanged.

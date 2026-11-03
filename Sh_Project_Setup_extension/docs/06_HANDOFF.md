@@ -1,5 +1,16 @@
 # Project handoff
 
+## Current handoff: BF-03 isolated Chrome fixture verification — 2026-11-03 (Africa/Cairo)
+
+**STOP FOR INDEPENDENT CHATGPT ACCEPTANCE. READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY.** [Report, manifests, cases and limitations](Phases/phase07/PHASE_07_BROWSER_FIRST_CHROME_FIXTURE_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-03-isolated-chrome-fixture-verification--2026-11-03-africacairo). Exact eight-file scope: new standalone browser harness/report plus six tracking files. Owner explicitly authorized execution of this local fixture spike only; no real site/profile/account/credential access, production permission adoption or Phase 07.03 authorization.
+
+Git root/origin fetch+push/branch/upstream/live tip matched **`8b9ed8afa53dfc51dd8f52e62357711a953d1c17`**; initial full worktree clean. No staging, commit or push. BF-01 source/tests/report, BF-02 report, master/canonical sources, policies/contracts, manifest/product code, Phase 04/06 and earlier tracking bodies preserved. Ignored IDE contents never inspected. Existing BF-02 acceptance is not asserted by this task.
+
+Node **242 PASS**. Chrome for Testing **151.0.7922.34**, **48 harness cases: 43 PASS (37 LOCAL_BROWSER_TESTED + 6 SIMULATED), 0 FAIL, 5 SKIP/NOT RUN**. Actual selected IDs/metadata, read-only injection limits, route/full/reload document changes, cross-host access loss, stale-document rejection, forced worker and controlled browser state loss observed. **38 loopback fixture requests, 0 unexpected page requests, 68 browser-process requests blocked by proxy**; profiles/extensions removed. Required-host removal was rejected; popup API resolved without an observable popup page. Actual prompt/optional revocation, invoked activeTab, actual popup lifecycle, natural idle/crash and genuine prerender replacement remain NOT RUN. All account/execution authority remains false.
+
+Progress **5/20 master; 28/72 official micro-phases**; Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS/NOT ACCEPTED, 07.03 NOT_STARTED/NOT_AUTHORIZED; production NO_GO. Independent review is the only next action. **Do not advance BF-04, Phase 07.03, Chrome integration or real-site inspection.** No automatic restart/replay, provider writes or synthetic-approval promotion.
+
+
 ## Current handoff: BF-02 architecture reconciliation — 2026-11-03 (Africa/Cairo)
 
 **STOP FOR INDEPENDENT BF-02 ACCEPTANCE. READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY.** [Report/decision matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ARCHITECTURE_RECONCILIATION.md); [verification](04_TEST_EVIDENCE.md#bf-02-documentation-verification--2026-11-03-africacairo). Nine modified documentation files plus one new report. ADR-006 and prospective contracts/feasibility reconcile current planning to the published browser-first three-tab owner direction; historical ADR-003/API rationale and original document bodies remain preserved. Protected master/source/security/reports/runtime unchanged.
