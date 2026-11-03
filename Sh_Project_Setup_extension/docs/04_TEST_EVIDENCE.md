@@ -1,5 +1,58 @@
 # Test and validation evidence
 
+## BF-05-R1 reopened verification — 2026-11-03 (Africa/Cairo)
+
+[Current reopened report/events/lifecycle matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_HEADED_REMEDIATION.md#current-reopened-run--2026-11-03-africacairo). Owner requested reopening after the earlier timeout; three fresh clicks were required in one new disposable session. Pre-reopen structural/Git verification passed at expected **4dcece0ffa8beec20f5ec12ba49901350673f7d0**, clean index/history/protected bytes and only the eight already authorized paths dirty. No normal profile or real site accessed.
+
+**Genuine invocation and three-grant coexistence VERIFIED in headed Chrome 151.0.7922.34.** Following the owner’s reopening request, a fresh disposable session established a clean five-tab negative baseline, then observed all three personal toolbar clicks as actual Chrome onClicked events with matching tab IDs and successful bounded scripting reads. Each prior grant remained usable; uninvoked/duplicate/negative tabs stayed inaccessible. No real site identity, account rights or business authority follows.
+
+| Command / metric | Governing reopened result |
+|---|---|
+| `node --test test/*.test.mjs` | **242 PASS / 0 FAIL / 0 SKIP/CANCELLED/TODO**, exit 0 |
+| New harness syntax / generated worker syntax | **PASS**, exit 0 |
+| `node test/browser-first-activetab-headed-browser.mjs` | **19 PASS / 0 FAIL / 2 SKIP / 0 BLOCKED**, exit 0 |
+| Actual human action events / distinct grants / coexistence | **3 / 3 / YES**; tab IDs 2053755104, 2053755105, 2053755106 |
+| Required plus unsupported lifecycle groups | **8 PASS / 0 FAIL / 2 SKIP / 0 BLOCKED** |
+| Fixture / unexpected page / rejected fixture / proxy denial | **11 / 0 / 0 / 49**, proxy forwards none |
+| Cleanup | **PASS**: all listeners/contexts/sockets closed, owned roots removed; four observed initial PIDs absent, three final role ports independently closed |
+
+Normal navigation/reload/stale-document rejection, cross-origin loss/return, closure/reopen, review loss, forced worker restart and controlled browser restart passed within the report’s narrow cases. Restored same-tab grants/crashes, natural idle, prerender/BFCache, optional prompts and actual popup lifecycle remain SKIP/UNVERIFIED. Chrome grant retention is separate from volatile application state; no product lifecycle guard or executor is implemented.
+
+Original BF-05 accepted/published at **4dcece0**, per supplied owner instruction, with its blocked findings preserved byte-identically. Earlier R1 partial/failed results remain historical; the first reopened run also failed its scripting-result assertion (**4 PASS / 1 FAIL / 8 BLOCKED**), cleanup PASS, cause unresolved. Bounded pre-assertion event diagnostics were added without loosening assertions; the next fresh run governs current success. No reliability certification or production root-cause fix. The failed reopen had 5 fixture requests, zero unexpected/rejected requests and 20 proxy denials; its event failure reason was not retained by that harness version. A directory typo also caused one launch command to fail before any harness/browser started. Neither failure was promoted to PASS. Existing initial R1 logs remain intact.
+
+Final evidence under `/tmp/bf05-r1-evidence-j_akjvnh/`: `browser-reopened-diagnostic.txt`, `node-full-reopened.txt`, `environment-reopened-diagnostic.json`, `cleanup-reopened.json`, `verify-reopened.py`, `verification-reopened.json`. Prior log/checker results retained separately. No generated extension/profile/server remains; no screenshots. Tools: existing Superpowers/Ponytail workflow, shell/Git/Python/apply_patch, Playwright/Chromium, X11 metadata, disposable CDP identity/controlled worker stop and asynchronous personal-click requests. No new web retrieval, authenticated connector, subagent, toolbar automation or permission override in this continuation.
+
+Reopened structural verification **PASS**, `python3 /tmp/bf05-r1-evidence-j_akjvnh/verify-reopened.py`, exit 0: exactly **8 paths (2 new / 6 modified), 0 unexpected / 0 staged**; **222 protected tracked files** equal baseline/HEAD; all **six original and prior R1 tracking bodies preserved**. Raw index/entries/flags/history, root/branch/all origin URLs/HEAD/upstream/live tip and linked worktrees unchanged. Master/canonical equality and original SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91** verified. Seven changed Markdown files: **357 local links / 54 fragments / 0 broken**; all **88 extension Markdown files: 935 links / 154 fragments / 0 broken**. Whitespace/LF/single-final-newline checks PASS. Governing browser counts, all three actual events/read results, earlier partial/failed logs, fresh Node totals and cleanup/no-headless evidence asserted independently. No generated headed root remains. Unsupported lifecycle groups and unresolved intermittent failures remain unverified; no production acceptance follows.
+
+Progress **5/20 master phases; 28/72 micro-phases** unchanged; Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**, twelve historical decisions PENDING, production **NO_GO**. **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY. STOP.** No BF-06, 07.03, real-site inspection, product permission change, staging, commit or push.
+
+## BF-05-R1 headed remediation verification — 2026-11-03 (Africa/Cairo)
+
+[Report, manifests, actual events and preserved failed attempt](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_HEADED_REMEDIATION.md). Explicit owner authorization covered only the eight-file disposable experiment. Fresh preflight: exact root/branch/all origin URLs; HEAD/upstream/live tip **4dcece0ffa8beec20f5ec12ba49901350673f7d0**, upstream origin/feature/sh-project-setup-extension-clean, divergence 0/0; complete status clean, 228 tracked paths equal HEAD, both linked worktrees inventoried. Baseline `/tmp/bf05-r1-evidence-j_akjvnh/baseline.json`; ignored IDE file never read/hashed/changed.
+
+**BF-05 accepted and published at `4dcece0ffa8beec20f5ec12ba49901350673f7d0` (`4dcece0`), per supplied owner instruction.** Its original blocked report/harness and all historical findings remain byte-identical; acceptance does not establish three grants, permissions or security approval.
+
+Visible isolated Chrome **151.0.7922.34** observed **two genuine human action.onClicked events and two distinct coexisting usable grants**, for invented Plementus/GitHub tabs. Prior grants remained usable and uninvoked/duplicate/negative tabs denied scripting. No Odoo.sh-role event arrived during its five-minute wait; no completed third click was attested during that interval. **PARTIALLY VERIFIED; three-grant coexistence BLOCKED**. This is incomplete invocation evidence, not a demonstrated GUI failure or Chrome rejection. All eight dependent lifecycle groups **BLOCKED / NOT RUN**.
+
+| Command / metric | Actual result |
+|---|---|
+| `node --test test/*.test.mjs` | **242 PASS / 0 FAIL / 0 SKIP/CANCELLED/TODO**, exit 0 |
+| `node --check test/browser-first-activetab-headed-browser.mjs` | **PASS**, exit 0 |
+| Headed harness, governing diagnostic run | **17 cases: 8 PASS / 0 FAIL / 0 SKIP / 9 BLOCKED**, exit 1 |
+| Genuine events / distinct grants / three-grant coexistence | **2 / 2 / BLOCKED**; first two simultaneously usable |
+| Required lifecycle groups | **0 PASS / 0 FAIL / 0 SKIP / 8 BLOCKED** |
+| Fixture GETs / unexpected page / rejected fixture / proxy denials | **5 / 0 / 0 / 27**, proxy forwards none |
+| Cleanup | **PASS**, browser PIDs/roots absent; all five server listeners closed; three recorded ports independently closed |
+| Missing-DISPLAY self-check | **1 INFRASTRUCTURE_ONLY PASS**, no launch, invocation, traffic or generated resources; separate from browser/Node totals |
+
+Initial headed run **3 PASS / 1 FAIL / 8 BLOCKED**, 5 fixture requests, 0 unexpected/rejected, 34 proxy denials, cleanup PASS. Its negative assertion failed before a requested click; prior probe/event detail was not logged, so cause remains unresolved. Diagnostic logging added without loosening the denial assertion; a fresh profile established a clean baseline and two actual events. No production fix claimed. Auxiliary own-process argument verification initially assumed NUL-separated argv; Chromium's joined process title required tokenization, after which temporary-profile/no-headless checks passed.
+
+Scratch logs/checker/results: `/tmp/bf05-r1-evidence-j_akjvnh/`. `browser-first.txt` preserves the failed attempt; `browser-diagnostic.txt` governs partial browser results. Five official Chrome/Playwright sources reviewed via web.run. Superpowers/Ponytail, shell/Git/Python/apply_patch, Playwright/disposable CDP process identity, X11 metadata and asynchronous human prompts used; no toolbar automation, screenshots, normal browser profile, synthetic callback, CDP permission overrides, subagents or authenticated connector. Account/execution authority always false.
+
+Structural verification **PASS**, `python3 /tmp/bf05-r1-evidence-j_akjvnh/verify.py`, exit 0: exactly **8 paths (2 new / 6 modified), 0 unexpected / 0 staged**; **222 protected tracked files** equal preflight and HEAD; **six complete prior tracking bodies** preserved. Raw index bytes/entries/flags/history unchanged; root/branch/all origin URLs/HEAD/upstream/live tip and both worktrees unchanged. Master/canonical equal original SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91**. Seven changed Markdown files: **347 local links / 46 fragment targets / 0 broken**; all **88 extension Markdown files: 925 local links / 146 fragments / 0 broken**. Diff/new-file whitespace, LF and single-final-newline checks PASS. Governing browser log totals, actual event count, cleanup and own-process/no-headless evidence independently asserted; no generated headed root remains. Verification supplies no missing third invocation or lifecycle evidence.
+
+Progress **5/20 master phases; 28/72 micro-phases**, unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions PENDING; production **NO_GO**. **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY. STOP for independent BF-05-R1 review.** No BF-06, 07.03, real-site inspection, product permission changes, staging, commit or push.
+
 ## BF-05 isolated activeTab invocation verification — 2026-11-03 (Africa/Cairo)
 
 **READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY; M2 BLOCKED BY BROWSER/TEST LIMITATIONS.** [Full report, manifests, invocation attempts and case matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_ACTIVETAB_INVOCATION_SPIKE.md); [harness](../test/browser-first-activetab-browser.mjs). Exact entry root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`, branch `feature/sh-project-setup-extension-clean`, origin fetch/push `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; HEAD/upstream/live tip **`0afe5afd9b3257e5b04c2835bdcf8c09841fb152`**, upstream `origin/feature/sh-project-setup-extension-clean`, divergence 0/0. Complete initial staged/unstaged/untracked inventory empty; 226 tracked hashes equal HEAD, index flags H, both linked worktrees inventoried. Ignored `.idea/workspace.xml` never read, hashed or edited.
