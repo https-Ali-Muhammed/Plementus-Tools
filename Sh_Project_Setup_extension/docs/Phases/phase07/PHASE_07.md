@@ -1,5 +1,17 @@
 # Phase 07: GitHub authentication assessment and future read-only connector
 
+## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Precedence correction and regression evidence](PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo). The disconnected evaluator now checks available metadata and known mismatches across all selected roles/snapshots before returning `unknown`; known hard failures return `blocked`. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**, both syntax checks PASS. Historical **26/239** results below preserved. No browser capability or security-policy change; account/execution authority stays false. Browser/provider verification NOT RUN.
+
+Progress **5/20 master; 28/72 official micro-phases** unchanged; Phase 04 **BLOCKED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS / NOT ACCEPTED**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**, production **NO_GO**. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.
+
+## Offline tab-recognition prerequisite — 2026-11-02 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Disconnected spike, contract, evidence and limitations](PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md). One pure fixture evaluator requires explicit Plementus/GitHub/Odoo.sh choices and checks exact origins, snapshot context, documents and navigation. Unknown metadata never establishes recognition; account verification and execution authorization always false. No runtime integration or permission change. **26 focused / 239 full PASS**, including the unchanged 213-test baseline; syntax checks PASS. Chrome/account/provider/lifecycle tests NOT RUN.
+
+This is not official 07.03 or security acceptance. Progress **5/20 master phases; 28/72 official micro-phases**, unchanged. Phase 04 **BLOCKED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**. D-04/B-02/B-03, browser permissions, live scope and historical security decisions remain OPEN/PENDING. All earlier snapshots below are historical; this entry authorizes no continuation. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit/push.
+
 ## Current browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
 
 **Parent IN_PROGRESS / NOT ACCEPTED. OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING.** Owner supplies **07.02 ACCEPTED as documentation**; progress **5/20 master phases; 28/72 official micro-phases**, unchanged by this amendment. [Browser-first architecture, feasibility, threats and prospective decision reconciliation](PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md) is **READY_FOR_INDEPENDENT_CHATGPT_REVIEW**.

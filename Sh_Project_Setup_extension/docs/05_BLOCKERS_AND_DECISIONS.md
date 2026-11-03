@@ -1,5 +1,17 @@
 # Blockers and decisions
 
+## BF-01-R1 precedence correction — 2026-11-03 (Africa/Cairo)
+
+The [offline rework](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo) fixes missing metadata hiding known hard failures. `blocked` now takes precedence across selected fields, snapshots and roles; unavailable metadata alone remains `unknown`. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**, syntax PASS. Historical **26/239** evidence below is preserved. No runtime/security-policy decision is resolved: D-04/B-02/B-03 remain OPEN, historical security decisions and browser/live-site permissions PENDING; account/execution authority stays false. Existing progress and all blocked gates remain unchanged. Browser/provider verification NOT RUN. **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED; STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.
+
+## Offline recognition prerequisite: unresolved runtime gates — 2026-11-02 (Africa/Cairo)
+
+[Disconnected spike](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md) is **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED**. Its bounded fixture decisions add no authenticated identity, operator permission, workflow authority, Chrome grant or security acceptance. **26 focused / 239 full PASS**; real Chrome/permissions/account/lifecycle checks NOT RUN. Missing metadata is unknown; snapshot markers do not prove freshness after real popup loss/restart or prevent replay of identical observations.
+
+**D-04/B-02/B-03 remain OPEN; the twelve historical security decisions and browser/live-site permissions remain PENDING.** Future runtime work needs separately authorized exact origins/profile/targets, least-privilege permission review, trusted explicit selection and fresh document/navigation observations, isolated lifecycle/race tests, reviewed account/target evidence or manual checkpoint, and architecture/contracts reconciliation. No guessed real Plementus/customer origin, credential access, backend, API client or SEC-01 bypass is approved. The pure fixture prerequisite resolves none of these dependencies.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged; Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS**, 07.03 **NOT_STARTED / NOT_AUTHORIZED**, production **NO_GO**. Prior documentation snapshots below are preserved. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit/push.
+
 ## Current browser-first direction and unresolved decisions — 2026-11-02 (Africa/Cairo)
 
 **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING.** [Amendment and prospective twelve-item reconciliation](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md#8-prospective-applicability-of-the-twelve-historical-decisions). Owner supplies **07.02 ACCEPTED as documentation**; progress **5/20 master phases; 28/72 official micro-phases**. Historical 07.01/07.02 bytes and all twelve **PENDING** decision states preserved; no security concurrence/closure invented.

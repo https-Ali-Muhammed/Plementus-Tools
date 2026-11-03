@@ -1,5 +1,15 @@
 # Project changelog
 
+## 2026-11-03: BF-01-R1 unknown/blocked precedence rework
+
+Fixed early `unknown` termination in the disconnected fixture evaluator: validate available selected metadata and known URL/document mismatches across roles/snapshots before deciding `unknown`; known hard failures return `blocked` with no bindings or authority. Exactly three new regression tests; observed RED **26 PASS / 3 FAIL**, then GREEN **29 focused / 242 full PASS**, both syntax checks PASS. [Rework evidence](04_TEST_EVIDENCE.md#bf-01-r1-rework--2026-11-03-africacairo). Prior **26/239** evidence below is historical and preserved. Only the original nine BF-01 paths change; no runtime/security-policy changes or browser/provider verification. Gates unchanged. **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED; STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.
+
+## 2026-11-02: Disconnected browser-first tab-recognition prerequisite
+
+Added `src/browser/tab-recognition.mjs`, `test/tab-recognition.test.mjs` and [offline spike report](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md); minimally updated the six authorized tracking files. Pure explicit three-role selection checks bounded invented snapshots, exact fixture HTTPS origins, unique tabs, permissions, URL/document/context drift and unknown metadata. Decisions are frozen/sanitized and never establish account or execution authority. No existing application integration, Chrome permission, provider access or persistence.
+
+TDD: initial **25 FAIL**, then **25 PASS**; extra origin-coercion regression **25 PASS / 1 FAIL**, fixed with a string-type guard; final **26 focused / 239 full PASS**, syntax PASS. [Evidence](04_TEST_EVIDENCE.md#offline-tab-recognition-spike--2026-11-02-africacairo). **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED**, not 07.03 or acceptance. Progress **5/20; 28/72** unchanged; Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS, 07.03 NOT_AUTHORIZED, production NO_GO. Runtime/account/provider/lifecycle tests NOT RUN. No commit/push. **STOP FOR INDEPENDENT CHATGPT REVIEW.**
+
 ## 2026-11-02: Documentation-only browser-first owner direction amendment
 
 Created [browser-first owner direction](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md) and updated only Phase 07 parent, status, this changelog, evidence, blockers and handoff. Recorded **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING**, one-profile/three-tab assumptions, proposed visible-UI architecture, thirteen-operation feasibility matrix, Chrome permission/isolation/lifecycle assessment, GitHub policy limits, per-write approval/reconciliation and manual fallback. Official Chrome/GitHub sources checked; no live tabs or provider operations.

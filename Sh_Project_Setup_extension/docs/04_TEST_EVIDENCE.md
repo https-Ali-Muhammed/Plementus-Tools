@@ -1,5 +1,52 @@
 # Test and validation evidence
 
+## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
+
+[Rework report and precedence contract](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo). Node v24.19.0; commands from the extension directory. Before edits: **26 focused PASS**. Exactly three added tests reproduced missing-prior/current-denial, missing-URL/malformed-document and earlier-role-missing/other-role-denied failures before implementation changed; each received `unknown` instead of `blocked`.
+
+| Exact command / stage | Observed result |
+|---|---|
+| RED `node --test test/tab-recognition.test.mjs` | **26 PASS / 3 FAIL**, exit 1; expected assertion failures |
+| GREEN `node --test test/tab-recognition.test.mjs` | **29 PASS**, 0 FAIL/SKIP/CANCELLED/TODO; exit 0 |
+| `node --test test/*.test.mjs` | **242 PASS = unchanged 213 + focused 29**, 0 FAIL/SKIP/CANCELLED/TODO; exit 0 |
+| `node --check src/browser/tab-recognition.mjs` | **PASS**, exit 0 |
+| `node --check test/tab-recognition.test.mjs` | **PASS**, exit 0 |
+
+The three regressions also exercise malformed available metadata, known URL/document mismatches with a different missing field, both snapshots and later selected-role violations. Existing genuine-unavailability cases remain GREEN. No original focused or other tests were removed or changed. Logs, protected-byte/index baseline and structural results: `/tmp/bf01-r1-r07q7k4t/`. Historical **26 focused / 239 full** results below remain unchanged.
+
+Structural recheck **PASS**: exactly nine authorized changed paths, unchanged inventory (**219 tracked / 3 untracked**), zero staged files and byte-identical index; all **213 protected tracked files** equal both preflight bytes and HEAD. All seven pre-existing Markdown bodies and all 26 original focused tests remain intact. Master/source byte equality and SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` preserved. Across seven changed Markdown files: **298 local links / 21 fragment targets / 0 broken**. `git diff --check` and all nine file whitespace/final-newline checks PASS. One-export/no-integration scan, both syntax checks and refreshed root/branch/all origin fetch/push URLs/HEAD/upstream/live-tip checks PASS. Ignored `.idea/workspace.xml` was never read, hashed or changed. Executed checker: `python3 /tmp/bf01-r1-r07q7k4t/verify.py`; results: `verification.json`.
+
+All gates unchanged: **5/20 master; 28/72 official micro-phases**; Phase 04 **BLOCKED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS**, 07.03 **NOT_AUTHORIZED**, production **NO_GO**. Browser/provider/account/lifecycle checks **NOT RUN**; no runtime authority or security-policy change. **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED; STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.
+
+## Offline tab-recognition spike — 2026-11-02 (Africa/Cairo)
+
+[Report, case matrix and official Chrome sources](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md). **READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED**, an offline prerequisite, not 07.03. Node v24.19.0, extension directory. Baseline full suite **213 PASS**; initial focused RED **0 PASS / 25 FAIL** against nonfunctional export; first GREEN **25 PASS**; additional coercion regression **25 PASS / 1 FAIL**, then corrected before final runs.
+
+| Exact final command | Observed result |
+|---|---|
+| `node --test test/tab-recognition.test.mjs` | **26 PASS**, 0 FAIL/SKIP/CANCELLED/TODO |
+| `node --test test/*.test.mjs` | **239 PASS = unchanged 213 + new 26**, 0 FAIL/SKIP/CANCELLED/TODO |
+| `node --check src/browser/tab-recognition.mjs` | **PASS**, exit 0 |
+| `node --check test/tab-recognition.test.mjs` | **PASS**, exit 0 |
+
+Saved logs/baseline and final structural checker reside at `/tmp/tab-recognition-spike-8cu4h576/`. Executed from the verified Git root: `python3 /tmp/tab-recognition-spike-8cu4h576/verify.py` (exit 0), producing `verification.json`.
+
+| Structural check | Measured result |
+|---|---|
+| Exact authorized scope / index | **9 paths**, six modified + three new; zero staged; index entries and tracked inventory unchanged |
+| Other tracked files equal HEAD | **213 PASS**: 205 match preflight hashes and HEAD, 8 tracked IDE configuration files separately equal HEAD; ignored IDE contents not read/hashed |
+| Original tracking bodies | **6 PASS**, historical content preserved as exact suffixes |
+| Master / canonical source | Byte-identical and unchanged; SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Local links across seven changed Markdown files | **289 links / 12 fragment targets / 0 broken** |
+| Module dependency scan and manual review | **PASS**: one export, no imports, actual Chrome/provider/network/storage/DOM/logging/timer/clock dependency; only new test calls it |
+| Fixture privacy | **PASS**: credential-pattern scan and manual invented-value review; no actual accounts, customer values or credentials |
+| Whitespace | **PASS**: `git diff --check` plus trailing whitespace/final-newline checks of all nine files, including all three untracked files |
+| Final Git refresh | Expected root/branch/origin URLs/HEAD/upstream/live remote tip unchanged; only authorized paths dirty |
+
+No Chrome/browser/provider/account/lifecycle test ran. Wrong-account handling proves only that account verification stays false; popup/worker tests model invalidation markers only. A stateless function cannot detect reuse of identical stale snapshots or establish a real account, permission grant, browser document, trusted age or operator authority. The first structural-check attempts exposed checker assumptions (tracked IDE exclusions and a scan matching the literal synthetic word `document`); those checker errors were corrected without changing implementation behavior, then the complete checker passed.
+
+Git entry root/branch/origin fetch/push URLs/upstream/live tip matched expected HEAD `40ff873fbf4ad6c97e372b573fddac5176835a63`; complete initial worktree clean apart from ignored IDE metadata whose contents were never accessed. Public official Chrome research and read-only Git metadata only. Progress **5/20 master phases; 28/72 official micro-phases** unchanged; Phase 04 BLOCKED, Phase 06 PARTIAL/BLOCKED, Phase 07 IN_PROGRESS, 07.03 NOT_AUTHORIZED, production NO_GO. No commit/push. **STOP FOR INDEPENDENT CHATGPT REVIEW.**
+
 ## Browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
 
 [Assessment](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md): **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING; READY_FOR_INDEPENDENT_CHATGPT_REVIEW**. Supplied 07.02 documentation acceptance recorded; historical reports retain their pending-review text and all twelve PENDING decisions. Progress **5/20 master phases; 28/72 official micro-phases**. D-04/B-02 OPEN; Phase 04 BLOCKED; Phase 06 parent PARTIAL/BLOCKED; Phase 07 parent IN_PROGRESS; production NO_GO; 07.03 NOT_STARTED/NOT_AUTHORIZED. No historical test count is a new run.

@@ -1,5 +1,17 @@
 # Project status
 
+## BF-01-R1 rework — 2026-11-03 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Rework report](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md#bf-01-r1-rework-unknownblocked-precedence--2026-11-03-africacairo); [evidence](04_TEST_EVIDENCE.md#bf-01-r1-rework--2026-11-03-africacairo). Known hard failures now take precedence over missing metadata across all selected roles and both snapshots. RED **26 PASS / 3 FAIL**; GREEN **29 focused / 242 full PASS**; both syntax checks PASS. Prior **26/239** below remains historical. Same nine paths only, six modified + three untracked; zero staged; HEAD/upstream/live tip remain `40ff873fbf4ad6c97e372b573fddac5176835a63`.
+
+Progress **5/20 master; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 **IN_PROGRESS**, 07.03 **NOT_AUTHORIZED**, production **NO_GO**. No runtime capability or security-policy change; account/execution authority remains false. Browser/provider verification NOT RUN. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No staging/commit/push.
+
+## Offline tab-recognition prerequisite — 2026-11-02 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED.** [Spike report](Phases/phase07/PHASE_07_BROWSER_FIRST_TAB_RECOGNITION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#offline-tab-recognition-spike--2026-11-02-africacairo). Authorized disconnected module/test only, with minimal tracking updates: nine paths. Explicit three-role fixture selection, origin/document/route/context checks, frozen sanitized decisions; account verification and execution authorization always false. **26 focused / 239 full PASS** (213 existing + 26 new); both syntax checks PASS. Chrome/provider/account/lifecycle checks NOT RUN.
+
+Verified entry HEAD/upstream/live tip `40ff873fbf4ad6c97e372b573fddac5176835a63`; expected root, branch and origin URLs match; initial tracked/staged/untracked clean. Ignored IDE contents untouched. Progress unchanged: **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; production **NO_GO**. No official acceptance, manifest/permission, live application, workflow or SEC-01 change. Earlier snapshots retain historical authority/evidence only. **STOP FOR INDEPENDENT CHATGPT REVIEW.** No commit/push.
+
 ## Current browser-first owner direction amendment — 2026-11-02 (Africa/Cairo)
 
 **OWNER_ARCHITECTURE_DIRECTION / SECURITY_REVIEW_PENDING**; amendment **READY_FOR_INDEPENDENT_CHATGPT_REVIEW**. [Browser-first assessment and feasibility matrix](Phases/phase07/PHASE_07_02_BROWSER_FIRST_OWNER_DIRECTION.md). Owner supplies **07.02 ACCEPTED as documentation**; its historical report and 07.01 remain byte-identical. Documentation acceptance approves neither the twelve historical security decisions nor implementation. Git entry HEAD/upstream/live tip: `f447b3d2cf77072598d6904cedd3e18176b7b28a`.
