@@ -1,5 +1,19 @@
 # Blockers and decisions
 
+## BF-08 trust boundary decisions — 2026-11-03 (Africa/Cairo)
+
+**PROPOSED / DOCUMENTATION_ONLY / OWNER AUTHORIZATION REQUIRED.** [Alternatives and dependency matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md#dependency-and-authorization-matrix).
+
+**BF-07 accepted/published at `29fd5c2457d89f7c7f26f44df9702304c658083b` (`29fd5c2`), per the supplied BF-08 instruction, OFFLINE_SIMULATED only.** Git verifies publication, not reviewer authority. Its original report, pending-review wording, source/tests and historical **46 focused / 242 existing / 288 full Node PASS** with both syntax checks and RED history remain unchanged and were not rerun.
+
+**OWNER DECISION REQUIRED:** separate observer versus independently tested fixture adapter/revised contract; honest loopback origin policy; optional navigation breadth/consent and support floor; no-popup action/review ownership; exact bounded collection/privacy/schema/timeout; real lifecycle/replay rejection evidence; real origins/accounts/rights/site use; future per-write approval/results and durable reconciliation. Candidate separate-observer recommendation is not an approved architecture or permission set. No live Chrome record can simply be dispatched to BF-07 as SIMULATED and promoted into trusted state. Missing coverage or continuity means unbound/manual; a surviving grant restores nothing.
+
+The future disposable one-capture experiment is specified but **NOT AUTHORIZED / NOT RUN**; bridge/three-role/live/write gates stay separate. Phase 04/SEC-01 and Phase 06 blockers are not resolved by documentation or a new review. No API/session/credential workaround.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY. STOP for independent BF-08 review.** No BF-09, Phase 07.03, runtime integration, real-site inspection, staging, commit or push. Earlier entries remain verbatim historical snapshots; their stops are superseded only for the present seven-file documentation scope.
+
 ## BF-07 offline evidence and unresolved gates — 2026-11-03 (Africa/Cairo)
 
 [BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**

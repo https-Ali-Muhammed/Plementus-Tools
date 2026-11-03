@@ -1,5 +1,19 @@
 # Project status
 
+## Current BF-08 trust boundary design — 2026-11-03 (Africa/Cairo)
+
+**PROPOSED / DOCUMENTATION_ONLY / OWNER AUTHORIZATION REQUIRED / SECURITY_REVIEW_PENDING.** [Design](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md); [verification](04_TEST_EVIDENCE.md#bf-08-documentation-verification--2026-11-03-africacairo).
+
+**BF-07 accepted/published at `29fd5c2457d89f7c7f26f44df9702304c658083b` (`29fd5c2`), per the supplied BF-08 instruction, OFFLINE_SIMULATED only.** Git verifies publication, not reviewer authority. Its original report, pending-review wording, source/tests and historical **46 focused / 242 existing / 288 full Node PASS** with both syntax checks and RED history remain unchanged and were not rerun.
+
+Candidate recommendation: first test a separate disposable Chrome observer, keep BF-07 disconnected, and retain manual fallback. Actual action/document/lifecycle evidence must be admitted by a worker-owned boundary; page/UI flags and surviving grants cannot establish it. BF-07 rejects the harnesses' HTTP loopback origins and serialized context/request clones; no origin rewriting, evidence-tier promotion or permission adoption is approved. Fixture-adapter and revised-contract alternatives require separate decisions. The design maps every input, ownership/rejection/restart/replay rules, the smallest future experiment and dependency/evidence/authorization gates.
+
+Seven documentation paths only: one created, six updated with complete prior bodies preserved. Root/branch/origins and HEAD/upstream/live tip verified at `29fd5c2`; no index/history mutation. Exempt `.idea/plemo-chats.xml` inventoried only, never read/hashed/edited; ignored workspace contents never accessed. Node/application/browser/provider tests **NOT RUN**.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY. STOP for independent BF-08 review.** No BF-09, Phase 07.03, runtime integration, real-site inspection, staging, commit or push. Earlier entries remain verbatim historical snapshots; their stops are superseded only for the present seven-file documentation scope.
+
 ## Current BF-07 offline selection and invalidation spike — 2026-11-03 (Africa/Cairo)
 
 [BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**

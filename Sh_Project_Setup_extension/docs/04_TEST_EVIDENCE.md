@@ -1,5 +1,36 @@
 # Test and validation evidence
 
+## BF-08 documentation verification — 2026-11-03 (Africa/Cairo)
+
+**DOCUMENTATION_ONLY. Node/application/Chrome/provider tests NOT RUN. No simulated test evidence generated.** [BF-08 design](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md) provides proposals, not runtime/security acceptance. Official Chrome sources were read with web.run. The future observer test is NOT AUTHORIZED / NOT RUN.
+
+**BF-07 accepted/published at `29fd5c2457d89f7c7f26f44df9702304c658083b` (`29fd5c2`), per the supplied BF-08 instruction, OFFLINE_SIMULATED only.** Git verifies publication, not reviewer authority. Its original report, pending-review wording, source/tests and historical **46 focused / 242 existing / 288 full Node PASS** with both syntax checks and RED history remain unchanged and were not rerun.
+
+Historical R1 **19 Chrome PASS / 0 FAIL / 2 SKIP / 0 BLOCKED**, three genuine events/grants and retained access after controlled worker loss, remain historical. Its earlier failed/partial runs and unsupported lifecycle groups are preserved. The original raw governing scratch log was unavailable; the checked-in report/harness were inspected, with no fresh raw-log or browser verification claim.
+
+Documentation verification uses `python3 /tmp/bf08-49kg94us/verify.py`, baseline/original copies and results in the same external scratch directory. It checks exact scope, protected bytes against baseline/HEAD, complete prior bodies, raw index/entries/refs/reflog/HEAD/upstream/worktrees, live tip, original master/canonical equality, local Markdown links/fragments, whitespace/LF/final newlines. It excludes both IDE files from content access and byte-equality claims. The sole initial status difference is the exempt tracked `.idea/plemo-chats.xml`; no content was read/hashed/edited.
+
+Measured documentation verification: `python3 /tmp/bf08-49kg94us/verify.py` **PASS, exit 0**. The checker is rerun after recording these measurements. These checks produce no LOCAL_BROWSER_TESTED or runtime security evidence.
+
+| Check | Measured result |
+|---|---|
+| Exact authored scope | **7 paths: 1 new / 6 modified; 0 staged / 0 unexpected**; full status has 8 entries including the exempt IDE modification |
+| Protected tracked bytes | **227 files equal preflight and HEAD**, including original BF-01–BF-07 reports, BF-07 module/tests, ADRs/contracts/security, Phase 04/06, product, fixtures and dependencies |
+| Historical preservation | **6 complete prior document bodies preserved verbatim** after unchanged titles; historical test results/acceptance wording remain intact |
+| Git metadata and publication | Raw index/entries, refs/reflog, HEAD/upstream and both linked-worktree records **UNCHANGED**; live tip remains `29fd5c2457d89f7c7f26f44df9702304c658083b` |
+| Master/canonical | Original bytes equal; SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Changed Markdown | **7 files / 409 local links / 70 fragment targets / 0 broken** |
+| All extension Markdown | **91 files / 1036 local links / 189 fragment targets / 0 broken**; unrelated external links not fetched |
+| Whitespace/newlines | Scoped `git diff --check`, new-file no-index whitespace check and explicit seven-file trailing-whitespace/LF/single-final-newline checks **PASS** |
+| IDE boundaries | Exempt `.idea/plemo-chats.xml` path inventoried only; no read/hash/edit or byte-stability claim. Ignored `.idea/workspace.xml` never inspected |
+| Builder check | Read-only collaboration review found **no material gaps** after checking design, BF-07 source/tests, loopback origins and governing R1 report; no edits or tests. This supplies no independent owner/security acceptance |
+
+Skills actually applied: Ponytail full; Superpowers using-superpowers, brainstorming, writing-plans guidance within the authorized documentation sequence, verification-before-completion; Stop Slop for final prose review. Tools used: functions.exec with shell/Git/Python, web.run for ten official Chrome source pages, and collaboration for the read-only builder check explicitly required by brainstorming. WarpGrep/Valyu were unavailable. No browser control, authenticated connector, Node/Chrome/application/provider tests or simulated test-evidence generation.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / DOCUMENTATION_ONLY. STOP for independent BF-08 review.** No BF-09, Phase 07.03, runtime integration, real-site inspection, staging, commit or push. Earlier entries remain verbatim historical snapshots; their stops are superseded only for the present seven-file documentation scope.
+
 ## BF-07 offline selection and invalidation verification — 2026-11-03 (Africa/Cairo)
 
 [BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**
