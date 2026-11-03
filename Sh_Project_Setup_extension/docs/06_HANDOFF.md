@@ -1,5 +1,25 @@
 # Project handoff
 
+## Current handoff: BF-07 offline selection and invalidation — 2026-11-03 (Africa/Cairo)
+
+[BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**
+
+**BF-06 accepted/published as documentation at `8782133a9130f312fdd16567f31c064e4cdbde4e` (`8782133`), per the supplied BF-07 instruction.** Git verifies publication, not reviewer authority. Its original report and ADR-008 retain their pending/prospective wording verbatim. No product permission, UI or security approval follows.
+
+Disconnected pure JavaScript now models explicit Plementus/GitHub/Odoo.sh assignment, volatile worker/review/context generations, one-use observations, strict global invalidation and fresh reselection, manual fallback and cancellation. Every outcome keeps account/execution authority false and OFFLINE_SIMULATED. Invocation and lifecycle inputs are synthetic; no genuine gesture, browser sender, account, grant or runtime observation is independently verified.
+
+TDD: initial behavioral RED **5 PASS / 37 FAIL**; first GREEN 42 PASS; expanded regressions **42 PASS / 4 FAIL**; final **46 focused / 242 existing / 288 full Node PASS**, 0 FAIL/SKIP/CANCELLED/TODO; both syntax checks PASS. Browser/provider/runtime checks **NOT RUN**. No Chrome launch, provider APIs, storage, workflow executor, approval/write/retry/replay capability or SEC-01 change.
+
+Exactly **nine authored paths: three new, six modified**. All earlier tracking bodies and protected reports/designs/product/policies remain intact. The owner explicitly exempted dirty `.idea/plemo-chats.xml`; it drifted externally during the run and was left untouched, so complete worktree cleanliness and byte stability of that exception are not claimed. Ignored `.idea/workspace.xml` was never read/hashed/edited.
+
+Root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`; extension `Sh_Project_Setup_extension`; branch `feature/sh-project-setup-extension-clean`; fetch/push origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`; HEAD/upstream/live tip `8782133a9130f312fdd16567f31c064e4cdbde4e`, upstream `origin/feature/sh-project-setup-extension-clean`, divergence 0/0. Both linked worktrees inventoried; index/history unchanged. Scratch baseline/logs/checker/results: `/tmp/bf07-ofostnr1/`. Next action: independent review of BF-07 only.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+Earlier entries below remain historical and preserved; their stops are superseded only within the explicitly authorized BF-07 scope.
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED. STOP for independent review.** No BF-08, Phase 07.03, browser integration, real-site inspection, staging, commit or push.
+
 ## Current handoff: BF-06 documentation candidate — 2026-11-03 (Africa/Cairo)
 
 [BF-06 design and verification matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_DESIGN.md); [ADR-008](02_ARCHITECTURE_DECISIONS.md#adr-008-candidate-three-role-selection-and-invalidation--2026-11-03-africacairo); [documentation evidence](04_TEST_EVIDENCE.md#bf-06-documentation-verification--2026-11-03-africacairo). **PROPOSED / UNIMPLEMENTED / SECURITY_REVIEW_PENDING.** Candidate worker-owned volatile three-role bindings, fresh bounded document/context checks, exhaustive state transitions and global invalidation/manual recovery extend BF-04/ADR-007; no permission recommendation is superseded or approved. Worker/review/browser loss starts unbound; fresh human invocations and confirmations are required even if Chrome access survives. Account/execution authority stays false; future rights verification and immediate per-write approval require separate decisions.

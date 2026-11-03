@@ -1,5 +1,42 @@
 # Test and validation evidence
 
+## BF-07 offline selection and invalidation verification — 2026-11-03 (Africa/Cairo)
+
+[BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**
+
+**BF-06 accepted/published as documentation at `8782133a9130f312fdd16567f31c064e4cdbde4e` (`8782133`), per the supplied BF-07 instruction.** Git verifies publication, not reviewer authority. Its original report and ADR-008 retain their pending/prospective wording verbatim. No product permission, UI or security approval follows.
+
+Disconnected pure JavaScript now models explicit Plementus/GitHub/Odoo.sh assignment, volatile worker/review/context generations, one-use observations, strict global invalidation and fresh reselection, manual fallback and cancellation. Every outcome keeps account/execution authority false and OFFLINE_SIMULATED. Invocation and lifecycle inputs are synthetic; no genuine gesture, browser sender, account, grant or runtime observation is independently verified.
+
+TDD: initial behavioral RED **5 PASS / 37 FAIL**; first GREEN 42 PASS; expanded regressions **42 PASS / 4 FAIL**; final **46 focused / 242 existing / 288 full Node PASS**, 0 FAIL/SKIP/CANCELLED/TODO; both syntax checks PASS. Browser/provider/runtime checks **NOT RUN**. No Chrome launch, provider APIs, storage, workflow executor, approval/write/retry/replay capability or SEC-01 change.
+
+Exactly **nine authored paths: three new, six modified**. All earlier tracking bodies and protected reports/designs/product/policies remain intact. The owner explicitly exempted dirty `.idea/plemo-chats.xml`; it drifted externally during the run and was left untouched, so complete worktree cleanliness and byte stability of that exception are not claimed. Ignored `.idea/workspace.xml` was never read/hashed/edited.
+
+Commands from the extension root, Node v24.19.0: `node --test test/selection-invalidation.test.mjs`, `node --test test/*.test.mjs`, `node --check src/browser/selection-invalidation.mjs`, `node --check test/selection-invalidation.test.mjs`. The separately enumerated unchanged existing suite excludes only the new file. Initial module-missing startup failure is distinct from behavioral RED; the initial RED wrapper did not retain Node's exit code. The expanded **42 PASS / 4 FAIL** RED captured exit 1; focused/existing/full GREEN and both syntax checks captured exit 0. Full command logs, baseline and structural results are under `/tmp/bf07-ofostnr1/`; all GREEN runs have zero SKIP/CANCELLED/TODO.
+
+Measured preservation command: `python3 /tmp/bf07-ofostnr1/verify.py` — **PASS, exit 0**. It rechecks the live remote through the mandated read-only Git query; no fetch. This is structural verification, not browser/security acceptance.
+
+| Check | Measured result |
+|---|---|
+| Exact authored scope | **9 paths: 3 new / 6 modified; 0 staged / 0 unexpected**; full status has 10 entries including the owner-approved external IDE exception |
+| Protected tracked bytes | **224 files equal preflight and HEAD**, including BF-06, ADR-008, previous reports, BF-01 code/tests, product, contracts/policies, Phase 04/06 and dependencies |
+| Prior documentation | **6 complete prior bodies preserved verbatim**, after their unchanged titles |
+| Git index/history/worktrees | Raw index, entries, refs/reflog, HEAD/upstream and linked-worktree inventory **UNCHANGED**; live tip remains `8782133a9130f312fdd16567f31c064e4cdbde4e` |
+| Master/canonical | Byte-equal, original SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Changed Markdown | **7 files / 383 local links / 67 fragment targets / 0 broken** |
+| All extension Markdown | **90 files / 1004 local links / 184 fragment targets / 0 broken**; external destinations not fetched |
+| Whitespace/LF/EOF | `git diff --check` exit 0; explicit checks for all **9 authored paths**, including 3 untracked files, PASS; single final newlines |
+| IDE exception | `.idea/plemo-chats.xml` changed externally: preflight `7e380862ef2ef791fa4f2e17ddb2898d6cd39b32f8fbe61247c0610224c88269`, intermediate sample `d21e498a38b4efc27a21702035552f9bc1b910bbb9eee6878f4168dd1a5fe0db`; further drift observed. Last sampled hash is in `verification.json`; no authored edit/restoration or stability claim. Excluded from protected-byte equality |
+| Ignored IDE workspace | `.idea/workspace.xml` **never read, hashed or modified** |
+
+Skills actually used: Ponytail; Superpowers usage, brainstorming, writing-plans, TDD and verification-before-completion. Tools: functions.exec shell/Git/Node/Python and apply_patch; no browser/provider/research tool or subagent. Actual Chrome grants, trusted invocation/sender collection, runtime races, account/rights/site-policy checks, production integration and durable uncertainty remain UNVERIFIED. New epochs or offline GREEN do not clear Phase 04/06 gates. The checker is rerun after recording these measurements.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+Earlier entries below remain historical and preserved; their stops are superseded only within the explicitly authorized BF-07 scope.
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED. STOP for independent review.** No BF-08, Phase 07.03, browser integration, real-site inspection, staging, commit or push.
+
 ## BF-06 documentation verification — 2026-11-03 (Africa/Cairo)
 
 **DOCUMENTATION_ONLY; application/Node/browser/provider tests NOT RUN.** [BF-06 candidate](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_DESIGN.md) extends BF-04/ADR-007, with prospective ADR-008; no product permission adoption, runtime collector/executor, live-site inspection or new test result. Public current Chrome documentation reviewed with web.run. Read-only builder check returned “nothing important left”; this is not independent ChatGPT acceptance or security approval.

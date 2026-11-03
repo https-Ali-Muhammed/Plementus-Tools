@@ -1,5 +1,25 @@
 # Blockers and decisions
 
+## BF-07 offline evidence and unresolved gates — 2026-11-03 (Africa/Cairo)
+
+[BF-07 report/API/scope](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_SPIKE.md); [verification](04_TEST_EVIDENCE.md#bf-07-offline-selection-and-invalidation-verification--2026-11-03-africacairo). **Independent BF-07 acceptance pending.**
+
+**BF-06 accepted/published as documentation at `8782133a9130f312fdd16567f31c064e4cdbde4e` (`8782133`), per the supplied BF-07 instruction.** Git verifies publication, not reviewer authority. Its original report and ADR-008 retain their pending/prospective wording verbatim. No product permission, UI or security approval follows.
+
+Disconnected pure JavaScript now models explicit Plementus/GitHub/Odoo.sh assignment, volatile worker/review/context generations, one-use observations, strict global invalidation and fresh reselection, manual fallback and cancellation. Every outcome keeps account/execution authority false and OFFLINE_SIMULATED. Invocation and lifecycle inputs are synthetic; no genuine gesture, browser sender, account, grant or runtime observation is independently verified.
+
+TDD: initial behavioral RED **5 PASS / 37 FAIL**; first GREEN 42 PASS; expanded regressions **42 PASS / 4 FAIL**; final **46 focused / 242 existing / 288 full Node PASS**, 0 FAIL/SKIP/CANCELLED/TODO; both syntax checks PASS. Browser/provider/runtime checks **NOT RUN**. No Chrome launch, provider APIs, storage, workflow executor, approval/write/retry/replay capability or SEC-01 change.
+
+Exactly **nine authored paths: three new, six modified**. All earlier tracking bodies and protected reports/designs/product/policies remain intact. The owner explicitly exempted dirty `.idea/plemo-chats.xml`; it drifted externally during the run and was left untouched, so complete worktree cleanliness and byte stability of that exception are not claimed. Ignored `.idea/workspace.xml` was never read/hashed/edited.
+
+**OWNER DECISION REQUIRED:** permission/navigation breadth and UI adoption, real origins/profile/account/rights and site-policy evidence, bounded-read/privacy/support contract, actual lifecycle/race behavior, future per-write approval/result/reconciliation and durable duplicate protection. Phase 04/SEC-01 and Phase 06 runtime gates remain blocked. Model GREEN closes none of these; new review/reselection cannot resolve a real unknown write or retention obligation.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+Earlier entries below remain historical and preserved; their stops are superseded only within the explicitly authorized BF-07 scope.
+
+**READY_FOR_CHATGPT_REVIEW / OFFLINE_SIMULATED. STOP for independent review.** No BF-08, Phase 07.03, browser integration, real-site inspection, staging, commit or push.
+
 ## BF-06 candidate design and remaining authority gates — 2026-11-03 (Africa/Cairo)
 
 [BF-06](Phases/phase07/PHASE_07_BROWSER_FIRST_SELECTION_INVALIDATION_DESIGN.md) extends BF-04/ADR-007 without approving M2 or its optional navigation exposure. **PROPOSED / SECURITY_REVIEW_PENDING / UNIMPLEMENTED.** Candidate transitions never create account verification or execution authority; worker/review/browser loss cannot revive old bindings. Strict global invalidation requires fresh human selection for all roles. No persistent profile identity, Tab.documentId, durable binding store or replay guarantee is invented.
