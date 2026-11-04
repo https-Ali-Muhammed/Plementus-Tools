@@ -243,16 +243,45 @@ function guiControl(pid, name, click = true) {
   if (!windowId) blocked('owned_window_unavailable');
   try {
     const result = execFileSync('python3', ['-c', String.raw`
-import json,sys,subprocess,pyatspi
+import ctypes,json,sys,subprocess,pyatspi
 pid,wid,label,click=int(sys.argv[1]),sys.argv[2],sys.argv[3],sys.argv[4]=='true'
+diagnostic={'ownedWindow':int(wid,16),'control':label,'clickRequested':click}
+def emit():
+ print('GUI_DIAGNOSTIC '+json.dumps(diagnostic),file=sys.stderr,flush=True)
 def xd(*args):
- return subprocess.check_output(['xdotool',*args],text=True,timeout=3).strip()
+ diagnostic['command']=args[0]
+ try: return subprocess.check_output(['xdotool',*args],text=True,timeout=3).strip()
+ except (subprocess.CalledProcessError,subprocess.TimeoutExpired):
+  emit(); raise
+# Read IDs/ancestry only; never read the contents or titles of another application.
+def ancestry(window):
+ lib=ctypes.CDLL('libX11.so.6'); W=ctypes.c_ulong; P=ctypes.POINTER
+ lib.XOpenDisplay.argtypes=[ctypes.c_char_p];lib.XOpenDisplay.restype=ctypes.c_void_p
+ lib.XQueryTree.argtypes=[ctypes.c_void_p,W,P(W),P(W),P(P(W)),P(ctypes.c_uint)]
+ lib.XFree.argtypes=[ctypes.c_void_p];lib.XCloseDisplay.argtypes=[ctypes.c_void_p]
+ display=lib.XOpenDisplay(None);assert display,'x11_display_unavailable'
+ chain=[]
+ try:
+  for _ in range(16):
+   if not window or window in chain: break
+   chain.append(window)
+   root,parent,children,count=W(),W(),P(W)(),ctypes.c_uint()
+   assert lib.XQueryTree(display,window,ctypes.byref(root),ctypes.byref(parent),ctypes.byref(children),ctypes.byref(count)), 'x11_tree_unavailable'
+   if children:lib.XFree(children)
+   if window==root.value:break
+   window=parent.value
+  return chain
+ finally:lib.XCloseDisplay(display)
 def owned():
  p=subprocess.check_output(['xprop','-id',wid,'_NET_WM_PID'],text=True,timeout=3)
  assert p.strip().endswith('= '+str(pid))
 owned()
-if int(xd('getactivewindow'))!=int(wid,16): xd('windowactivate','--sync',wid)
-assert int(xd('getactivewindow'))==int(wid,16)
+diagnostic['activeBefore']=int(xd('getactivewindow'))
+if diagnostic['activeBefore']!=int(wid,16): xd('windowactivate','--sync',wid)
+diagnostic['activeAfter']=int(xd('getactivewindow'))
+diagnostic['focus']=int(xd('getwindowfocus','-f'))
+emit()
+assert diagnostic['activeAfter']==int(wid,16)
 apps=[a for a in pyatspi.Registry.getDesktop(0) if a.get_process_id()==pid]
 assert len(apps)==1
 found=[]; frames=[]
@@ -282,10 +311,17 @@ assert fr.x<=rect.x and fr.y<=rect.y
 assert rect.x+rect.width<=fr.x+fr.width and rect.y+rect.height<=fr.y+fr.height
 assert int(geom['X'])<=x<int(geom['X'])+int(geom['WIDTH'])
 assert int(geom['Y'])<=y<int(geom['Y'])+int(geom['HEIGHT'])
+diagnostic.update({'frame':[fr.x,fr.y,fr.width,fr.height],
+ 'controlRect':[rect.x,rect.y,rect.width,rect.height], 'geometry':geom,
+ 'scale':[sx,sy],'target':[x,y]})
 if click:
  xd('mousemove',str(x),str(y))
  point=dict(line.split('=',1) for line in xd('getmouselocation','--shell').splitlines())
- assert int(point['X'])==x and int(point['Y'])==y
+ diagnostic['pointer']=point
+ diagnostic['pointerAncestry']=ancestry(int(point['WINDOW']))
+ diagnostic['ownedAncestry']=ancestry(int(wid,16))
+ emit()
+ assert int(point['X'])==x and int(point['Y'])==y, 'pointer_position_mismatch'
  if int(point['WINDOW'])!=int(wid,16):
   prop=subprocess.check_output(['xprop','-id',point['WINDOW'],'_NET_WM_PID'],text=True,timeout=3)
   raise AssertionError('pointer_window_mismatch owned_pid='+str(prop.strip().endswith('= '+str(pid))))
@@ -297,17 +333,20 @@ if click:
  current=frame.queryComponent().getExtents(pyatspi.DESKTOP_COORDS)
  assert (current.x,current.y,current.width,current.height)==(fr.x,fr.y,fr.width,fr.height)
  assert xd('getwindowgeometry','--shell',wid)== '\n'.join(k+'='+v for k,v in geom.items())
+ diagnostic['rechecked']=True
+ emit()
  xd('click','1')
-print(json.dumps({'found':True,'clicked':click,'role':node.getRoleName()}))
+print(json.dumps({'found':True,'clicked':click,'role':node.getRoleName(),'diagnostic':diagnostic}))
 `, String(pid), windowId, name, String(click)], { encoding: 'utf8', timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] });
     const value = JSON.parse(result);
+    if (value.diagnostic) console.log('GUI_DIAGNOSTIC ' + JSON.stringify(value.diagnostic));
     if (value.clicked) {
       observations.osMouseClicks++;
       console.log('OS_MOUSE_CLICK ' + name);
     }
     return value.found;
   } catch (error) {
-    console.log('GUI_FAILURE ' + JSON.stringify({ requested: name, code: error.code, diagnostic: String(error.stderr || '').split('\n').filter(line => /File \"<string>\"|^AssertionError|^AttributeError|^TypeError|^subprocess\.(TimeoutExpired|CalledProcessError)/.test(line)) }));
+    console.log('GUI_FAILURE ' + JSON.stringify({ requested: name, code: error.code, diagnostic: String(error.stderr || '').split('\n').filter(line => /^GUI_DIAGNOSTIC |File \"<string>\"|^AssertionError|^AttributeError|^TypeError|^subprocess\.(TimeoutExpired|CalledProcessError)/.test(line)) }));
     blocked('owned_gui_control_unavailable');
   }
 }

@@ -613,3 +613,62 @@ Raw Git index, index entries/flags, current branch history/reflog, branch/HEAD/u
 Master/canonical equality: SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91**, unchanged. Changed Markdown: **7 files / 427 local links / 84 fragments / 0 broken**. All documentation: **92 files / 1096 local links / 205 fragments / 0 broken**. Diff/new-file whitespace, UTF-8/LF and single-final-newline checks PASS. Neither forbidden IDE file was read or hashed; its byte stability is not claimed.
 
 `runs-and-cleanup.json` records independent post-run verification of all three owned PID/root absences and all nine closed loopback endpoints; no BF-10 generated root remains. Raw evidence: `browser-first.txt`, `browser-diagnostic.txt`, `browser-gui-diagnostic.txt`, `node-full.txt`, `baseline.json`, `refs-final.txt`, `refs-delta.json`, `verification.json`, `verify.py`. No screenshot/profile/executable extension retained. The final browser log remains **BLOCKED**, not a lifecycle or production PASS. Read-only source review found no material code issue; unexecuted post-invocation assertions remain unverified.
+
+## BF-10-R1 verification — 2026-11-04 (Africa/Cairo)
+
+[Detailed report, diagnosis, all 13 requirements and exact eight paths](Phases/phase07/PHASE_07_BROWSER_FIRST_LIFECYCLE_PERMISSION_SPIKE.md#bf-10-r1--diagnostic-characterization-and-completed-lifecycle-runs--2026-11-04-africacairo).
+
+**BF-10 required lifecycle cases observed twice; independent acceptance pending. GUI root cause UNRESOLVED; no causal repair claimed.** Explicit owner authorization covered BF-10-R1 only. Unchanged baseline and final instrumented harness each returned **23 PASS / 0 FAIL / 0 BLOCKED / 8 SKIP**, exit 0: **17 AUTOMATED_GUI_BROWSER_TESTED + 2 LOCAL_BROWSER_TESTED + 4 SIMULATED** passes; eight unsupported limits remain NOT_RUN. Each run observed **6 real correctly associated action.onClicked callbacks, 6 OS review confirmations, 15 OS clicks, 1 controlled stop/fresh boot, 3 loading invalidations and 1 delayed rejection**. No human invocation.
+
+Historical focus/pointer failures were not reproduced. Changes only add bounded focus/coordinate/X11 parent-chain diagnostics to the GUI helper; strict ownership/position/focus/geometry guards remain. All 15 instrumented clicks reported owned top-level window 92274692, exact pointer target and parent chain [92274692,1904]; no differing child/overlay was observed or accepted. Do not infer the historical cause from these successes. Original BF-10 and BF-09-AUTO bodies/results stay verbatim.
+
+**288 Node PASS**, harness/generated JavaScript/Python syntax and diagnostic self-checks PASS. Both runs cleaned owned PIDs/roots, servers/sockets/profile/extension; independent six-endpoint checks PASS. Each had 8 fixture GETs, 0 unexpected/rejected/forwarded requests; proxy denials 44/45. Raw evidence `/tmp/bf10-r1-evidence/`. Chrome access was measured separately from empty application state; replay/held-result stimuli stay SIMULATED. All four authority flags false.
+
+Git root/branch/fetch/push identity verified; HEAD/upstream/live remote **aa2c5066efa2188cdaf28e94537c97c4f56584de**, divergence 0/0. Exactly eight existing paths; seven documentation updates append only. IDE contents excluded; product/BF-07/BF-09/policies/contracts/master protected; index/history unchanged. Historical BF-09 full-reference equality remains **UNVERIFIED**; no ref repair.
+
+Progress **5/20 master phases; 28/72 micro-phases**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. Natural idle/crash, BFCache/prerender, permission prompts and other unsupported cases stay NOT_RUN. No BF-11, production integration, real-site access, staging, commit or push. R1 is non-counted; next action is independent review of the evidence and unresolved cause.
+
+### R1 reproducible measurements
+
+Commands from `Sh_Project_Setup_extension`: `node test/browser-first-lifecycle-browser.mjs` twice (published baseline, then diagnostic-only version), each exit 0 with 23/0/0/8 PASS/FAIL/BLOCKED/SKIP. `node --test test/*.test.mjs`: 288 PASS, no failures/skips/cancellations/todos, exit 0. `node --check test/browser-first-lifecycle-browser.mjs`: exit 0. Generated worker/review scripts were checked by the harness in both actual runs. The extracted Python helper compiled; `check-runs.py` exercised the real bounded ancestry function and asserted all 15 final-run diagnostic records against owned window/position/focus/ancestry values. No causally failing RED exists; no GUI repair is claimed.
+
+Raw evidence directory `/tmp/bf10-r1-evidence/`:
+
+| Artifact | Result |
+|---|---|
+| `baseline.txt`, `baseline-exit.json` | Published-code run PASS; SHA-256 ddec3c9080e6e88f6e80fa4b5a8164b05848a4e746986bf8d9d01c84d732b440 |
+| `instrumented.txt`, `instrumented-exit.json` | Final-code run PASS; SHA-256 95a3070f10c785515de0a0ede6006575d464fa6ff945ff6c28894591122595bf |
+| `node-tests.txt` | 288 PASS, 0 FAIL |
+| `check-runs.py`, `runs-and-cleanup.json` | Two run summaries; ancestry and 15 GUI diagnostic self-checks; independent owned cleanup PASS |
+| `/tmp/bf10-r1-preflight.json` | 238 permitted-file hashes, refs/index/history entry baseline; no forbidden IDE contents |
+
+PIDs 62923/64098 and roots `/tmp/bf10-observer-Z6EdJS` / `/tmp/bf10-observer-aecoSA` are absent. Recorded loopback ports 33869/33999/45029 and 40145/42067/42879 refused connections. Harness finally blocks checked empty socket sets and closed servers before deleting only their own roots. Text evidence remains; no screenshots, browser profile or executable extension retained.
+
+Historical BF-10 three attempts remain 4 PASS / 0 FAIL / 19 BLOCKED / 8 SKIP each, with zero callbacks; BF-09-AUTO final remains 17 PASS / 0 FAIL / 0 BLOCKED / 1 SKIP. Their old failures are not repaired retroactively, and old full-reference verification remains UNVERIFIED.
+
+**READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP.**
+
+## BF-10-R1 final reference triage and verification — 2026-11-04 (Africa/Cairo)
+
+[Final audit and exact ref discrepancy](Phases/phase07/PHASE_07_BROWSER_FIRST_LIFECYCLE_PERMISSION_SPIKE.md#bf-10-r1-final-git-triage-and-structural-verification--2026-11-04-africacairo).
+
+**Final structural checks completed; independent acceptance/publication pending. Full-reference preservation UNVERIFIED; historical GUI root cause UNRESOLVED.** This corrects the earlier preliminary R1 ref-preservation statement. The original capture ref `refs/codex/turn-diffs/captures/1793793235590/d2c9465d-ecf6-4ea8-ab1b-2442a706587f/base` is deleted; its original object `fdb2ba9c13a1ea11d1e1a8df827190556a0c3c6f` remains available as a tree. One differently named capture and one checkpoint were added; no same-name replacement or normal-ref change. Full names/IDs/types are in the detailed final triage table. Writer/cause unestablished; no ref repair.
+
+All 10 normal refs, HEAD/upstream/live remote at aa2c5066efa2188cdaf28e94537c97c4f56584de, origin, 0/0 divergence, raw index/entries, captured HEAD reflog and linked-worktree registrations match the available original baselines. Full non-HEAD reflog/config baselines were absent; their historical equality is UNVERIFIED. Exactly eight unstaged modified paths; no unexpected permitted staged/untracked changes. 230 protected tracked hashes, seven published documentation prefixes (including six tracking documents), master/canonical equality, local links/fragments and whitespace/newlines passed. Both IDE contents excluded.
+
+Raw logs reconcile **23 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN per run**, six actual action callbacks and confirmations each; simulation labels and limits preserved. Published baseline and diagnostic-only final source are intentionally different; retained edit reconstruction matches current source exactly, but run-time source digests were not recorded, so exact contemporaneous bytes remain UNVERIFIED. Retained Node log: 288 PASS; harness/Python syntax checked now. PIDs/roots/endpoints cleanup reverified without launching Chrome. No browser or Node-suite rerun, ref mutation, stage, commit, push or BF-11.
+
+Progress remains **5/20; 28/72**; Phase 04 BLOCKED; Phase 06 PARTIAL/BLOCKED; Phase 07 IN_PROGRESS; Phase 07.03 NOT_AUTHORIZED; D-04/B-02/B-03 OPEN; production NO_GO. Next action: independent review only.
+
+Artifacts in `/tmp/bf10-r1-evidence/`: `git-and-run-triage.json` (exact ref delta, normal refs/reflog/config limits, raw-case and source reconstruction); `final-verification.json` and `verify-final-triage.py` (final structural audit); `cleanup-reverification.json` (current absent PIDs/roots and six refused endpoints); `triage-current-refs.txt`; `before-final-triage/` (complete incoming R1 document bodies). Original `/tmp/bf10-r1-preflight.json`, raw run logs, original failed `verify-final.py` and edit script retained. Scope remains the eight exact paths enumerated in the report. Current source SHA-256: 735816d7646a7e62dabc6ab6646a5a9bcc44857315700ddf04e944a482aa1a7b; published source: 682023c7c84389a1b694efb7300c17d32c502aa587c1f3cc5d839cabea498177. No final source-equals-both-runs claim.
+
+
+### Final measured structural totals
+
+Final checker exit 0: exactly **8 modified / 0 staged / 0 unexpected permitted paths**; **230 protected tracked hashes** match; **7 complete published documentation prefixes**, including all six tracking bodies, preserved; all seven incoming R1 bodies also preserved. Master/canonical byte equality, raw index/entries, captured HEAD reflog and both linked-worktree registrations PASS. **10 normal refs** preserved; Codex inventory has **1 deleted / 2 added / 0 same-name replacements**, so full-reference preservation remains **UNVERIFIED**. Current source SHA-256 matches the instrumented reconstruction; no source edits in this continuation.
+
+Markdown audit: **7 changed documents / 441 local links / 98 fragment targets**; entire documentation tree **92 files / 1110 local links / 219 fragment targets**; **0 broken links/fragments**. Scoped git diff whitespace, trailing spaces/tabs, carriage returns and single terminal newline checks PASS. Only local targets/fragments were checked; external URLs were not refreshed. Both IDE contents remain excluded. Current harness Node syntax and extracted Python compilation PASS. Browser and Node suite results are retained-log verification only; no reruns.
+
+**READY_FOR_CHATGPT_REVIEW / BF-10-R1_FINAL_VERIFICATION**
+
+STOP.
