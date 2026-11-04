@@ -20,6 +20,14 @@ function observer() {
   const roles = ['Plementus', 'GitHub', 'Odoo.sh'];
   const bindings = Object.fromEntries(roles.map(role => [role, null]));
   const entries = new Set(), pending = new Set(), events = [];
+  const diagnostics = [], diagnosticTabs = new Set();
+  let diagnosticSequence = 0;
+  const diagnose = (type, detail) => {
+    diagnostics.push({ sequence: ++diagnosticSequence, time: Date.now(), type, ...detail });
+    if (diagnostics.length > 96) diagnostics.shift();
+  };
+  const tabView = tab => ({ tabId: tab.id, windowId: tab.windowId, active: tab.active,
+    status: tab.status, url: tab.url, pendingUrl: tab.pendingUrl });
   let capture = null, generation = 0, captureGeneration = 0, reviewGeneration = 0;
   let lastInvalidation = null, lastAction = null, lastLifecycle = null, discoveryFailure = null, holdNext = false, delayed = null;
   const stats = { actions: 0, discoveries: 0, confirmations: 0, reads: 0, rejected: 0,
@@ -33,7 +41,7 @@ function observer() {
     consumed: entry.consumed, observed: entry.observed, owningDocument: entry.owner?.documentId });
   function inspectForTest() {
     return { boot, generation, captureGeneration, reviewGeneration, lastInvalidation, lastAction, lastLifecycle, discoveryFailure,
-      events: [...events], capture: view(capture), bindings: Object.fromEntries(roles.map(role => [role, view(bindings[role])])),
+      events: [...events], diagnostics: [...diagnostics], capture: view(capture), bindings: Object.fromEntries(roles.map(role => [role, view(bindings[role])])),
       fixtureContextReady: !capture && !pending.size && roles.every(role => bindings[role]?.observed),
       pending: pending.size, held: Boolean(delayed), stats: { ...stats }, ...flags };
   }
@@ -41,6 +49,7 @@ function observer() {
   function invalidate(reason) {
     // Clear every application binding and pending ticket synchronously before any port callback or await.
     generation++; lastInvalidation = reason; capture = null; pending.clear();
+    diagnose('invalidate', { reason, generation });
     for (const role of roles) bindings[role] = null;
     const previous = [...entries]; entries.clear(); stats.invalidations++;
     for (const entry of previous) {
@@ -58,6 +67,8 @@ function observer() {
       captureGeneration: ++captureGeneration, reviewGeneration: ++reviewGeneration,
       documentId: null, reviewTab: null, role: null, consumed: false, observed: false, owner: null };
     stats.actions++; event('action.onClicked');
+    diagnosticTabs.add(tab.id);
+    diagnose('action.onClicked', { captureId: entry.id, ...tabView(tab) });
     lastAction = { tabId: entry.tabId, windowId: entry.windowId, eligibleURL: Object.values(fixtureURLs).includes(entry.url) };
     if (capture) invalidate('pending_capture_superseded');
     if (!Object.values(fixtureURLs).includes(entry.url) || !Number.isSafeInteger(entry.tabId) || entry.tabId < 0 ||
@@ -70,7 +81,9 @@ function observer() {
   async function discover(entry) {
     const epoch = generation;
     try {
+      diagnose('discovery.request', { captureId: entry.id, tabId: entry.tabId, windowId: entry.windowId });
       const results = await chrome.scripting.executeScript({ target: { tabId: entry.tabId }, func: () => true });
+      diagnose('discovery.result', { captureId: entry.id, results });
       if (!live(entry, epoch)) return;
       if (!matches(results)) throw new Error('unsupported_document');
       entry.documentId = results[0].documentId; stats.discoveries++;
@@ -81,6 +94,8 @@ function observer() {
       entry.reviewTab = page.id;
       await chrome.tabs.update(page.id, { url: chrome.runtime.getURL('review.html'), active: true });
     } catch (error) {
+      // Exact errors are retained only for this owned, invented loopback experiment.
+      diagnose('discovery.error', { captureId: entry.id, name: error.name, message: error.message.slice(0, 512) });
       discoveryFailure = ['unsupported_document', 'context_changed'].includes(error.message) ? error.message :
         /Cannot access contents|Missing host permission|cannot access the page|must invoke the extension/i.test(error.message) ? 'access_denied' : 'api_failure';
       if (live(entry, epoch)) invalidate('discovery_unavailable');
@@ -156,7 +171,9 @@ function observer() {
   function holdNextResultForTest() { holdNext = true; }
   function releaseResultForTest() { const resolve = delayed; delayed = null; resolve?.(); }
   chrome.runtime.onMessage.addListener((message, sender, reply) => { stats.rejected++; reply({ accepted: false, ...flags }); });
-  chrome.tabs.onUpdated.addListener((id, change) => {
+  chrome.tabs.onUpdated.addListener((id, change, tab) => {
+    if (diagnosticTabs.has(id)) diagnose('tabs.onUpdated', { ...tabView(tab),
+      changedStatus: change.status, changedURL: change.url, discarded: change.discarded });
     if ([...entries].some(entry => entry.tabId === id || (entry.owner && entry.reviewTab === id)) &&
         (change.status === 'loading' || typeof change.url === 'string' || change.discarded === true)) {
       lastLifecycle = { tabId: id, status: change.status, urlChanged: typeof change.url === 'string', discarded: change.discarded === true };
@@ -171,8 +188,9 @@ function observer() {
 }
 
 const browserTier = 'AUTOMATED_GUI_BROWSER_TESTED';
+const diagnosticOnly = process.argv.includes('--diagnostic');
 const cases = new Map();
-const requiredCases = ['ENV', '1', '2', '3', '4', '5', '6', '6R', '7', '7R',
+const requiredCases = diagnosticOnly ? ['ENV', '1', 'S1', 'R1_A', 'R1_B', 'R1_C', 'R1_D'] : ['ENV', '1', '2', '3', '4', '5', '6', '6R', '7', '7R',
   ...['Plementus', 'GitHub', 'Odoo.sh'].flatMap(role => [`8_${role}`, `8R_${role}`]),
   '9', '9R', '10A', '10', '11C', '11R', '11D', '11DR', '12', '13', '14', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6'];
 const requests = { fixture: 0, rejectedFixture: 0, unexpectedPage: 0, deniedProxy: 0, forwarded: 0 };
@@ -451,7 +469,7 @@ button.addEventListener('click', event => {
     requests.unexpectedPage++; return route.abort('blockedbyclient');
   });
   console.log(`ENV ${JSON.stringify({ node: process.version, chrome: context.browser().version(), mode: 'headed',
-    generatedScriptSyntax: 'PASS', permissions: manifest.permissions,
+    generatedScriptSyntax: 'PASS', diagnosticOnly, permissions: manifest.permissions,
     sourceHash: createHash('sha256').update(fs.readFileSync(new URL(import.meta.url))).digest('hex'),
     generatedHashes: Object.fromEntries(['manifest.json', 'worker.js', 'review.html', 'review.js'].map(file =>
       [file, createHash('sha256').update(fs.readFileSync(path.join(extension, file))).digest('hex')])) })}`);
@@ -483,7 +501,8 @@ button.addEventListener('click', event => {
         ...(documentId === undefined ? {} : { documentIds: [documentId] }) },
       func: () => document.documentElement.getAttribute('data-bf11') === 'bounded-fixture-v1' }) };
     } catch (error) {
-      return { denied: /Cannot access contents|Missing host permission|cannot access the page|must invoke the extension/i.test(error.message),
+      return { error: { name: error.name, message: error.message.slice(0, 512) },
+        denied: /Cannot access contents|Missing host permission|cannot access the page|must invoke the extension/i.test(error.message),
         missing: /No tab with id|No document with id|No frame with id/i.test(error.message) };
     }
   }, { tabId, documentId });
@@ -518,7 +537,8 @@ button.addEventListener('click', event => {
     const result = await inject(tabId, documentId);
     const status = result.results ? 'RETAINED' : result.denied ? 'DENIED' : 'UNAVAILABLE';
     if (result.results) assert.ok(matches(result.results, documentId));
-    const observation = { label, tabId, status, missingTarget: result.missing === true, documentId: result.results?.[0]?.documentId };
+    const observation = { label, tabId, status, error: result.error,
+      missingTarget: result.missing === true, documentId: result.results?.[0]?.documentId };
     accessLog.push(observation); console.log('ACCESS ' + JSON.stringify(observation)); return observation;
   }
   async function isolated(label) {
@@ -528,11 +548,26 @@ button.addEventListener('click', event => {
   }
   let review, captured;
   const seenReviews = new Set();
+  async function documentDiagnostic(role, label) {
+    const cdp = await context.newCDPSession(pages[role]);
+    try {
+      const { frameTree: { frame } } = await cdp.send('Page.getFrameTree');
+      const tab = await api(id => chrome.tabs.get(id), tabs[role]);
+      const active = await api(windowId => chrome.tabs.query({ windowId, active: true }), tab.windowId);
+      const document = await pages[role].evaluate(() => ({ readyState: document.readyState, timeOrigin: performance.timeOrigin }));
+      console.log('DOCUMENT_DIAGNOSTIC ' + JSON.stringify({ label, time: Date.now(), tabId: tab.id,
+        windowId: tab.windowId, active: tab.active, status: tab.status, url: tab.url, pendingUrl: tab.pendingUrl,
+        activeTabs: active.map(item => ({ tabId: item.id, windowId: item.windowId })),
+        committedURL: frame.url, frameId: frame.id, loaderId: frame.loaderId, document }));
+      return { tab, frame, document };
+    } finally { await cdp.detach(); }
+  }
   async function invoke(role, label) {
     const before = await inspect();
     await pages[role].bringToFront();
     const selected = await api(id => chrome.tabs.get(id), tabs[role]);
     assert.equal(selected.active, true);
+    await documentDiagnostic(role, `${label}_before_action`);
     if (!guiControl(browserPid, 'BF11 observer', false)) {
       await guiClick(browserPid, 'Extensions'); await guiClick(browserPid, 'Pin BF11 observer');
       await guiClick(browserPid, 'Extensions');
@@ -542,7 +577,11 @@ button.addEventListener('click', event => {
       const state = await inspect(); assert.equal(state.boot, before.boot);
       assert.ok(state.stats.actions <= before.stats.actions + 1, 'extra_action');
       if (state.stats.actions === before.stats.actions) return;
-      if (!state.capture) { await snapshot('action_capture_unavailable'); blocked('real_action_capture_unavailable'); }
+      if (!state.capture) {
+        await snapshot('action_capture_unavailable');
+        await documentDiagnostic(role, `${label}_after_unavailable`);
+        blocked('real_action_capture_unavailable');
+      }
       assert.equal(state.capture.tabId, tabs[role]); assert.equal(state.capture.windowId, selected.windowId);
       return state.capture.owningDocument && state.capture.documentId && state;
     }, 'automated_action_unavailable', 10000);
@@ -623,6 +662,31 @@ button.addEventListener('click', event => {
     for (const role of roles) assert.equal((await access(`before_${role}`, tabs[role])).status, 'DENIED');
     await isolated('before'); await unbound('before');
   });
+  if (diagnosticOnly) {
+    await check('R1_A', browserTier, 'fresh_new_tab_invocation', async () => {
+      await invoke('Odoo.sh', 'R1_A'); await confirm('Odoo.sh');
+    });
+    await check('R1_B', browserTier, 'fresh_invocation_after_same_origin_reload', async () => {
+      await pages['Odoo.sh'].reload(); await unbound('R1_B_reload');
+      await invoke('Odoo.sh', 'R1_B'); await confirm('Odoo.sh');
+    });
+    await check('R1_C', browserTier, 'fresh_invocation_after_cross_origin_return', async () => {
+      await pages['Odoo.sh'].goto(`${negativeOrigin}/fixture`); await unbound('R1_C_departed');
+      assert.equal((await access('R1_C_departed', tabs['Odoo.sh'])).status, 'DENIED');
+      await documentDiagnostic('Odoo.sh', 'R1_C_departed');
+      await pages['Odoo.sh'].goto(fixtureURLs['Odoo.sh']); await unbound('R1_C_returned');
+      assert.equal((await access('R1_C_returned', tabs['Odoo.sh'])).status, 'DENIED');
+      await invoke('Odoo.sh', 'R1_C'); await confirm('Odoo.sh');
+    });
+    await check('R1_D', browserTier, 'return_after_multiple_distinct_role_invocations', async () => {
+      for (const role of ['Plementus', 'GitHub']) { await invoke(role, `R1_D_${role}`); await confirm(role); }
+      assert.equal((await inspect()).fixtureContextReady, true);
+      await pages['Odoo.sh'].goto(`${negativeOrigin}/fixture`); await unbound('R1_D_departed');
+      await pages['Odoo.sh'].goto(fixtureURLs['Odoo.sh']); await unbound('R1_D_returned');
+      assert.equal((await access('R1_D_returned', tabs['Odoo.sh'])).status, 'DENIED');
+      await recover('R1_D_recovery');
+    });
+  } else {
   await check('2', browserTier, 'first_exact_action_explicit_role_confirmation', async () => {
     await invoke('Plementus', 'first'); await confirm('Plementus');
     assert.equal(boundCount(await inspect()), 1);
@@ -761,6 +825,7 @@ button.addEventListener('click', event => {
     observations.loadingEvents = stateLog.filter((s, i, all) => all.findLastIndex(v => v.boot === s.boot) === i)
       .reduce((sum, s) => sum + s.stats.loadingEvents, 0);
   });
+  }
 
 } catch (error) {
   console.log('DIAGNOSTIC ' + JSON.stringify({ name: error.name,

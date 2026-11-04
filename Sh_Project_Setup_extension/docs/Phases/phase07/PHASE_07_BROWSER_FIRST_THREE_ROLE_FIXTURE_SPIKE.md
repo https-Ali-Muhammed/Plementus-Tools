@@ -146,3 +146,128 @@ Master/canonical equality passed. Local Markdown checks: **7 authored documents 
 **READY_FOR_CHATGPT_REVIEW / THREE_ROLE_AUTOMATED_GUI_FIXTURE_ONLY**
 
 STOP. No staging, commit, push or further browser attempt.
+
+## BF-11-R1 — activeTab reacquisition diagnosis — 2026-11-04 (Africa/Cairo)
+
+Owner explicitly authorized **BF-11-R1 execution, exact eight existing paths only**, following the proposal's authorization gate. Scope is **AUTOMATED_GUI_BROWSER_ONLY / LOCAL_FIXTURE_BROWSER_ONLY**. This append preserves the complete published BF-11 report, original failures, matrix and evidence verbatim. BF-11-R1 is non-counted; independent ChatGPT acceptance is required.
+
+### R1 preflight and bounded plan
+
+Verified root `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean`, extension `Sh_Project_Setup_extension`, branch `feature/sh-project-setup-extension-clean`, fetch/push origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`. HEAD, upstream and read-only live remote all matched **`49a01bce73b00dd9422d364bdc439828d7d9881b`**, divergence **0/0**. Index empty; current status contained only the exempt `.idea/plemo-chats.xml` path. Neither protected IDE file was read, hashed or edited; no content-preservation claim for them.
+
+Both registered worktrees matched the published baseline. Sibling `/home/https_ali_muhammed/Plementus/Tools` remained on `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec`, with an empty index and the same two documented untracked source documents. Its status/inventory was inspected read-only; no sibling mutation. Entry evidence `/tmp/bf11-r1-evidence-y_2m03v4/baseline.json` records 240 permitted tracked hashes, both index digests/inventories, HEAD reflog, configuration digest, worktrees and complete refs. Normal refs and Codex checkpoint/capture refs are classified separately; historical full-reference preservation remains **UNVERIFIED**, with no cause attribution or ref repair.
+
+Execution plan: inspect retained BF-11 logs/source and governing references; run one bounded A/B/C/D diagnostic sequence in a new disposable context; proceed to one full matrix only if all comparisons pass; change security behavior only for an evidenced deterministic harness defect; reconcile raw events and run Node/syntax/preservation/link/cleanup checks; append results and stop. No automatic retry following a discovery denial is introduced.
+
+Exactly eight existing paths, relative to the extension, are authorized and used:
+
+1. `test/browser-first-three-role-browser.mjs`
+2. `docs/Phases/phase07/PHASE_07_BROWSER_FIRST_THREE_ROLE_FIXTURE_SPIKE.md`
+3. `docs/Phases/phase07/PHASE_07.md`
+4. `docs/00_PROJECT_STATUS.md`
+5. `docs/03_CHANGELOG.md`
+6. `docs/04_TEST_EVIDENCE.md`
+7. `docs/05_BLOCKERS_AND_DECISIONS.md`
+8. `docs/06_HANDOFF.md`
+
+The harness is standalone, with no production caller/export/configuration reach. Only it and seven append-only documents change. BF-07/BF-09/BF-10, product, manifest, permissions, dependencies, fixtures, policies, contracts and master/canonical remain protected. No new repository path, staging, commit, push, checkout, fetch, reset, stash, clone or ref mutation.
+
+### R1 retained-log diagnosis and instrumentation
+
+The published final raw log still hashes to `2fb310fd1ece28760f4904646f29f6ea4dccb06037abe4c913bac26f10b99347`. Its original result remains **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, **25 genuine callbacks / 24 completed confirmations**. The terminal callback matched the original returned Odoo.sh fixture tab/window; discovery produced `access_denied`, then `discovery_unavailable`, with empty bindings/capture/pending state. The source used `page.goto()` (default load completion), but did not record pre-click tab status, exact committed frame/loader identity, timestamped lifecycle ordering or the exact Chrome exception. The old last-lifecycle entry describes earlier departure, not a demonstrated race at callback 25. Exact historical exception text and per-tab grant issuance cannot be reconstructed from that category.
+
+R1 adds diagnostics, not a causal repair: a bounded 96-entry worker sequence with action-supplied tab/window/active/status/URL, discovery request/result/error and lifecycle updates; exact bounded errors for owned loopback access probes; and external read-only `Page.getFrameTree`, tab/active-tab samples and document readiness/time-origin samples before invoking. Loader IDs are labeled CDP loader IDs, never substituted for scripting `documentId`. Missing extension-visible URL/pendingUrl is left missing. Absence of pendingUrl, a readyState or status alone is not treated as proof of a navigation barrier or grant. Diagnostic timestamps show ordering only, not trusted-time/security guarantees.
+
+The `--diagnostic` path runs A new tab, B same-origin reload, C cross-origin departure/return, then D the equivalent sequence after distinct role invocations. A failure stops dependent comparisons; it cannot fall through to the full matrix. Every invocation, role choice and confirmation uses the original strict OS-click helper. `mappedWindow`, `guiControl` and `guiClick` are byte-identical to BF-10-R1. Port admission, one-use confirmation, bounded probe/revalidation, recovery and replay helper bodies remain byte-identical to published BF-11. No targeting, capability, rejection rule or review ownership is relaxed. Read-only diagnostics may perturb timing; passing an instrumented run cannot identify a historical timing cause.
+
+The required BF-11 harness/report/matrix/ledger, BF-10-R1 method, BF-09-AUTO evidence, BF-08, disconnected BF-07 source/tests, BF-06/ADR-008, BF-04/ADR-007, master/security/contracts and current status/handoff were inspected. Official sources refreshed through web.run on 2026-11-04: [activeTab](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab), [action](https://developer.chrome.com/docs/extensions/reference/api/action), [tabs](https://developer.chrome.com/docs/extensions/reference/api/tabs), [scripting](https://developer.chrome.com/docs/extensions/reference/api/scripting), [worker lifecycle](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle). They document invocation-based access, callback identity, document targets and loss of worker globals; they do not prove this historical failure's cause. `permissions.contains()` is never used as per-tab access proof.
+
+### R1 focused comparisons
+
+`node test/browser-first-three-role-browser.mjs --diagnostic`: **8 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, exit 0. The eight passes include four A–D comparisons, ENV/baseline, one SIMULATED envelope check and cleanup: **5 AUTOMATED_GUI_BROWSER_TESTED + 2 LOCAL_BROWSER_TESTED + 1 SIMULATED**. The eight NOT_RUN entries are named unsupported limits, not the full BF-11 matrix; this diagnostic result alone cannot close BF-11.
+
+A, B and C used the same Odoo.sh fixture tab `1273145694`, window `1273145689`. A and B succeeded. At C, the pre-action sample showed active selected tab, `status: complete`, `readyState: complete`, committed `http://127.0.0.1:35517/fixture`, loader `309FD263CE6D2C0A1B1C89BB1FE507EB`; Chrome discovery and the explicit confirmation succeeded after departure/return. D also succeeded after distinct Plementus/GitHub invocations and another cross-origin round trip, followed by three fresh confirmations. No extra invocation was used to retry a denial. Actual counts: **27 OS clicks = 3 menu/pin + 8 toolbar + 8 role choices + 8 confirmations; 8 callbacks / 8 completed confirmations**. All four authority flags remained false.
+
+This establishes that fresh invocation, repeat invocation, tab reuse, cross-origin return and multiple distinct role grants can succeed in this owned environment. It does not establish which condition caused the published 25th-call denial or prove success after every grant count. With A–D passing, the full published matrix was attempted once to test the longer sequence and remaining cases; no behavioral remediation was justified by the diagnostic results.
+
+### R1 full matrix and diagnosis outcome
+
+**Required local matrix now observed; historical activeTab denial cause UNRESOLVED. BF-11 acceptance remains BLOCKED pending independent review of this limitation and the new evidence. No causal repair or reliability certification is claimed.** The original failed runs remain separate historical outcomes. No missing required case is promoted from those runs: each new PASS below was actually executed in R1.
+
+`node test/browser-first-three-role-browser.mjs`: **42 cases = 34 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, exit 0. Pass tiers: **26 AUTOMATED_GUI_BROWSER_TESTED + 2 LOCAL_BROWSER_TESTED + 6 SIMULATED**. Environment for both R1 runs: **Node v24.19.0 / installed Playwright 1.62.1 / headed Chromium 151.0.7922.34 / X11**. There were exactly two browser runs, one focused and one full; neither used human clicks, grant overrides, callback fabrication or retries after discovery denial.
+
+| Required behavior | Executed R1 result / boundary |
+|---|---|
+| Initial selection, three distinct roles, readiness, conflicts | Cases 2–7R PASS; explicit choices and one-use confirmations, distinct tabs/documents, two conflict rejections and fresh three-role recoveries |
+| Each assigned role reload and cross-origin loss | Cases 8/8R for all three roles, 9 PASS; global invalidation and controls retained, original successful evidence independently re-exercised |
+| Three fresh assignments after cross-origin return | 9R PASS; 23rd–25th genuine callbacks and confirmations recover all roles, with no automatic restoration |
+| Owning review closure | 11C PASS; all roles cleared, Chrome access separately retained, replacement review rejected |
+| Old review/reconnect against active capture | S3 PASS / SIMULATED; injected old ticket/reconnect cannot change fresh capture/owner/bindings/counters |
+| Fresh recovery after review loss | 11R PASS; three new genuine invocations/confirmations, readiness false until all three |
+| Old review closure | 11D PASS; closing obsolete review leaves current bindings intact |
+| Explicit port-only disconnect | S4 PASS / SIMULATED driver stimulus; actual disconnect handling clears all three roles with `review_disconnected` |
+| Fresh recovery after disconnect | 11DR PASS; three fresh genuine invocations/confirmations |
+| Controlled MV3 worker restart | 12 PASS; Chrome reported stopped, wake yielded different empty boot, no restored actions/reads/confirmations/bindings |
+| Surviving access is not application authority | 12 PASS; all old exact documents remained scriptable, new boot stayed empty, all four flags false |
+| Old boot/ticket messages | S5 PASS / SIMULATED; old review cannot restore state after restart; S2 earlier navigation replay also PASS / SIMULATED |
+| Interrupted third-role observation | 10A PASS; two fresh roles bound, third genuinely confirmed but real completion deliberately held; hold is SIMULATED scheduling |
+| Real navigation/stale document | 10 PASS; real reload clears two bound roles and pending third, new document differs, old document target rejected |
+| Delayed completion | S6 PASS / SIMULATED hold/release; releasing real old result yields one late rejection and no binding restoration |
+| Final recovery | 14 PASS; three new actions and confirmations rebuild only bounded fixture observations |
+| Control isolation and event reconciliation | 13 PASS; duplicate and negative controls denied throughout all reached lifecycle checks, callback/click/confirmation counts agree |
+| Owned cleanup | 15 PASS; independent PID/root/endpoint checks also PASS |
+
+In the full run's return recovery, external sample time `1793802534912` showed selected tab `724728821`, window `724728816`, active and complete, committed `http://127.0.0.1:43685/fixture`, loader `236F158CC1D5572AAD30F06DABB18035` and readyState complete. Callback 25 at `1793802536874` independently supplied that same active/complete tab/window/URL. Diagnostic sequence **97 action → 98 discovery request → 99 result** returned main-frame `documentId: 4D02CD71AEF35531081E708B45A8CDE5`, boolean true at `1793802536882`; the subsequent document-targeted confirmation passed. No review tab was the invoking tab in these observations. No pending-navigation or replacement race was observed around this successful callback. These are successful R1 observations, not proof that the original denied invocation had identical timing.
+
+All **37** full-run action callbacks matched the invoking tab/window and yielded discovery; **zero worker discovery denials** occurred. The focused run likewise had zero worker discovery denials. This rules out a necessary failure for the tested sequences, but does not identify an unconditional permission-check, document-target, grant-count, review-focus or API-timing cause for the historical denial. Fresh temporary access is evidenced by successful actual reads; internal Chrome grant issuance is not separately exposed or inferred from `permissions.contains`. No deterministic harness defect was identified, so no wait/retry/security-semantic correction was applied. Instrumentation timing and session differences remain possible influences, not established causes. No third attempt was made.
+
+### R1 counts, provenance and unsupported cases
+
+| Run | PASS / FAIL / BLOCKED / NOT_RUN | OS / toolbar / callbacks / completed confirmations | Driver access RETAINED / DENIED / UNAVAILABLE | Fixture GET / proxy denied / forwarded |
+|---|---|---|---|---|
+| Published BF-11 final, preserved | 20 / 0 / 14 / 8 | 76 / 25 / 25 / 24 | 34 / 63 / 3 | 12 / 105 / 0 |
+| R1 focused A–D | 8 / 0 / 0 / 8 | 27 / 8 / 8 / 8 | 8 / 24 / 0 | 10 / 51 / 0 |
+| R1 full matrix | 34 / 0 / 0 / 8 | 114 / 37 / 37 / 37 | 53 / 93 / 4 | 13 / 156 / 0 |
+
+Full OS total: **3 menu/pin + 37 toolbar + 37 explicit role choices + 37 confirmation clicks = 114**. Per-boot worker counters sum to **37 actions/discoveries/confirmations, 34 accepted bounded observations, 2 rejected conflicts, 1 held completion later rejected, 7 loading invalidations, 1 controlled stop/new boot and 1 delayed rejection**. The 37 confirmations include the two conflict confirmations and the held third-role confirmation; they are not 37 accepted reads. The focused diagnostic's raw aggregate `loadingEvents: 0` is not finalized by the full-matrix-only aggregation; retained worker snapshots independently reconcile **3**, not zero. Default false retention/stale-target summary fields in the focused mode are not absence claims. Raw output is retained unchanged.
+
+Independent `reconcile.py` checks every recorded OS click against its ownership/focus/geometry/pointer diagnostic, all callback/request/result sequences and per-boot counters, active selected tabs, diagnostic bounds and all four false flags. The four full-run UNAVAILABLE access results are obsolete document targets after reload, each with the missing-target signal; the DENIED results are expected uninvoked controls and cross-origin/return probes before invocation. Worker discovery is counted separately. All exact invented-loopback errors are retained in raw ACCESS records. S1 malformed envelope, S2 navigation replay, S3 old-review reclaim, S4 port-disconnect stimulus, S5 old-boot replay and S6 held completion remain **SIMULATED**, even when their rejection accompanies real Chrome events.
+
+There are **zero unexecuted required cases in the R1 full matrix**. Eight unsupported groups stay **NOT_RUN**: optional grant removal, natural idle, crash/session restoration, BFCache/prerender/native onReplaced, permission prompts, hostile real pages, BF-07 runtime integration and continuous navigation monitoring. Controlled worker stop does not prove natural lifecycle reliability. Sequential three-tab revalidation does not provide an atomic or continuously fresh snapshot. Historical cause remains unresolved, so BF-11 is not independently accepted or promoted to production readiness.
+
+### R1 verification and retained evidence
+
+Evidence directory: `/tmp/bf11-r1-evidence-y_2m03v4/` (outside Git).
+
+| Artifact | Result / SHA-256 |
+|---|---|
+| `diagnostic.txt` | Focused raw log: `134c03c5dfe0fefc534c41f35aad69eaba39a5d2c8a83ce099f465c964ef198e` |
+| `matrix.txt` | Full raw log: `ee1e7011d5fb5904fe5396bc82265d61fb756a656d30174e3611f82e989f8bf9` |
+| `diagnostic-source.txt`, `matrix-source.txt` | Both match contemporaneous ENV and final harness: `d4dd06295dd9845f21ef9e128d0df69dcc6921509653727539a2dac6eb515354` |
+| `baseline.json`, `prefixes/` | Entry Git/index/config/refs/worktree state, permitted hashes and all eight original files |
+| `node-tests.txt` | `node --test test/*.test.mjs`: **288 PASS / 0 FAIL/SKIP/CANCELLED/TODO**, exit 0 |
+| `source-boundary-checks.json` | Unchanged strict GUI helpers and admission/probe/confirm/recover/replay bodies; extracted Python syntax PASS |
+| `reconcile.py`, `runs-and-cleanup.json` | Raw callback/click/result/counter reconciliation and independent cleanup PASS; generated-asset hashes retained |
+| `verify-final.py`, `final-verification.json` | Final exact-scope, protected-byte, history/prefix, Git, master/canonical, link/fragment and formatting audit |
+
+Harness `node --check`, generated `worker.js` and `review.js` syntax in both real runs, and extracted GUI Python compilation passed. New diagnostic comparisons themselves are assert-based browser checks; no production TDD cycle or causal RED-to-GREEN fix is claimed. An initial standalone Python syntax/equality command used an extension-prefixed path while already inside the extension and raised FileNotFoundError before reading/writing anything; corrected root-relative checks passed. The browser command following that failed check ran the intended harness and is the recorded focused run, not an extra browser attempt.
+
+Independent cleanup verified browser PIDs **91382 / 93230** and all **14 sampled owned PIDs per run** absent, roots **`/tmp/bf11-observer-wn6H7A` / `/tmp/bf11-observer-kVGX6d`** absent, and all **10 recorded fixture/proxy endpoints** refusing connections. In-process assertions also checked all listeners closed and tracked socket sets empty. Profiles and generated extensions were removed with their UID/parent/prefix-verified roots. No screenshot or live browser asset remains; text evidence and source-as-text remain outside Git. Zero unexpected/rejected/forwarded page requests in both runs. This is the owned fixture boundary, not OS-wide egress certification.
+
+Skills actually applied: Ponytail full; Superpowers using-superpowers, systematic-debugging, test-driven-development guidance for the bounded generated experiment, and verification-before-completion. Tools actually used: functions.exec shell/Git/Node/Python, installed Playwright/Chromium with owned read-only CDP process/frame observations and controlled worker stop, AT-SPI/X11/xdotool/XTEST, apply_patch and web.run. WarpGrep and Valyu were unavailable. No subagent, provider connector, personal-profile browser or human click was used. No permission requirement or skill stopped authorized work.
+
+Progress unchanged: **5/20 master phases; 28/72 micro-phases; Phase 04 BLOCKED; Phase 06 PARTIAL/BLOCKED; Phase 07 IN_PROGRESS; Phase 07.03 NOT_AUTHORIZED; D-04/B-02/B-03 OPEN; production NO_GO**. BF-11-R1 is non-counted. BF-07 stays disconnected; loopback labels are not trusted provider origins; all four authority flags remain false. BF-11 acceptance remains BLOCKED for independent review of the unresolved historical denial and completed current matrix. No BF-12, production implementation, real-site integration or business operation.
+
+**READY_FOR_CHATGPT_REVIEW / BF-11-R1_AUTOMATED_GUI_FIXTURE_ONLY**
+
+STOP for independent ChatGPT review. No staging, commit or push.
+
+### R1 final preservation audit
+
+Final structural checker PASS: **8 existing modified / 0 new / 0 staged / 0 unexpected permitted paths**, **232 protected tracked hashes**, **7 published documentation prefixes**, raw index/entries/HEAD reflog/configuration, both worktree registrations and sibling status/inventory/index preserved. **10 normal refs**, no current Codex delta; historical full-reference preservation remains **UNVERIFIED**. IDE contents never inspected. Master/canonical equality, **446 changed-document local links / 100 fragments**, **1135 documentation-tree links / 228 fragments**, whitespace and final-newline checks PASS. Detailed results are appended under BF-11-R1 final structural verification in `docs/04_TEST_EVIDENCE.md`; machine-readable evidence is `/tmp/bf11-r1-evidence-y_2m03v4/final-verification.json`.
+
+No required current-run case remains unexecuted; eight unsupported groups remain NOT_RUN. Historical denial is not causally explained, and BF-11 acceptance remains BLOCKED pending independent review. No further browser run, BF-12, staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / BF-11-R1_AUTOMATED_GUI_FIXTURE_ONLY**
+
+STOP for independent ChatGPT review.

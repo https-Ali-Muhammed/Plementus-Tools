@@ -700,3 +700,35 @@ Master/canonical remain byte-identical, SHA-256 `d899c554ed58aefc9e3d61c3c795233
 Both actual browser runs independently retain **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, with 16 GUI-browser, two local-browser and two simulated passes each. Final Node rerun **288 PASS**, exit 0. Harness/current generated JavaScript/extracted Python syntax, source digest correspondence, strict GUI-helper byte equality, **149 executed GUI diagnostic checks** across both runs and independent cleanup passed. `runs-and-cleanup.json` reconciles access counters, source/generated hashes, raw-log digests, both main browser PIDs, 15/14 sampled process IDs and ten refused endpoints. No required blocked case is upgraded by a structural check.
 
 The two temporary source-assembly snippets were removed after use. Safe raw text evidence and audit scripts remain under the reported evidence directory; disposable browser profiles and executable extensions were removed. BF-11 stays **BLOCKED**, production **NO_GO**, and the next step is independent ChatGPT review only.
+
+## BF-11-R1 diagnostic and matrix results — 2026-11-04 (Africa/Cairo)
+
+**Required local matrix observed; historical activeTab denial cause UNRESOLVED. BF-11 acceptance remains BLOCKED pending independent review.** [R1 report, exact eight-path scope, case matrix and provenance](Phases/phase07/PHASE_07_BROWSER_FIRST_THREE_ROLE_FIXTURE_SPIKE.md#bf-11-r1--activetab-reacquisition-diagnosis--2026-11-04-africacairo). Original BF-11 **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, **25 callbacks / 24 confirmations**, and all earlier evidence remain verbatim; these are separate new runs, not rewritten outcomes.
+
+Focused A/B/C/D: **8 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, **8 genuine callbacks / 8 completed confirmations / 27 OS clicks**. Full matrix: **34 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, **37 genuine callbacks / 37 completed confirmations / 114 OS clicks**, **26 automated-GUI + 2 local-browser + 6 SIMULATED passes**. Return recovery, review loss/replay/disconnect, controlled restart/empty new boot, surviving grants without restored bindings, stale/held-result rejection and final three-role recovery actually executed. No discovery denial occurred in either R1 run. No deterministic harness defect or causal fix was established; diagnostics can affect timing. The eight named unsupported lifecycle/integration groups remain NOT_RUN; all four authority flags stay false.
+
+Only the existing BF-11 harness changes (bounded diagnostics and `--diagnostic` comparisons); seven documents receive appended evidence. All three strict GUI helpers remain byte-identical to BF-10-R1; admission/probe/confirmation/recovery/replay semantics, production/BF-07/BF-09/BF-10, permissions, fixtures, dependencies, policies/contracts and master are protected. No new repository path or permission workaround.
+
+Required root/branch/fetch-push origin verified; HEAD/upstream/live remote **`49a01bce73b00dd9422d364bdc439828d7d9881b`**, **0/0 divergence**, index empty, both worktrees preserved. IDE contents excluded; normal refs and Codex refs recorded separately, historical full-reference preservation **UNVERIFIED**, no ref repair. Evidence `/tmp/bf11-r1-evidence-y_2m03v4/`; raw/source/generated digests and reconciliation in the report. Node **288 PASS**, harness/generated JavaScript/Python syntax PASS. Both owned browsers, sampled PIDs, profiles/extensions, listeners/sockets and 10 endpoints cleaned and independently checked; zero unexpected/rejected/forwarded page traffic. Final structural verification is recorded in the evidence ledger.
+
+Progress **5/20 master; 28/72 micro**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. R1 is non-counted. No BF-12, real-site/account operation, BF-07 integration, staging, commit or push. Next action: independent ChatGPT review only.
+
+**READY_FOR_CHATGPT_REVIEW / BF-11-R1_AUTOMATED_GUI_FIXTURE_ONLY**
+
+STOP.
+
+## BF-11-R1 final structural verification
+
+Final checker `python3 /tmp/bf11-r1-evidence-y_2m03v4/verify-final.py`: **PASS**, exit 0. Exactly **8 modified existing paths / 0 new / 0 staged / 0 unexpected permitted changes**. **232 protected tracked-file hashes** and **7 complete published documentation prefixes** preserved. Both protected IDE contents were excluded entirely; the exempt modification remains inventoried by path only.
+
+HEAD/upstream/live remote remain **49a01bce73b00dd9422d364bdc439828d7d9881b**, correct root/branch/fetch-push origin, **0/0** divergence. Raw index and entries, captured HEAD reflog, full current configuration digest, both worktree registrations and sibling status/inventory/index unchanged. **10 normal refs preserved; current Codex ref delta 0 added / 0 removed / 0 replaced**. Historical full-reference and previously unavailable historical config/non-HEAD-reflog preservation remain **UNVERIFIED**; current equality makes no historical repair or writer attribution.
+
+Master/canonical byte equality PASS, SHA-256 **d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91**. Local Markdown audit: **7 changed documents / 446 links / 100 fragments**; complete docs tree **93 files / 1135 links / 228 fragments**; **0 broken links/fragments**. Scoped Git whitespace, trailing whitespace, CR and single-final-newline checks PASS. Generated manifest/review HTML/review JS hashes match the published BF-11 run; runtime source hashes of both R1 runs match final harness bytes. The worker differs only for the documented diagnostics and ephemeral fixture URLs. The diagnostic ring reached its 96-entry bound in the full run and every retained sequence was ordered.
+
+Node raw-log SHA-256 **d99d4cce2ee59a52e0d65222ea1aedd7b31016cbfc57fb8a227d20fd8a6e8595**: 288 PASS, no failures/skips/cancellations/todo. Harness/generated JS/Python syntax and independent event/cleanup reconciliation PASS. All raw browser/source/generated hashes, per-boot counters and sampled process/endpoint results are in `runs-and-cleanup.json`; original BF-11 raw evidence remains unchanged. No further browser attempt or behavioral change after the successful full matrix.
+
+**Required R1 cases observed; historical denial cause UNRESOLVED; BF-11 acceptance BLOCKED pending independent review. Production NO_GO.**
+
+**READY_FOR_CHATGPT_REVIEW / BF-11-R1_AUTOMATED_GUI_FIXTURE_ONLY**
+
+STOP. No staging, commit or push.

@@ -366,3 +366,19 @@ Git identity: branch `feature/sh-project-setup-extension-clean`, fetch/push orig
 Progress stays **5/20 master; 28/72 micro**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. No BF-07 integration, provider-origin mapping, production permission adoption, real-site/account access, business write or BF-12. Next action: independent ChatGPT review of partial evidence and the remaining blocker. No staging, commit or push.
 
 **READY_FOR_CHATGPT_REVIEW / THREE_ROLE_AUTOMATED_GUI_FIXTURE_ONLY. STOP.**
+
+## BF-11-R1 diagnostic and matrix results — 2026-11-04 (Africa/Cairo)
+
+**Required local matrix observed; historical activeTab denial cause UNRESOLVED. BF-11 acceptance remains BLOCKED pending independent review.** [R1 report, exact eight-path scope, case matrix and provenance](Phases/phase07/PHASE_07_BROWSER_FIRST_THREE_ROLE_FIXTURE_SPIKE.md#bf-11-r1--activetab-reacquisition-diagnosis--2026-11-04-africacairo). Original BF-11 **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, **25 callbacks / 24 confirmations**, and all earlier evidence remain verbatim; these are separate new runs, not rewritten outcomes.
+
+Focused A/B/C/D: **8 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, **8 genuine callbacks / 8 completed confirmations / 27 OS clicks**. Full matrix: **34 PASS / 0 FAIL / 0 BLOCKED / 8 NOT_RUN**, **37 genuine callbacks / 37 completed confirmations / 114 OS clicks**, **26 automated-GUI + 2 local-browser + 6 SIMULATED passes**. Return recovery, review loss/replay/disconnect, controlled restart/empty new boot, surviving grants without restored bindings, stale/held-result rejection and final three-role recovery actually executed. No discovery denial occurred in either R1 run. No deterministic harness defect or causal fix was established; diagnostics can affect timing. The eight named unsupported lifecycle/integration groups remain NOT_RUN; all four authority flags stay false.
+
+Only the existing BF-11 harness changes (bounded diagnostics and `--diagnostic` comparisons); seven documents receive appended evidence. All three strict GUI helpers remain byte-identical to BF-10-R1; admission/probe/confirmation/recovery/replay semantics, production/BF-07/BF-09/BF-10, permissions, fixtures, dependencies, policies/contracts and master are protected. No new repository path or permission workaround.
+
+Required root/branch/fetch-push origin verified; HEAD/upstream/live remote **`49a01bce73b00dd9422d364bdc439828d7d9881b`**, **0/0 divergence**, index empty, both worktrees preserved. IDE contents excluded; normal refs and Codex refs recorded separately, historical full-reference preservation **UNVERIFIED**, no ref repair. Evidence `/tmp/bf11-r1-evidence-y_2m03v4/`; raw/source/generated digests and reconciliation in the report. Node **288 PASS**, harness/generated JavaScript/Python syntax PASS. Both owned browsers, sampled PIDs, profiles/extensions, listeners/sockets and 10 endpoints cleaned and independently checked; zero unexpected/rejected/forwarded page traffic. Final structural verification is recorded in the evidence ledger.
+
+Progress **5/20 master; 28/72 micro**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. R1 is non-counted. No BF-12, real-site/account operation, BF-07 integration, staging, commit or push. Next action: independent ChatGPT review only.
+
+**READY_FOR_CHATGPT_REVIEW / BF-11-R1_AUTOMATED_GUI_FIXTURE_ONLY**
+
+STOP.
