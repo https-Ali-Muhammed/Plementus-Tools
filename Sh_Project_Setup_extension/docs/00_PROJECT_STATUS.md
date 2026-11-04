@@ -350,3 +350,19 @@ Progress remains **5/20; 28/72**; Phase 04 BLOCKED; Phase 06 PARTIAL/BLOCKED; Ph
 **READY_FOR_CHATGPT_REVIEW / BF-10-R1_FINAL_VERIFICATION**
 
 STOP.
+
+## BF-11 three-role fixture experiment — 2026-11-04 (Africa/Cairo)
+
+**BLOCKED / LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI; non-counted, independent review required.** [Full report, matrix and retained evidence](Phases/phase07/PHASE_07_BROWSER_FIRST_THREE_ROLE_FIXTURE_SPIKE.md). Owner authorization covers exactly two new/six modified paths; all preceding bodies and BF-07/BF-09/BF-10 evidence remain unchanged.
+
+Both fresh headed runs returned **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, exit 1 each: **16 AUTOMATED_GUI_BROWSER_TESTED + 2 LOCAL_BROWSER_TESTED + 2 SIMULATED** passes. Three distinct explicit fixture roles, readiness only after all three, duplicate-role/tab rejection, each assigned role's reload/global invalidation and cross-origin departure/return were observed. Fresh return recovery stopped when Chrome denied scripting discovery after a genuine toolbar callback. Final state: all three bindings empty, no pending observations, readiness false, all four authority flags false. Cause remains unresolved; no permission override, wider access, synthetic action or personal-click fallback.
+
+Final run: **76 OS clicks / 25 toolbar callbacks / 24 completed capture checks / 24 explicit role choices and confirmations**, with 22 accepted reads and two rejected conflicts. The terminal callback's fixture tab/window matched independently, but discovery failed. Initial run: 73 OS clicks, 24 callbacks, 23 completed confirmations. Later controlled restart, delayed completion, review closure/disconnect and final recovery cases remain **BLOCKED / NOT_RUN**. S1 envelope and S2 replay stimuli stay SIMULATED. Controls were denied at every reached checkpoint; no extrapolation through blocked cases.
+
+Final Node suite **288 PASS**, zero FAIL/SKIP/CANCELLED/TODO; harness/generated JavaScript and extracted Python syntax PASS. Strict BF-10-R1 GUI helpers are byte-identical; all executed pointer/ownership diagnostics passed. Both browser PIDs, sampled owned children, generated roots and ten recorded endpoints were independently absent/closed; tracked sockets/listeners closed. No unexpected/rejected/forwarded page traffic. Evidence: `/tmp/bf11-evidence-wk3zwty0/`.
+
+Git identity: branch `feature/sh-project-setup-extension-clean`, fetch/push origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`, HEAD/upstream/live remote `735a91e6b61c31aefe0ebc2b9adf042b4f2398d8`, 0/0 divergence. Exactly eight authored paths, no staging. Protected IDE contents excluded; historical full-reference preservation remains **UNVERIFIED** and Codex namespace drift is recorded separately, without cause attribution or repair. Detailed final preservation/link/Git counts follow in the evidence ledger.
+
+Progress stays **5/20 master; 28/72 micro**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. No BF-07 integration, provider-origin mapping, production permission adoption, real-site/account access, business write or BF-12. Next action: independent ChatGPT review of partial evidence and the remaining blocker. No staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / THREE_ROLE_AUTOMATED_GUI_FIXTURE_ONLY. STOP.**

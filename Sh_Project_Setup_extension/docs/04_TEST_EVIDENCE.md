@@ -672,3 +672,31 @@ Markdown audit: **7 changed documents / 441 local links / 98 fragment targets**;
 **READY_FOR_CHATGPT_REVIEW / BF-10-R1_FINAL_VERIFICATION**
 
 STOP.
+
+## BF-11 three-role fixture experiment — 2026-11-04 (Africa/Cairo)
+
+**BLOCKED / LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI; non-counted, independent review required.** [Full report, matrix and retained evidence](Phases/phase07/PHASE_07_BROWSER_FIRST_THREE_ROLE_FIXTURE_SPIKE.md). Owner authorization covers exactly two new/six modified paths; all preceding bodies and BF-07/BF-09/BF-10 evidence remain unchanged.
+
+Both fresh headed runs returned **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, exit 1 each: **16 AUTOMATED_GUI_BROWSER_TESTED + 2 LOCAL_BROWSER_TESTED + 2 SIMULATED** passes. Three distinct explicit fixture roles, readiness only after all three, duplicate-role/tab rejection, each assigned role's reload/global invalidation and cross-origin departure/return were observed. Fresh return recovery stopped when Chrome denied scripting discovery after a genuine toolbar callback. Final state: all three bindings empty, no pending observations, readiness false, all four authority flags false. Cause remains unresolved; no permission override, wider access, synthetic action or personal-click fallback.
+
+Final run: **76 OS clicks / 25 toolbar callbacks / 24 completed capture checks / 24 explicit role choices and confirmations**, with 22 accepted reads and two rejected conflicts. The terminal callback's fixture tab/window matched independently, but discovery failed. Initial run: 73 OS clicks, 24 callbacks, 23 completed confirmations. Later controlled restart, delayed completion, review closure/disconnect and final recovery cases remain **BLOCKED / NOT_RUN**. S1 envelope and S2 replay stimuli stay SIMULATED. Controls were denied at every reached checkpoint; no extrapolation through blocked cases.
+
+Final Node suite **288 PASS**, zero FAIL/SKIP/CANCELLED/TODO; harness/generated JavaScript and extracted Python syntax PASS. Strict BF-10-R1 GUI helpers are byte-identical; all executed pointer/ownership diagnostics passed. Both browser PIDs, sampled owned children, generated roots and ten recorded endpoints were independently absent/closed; tracked sockets/listeners closed. No unexpected/rejected/forwarded page traffic. Evidence: `/tmp/bf11-evidence-wk3zwty0/`.
+
+Git identity: branch `feature/sh-project-setup-extension-clean`, fetch/push origin `https://github.com/https-Ali-Muhammed/Plementus-Tools.git`, HEAD/upstream/live remote `735a91e6b61c31aefe0ebc2b9adf042b4f2398d8`, 0/0 divergence. Exactly eight authored paths, no staging. Protected IDE contents excluded; historical full-reference preservation remains **UNVERIFIED** and Codex namespace drift is recorded separately, without cause attribution or repair. Detailed final preservation/link/Git counts follow in the evidence ledger.
+
+Progress stays **5/20 master; 28/72 micro**. Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; production **NO_GO**. No BF-07 integration, provider-origin mapping, production permission adoption, real-site/account access, business write or BF-12. Next action: independent ChatGPT review of partial evidence and the remaining blocker. No staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / THREE_ROLE_AUTOMATED_GUI_FIXTURE_ONLY. STOP.**
+
+### BF-11 final structural verification
+
+Final checker `python3 /tmp/bf11-evidence-wk3zwty0/verify-final.py` exited 0: **2 new + 6 modified = 8 authored paths; 0 staged; 0 unexpected permitted paths**. **232 protected tracked hashes** match the 238-file permitted baseline; six complete incoming documentation bodies remain exact prefixes. BF-07, BF-09, BF-10-R1, production files, dependencies, fixtures, policies/contracts and historical reports remain unchanged. Both IDE contents were excluded; no content-equality claim is made for them.
+
+Required root/branch/fetch-push origin and HEAD/upstream/live remote `735a91e6b61c31aefe0ebc2b9adf042b4f2398d8` verified again, 0/0 divergence. Raw index/entries, captured HEAD reflog, configuration digest and both linked-worktree registrations match. Sibling index and complete tracked/untracked inventory/status unchanged, including the two existing source-document paths. **10 normal refs preserved; current BF-11 Codex capture/checkpoint delta 0 additions / 0 deletions / 0 replacements**. Historical full-reference preservation and historical full configuration/non-HEAD-reflog equality remain **UNVERIFIED**; current equality does not repair those missing historical baselines. No reference mutation or cause attribution.
+
+Master/canonical remain byte-identical, SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91`. Markdown audit: **7 authored documents / 440 local links / 94 fragments**; full documentation tree **93 files / 1129 local links / 222 fragments**; zero broken local links/fragments. Scoped diff whitespace, trailing spaces/tabs, carriage returns and single terminal newlines pass. External links were not comprehensively audited; only the four cited official Chrome references were refreshed.
+
+Both actual browser runs independently retain **20 PASS / 0 FAIL / 14 BLOCKED / 8 NOT_RUN**, with 16 GUI-browser, two local-browser and two simulated passes each. Final Node rerun **288 PASS**, exit 0. Harness/current generated JavaScript/extracted Python syntax, source digest correspondence, strict GUI-helper byte equality, **149 executed GUI diagnostic checks** across both runs and independent cleanup passed. `runs-and-cleanup.json` reconciles access counters, source/generated hashes, raw-log digests, both main browser PIDs, 15/14 sampled process IDs and ten refused endpoints. No required blocked case is upgraded by a structural check.
+
+The two temporary source-assembly snippets were removed after use. Safe raw text evidence and audit scripts remain under the reported evidence directory; disposable browser profiles and executable extensions were removed. BF-11 stays **BLOCKED**, production **NO_GO**, and the next step is independent ChatGPT review only.
