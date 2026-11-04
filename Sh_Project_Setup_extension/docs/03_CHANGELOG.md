@@ -338,3 +338,19 @@ Final harness: **17 PASS / 0 FAIL / 0 BLOCKED / 1 SKIP (out-of-scope NOT_RUN lim
 Progress remains **5/20 master; 28/72 micro**, Phase 04 **BLOCKED**, Phase 06 **PARTIAL/BLOCKED**, Phase 07 **IN_PROGRESS**, Phase 07.03 **NOT_AUTHORIZED**, production **NO_GO**. No BF-10, stage, commit or push. **READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP for independent review.**
 
 BF-09-AUTO verification limitation: scoped preservation/link/whitespace checks PASS; whole-ref hash differs from the older BF-09 scratch baseline, and delta/timing are UNVERIFIED. Required HEAD/upstream/live remote, index, history/reflog and worktrees still match. No refs were repaired or mutated. Retain this limitation for independent review; production remains NO_GO.
+
+## BF-10 autonomous lifecycle verification — 2026-11-04 (Africa/Cairo)
+
+**BLOCKED / LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI; BF-10 is non-counted and not accepted.** [Report, required matrix, diagnostics and cleanup](Phases/phase07/PHASE_07_BROWSER_FIRST_LIFECYCLE_PERMISSION_SPIKE.md). This entry records only the current authorized experiment; all prior documentation and BF evidence remain verbatim historical snapshots.
+
+Final new harness: **31 cases = 4 PASS / 0 FAIL / 19 BLOCKED / 8 SKIP**, exit 1. **3 LOCAL_BROWSER_TESTED passes** establish headed minimal permissions, pre-invocation denial and cleanup; **1 SIMULATED pass** checks malformed result envelopes; **0 AUTOMATED_GUI_BROWSER_TESTED passes**. All three fresh runs stopped at GUI focus/pointer guards before toolbar invocation. Across attempts: one verified Extensions-menu OS click, **zero toolbar/action events, zero review confirmations, zero controlled worker stops**. No guard relaxation or human fallback. Required post-invocation lifecycle/access-loss/stale-document checks remain BLOCKED; false observation flags mean unobserved, not disproved. Controls were DENIED at baseline only.
+
+**288 Node PASS**, zero FAIL/SKIP/CANCELLED/TODO; harness/generated worker/review syntax PASS. Headed Chromium **151.0.7922.34**. Each run: **3 fixture GETs / 0 unexpected / 0 rejected / 0 forwarded**; proxy denials **17 / 18 / 16**. Browser PIDs, generated roots, three listeners per run and sockets cleaned, independently checked. Evidence `/tmp/bf10-evidence-2uwiez8o/` retains all three logs, baseline and verification. No screenshots, real-site/account access, grant override, provider operation or business authority.
+
+Git preflight: required branch/origin; HEAD/upstream/live remote **7bf193506550b501c27de9635c2e9715043eb4ee**; index empty; only exempt IDE path initially modified, content never read/hashed/edited. Exact authored scope: **two new/six modified = eight paths**. BF-09 source/report, BF-07, product, fixtures, dependencies, policies/contracts and prior documentation bodies protected. Normal refs and Codex capture/checkpoint refs inventoried separately; **BF-09 historical full-reference equality/delta/timing remains UNVERIFIED**. No ref repair or Git mutation.
+
+Separately NOT_RUN: optional grants/removal, natural idle, crash/session restoration, BFCache/prerender/native onReplaced, permission prompts, hostile real pages, multi-role integration and continuous navigation monitoring. No application-cleared-state claim is promoted to Chrome permission revocation. All account/execution/approval/continuing-context flags remain false; production **NO_GO**.
+
+Progress **5/20 master phases; 28/72 micro-phases**; Phase 04 **BLOCKED**; Phase 06 **PARTIAL/BLOCKED**; Phase 07 **IN_PROGRESS**; Phase 07.03 **NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**. Next action is independent BF-10 review only; no automatic rerun, BF-11, integration, production permission or business operation. No staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP for independent review.**
