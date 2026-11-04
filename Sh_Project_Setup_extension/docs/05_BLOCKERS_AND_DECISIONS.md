@@ -1,5 +1,23 @@
 # Blockers and decisions
 
+## BF-09 partial observer evidence and blocked retest — 2026-11-04 (Africa/Cairo)
+
+**PARTIAL / BLOCKED; BF-09 is non-counted and not accepted.** The owner explicitly authorized the specified disposable experiment, then reported the corrected fresh run’s personal toolbar step unavailable and requested a stop. No synthetic toolbar click or permission override substituted for it.
+
+[Case matrix, failure and cleanup](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md).
+
+Initial headed run: **11 PASS / 2 FAIL / 4 BLOCKED / 0 SKIP**, including **one genuine invoking-tab action and one personal current-review confirmation**, exact-document read, denied controls and deliberate forged/duplicate rejection. The two FAIL records double-count one fresh-worker observation failure; preserved, not relabeled. A smaller no-invocation diagnostic established Playwright Worker-handle continuity across a real controlled stop/new boot; it does not prove application capture/ownership loss. The corrected fresh run: **4 PASS / 0 FAIL / 13 BLOCKED / 0 SKIP**, **zero action events**, human-action deadline expired, cleanup PASS. Stale-document/reload, delayed-result, superseded-review, full worker-state loss and surviving-access cases remain **NOT RUN / BLOCKED**.
+
+The confirmed harness defect was expecting a new Playwright Worker event after restart; installed 1.62.1 retains the Worker handle. The corrected boot/state assertions have not passed in a full invocation-bearing run. Independent review must assess the partial evidence and any separately authorized rerun; no automatic restart/retry is scheduled.
+
+Temporary extension only: activeTab/scripting, no popup/hosts/tabs/webNavigation/debugger/storage; worker-owned capture and exact packaged-review port/document, one-use confirmation, discovery followed by exact document targeting with no broader fallback. BF-07 remains disconnected; HTTP loopback never becomes HTTPS provider identity. All account, execution, approval and trusted-continuing-context flags stay false. No continuous navigation verdict or real-site security claim.
+
+**OWNER/SECURITY DECISION REQUIRED:** continuous navigation/optional permission breadth and consent; any production permission/UI adoption; actual lifecycle and review loss/race coverage; real origins, accounts, rights and site policies; future per-write approval/result reconciliation and durable uncertainty. Phase 04/SEC-01 cleanup outcome, clock/restart, operator/device/incident and Phase 06 runtime blockers remain unchanged. A new review or surviving Chrome grant clears none of them.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical security decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY. STOP for independent review.** No BF-10, Phase 07.03, observer integration, production permissions, real-site/business operations, staging, commit or push. Earlier entries remain complete historical snapshots, superseded only for this explicitly authorized eight-file experiment.
+
 ## BF-08 trust boundary decisions — 2026-11-03 (Africa/Cairo)
 
 **PROPOSED / DOCUMENTATION_ONLY / OWNER AUTHORIZATION REQUIRED.** [Alternatives and dependency matrix](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md#dependency-and-authorization-matrix).
@@ -200,3 +218,15 @@ Parent Phase 04 remains **IN_PROGRESS**. Durable-state acceptance requires an ow
 SEC-01 CP1–CP4 and the [disconnected gate](Phases/phase04/PHASE_04_SEC01_CLEANUP_GATE_IMPLEMENTATION.md) are ACCEPTED. [CP3](Phases/phase04/PHASE_04_SEC01_CP3.md) directly observed worker stop and reactivation before this gate was implemented. The [new isolated browser test](Phases/phase04/PHASE_04_SEC01_CLEANUP_GATE_BROWSER.md) observed this gate's real IndexedDB cleanup, atomic abort, worker reactivation and full browser restart in a disposable profile. The historical [CP4 review](Phases/phase04/PHASE_04_SEC01_CP4_READINESS_REVIEW.md) and later [Option B amendment](Phases/phase04/PHASE_04_SEC01_RETENTION_AMENDMENT_B.md) retain their distinct scopes. Production next-execution wiring, clock trust, incident routing, device checks, real operator authorization and runtime restrictions remain unresolved.
 
 The owner approved the final combined A+B [operational policy](Phases/phase04/PHASE_04_SEC01_CLOCK_B_MANUAL_RESOLUTION_DECISION.md) and [uncertain-time retention amendment](Phases/phase04/PHASE_04_SEC01_UNCERTAIN_TIME_RETENTION_AMENDMENT.md). They permit outstanding blocked local retention without a guaranteed maximum and require case-specific project-owner approval for destructive disposition; no delegation is approved. The seven-field browser-only architecture cannot prove elapsed time across an unobserved restart. Implementation, security and activation gates remain open.
+
+## BF-09-AUTO autonomous GUI experiment — 2026-11-04 (Africa/Cairo)
+
+Owner-authorized **LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI**, independent acceptance pending. [Appended report, case matrix and diagnostic history](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md#bf-09-auto--autonomous-gui-experiment--2026-11-04-africacairo). All earlier text/results remain verbatim historical records; their personal-click restriction is superseded only for this automated experiment.
+
+Final harness: **17 PASS / 0 FAIL / 0 BLOCKED / 1 SKIP (out-of-scope NOT_RUN limits)**, exit 0. **9 AUTOMATED_GUI_BROWSER_TESTED + 6 SIMULATED + 2 LOCAL_BROWSER_TESTED pre-invocation prerequisites**. PID-scoped X11/AT-SPI geometry and xdotool/XTEST produced **2 observed action.onClicked callbacks on the selected tab**, **2 automated owning-review confirmations**, and **0 human clicks**. Fresh worker boot, surviving access without authority, real reload/stale-document rejection, superseded review and held/released late completion were exercised. All four authority flags remain false. Earlier automated setup failures/blocks are preserved separately in the report and raw logs.
+
+**288 Node PASS**, final harness/generated-script syntax PASS; final browser **4 fixture GETs / 0 unexpected / 0 rejected / 27 proxy denials / 0 forwarded**. Owned context/browser PID, three listeners, sockets, profile/extension roots and diagnostic screenshots cleaned. Only the existing eight BF-09 paths changed; no product/BF-07/security-policy/dependency change. No real-site/account/identity/business-write evidence, continuous lifecycle coverage or production acceptance. Evidence: `/tmp/bf09-auto-evidence-115tagw9/`.
+
+Progress remains **5/20 master; 28/72 micro**, Phase 04 **BLOCKED**, Phase 06 **PARTIAL/BLOCKED**, Phase 07 **IN_PROGRESS**, Phase 07.03 **NOT_AUTHORIZED**, production **NO_GO**. No BF-10, stage, commit or push. **READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP for independent review.**
+
+BF-09-AUTO verification limitation: scoped preservation/link/whitespace checks PASS; whole-ref hash differs from the older BF-09 scratch baseline, and delta/timing are UNVERIFIED. Required HEAD/upstream/live remote, index, history/reflog and worktrees still match. No refs were repaired or mutated. Retain this limitation for independent review; production remains NO_GO.

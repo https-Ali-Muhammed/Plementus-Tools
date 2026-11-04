@@ -1,5 +1,48 @@
 # Test and validation evidence
 
+## BF-09 observer verification — 2026-11-04 (Africa/Cairo)
+
+**PARTIAL / BLOCKED; BF-09 is non-counted and not accepted.** The owner explicitly authorized the specified disposable experiment, then reported the corrected fresh run’s personal toolbar step unavailable and requested a stop. No synthetic toolbar click or permission override substituted for it.
+
+[Full twelve-case matrix and provenance](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md#corrected-fresh-run-and-final-case-matrix); [harness](../test/browser-first-observer-browser.mjs).
+
+Initial headed run: **11 PASS / 2 FAIL / 4 BLOCKED / 0 SKIP**, including **one genuine invoking-tab action and one personal current-review confirmation**, exact-document read, denied controls and deliberate forged/duplicate rejection. The two FAIL records double-count one fresh-worker observation failure; preserved, not relabeled. A smaller no-invocation diagnostic established Playwright Worker-handle continuity across a real controlled stop/new boot; it does not prove application capture/ownership loss. The corrected fresh run: **4 PASS / 0 FAIL / 13 BLOCKED / 0 SKIP**, **zero action events**, human-action deadline expired, cleanup PASS. Stale-document/reload, delayed-result, superseded-review, full worker-state loss and surviving-access cases remain **NOT RUN / BLOCKED**.
+
+Unchanged Node suite: **288 PASS / 0 FAIL / 0 SKIP/CANCELLED/TODO**; new harness syntax PASS. Node v24.19.0 / Playwright 1.62.1 / headed Chromium 151.0.7922.34. Both full runs’ generated scripts passed syntax. First run: 7 LOCAL_BROWSER_TESTED + 4 SIMULATED passes; corrected fresh run: 3 LOCAL_BROWSER_TESTED + 1 SIMULATED pass. Message/envelope stimuli stay SIMULATED; unexercised held-completion code earns no PASS.
+
+| Execution | Actual result / boundary |
+|---|---|
+| Existing `node --test test/*.test.mjs` | 288 PASS, 0 FAIL/SKIP/CANCELLED/TODO; existing tests/dependencies unchanged |
+| New harness `node --check` | PASS, exit 0 after final correction |
+| First headed harness | 11 PASS / 2 FAIL / 4 BLOCKED / 0 SKIP, exit 1; one underlying fresh-worker assertion failure counted twice |
+| Smaller headed worker diagnostic | Exit 0; real stop/new boot, same Worker handle, zero new Worker events; no invocation/capture, no application-state acceptance |
+| Corrected headed harness | 4 PASS / 0 FAIL / 13 BLOCKED / 0 SKIP, exit 1; zero actions, unavailable personal click; owner stop |
+| Both full-run generated worker/review syntax | PASS before Chrome launch |
+| Required stale-document, delayed-result, superseded review, full worker-state loss, retained-access cases | NOT RUN / BLOCKED; no simulated lifecycle PASS |
+
+Both owned contexts, three servers per full run, sockets and generated profiles/extensions were closed/removed; separate root-absence and generic-log checks PASS. Fixture GETs **3 / 3**, unexpected/rejected page requests **0 / 0**, proxy denials **40 / 23**, forwarded **0 / 0**. No screenshots, normal-profile inspection, provider access or arbitrary process killing.
+
+`python3 /tmp/bf09-evidence-gbizawar/verify.py` **PASS, exit 0**. The checker is rerun after these measurements are recorded. Both forbidden IDE files are excluded from all content reads/hash/equality claims. The sole exempt modified IDE path is inventoried separately from the eight authored paths.
+
+| Structural check | Measured result |
+|---|---|
+| Exact authored scope / complete status | **8 paths: 2 new / 6 modified; 0 staged / 0 unexpected**; 9 status entries including the exempt IDE path |
+| Protected tracked bytes against baseline and HEAD | **228 files unchanged**, including BF-05/R1/BF-07/BF-08 history, product, policies and existing fixtures/tests |
+| Prior tracking bodies | **6 complete bodies preserved verbatim** after unchanged original titles |
+| Index/history/worktrees | Raw index, index entries, refs/reflog, history and both linked-worktree records **UNCHANGED** |
+| Git identity / divergence | Required root/branch/origin/HEAD/upstream unchanged, **0/0**; live tip independently rechecked at e8a7021 |
+| Master/canonical equality | Original bytes equal; SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91` |
+| Changed Markdown | **7 files / 416 local links / 74 fragments / 0 broken** |
+| All extension documentation Markdown | **91 files / 1066 local links / 194 fragments / 0 broken**; external links not exhaustively fetched |
+| Whitespace/final newlines | Scoped diff/new-file checks and explicit LF/single-final-newline checks **PASS** |
+| Independent cleanup/privacy checks | Both full-run cleanup flags true; no owned runtime roots remain; generic-log URL/ID-pattern scan **PASS** |
+
+Skills applied: Ponytail full; Superpowers using-superpowers, brainstorming's authorized-spike exception, writing-plans guidance confined to the report, systematic-debugging and verification-before-completion. Tools actually used: shell/Git/Node/Python/apply_patch through functions.exec, installed Playwright/Chromium with owned X11 metadata inspection and external CDP controlled-worker observation, asynchronous operator prompts, and web.run for official Chrome/Playwright documentation. WarpGrep/Valyu were unavailable in the discovered inventory. No subagent, authenticated connector, computer-use mouse control, screenshot or normal browser/profile inspection. No production TDD or security-acceptance claim.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical security decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY. STOP for independent review.** No BF-10, Phase 07.03, observer integration, production permissions, real-site/business operations, staging, commit or push. Earlier entries remain complete historical snapshots, superseded only for this explicitly authorized eight-file experiment.
+
 ## BF-08 documentation verification — 2026-11-03 (Africa/Cairo)
 
 **DOCUMENTATION_ONLY. Node/application/Chrome/provider tests NOT RUN. No simulated test evidence generated.** [BF-08 design](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md) provides proposals, not runtime/security acceptance. Official Chrome sources were read with web.run. The future observer test is NOT AUTHORIZED / NOT RUN.
@@ -524,3 +567,23 @@ Synthetic transactional service tests and limitations are recorded in [CP2](Phas
 ## SEC-01 CP3
 
 **ISOLATED REAL BROWSER:** 10 PASS, 0 FAIL, 0 SKIP, 0 BLOCKED; Node regressions 40 PASS. CDP directly observed the synthetic worker stop and reactivation, with a new in-memory boot identifier and persisted revision. Browser-process restart passed. See [CP3](Phases/phase04/PHASE_04_SEC01_CP3.md) for scope and limitations.
+
+## BF-09-AUTO autonomous GUI experiment — 2026-11-04 (Africa/Cairo)
+
+Owner-authorized **LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI**, independent acceptance pending. [Appended report, case matrix and diagnostic history](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md#bf-09-auto--autonomous-gui-experiment--2026-11-04-africacairo). All earlier text/results remain verbatim historical records; their personal-click restriction is superseded only for this automated experiment.
+
+Final harness: **17 PASS / 0 FAIL / 0 BLOCKED / 1 SKIP (out-of-scope NOT_RUN limits)**, exit 0. **9 AUTOMATED_GUI_BROWSER_TESTED + 6 SIMULATED + 2 LOCAL_BROWSER_TESTED pre-invocation prerequisites**. PID-scoped X11/AT-SPI geometry and xdotool/XTEST produced **2 observed action.onClicked callbacks on the selected tab**, **2 automated owning-review confirmations**, and **0 human clicks**. Fresh worker boot, surviving access without authority, real reload/stale-document rejection, superseded review and held/released late completion were exercised. All four authority flags remain false. Earlier automated setup failures/blocks are preserved separately in the report and raw logs.
+
+**288 Node PASS**, final harness/generated-script syntax PASS; final browser **4 fixture GETs / 0 unexpected / 0 rejected / 27 proxy denials / 0 forwarded**. Owned context/browser PID, three listeners, sockets, profile/extension roots and diagnostic screenshots cleaned. Only the existing eight BF-09 paths changed; no product/BF-07/security-policy/dependency change. No real-site/account/identity/business-write evidence, continuous lifecycle coverage or production acceptance. Evidence: `/tmp/bf09-auto-evidence-115tagw9/`.
+
+Progress remains **5/20 master; 28/72 micro**, Phase 04 **BLOCKED**, Phase 06 **PARTIAL/BLOCKED**, Phase 07 **IN_PROGRESS**, Phase 07.03 **NOT_AUTHORIZED**, production **NO_GO**. No BF-10, stage, commit or push. **READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP for independent review.**
+
+### BF-09-AUTO structural verification and metadata limitation
+
+Checker: `python3 /tmp/bf09-auto-evidence-115tagw9/verify.py`, exit 0 for scoped checks with the full-refs exception explicitly reported. **8 authored paths (the same 2 untracked + 6 modified), 0 staged / 0 unexpected**, plus the untouched IDE path. **228 protected tracked files** equal historical baseline and HEAD; current-turn protected-file hashes also match. **All 7 incoming Markdown files are byte-identical prefixes**, including every BF-09 historical failure/block and correction. Disposable observer body is byte-identical; Playwright Worker-handle correction preserved. Master/canonical remain equal with SHA-256 `d899c554ed58aefc9e3d61c3c795233429ce729b7bae451e88b95db338a3ac91`.
+
+Changed Markdown: **7 files / 422 local links / 80 fragments / 0 broken**. All documentation: **91 files / 1072 links / 200 fragments / 0 broken**. Whitespace, LF and single final newline checks PASS. Final Node rerun from the extension directory: **288 PASS**, zero FAIL/SKIP/CANCELLED/TODO, exit 0 (`node-final-extension.txt`). An intermediate invocation from the repository root discovered **0 tests** (`node-final.txt`); it provides no suite evidence. Harness `node --check`, generated worker/review syntax and extracted Python GUI-helper compilation PASS.
+
+Git verification is **PARTIAL for all-reference preservation**: raw index, index entries, history, reflog and worktree hashes match the earlier BF-09 baseline; HEAD/upstream/live remote remain the required `e8a70219104e850db2b0f8c63f35776a3b737730`, divergence 0/0, origins unchanged. However, the whole `git show-ref` hash differs from `/tmp/bf09-evidence-gbizawar/baseline.json`. That older scratch file contains only the digest, not the previous reference listing. This turn did not capture an initial full-ref listing, so the changed reference and its timing cannot be established. Current refs include Codex internal capture/checkpoint refs, but this alone does not prove the cause. No ref was reset or changed to hide the discrepancy; **full-ref byte preservation is UNVERIFIED**, not PASS. No Git mutation command was executed. Independent review must retain this limitation.
+
+`final-checks.json` independently confirms **0 remaining `/tmp/bf09-observer-*` roots / 0 retained PNG or XWD captures**, final-log privacy checks and all false authority flags. Each browser run asserted owned browser-PID disappearance, three closed server listeners, zero tracked sockets and owned-root deletion. No independent OS-wide egress/process certification. The checker was rerun after recording these measurements.

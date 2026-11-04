@@ -1,5 +1,21 @@
 # Project changelog
 
+## 2026-11-04: BF-09 disposable Chrome observer; partial evidence, blocked completion
+
+Created only [standalone harness](../test/browser-first-observer-browser.mjs) and [report](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md); inserted records into Phase 07, status, this changelog, evidence, blockers and handoff: **eight authored paths, two new/six modified**. No existing source/manifest/worker/popup/BF-07/fixture/dependency/contract/policy edit.
+
+**PARTIAL / BLOCKED; BF-09 is non-counted and not accepted.** The owner explicitly authorized the specified disposable experiment, then reported the corrected fresh run’s personal toolbar step unavailable and requested a stop. No synthetic toolbar click or permission override substituted for it.
+
+Initial headed run: **11 PASS / 2 FAIL / 4 BLOCKED / 0 SKIP**, including **one genuine invoking-tab action and one personal current-review confirmation**, exact-document read, denied controls and deliberate forged/duplicate rejection. The two FAIL records double-count one fresh-worker observation failure; preserved, not relabeled. A smaller no-invocation diagnostic established Playwright Worker-handle continuity across a real controlled stop/new boot; it does not prove application capture/ownership loss. The corrected fresh run: **4 PASS / 0 FAIL / 13 BLOCKED / 0 SKIP**, **zero action events**, human-action deadline expired, cleanup PASS. Stale-document/reload, delayed-result, superseded-review, full worker-state loss and surviving-access cases remain **NOT RUN / BLOCKED**.
+
+Unchanged Node suite: **288 PASS / 0 FAIL / 0 SKIP/CANCELLED/TODO**; new harness syntax PASS. Node v24.19.0 / Playwright 1.62.1 / headed Chromium 151.0.7922.34. Both full runs’ generated scripts passed syntax. First run: 7 LOCAL_BROWSER_TESTED + 4 SIMULATED passes; corrected fresh run: 3 LOCAL_BROWSER_TESTED + 1 SIMULATED pass. Message/envelope stimuli stay SIMULATED; unexercised held-completion code earns no PASS.
+
+Both owned contexts, three servers per full run, sockets and generated profiles/extensions were closed/removed; separate root-absence and generic-log checks PASS. Fixture GETs **3 / 3**, unexpected/rejected page requests **0 / 0**, proxy denials **40 / 23**, forwarded **0 / 0**. No screenshots, normal-profile inspection, provider access or arbitrary process killing.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical security decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / LOCAL_FIXTURE_BROWSER_ONLY. STOP for independent review.** No BF-10, Phase 07.03, observer integration, production permissions, real-site/business operations, staging, commit or push. Earlier entries remain complete historical snapshots, superseded only for this explicitly authorized eight-file experiment.
+
 ## 2026-11-03: BF-08 Chrome-to-state-machine trust boundary design
 
 Created only [BF-08](Phases/phase07/PHASE_07_BROWSER_FIRST_TRUST_BOUNDARY_DESIGN.md); inserted current records into the Phase 07 parent, status, this changelog, evidence, blockers and handoff. Exactly **seven documentation paths: one new, six modified**; all earlier bodies/report/results retained verbatim. **PROPOSED / OWNER AUTHORIZATION REQUIRED.**
@@ -310,3 +326,15 @@ Verified owner-published browser-cleanup commit `90d369d4917b30c4d5d55b3485200b7
 ## 2026-10-29: 05.03, ready for review
 
 Reconciled owner acceptance of 05.02 to 4/20 master and 20/72 accepted micro-phases. Added invented customer Odoo Apps and Plementus Database INFO fixture pages and structural tests. Node 69 PASS; local Chromium 22 PASS. No provider or extension runtime integration. See [05.03 report](Phases/phase05/PHASE_05_03.md).
+
+## BF-09-AUTO autonomous GUI experiment — 2026-11-04 (Africa/Cairo)
+
+Owner-authorized **LOCAL_FIXTURE_BROWSER_ONLY / AUTOMATED_GUI**, independent acceptance pending. [Appended report, case matrix and diagnostic history](Phases/phase07/PHASE_07_BROWSER_FIRST_OBSERVER_SPIKE.md#bf-09-auto--autonomous-gui-experiment--2026-11-04-africacairo). All earlier text/results remain verbatim historical records; their personal-click restriction is superseded only for this automated experiment.
+
+Final harness: **17 PASS / 0 FAIL / 0 BLOCKED / 1 SKIP (out-of-scope NOT_RUN limits)**, exit 0. **9 AUTOMATED_GUI_BROWSER_TESTED + 6 SIMULATED + 2 LOCAL_BROWSER_TESTED pre-invocation prerequisites**. PID-scoped X11/AT-SPI geometry and xdotool/XTEST produced **2 observed action.onClicked callbacks on the selected tab**, **2 automated owning-review confirmations**, and **0 human clicks**. Fresh worker boot, surviving access without authority, real reload/stale-document rejection, superseded review and held/released late completion were exercised. All four authority flags remain false. Earlier automated setup failures/blocks are preserved separately in the report and raw logs.
+
+**288 Node PASS**, final harness/generated-script syntax PASS; final browser **4 fixture GETs / 0 unexpected / 0 rejected / 27 proxy denials / 0 forwarded**. Owned context/browser PID, three listeners, sockets, profile/extension roots and diagnostic screenshots cleaned. Only the existing eight BF-09 paths changed; no product/BF-07/security-policy/dependency change. No real-site/account/identity/business-write evidence, continuous lifecycle coverage or production acceptance. Evidence: `/tmp/bf09-auto-evidence-115tagw9/`.
+
+Progress remains **5/20 master; 28/72 micro**, Phase 04 **BLOCKED**, Phase 06 **PARTIAL/BLOCKED**, Phase 07 **IN_PROGRESS**, Phase 07.03 **NOT_AUTHORIZED**, production **NO_GO**. No BF-10, stage, commit or push. **READY_FOR_CHATGPT_REVIEW / AUTOMATED_GUI_BROWSER_ONLY. STOP for independent review.**
+
+BF-09-AUTO verification limitation: scoped preservation/link/whitespace checks PASS; whole-ref hash differs from the older BF-09 scratch baseline, and delta/timing are UNVERIFIED. Required HEAD/upstream/live remote, index, history/reflog and worktrees still match. No refs were repaired or mutated. Retain this limitation for independent review; production remains NO_GO.
