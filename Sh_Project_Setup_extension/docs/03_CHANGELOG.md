@@ -475,3 +475,14 @@ Earlier verified Node v24.19.0 syntax checks PASS; focused **281 PASS / 0 FAIL /
 Official Phase 07.03 is **COMPLETE / ACCEPTED — MOCK_ONLY**. Official micro-phase progress is **29/72**, with **43 remaining**; master-phase progress is **5/20**, unchanged. Phase 07 parent remains **IN_PROGRESS / NOT ACCEPTED**; Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; production **NO_GO**.
 
 D-04/B-02/B-03, historical security decisions and BF-11 limitations are preserved. No staging, commit, push, R2, Phase 08 or production action. Next: ChatGPT document review, then owner publication.
+
+
+## Phase 08.01 — offline permission reader review record
+
+2026-11-09 (Africa/Cairo). **08.01 READY_FOR_CHATGPT_REVIEW / SIMULATED / FIXTURE_ONLY; not ACCEPTED.** Owner-authorized narrow offline sequencing exception; no real GitHub access or Phase 07 authority adoption. Official progress remains **29/72** pending ChatGPT review, owner acceptance and publication; only then may it advance to 30/72, leaving 42.
+
+D-04/B-02/B-03 stay OPEN; all twelve historical security decisions stay PENDING. Phase 04 BLOCKED / POSTPONED; Phase 06 PARTIAL / BLOCKED; Phase 07 parent IN_PROGRESS / NOT ACCEPTED; Phase 07.03 COMPLETE / ACCEPTED — MOCK_ONLY; production NO_GO. No 08.02, real provider/browser work, staging, commit or push.
+
+Added `src/github/permission-reader.mjs`, `test/github-permission-reader.test.mjs`, `docs/Phases/phase08/PHASE_08.md` and `docs/Phases/phase08/PHASE_08_01.md`. Six existing reporting files receive append-only records. Primitive canonical JSON fixtures, explicit independent organization/repository assessments, fixed redacted reasons, frozen bounded results and four false authority flags; no dependencies or product callers.
+
+[Exact API, matrix, commands, limitations and scope](Phases/phase08/PHASE_08_01.md).

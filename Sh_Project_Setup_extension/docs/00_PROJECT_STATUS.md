@@ -434,3 +434,14 @@ Official Phase 07.03 is **COMPLETE / ACCEPTED — MOCK_ONLY**. Official micro-ph
 The owner explicitly accepted [Phase 07.03's revised disconnected mock-only scope](Phases/phase07/PHASE_07_03.md), implementation `964b0726e8c5a352cb3a425cefd7e204dec8c7f4`, based on the published R1 contract, one-time owner risk acceptance, implementation/test evidence and owner-reported ChatGPT review. Earlier status entries remain historical and byte-preserved. No independent human security concurrence or real-browser certification is claimed.
 
 Earlier verified Node v24.19.0 results: syntax checks PASS; focused **281 PASS / 0 FAIL / 0 SKIP**; full **569 PASS / 0 FAIL / 0 SKIP**. Evidence remains SIMULATED with all four authority flags false. No Chrome/account/provider/permission/product integration or production authorization follows. D-04/B-02/B-03 and all unrelated blockers remain OPEN/unresolved as previously recorded. Real-browser/R2/integration approval is separate. Next: ChatGPT verifies documents, then owner commits and pushes; no Phase 08 or new micro-phase automatically.
+
+
+## Phase 08.01 — offline permission reader review record
+
+2026-11-09 (Africa/Cairo). **08.01 READY_FOR_CHATGPT_REVIEW / SIMULATED / FIXTURE_ONLY; not ACCEPTED.** Owner-authorized narrow offline sequencing exception; no real GitHub access or Phase 07 authority adoption. Official progress remains **29/72** pending ChatGPT review, owner acceptance and publication; only then may it advance to 30/72, leaving 42.
+
+D-04/B-02/B-03 stay OPEN; all twelve historical security decisions stay PENDING. Phase 04 BLOCKED / POSTPONED; Phase 06 PARTIAL / BLOCKED; Phase 07 parent IN_PROGRESS / NOT ACCEPTED; Phase 07.03 COMPLETE / ACCEPTED — MOCK_ONLY; production NO_GO. No 08.02, real provider/browser work, staging, commit or push.
+
+Created an isolated fixture permission reader, deterministic tests and Phase 08 reports. The v1 adapter contract/provider list and all existing source/tests are unchanged. Syntax checks passed; focused **79 PASS / 0 FAIL / 0 SKIP**; full **648 PASS / 0 FAIL / 0 SKIP**, Node v24.19.0.
+
+[Exact API, matrix, commands, limitations and scope](Phases/phase08/PHASE_08_01.md).

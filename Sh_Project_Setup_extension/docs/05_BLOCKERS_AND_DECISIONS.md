@@ -368,3 +368,14 @@ This current decision supersedes historical 07.03 pending/not-authorized status 
 Official Phase 07.03 is **COMPLETE / ACCEPTED — MOCK_ONLY**. Official micro-phase progress is **29/72**, with **43 remaining**; master-phase progress is **5/20**, unchanged. Phase 07 parent remains **IN_PROGRESS / NOT ACCEPTED**; Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; production **NO_GO**.
 
 Earlier verified focused/full results are **281/569 PASS**, each **0 FAIL / 0 SKIP**. Next: ChatGPT verifies the acceptance documents, then owner commits/pushes; further work requires its own authorization.
+
+
+## Phase 08.01 — offline permission reader review record
+
+2026-11-09 (Africa/Cairo). **08.01 READY_FOR_CHATGPT_REVIEW / SIMULATED / FIXTURE_ONLY; not ACCEPTED.** Owner-authorized narrow offline sequencing exception; no real GitHub access or Phase 07 authority adoption. Official progress remains **29/72** pending ChatGPT review, owner acceptance and publication; only then may it advance to 30/72, leaving 42.
+
+D-04/B-02/B-03 stay OPEN; all twelve historical security decisions stay PENDING. Phase 04 BLOCKED / POSTPONED; Phase 06 PARTIAL / BLOCKED; Phase 07 parent IN_PROGRESS / NOT ACCEPTED; Phase 07.03 COMPLETE / ACCEPTED — MOCK_ONLY; production NO_GO. No 08.02, real provider/browser work, staging, commit or push.
+
+Record the owner-supplied 08.01 offline sequencing exception only. It does not resolve authentication/security decisions, accept Phase 07 parent, extend v1, authorize provider reads or convert mock admission to account rights. All output remains SIMULATED with accountVerified/executionAuthorized/approvalGranted/trustedContinuingContext false and a non-authorizing manual next step. The API is deliberately canonical fixture JSON, not a live provider contract. No new security-policy decision is invented.
+
+[Exact API, matrix, commands, limitations and scope](Phases/phase08/PHASE_08_01.md).
