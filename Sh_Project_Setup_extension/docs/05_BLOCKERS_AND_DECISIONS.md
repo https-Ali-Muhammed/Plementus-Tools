@@ -358,3 +358,13 @@ Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04
 Historical decision 01 remains PENDING despite this candidate selection; all twelve original rows are carried individually. BF-11 denial UNRESOLVED; eight groups NOT_RUN. SEC-01 cleanup/clock/restart/HELD_UNCERTAIN and owner/device/incident controls, Phase 06 runtime approval/reconciliation/durable duplicate prevention remain blocked. Historical full-reference uncertainty remains UNVERIFIED. Next: review/decisions only; no implementation or Git publication.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**
+
+## Official 07.03 owner acceptance decision — 2026-11-09 (Africa/Cairo)
+
+**Decision: ACCEPTED — disconnected mock-only scope.** The project owner explicitly accepts official [Phase 07.03](Phases/phase07/PHASE_07_03.md) at implementation `964b0726e8c5a352cb3a425cefd7e204dec8c7f4`. The [published R1 contract](Phases/phase07/PHASE_07_03_R1_CONTRACT_FREEZE.md), [one-time R1 owner risk acceptance](Phases/phase07/PHASE_07_03_R1_OWNER_RISK_ACCEPTANCE.md), completed implementation, earlier verified test evidence and owner-reported ChatGPT review form the acceptance basis. Independent human security concurrence was not obtained; the exception cannot be reused for real-browser/R2/integration or production work.
+
+This current decision supersedes historical 07.03 pending/not-authorized status only for accepted mock delivery. It does not rewrite the twelve historical security decisions or close D-04/B-02/B-03. SEC-01 cleanup/clock/restart/HELD_UNCERTAIN and Phase 06 runtime approval/reconciliation/durable duplicate-prevention blockers remain. Original BF-11 denial remains UNRESOLVED and all eight unsupported groups remain NOT_RUN. No actual Chrome/account/provider/permission/product integration or production authorization follows.
+
+Official Phase 07.03 is **COMPLETE / ACCEPTED — MOCK_ONLY**. Official micro-phase progress is **29/72**, with **43 remaining**; master-phase progress is **5/20**, unchanged. Phase 07 parent remains **IN_PROGRESS / NOT ACCEPTED**; Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; production **NO_GO**.
+
+Earlier verified focused/full results are **281/569 PASS**, each **0 FAIL / 0 SKIP**. Next: ChatGPT verifies the acceptance documents, then owner commits/pushes; further work requires its own authorization.
