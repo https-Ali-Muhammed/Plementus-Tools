@@ -1020,3 +1020,101 @@ Exact before/after reference metadata; provenance **UNKNOWN** for `refs/codex/`:
 No live remote verification, browser/provider acceptance, staging, commit or push was performed. All retained security/phase gates remain unchanged; the verdict is READY_FOR_CHATGPT_REVIEW only.
 
 Final link audit: **498 local Markdown link targets across all eight reporting files exist**, including historical bodies; **21 authored local links** pass. Final preservation recheck confirms the same exact ten paths, six prefixes, 242/213 unchanged non-IDE files, unchanged indexes/worktrees/refs and no Codex-reference deltas. No additional source/test changes followed the 79/648 passing runs.
+
+
+## Phase 08.02 — current offline discovery record
+
+2026-11-09 (Africa/Cairo). **08.01 ACCEPTED / PUBLISHED — FIXTURE_ONLY**, owner-supplied ChatGPT review and owner acceptance, at `343a4c8025645cf86f33ebdb95f84759e5a4dec8`; local HEAD/upstream verified at that SHA. This dated current record reconciles earlier pending 08.01 text prospectively; the historical report and implementation remain verbatim. Supplied live remote verification was not repeated, and no network command was run.
+
+**08.02 READY_FOR_CHATGPT_REVIEW / SIMULATED / FIXTURE_ONLY; not ACCEPTED.** Owner authorized only the narrow offline sequencing exception. Official progress stays **30/72**, 42 remaining, during review. Only ChatGPT review, owner acceptance and publication may advance it to **31/72**, 41 remaining.
+
+Phase 04 BLOCKED / POSTPONED; Phase 06 PARTIAL / BLOCKED / NOT ACCEPTED; Phase 07 parent IN_PROGRESS / NOT ACCEPTED; Phase 07.03 ACCEPTED — MOCK_ONLY; Phase 08 parent IN_PROGRESS / NOT ACCEPTED. D-04/B-02/B-03 stay OPEN; twelve historical security decisions stay PENDING; production NO_GO. No 08.03, real provider/browser access, branch mutation, business write, staging, commit or push.
+
+Fresh Node v24.19.0: RED 0 PASS / 97 FAIL / 0 SKIP against the empty export (exit 1); focused GREEN 97 PASS / 0 FAIL / 0 SKIP / 0 cancelled (exit 0); full 745 PASS / 0 FAIL / 0 SKIP / 0 cancelled (exit 0); both authorized syntax checks exit 0. Full includes the unchanged 08.01 79-test suite. Logs and before/after preservation metadata are external at `/tmp/phase0802-dwx3lh78/`. Separate read-only source/test review found no actionable findings; it performed no test execution and does not provide ChatGPT/owner acceptance.
+
+[Exact contract, fixture matrix, commands and next gates](Phases/phase08/PHASE_08_02.md).
+
+### Phase 08.02 measured preservation evidence
+
+Local audit verifies exactly **3 created + 6 append-only files**, six byte-identical historical prefixes, **246 unchanged existing non-IDE files** in the task worktree outside append targets, and **213 unchanged non-IDE files** in the sibling, including its two historical untracked source documents. No existing source/test, 08.01 report, Phase 07 record, master plan or security-policy change occurred.
+
+Task entry status was only ` M .idea/plemo-chats.xml`; it remains the sole unrelated dirty tracked file. Sibling status remains the two untracked files `Sh_Project_Setup_extension/docs/_source/ODOO_SH_PROJECT_SETUP_MASTER_PLAN.md` and `Sh_Project_Setup_extension/docs/_source/ODOO_SH_PROJECT_SETUP_NEXT_CHAT_HANDOFF.md`. The sibling remains on `feature/sh-project-setup-extension` at `390c9ea7c311f362ea04aad64ed14569161642ec`; the task remains on `feature/sh-project-setup-extension-clean` at `343a4c8025645cf86f33ebdb95f84759e5a4dec8`. Both original worktree registrations are unchanged. Origin/upstream configuration and fetch refspec match the entry snapshot.
+
+Both indexes are byte-identical and contain no staged changes. All normal refs and all observed `refs/codex/` names/targets are unchanged. There were no additions, removals or retargets; the allowed new-target exception was checked but not exercised. Codex-ref provenance remains **UNKNOWN**; no investigation or repair occurred. Exact reference metadata is below.
+
+Both protected IDE paths in both worktrees were statted at entry and final verification; metadata matches. No protected file content was read, hashed, diffed, restored, staged or modified. Metadata equality is not a content-equality claim. Tuple format: `(mode, size, mtime_ns, inode)`; these are filesystem metadata, not provenance evidence.
+
+| Worktree / protected path | Before tuple | After tuple |
+|---|---|---|
+| `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/.idea/plemo-chats.xml` | `[33204, 264415, 1793794560426774379, 10367456]` | `[33204, 264415, 1793794560426774379, 10367456]` |
+| `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean/.idea/workspace.xml` | `[33204, 3103, 1794236683897968349, 10364938]` | `[33204, 3103, 1794236683897968349, 10364938]` |
+| `/home/https_ali_muhammed/Plementus/Tools/.idea/plemo-chats.xml` | `[33204, 410, 1788442642214504359, 9476676]` | `[33204, 410, 1788442642214504359, 9476676]` |
+| `/home/https_ali_muhammed/Plementus/Tools/.idea/workspace.xml` | `[33204, 28891, 1788445600458932728, 9476896]` | `[33204, 28891, 1788445600458932728, 9476896]` |
+
+| Worktree index | Before SHA-256 | After SHA-256 |
+|---|---|---|
+| `/home/https_ali_muhammed/Plementus/Tools-sh-project-setup-extension-clean` | `00bbaa569e5277b6ca9d022b59e0221af8fa7ea0ae9e892f85f9778d626c7539` | `00bbaa569e5277b6ca9d022b59e0221af8fa7ea0ae9e892f85f9778d626c7539` |
+| `/home/https_ali_muhammed/Plementus/Tools` | `97d6cfaa9e3a713c1e1d5e5579b62f43a7c03d8699f0738db7fbba0f5a2bf1cd` | `97d6cfaa9e3a713c1e1d5e5579b62f43a7c03d8699f0738db7fbba0f5a2bf1cd` |
+
+Historical document prefix fingerprints:
+
+| File | Original bytes | SHA-256 |
+|---|---:|---|
+| `docs/00_PROJECT_STATUS.md` | 78839 | `acb2da77e37883fa4cd80176a0d28cc7334bbae6a072da959b490924dff32aca` |
+| `docs/03_CHANGELOG.md` | 84114 | `1c87254a0cda603b655ebda0d398e41106432eeb9c18b99279cfa9550e562278` |
+| `docs/04_TEST_EVIDENCE.md` | 179459 | `b6273f6275d87ece390967f79d733e8fb6fad2cc914c808835a3b762fa3726ac` |
+| `docs/05_BLOCKERS_AND_DECISIONS.md` | 71919 | `3b2bf792dab9adbb367a3f21aab9ec623b4e65394c26926cff97fa3115a83b38` |
+| `docs/06_HANDOFF.md` | 94168 | `ee5516f96f1e6b9e9d57a3ebb1b75d15a7ce210c96e4359c60d444d95b4d9cd7` |
+| `docs/Phases/phase08/PHASE_08.md` | 949 | `dfeabe4106d78923f3096bad41117185971b3abaedaae9806b63e6ab032d0abf` |
+
+Explicit 08.01 preservation (before and after hashes equal):
+
+| Protected file | Before/after SHA-256 |
+|---|---|
+| `src/github/permission-reader.mjs` | `1006d9dd08ab7a335f544e45d906b80b992d5016b7e5eb0275d0e7dacbce4de0` |
+| `test/github-permission-reader.test.mjs` | `a0eb6267cd91ef9464dd765bc861c41ba7b386d54ec59998ebe997cda199f739` |
+| `docs/Phases/phase08/PHASE_08_01.md` | `4cbe0255b20f8245c962eac68ba171624c057185bfd236aad05c066b19cdef50` |
+
+Exact reference snapshots (Codex provenance UNKNOWN):
+
+| Reference | Before target | After target |
+|---|---|---|
+| `refs/codex/turn-diffs/captures/1794237234404/d734674c-69ca-4e67-b4e3-ff8b49098bce/base` | `4bae0c43a81f63ba90dd39ce14188cd8f1fbdbde` | `4bae0c43a81f63ba90dd39ce14188cd8f1fbdbde` |
+| `refs/codex/turn-diffs/checkpoints/02497a3104d685188248499396b451b0/313e6bb942c4d412a2484e2aeb33b072/1793716659706/7d3b422c-bbcb-4c69-9cad-779549818644` | `5ba7e7524d756a0161671839b616373489929828` | `5ba7e7524d756a0161671839b616373489929828` |
+| `refs/codex/turn-diffs/checkpoints/1085c0eff3bea9aae39de3cb008e5adc/2e286bd42ac06bc37265b218df779e47/1793639267137/1735892e-0c83-4221-be4d-28e08ed4132c` | `72af68679c0abfd9e37d1d24bd038682df219a4f` | `72af68679c0abfd9e37d1d24bd038682df219a4f` |
+| `refs/codex/turn-diffs/checkpoints/10984f188b632750c4d9da8e748700dc/a14570ef0b1a7d96b1f55ea3538197db/1793798883796/c82cf8f4-e81d-4653-8275-c00bca4f4fee` | `9a82831f23e96492bbccfceba5d2075add5840c0` | `9a82831f23e96492bbccfceba5d2075add5840c0` |
+| `refs/codex/turn-diffs/checkpoints/1d11d59f90f8b3b8b9309306db2fb172/265cb9fcb6d899b6047677e5e265b6b0/1794226462635/dd030946-f6de-49a0-804c-414237de2f99` | `3206feac55e98a70bd6d7f6c8ccd0cf119078ed0` | `3206feac55e98a70bd6d7f6c8ccd0cf119078ed0` |
+| `refs/codex/turn-diffs/checkpoints/30adfb081cc0f8442effd000e3a7c8f1/b422b9d720cb7cc615c4ad51a860e394/1793703407265/981979fc-790f-40b5-b50d-19a4ef687ff6` | `711fe59872a5b375142b5f70ffebae1f2f3a0452` | `711fe59872a5b375142b5f70ffebae1f2f3a0452` |
+| `refs/codex/turn-diffs/checkpoints/3855a0cdf317e48f1999b2fd9f1d3ab4/23908c891c0bca2e9e9564ffc2efee3f/1793794872549/655f1eca-45c2-423b-adbd-b1ab8e24f89f` | `514ac3811995542fc5a00c78b40f647774a272b2` | `514ac3811995542fc5a00c78b40f647774a272b2` |
+| `refs/codex/turn-diffs/checkpoints/52744a78a8620b97604415cdef9bd9ab/47e9bc83e7c429f4c2805c71ab882e5a/1793698415841/610624fa-dbd6-42e2-a0c3-6249a4674e27` | `704150cc547d774c9a04afe6871dfe73c94c581a` | `704150cc547d774c9a04afe6871dfe73c94c581a` |
+| `refs/codex/turn-diffs/checkpoints/52a11fcd03a78db9de2d803800ea7968/9be5e727181dca9f80cfb9e4c70ead5f/1793718695597/3b221b35-479b-43a2-8378-7f8d871f1f32` | `29691c59a7fb90fe27d578ee076b4fc35020efe9` | `29691c59a7fb90fe27d578ee076b4fc35020efe9` |
+| `refs/codex/turn-diffs/checkpoints/576ddbc21d886ae774d755a8443f6086/e51e5d1ffcc9fd818460b5e9568ea36e/1793791846148/b50312ae-9609-4a88-84c7-d8ba382a2c8f` | `fdb2ba9c13a1ea11d1e1a8df827190556a0c3c6f` | `fdb2ba9c13a1ea11d1e1a8df827190556a0c3c6f` |
+| `refs/codex/turn-diffs/checkpoints/5dfdff8b392863a1ca728c7aef0af495/dc453811755cb5af91b26e26fd3cfdbd/1793789493503/09e2a064-9617-43ec-957c-b785b495200e` | `9785e24c90bf245b807fdb36624900289b1d5ad2` | `9785e24c90bf245b807fdb36624900289b1d5ad2` |
+| `refs/codex/turn-diffs/checkpoints/635917ce3c198521bd0f147194cca762/836f4de737668e3fbcdc8d6d3ae13897/1793787525214/864b73fa-fb6c-4854-b928-7e6916b6715c` | `d3e4bbe393b6d83af9489d360e110a5eeb727a16` | `d3e4bbe393b6d83af9489d360e110a5eeb727a16` |
+| `refs/codex/turn-diffs/checkpoints/6c9008063b53c4b7b7256a51b5c6c7ae/e782a1643830c415e42aea54c3e0645a/1793706042252/2bb8e204-bdf7-470a-8776-7a864013fd63` | `79c8c3b7b8ab138741253930d155e19accdc341d` | `79c8c3b7b8ab138741253930d155e19accdc341d` |
+| `refs/codex/turn-diffs/checkpoints/7777d84ca70896d1e093ba989ee0e573/bf190106482f411d19e6e4c72b8ab86d/1793701825016/2805014a-fe4c-4a01-89a7-1182fe73084a` | `85d9a7903d4db2c4c6faf5442021d6a4e64ece8a` | `85d9a7903d4db2c4c6faf5442021d6a4e64ece8a` |
+| `refs/codex/turn-diffs/checkpoints/81e0c000a03f6e2cf333ac2f47c90f5f/25d6b3c2f9170cdd480b0fb9379b9cdb/1793636293901/a160b581-62d7-4f2b-9394-9b11f78d5fc0` | `2de44077e107f3db539ea2033b5749e363d6c7ef` | `2de44077e107f3db539ea2033b5749e363d6c7ef` |
+| `refs/codex/turn-diffs/checkpoints/8574e71a028eb399b6d7f6360b5273f9/fd16d02c139c929601adc1346e36089a/1793719920334/2bbf1467-53de-46db-907a-7141a207f048` | `f94f58d3adf255a221e5f52038ac5c329fd48626` | `f94f58d3adf255a221e5f52038ac5c329fd48626` |
+| `refs/codex/turn-diffs/checkpoints/8785eb307423c3b9e50af5b4237e9978/17996e1efbd742f6a4160798437eead8/1794228570999/3fd06c93-9559-4369-8fd6-9223c6eafc66` | `f4d2a33203a04504ee2da95c0b4ae4d8315f089c` | `f4d2a33203a04504ee2da95c0b4ae4d8315f089c` |
+| `refs/codex/turn-diffs/checkpoints/89d080452eb0b3aca53950895b17f971/1247245d311a770163006c96ef373c00/1793790464190/bac69562-9db7-450d-a6cb-f8f8165ff13f` | `d0c3f6caccb31bcc12e53b6da14a06bebcc029c7` | `d0c3f6caccb31bcc12e53b6da14a06bebcc029c7` |
+| `refs/codex/turn-diffs/checkpoints/a0ab6c92fb9a56e6c829d401b923a2c3/c96f4efd1ef95bb39531bb9ffb0cb0b8/1793704560366/2ab044ab-cf66-4d94-8913-71e868eb9ec1` | `0d2b283776765c574c77f33e086fc93bf2644f21` | `0d2b283776765c574c77f33e086fc93bf2644f21` |
+| `refs/codex/turn-diffs/checkpoints/af4bc4d638adabcdef9e2e1b23fa8fb8/38c3ab8263c52a629f352daaee1f35c2/1794235167941/42875d0b-1f5e-492f-8cff-d50992356cbe` | `4bae0c43a81f63ba90dd39ce14188cd8f1fbdbde` | `4bae0c43a81f63ba90dd39ce14188cd8f1fbdbde` |
+| `refs/codex/turn-diffs/checkpoints/bdd0da39185ba5cbe0624ed55601f57e/4dde1d1c42eec5bc6cd63d7109fb9d34/1793808758345/03338a9d-d661-47ee-a021-018318524caa` | `708b66b7679a41ab53708664682c2ad53b4e9cc7` | `708b66b7679a41ab53708664682c2ad53b4e9cc7` |
+| `refs/codex/turn-diffs/checkpoints/cd134de1e5602b6182749ab017939915/53b9fc805d4b95c6d914621dd4a1a21e/1794219686544/b726044d-d1d0-4402-b70d-0b9e3f04d0a9` | `eb51f2476e80ef5e52253445c6d8c67c7bafd105` | `eb51f2476e80ef5e52253445c6d8c67c7bafd105` |
+| `refs/codex/turn-diffs/checkpoints/ce94ca82325dad1e67d5a7687e1c5bb2/3547130b2d722da32dd82955593d3e3a/1794233267230/16f88b0b-af65-4481-a488-4b4adf8cd776` | `5342336d1e9a823033ea47696c28030f7d5596cd` | `5342336d1e9a823033ea47696c28030f7d5596cd` |
+| `refs/codex/turn-diffs/checkpoints/f02e9017be696cc80edb2e4e2567ff4c/1856792d9d793aa16a6dd8922c174f8b/1793802908177/e2293ae0-e214-40ce-8ec4-f304e8d57ce3` | `e0d60d136a775c9ed4e24d2a380c60ac7a869e0d` | `e0d60d136a775c9ed4e24d2a380c60ac7a869e0d` |
+| `refs/codex/turn-diffs/checkpoints/fde6fc77e3a1de07579e7b67c3f94747/fa07d994b8f6f1cfd02b6b9d603e9a3d/1793711442797/67bdfcfb-9181-485d-a02a-64b35f2f75fe` | `5f144c692eb35ddcfbcf473ae111a464cc596eba` | `5f144c692eb35ddcfbcf473ae111a464cc596eba` |
+| `refs/heads/develop` | `64a05446cd9ca65e89c5515c6c76e8ee073fb94a` | `64a05446cd9ca65e89c5515c6c76e8ee073fb94a` |
+| `refs/heads/feature/odoo-tracebridge` | `39a6e97e637dd227aadea5529b2d1a80e2d4c531` | `39a6e97e637dd227aadea5529b2d1a80e2d4c531` |
+| `refs/heads/feature/sh-project-setup-extension` | `390c9ea7c311f362ea04aad64ed14569161642ec` | `390c9ea7c311f362ea04aad64ed14569161642ec` |
+| `refs/heads/feature/sh-project-setup-extension-clean` | `343a4c8025645cf86f33ebdb95f84759e5a4dec8` | `343a4c8025645cf86f33ebdb95f84759e5a4dec8` |
+| `refs/heads/main` | `54018867756fd0a2807f145e65ebe02c3d7a7ea9` | `54018867756fd0a2807f145e65ebe02c3d7a7ea9` |
+| `refs/remotes/origin/develop` | `530331ccb3c8df63cd5b04f8efa02e40fd253afb` | `530331ccb3c8df63cd5b04f8efa02e40fd253afb` |
+| `refs/remotes/origin/feature/odoo-tracebridge` | `39a6e97e637dd227aadea5529b2d1a80e2d4c531` | `39a6e97e637dd227aadea5529b2d1a80e2d4c531` |
+| `refs/remotes/origin/feature/sh-project-setup-extension` | `881d431371c75afebebddc6984c2626e5623518a` | `881d431371c75afebebddc6984c2626e5623518a` |
+| `refs/remotes/origin/feature/sh-project-setup-extension-clean` | `343a4c8025645cf86f33ebdb95f84759e5a4dec8` | `343a4c8025645cf86f33ebdb95f84759e5a4dec8` |
+| `refs/remotes/origin/main` | `9a818495593c87ef6d4a1376e7f81be26513e0b5` | `9a818495593c87ef6d4a1376e7f81be26513e0b5` |
+
+Local Markdown links, exact scope, authored whitespace/newlines, six prefixes, both indexes/worktrees and reference deltas were rechecked after reporting. Full snapshots and reusable local preservation script are retained at `/tmp/phase0802-dwx3lh78/`. No network, browser/provider action, checkout, reset, stash, merge, stage, commit or push occurred. Status remains READY_FOR_CHATGPT_REVIEW only.
+
+Final 08.02 audit: **455 local Markdown targets across the seven reporting files exist**, including historical bodies; **17 authored local links** pass. All nine paths, six historical prefixes, 246/213 unchanged non-IDE files, both indexes, normal/Codex refs, worktree registrations and all four protected IDE stat tuples pass preservation checks. No code/test changes followed the 97-focused/745-full GREEN runs.
