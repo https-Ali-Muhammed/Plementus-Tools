@@ -334,3 +334,15 @@ Corrected only BF-12 acceptance-status statements using the owner's supplied pro
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 proposed decisions — 2026-11-09 (Africa/Cairo)
+
+[Planning package](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md) records P1–P8 as **PENDING / OWNER DECISION REQUIRED**: canonical bounded-only interpretation, activeTab+scripting scope, separate continuing-navigation consent/privacy, no-popup review ownership and wizard preservation, exact origins/profile, field/size/time limits, transient retention/diagnostics, supported environments/distribution and denial handling. No permission, contract or policy is adopted.
+
+Recommend keeping BF-07 unchanged/disconnected. A real runtime contract or fixture projection needs explicit separate architecture/security review; loopback-to-provider origin rewriting and evidence promotion are forbidden. Current plan acceptance cannot substitute for official 07.03 implementation and mocked tests. The [twelve historical decisions](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md#twelve-historical-decisions--all-pending) remain individually PENDING, including deferred backend/API choices.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+SEC-01 cleanup-outcome/clock/restart/HELD_UNCERTAIN, owner/device/incident and Phase 06 runtime approval/reconciliation/durable duplicate controls remain blocked. Unknown writes cannot be cleared by new selection. Historical activeTab denial is UNRESOLVED; eight unsupported groups NOT_RUN. Protected-IDE hashing and an unscoped diff-stat are disclosed restriction deviations, not a clean compliance pass. Historical full-reference preservation remains UNVERIFIED; no repair. Next: independent review and explicit R0 owner/security decisions, then a fresh exact-scope authorization. No BF-13.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**

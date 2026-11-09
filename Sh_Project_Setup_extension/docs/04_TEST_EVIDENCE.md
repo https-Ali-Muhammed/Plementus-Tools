@@ -800,3 +800,44 @@ Skills applied in R1: Ponytail scope discipline and Superpowers verification-bef
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 planning verification — 2026-11-09 (Africa/Cairo)
+
+Scope: [PRE-07.03 proposal](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md), non-counted documentation only. New Node/Chromium/application/provider tests **NOT_RUN** by instruction. Historical 288 Node PASS and BF-11-R1 34 PASS/0 FAIL/0 BLOCKED/8 NOT_RUN are attributed evidence, not reruns or production acceptance.
+
+Preflight verified required root/branch, both complete origin URL lists, HEAD/upstream/live tip `714a82141b7372050dd83631040b4705f1e2533f`, 0/0 divergence, empty index and only existing protected `.idea/plemo-chats.xml` modification. Ignored `.idea/workspace.xml` and the sibling worktree inventory were recorded. No Git mutation command was issued.
+
+**Restriction deviation:** both protected IDE files were mechanically hashed at preflight, reading their bytes contrary to the no-read instruction. Contents were not displayed/interpreted and files were not changed. A later unscoped diff-stat also performed mechanical content access. Remaining IDE checks use path/status/stat metadata; no final content comparison. Do not claim these files remained unread/unhashed or that final content equality was verified. The rest of the preservation results do not erase this deviation.
+
+Historical BF-09 full-reference baseline/delta/timing gaps, BF-10-R1 Codex deletion/additions and BF-12/R1 ref changes remain **UNVERIFIED for historical full-reference preservation**. Current normal refs and current Codex deltas are checked against `/tmp/pre0703-baseline.json`; current equality cannot repair old evidence. No attribution or reference repair.
+
+Skills used: Ponytail full; Superpowers using-superpowers, brainstorming alternatives guidance, writing-plans and verification-before-completion. Tools used: functions.exec shell/Git/Python/apply_patch, web.run public official Chrome documentation, and a read-only planning-review subagent. No MCP account connector/browser-control tool; WarpGrep/Valyu unavailable. No master/source/ADR/policy/contract/source/test/fixture/manifest changes. Final measured results follow after verification.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+### PRE-07.03 measured preservation results
+
+`python3 /tmp/pre0703-verify.py` completed with exit 0: **536 structural checks passed**, with the separately disclosed IDE no-read restriction deviation. Exact authored scope: **one new / six modified documentation files, zero staged paths, zero unexpected paths**; the pre-existing protected IDE modification remains outside authored scope. **Six complete published prefixes** equal HEAD and remain byte-identical; **228 protected non-IDE tracked hashes** equal both baseline and HEAD. Master/canonical original bytes and mutual equality pass. No protected source/test/fixture/manifest/ADR/policy/integration-contract/BF report edits.
+
+Required root/branch/all origin URLs, HEAD/upstream/live tip `714a82141b7372050dd83631040b4705f1e2533f` and **0/0 divergence** pass. Raw indexes and index entries, captured history/HEAD and normal-ref reflogs, local configuration digest, linked-worktree registrations, sibling status/HEAD/index and ignored inventory match the current task baselines. **10 normal refs unchanged; current Codex delta: zero removed / zero added / zero same-name replacements.** These are current-task measurements only; historical full-reference preservation stays UNVERIFIED. No reference/history repair or Git mutation performed.
+
+The first final live-remote recheck stalled and was terminated; no completed verification result was attributed to it. A bounded replacement read-only `ls-remote` request succeeded, verifying the required live SHA. No fetch occurred. IDE size/mtime/mode metadata remained unchanged; final IDE byte equality was not checked. Mechanical hashing and the unscoped diff-stat remain compliance deviations regardless of structural PASS.
+
+Seven authored documents: **468 local links / 112 fragment references**. Entire documentation tree: **95 Markdown files / 1207 local links / 248 fragment references / zero broken**. Scoped `git diff --check`, new-text trailing whitespace/LF, balanced fences and single-final-newline assertions pass. No rendered-browser or application testing was performed.
+
+| Published document prefix | Bytes | SHA-256 |
+|---|---:|---|
+| `Sh_Project_Setup_extension/docs/Phases/phase07/PHASE_07.md` | 52507 | `c2ec95366a51602fe8b9a1b8271232045a048092940b9fe37cb7b3721942eb4e` |
+| `Sh_Project_Setup_extension/docs/00_PROJECT_STATUS.md` | 73197 | `e21704868121776c1309e715842278fa91e144f9bfaffb14b943e0647a734ded` |
+| `Sh_Project_Setup_extension/docs/03_CHANGELOG.md` | 78174 | `d2f838adafecd3465649125320c6644e2aed0e8d0e2df2ed64c536f90d412498` |
+| `Sh_Project_Setup_extension/docs/04_TEST_EVIDENCE.md` | 141664 | `abf23820ff9033c189ea5d72866aa0c0a351e60dc972e1c27d481bd0449aa297` |
+| `Sh_Project_Setup_extension/docs/05_BLOCKERS_AND_DECISIONS.md` | 64644 | `8bf08314b664efb740b7e7099e04a67e0cc7e67a0ccc58268633f66a7698f799` |
+| `Sh_Project_Setup_extension/docs/06_HANDOFF.md` | 87187 | `ca78de002e8381e8519f1ce0d738393c116fef086742dfafb33f0f1396dd69f6` |
+
+A read-only planning subagent compared the proposal with canonical 07.03 and BF-12 and reported no material findings. This is a planning consistency check, not implementation verification or independent owner/security acceptance. Skills/tools are listed above. Scratch baseline, verifier and results are `/tmp/pre0703-baseline.json`, `/tmp/pre0703-verify.py`, `/tmp/pre0703-verification.json`; they are local verification aids, not durable published evidence. Verification is repeated after recording this entry.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+STOP. No staging, commit, push, BF-13, official 07.03 execution or runtime test.

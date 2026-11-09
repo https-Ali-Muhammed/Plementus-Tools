@@ -406,3 +406,13 @@ Corrected only BF-12 acceptance-status statements using the owner's supplied pro
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 planning gate — 2026-11-09 (Africa/Cairo)
+
+[Browser-first read-only planning proposal](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md) prepared under the current documentation-only request. Status **PROPOSED — OWNER AUTHORIZATION REQUIRED**, non-counted. Bounded observation is recommended only as a disconnected read-only contract; canonical 07.03 still requires implementation plus mocked tests after explicit authorization. Continuing navigation, permission/privacy adoption, UI entry, supported environments and contract choices remain owner/security decisions.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+No new runtime tests or accounts were accessed. Historical fixture acceptance does not resolve the activeTab denial, eight NOT_RUN groups, SEC-01 or Phase 06 runtime blockers. Exact scope is one new/six append-only documents. IDE contents were mechanically hashed at preflight contrary to the no-read instruction; no IDE edits occurred, and final preservation checks are metadata-only; a later unscoped diff-stat also mechanically accessed content. See [verification and limitation](04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo). Next authorization follows independent review; no implementation, BF-13, staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**

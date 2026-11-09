@@ -442,3 +442,15 @@ Corrected only BF-12 acceptance-status statements using the owner's supplied pro
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 planning gate — 2026-11-09 (Africa/Cairo)
+
+- Created [read-only connector planning proposal](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md); appended only the six authorized tracking documents, preserving every published prefix.
+- Reconciled BF-12 with canonical 07.03; defined minimum one-shot capability, exclusions, explicit three-tab review, one worker-owned controller, stale-result/manual behavior and future permission/privacy decisions.
+- Preserved BF-07's strict simulation and evidence tiers; defined future mocks/isolated acceptance, denial limits, eight NOT_RUN groups, all twelve PENDING historical decisions and independent Phase 04/06/account/write gates.
+- Proposed ordered file scopes and stops without source, test, fixture, manifest, ADR, policy, integration-contract or master changes. No Node/Chromium/provider execution or progress increment.
+- Disclosed preflight hashing of protected IDE files and a later unscoped diff-stat as mechanical content reads contrary to the no-read restriction; no IDE edits. Historical Git-reference uncertainty retained; current reference measurements reported separately in [verification](04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo).
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**. Stop for independent review and new explicit authorization; no staging, commit or push.

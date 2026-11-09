@@ -392,3 +392,17 @@ Corrected only BF-12 acceptance-status statements using the owner's supplied pro
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 planning handoff — 2026-11-09 (Africa/Cairo)
+
+Review [the proposed implementation plan](Phases/phase07/PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md) and [measured verification](04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo). The current request permits documentation preparation only. Minimum recommendation: manual, separately invoked one-shot reads; three role cards are observation history, not continuing or atomic context. Preserve BF-07; one future worker admission owner; no workflow/storage/provider bridge.
+
+Next authorized action is independent ChatGPT review. Owner/security must then record P1–P8 applicable decisions, canonical 07.03 interpretation and the disconnected sequencing exception, with a fresh exact file/test scope. Proposed R1 mocks, R2 disposable fixture boundary, R3 official implementation/acceptance and R4 later integrations are separately gated; none starts automatically. Existing accepted fixture assessments need no repeat acceptance, but BF-12-R1/this plan acceptance is not inferred from publication.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+All twelve historical decisions, activeTab denial UNRESOLVED, eight NOT_RUN groups, SEC-01/Phase 06 runtime barriers and later real-site/write gates remain. Required SHA is `714a82141b7372050dd83631040b4705f1e2533f`; Git/reference checks and historical uncertainty are separated in the ledger. Preflight mechanically hashed both protected IDE files contrary to the no-read instruction; no IDE edit and no final IDE content-equality claim; a later unscoped diff-stat also performed mechanical content access. This limitation must accompany review.
+
+Skipped all application/browser/provider tests as required. No real-site inspection, account operation, credential handling, BF-13, source/manifest/policy/contract/master change, staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**

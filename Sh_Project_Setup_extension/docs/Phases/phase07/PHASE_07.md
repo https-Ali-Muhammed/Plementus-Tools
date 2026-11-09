@@ -287,3 +287,13 @@ Corrected only BF-12 acceptance-status statements using the owner's supplied pro
 **READY_FOR_CHATGPT_REVIEW / BF-12-R1_DOCUMENTATION_ONLY**
 
 STOP for ChatGPT review. No staging, commit or push.
+
+## PRE-07.03 planning gate — 2026-11-09 (Africa/Cairo)
+
+**PROPOSED / NON_COUNTED / PRE_07_03_PLANNING_ONLY.** [Decision-ready proposal](PHASE_07_03_BROWSER_FIRST_READ_ONLY_PLANNING_GATE.md) reconciles canonical “Implement read-only connector and mocked tests” with BF-12 and the browser-first direction. Recommend individually invoked bounded observations with manual fallback; no continuing or atomic three-tab context. One future worker-owned controller, exact provenance/one-use results, unchanged disconnected BF-07, pending permission/privacy/UI/support decisions and an ordered authorization roadmap are specified. This documentation does not implement or accept 07.03.
+
+Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
+
+BF-09-AUTO/BF-10-R1/BF-11-R1 fixture acceptances remain recorded; original activeTab denial remains UNRESOLVED and eight unsupported groups NOT_RUN. Six tracking prefixes and protected documents are preserved. Preflight IDE hashing and a later unscoped diff-stat violated the no-read restriction; the plan discloses this deviation and does not claim full compliance. [Verification](../../04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo). Next: independent ChatGPT review, then explicit owner/security decisions and new exact-scope authorization. No BF-13 or runtime work.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
