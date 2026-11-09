@@ -841,3 +841,31 @@ A read-only planning subagent compared the proposal with canonical 07.03 and BF-
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
 
 STOP. No staging, commit, push, BF-13, official 07.03 execution or runtime test.
+
+## PRE-07.03 R0 documentation verification — 2026-11-09 (Africa/Cairo)
+
+[R0 register](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md) is documentation-only/non-counted. P1 OWNER-SELECTED CANDIDATE awaits reviewer/security concurrence; P2–P8 and numeric proposals are unapproved. No Node, Chromium, application/provider execution or future admission-controller tests. All runtime verification **NOT_RUN**; no historical count is presented as a rerun.
+
+Required root/branch/all origin URLs, HEAD/upstream/live tip `150b1550d092d925ff7c93db0ef28c595851d6d6`, 0/0 divergence and linked-worktree metadata verified at entry. Index path/mode/object/stage entries equal HEAD; explicitly scoped non-IDE inspection found no changes or untracked paths. Baseline captured six published prefixes and 235 non-IDE tracked hashes. Sibling index/HEAD/branch and existing two untracked source-document paths inventoried without changing them.
+
+CRITICAL exclusion applied: `.idea/plemo-chats.xml` and `.idea/workspace.xml` never opened/read/hashed/diffed/staged/restored/modified in R0. Only path/index/stat metadata checked; no content-equality or current content-status claim. All Git content operations carry explicit non-IDE/document paths. Historical prior-task access deviations and full-reference uncertainty remain intact; no renewed exception or reference repair.
+
+Verification uses `/tmp/pre0703-r0-baseline.json`, `/tmp/pre0703-r0-verify.py`, `/tmp/pre0703-r0-verification.json` outside Git. Skills: Ponytail and Superpowers planning/verification guidance already read in this chat. Tools: functions.exec shell/Git/Python/apply_patch. No external research, MCP connector, browser-control tool or subagent used for R0. Final measured results follow after checks run.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**
+
+### R0 measured final verification
+
+`python3 /tmp/pre0703-r0-verify.py` **PASS, exit 0: 565 structural/document checks**. Authored scope is exactly **one new / six modified documentation paths**, **six complete published prefixes**, **229 protected non-IDE tracked hashes** equal baseline and HEAD, zero unexpected non-IDE changes and unchanged index entries/raw index (no staging). The accepted planning package, BF-12 and all protected source/tests/fixtures/manifest/ADRs/policy/contracts remain unchanged. Master/canonical bytes equal each other and their published baseline.
+
+Required root/branch/all origin URLs, HEAD/upstream/live remote **150b1550d092d925ff7c93db0ef28c595851d6d6**, 0/0 divergence, captured HEAD ancestry/reflog, normal-ref reflogs, configuration digest, linked-worktree registrations, sibling HEAD/branch/index/untracked metadata and ignored/tracked path inventories preserved. **10 normal refs unchanged; current Codex delta zero removed / zero added / zero same-name replacements.** Historical full-reference preservation remains UNVERIFIED; no writer/cause/timing inference or ref repair.
+
+Seven authored documents: **473 local links / 118 fragment references**, zero broken. Entire docs tree: **96 Markdown files / 1224 local links / 258 fragment references**, zero broken. Scoped diff whitespace and new-text LF/trailing-whitespace/fence/final-newline assertions pass. Document assertions confirm P1 candidate status, P2–P8 pending rows, unapproved budget values, eight NOT_RUN group IDs and all twelve historical decisions. This is documentation verification, not application or runtime acceptance.
+
+Protected IDE path/index/stat metadata remained unchanged; both files were excluded from all content reads, hashes, diffs and comparisons. **No deviations in this R0 task.** The previous task's disclosed deviations remain historical and are not erased or renewed. No current IDE byte-equality claim. Node/Chromium/provider/application tests **NOT_RUN** as required. No subagent, MCP account connector or external research used. Verification repeated after recording these results.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**
+
+STOP. No staging, commit, push, R1/R2, BF-13 or official 07.03 implementation.

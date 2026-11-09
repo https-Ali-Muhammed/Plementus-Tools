@@ -346,3 +346,15 @@ Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 *
 SEC-01 cleanup-outcome/clock/restart/HELD_UNCERTAIN, owner/device/incident and Phase 06 runtime approval/reconciliation/durable duplicate controls remain blocked. Unknown writes cannot be cleared by new selection. Historical activeTab denial is UNRESOLVED; eight unsupported groups NOT_RUN. Protected-IDE hashing and an unscoped diff-stat are disclosed restriction deviations, not a clean compliance pass. Historical full-reference preservation remains UNVERIFIED; no repair. Next: independent review and explicit R0 owner/security decisions, then a fresh exact-scope authorization. No BF-13.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+## PRE-07.03 R0 selected candidate and pending decisions — 2026-11-09 (Africa/Cairo)
+
+**P1 OWNER-SELECTED CANDIDATE**, not final reviewer/security concurrence: disconnected one-shot observation, mocked Chrome boundary, manual fallback, unchanged BF-07, no real sites/writes. [P1–P8 register](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md#2-p1p8-decision-register) supplies accountable roles, required evidence, open values and stops. P2–P8 remain PENDING, including explicit review of exclusions/deferred browser-only decisions. All proposed numeric limits are UNAPPROVED; no governing policy is modified.
+
+Before R1: reviewer/security concurrence on P1, explicit R1-applicable decisions and fixed schema/budgets/synthetic inputs/test baseline, disconnected Phase 04/06 sequencing exception, exact new file allowlist, authorized mocked tests and independent acceptance/stop criteria. [Complete prerequisites](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md#6-exact-prerequisites-before-any-separate-r1-authorization). Candidate selection cannot waive these requirements. Browser permission, no-popup review migration, disposable origin/profile scope, continuing navigation and production support remain separately gated.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+Historical decision 01 remains PENDING despite this candidate selection; all twelve original rows are carried individually. BF-11 denial UNRESOLVED; eight groups NOT_RUN. SEC-01 cleanup/clock/restart/HELD_UNCERTAIN and owner/device/incident controls, Phase 06 runtime approval/reconciliation/durable duplicate prevention remain blocked. Historical full-reference uncertainty remains UNVERIFIED. Next: review/decisions only; no implementation or Git publication.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**

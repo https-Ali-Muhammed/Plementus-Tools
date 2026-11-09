@@ -416,3 +416,13 @@ Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 *
 No new runtime tests or accounts were accessed. Historical fixture acceptance does not resolve the activeTab denial, eight NOT_RUN groups, SEC-01 or Phase 06 runtime blockers. Exact scope is one new/six append-only documents. IDE contents were mechanically hashed at preflight contrary to the no-read instruction; no IDE edits occurred, and final preservation checks are metadata-only; a later unscoped diff-stat also mechanically accessed content. See [verification and limitation](04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo). Next authorization follows independent review; no implementation, BF-13, staging, commit or push.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+## PRE-07.03 R0 owner candidate reconciliation — 2026-11-09 (Africa/Cairo)
+
+[R0 decision register](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md) records **P1 OWNER-SELECTED CANDIDATE**, based on the current owner's instruction and accepted planning package. Required reviewer/security concurrence remains PENDING. Selected scope: disconnected one-shot read-only interface, mocked Chrome boundary, manual fallback, BF-07 unchanged, no real website access/writes. P2–P8 and their open values remain pending; numeric field/message/timeout budgets are proposals only.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+No browser permissions, UI changes, fixture-origin authorization, real accounts or support baseline adopted. Original BF-11 denial UNRESOLVED and eight NOT_RUN groups retained. R0 is documentation-only/non-counted; R1/R2 and official 07.03 remain unauthorized. [Verification](04_TEST_EVIDENCE.md#pre-0703-r0-documentation-verification--2026-11-09-africacairo) excludes both protected IDE contents. Next: independent review and separate owner/security concurrence plus exact-scope authorization; no staging, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**

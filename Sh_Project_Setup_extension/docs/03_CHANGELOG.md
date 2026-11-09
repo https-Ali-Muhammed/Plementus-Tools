@@ -454,3 +454,14 @@ STOP for ChatGPT review. No staging, commit or push.
 Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; Phase 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; twelve historical decisions **PENDING**; production **NO_GO**.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**. Stop for independent review and new explicit authorization; no staging, commit or push.
+
+## PRE-07.03 R0 decision reconciliation — 2026-11-09 (Africa/Cairo)
+
+- Created [R0 decision register](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md); appended only six tracking documents. Accepted PRE-07.03/BF-12 and historical prefixes remain unchanged.
+- Recorded P1 OWNER-SELECTED CANDIDATE, awaiting reviewer/security concurrence; prepared P2–P8 defaults, accountable roles, evidence, open values and stops.
+- Proposed UNAPPROVED numeric limits: 128-byte opaque identifiers, 256-byte private origins, 2,048-byte private URL comparators; 1,024/4,096/512-byte review/result/summary envelopes; 60,000-ms capture and 5,000-ms observation deadlines. Full enum/shape/resource rules and tests are in the register; no number is adopted policy.
+- Preserved mock-only scope, popup/wizard, BF-07, twelve pending historical decisions, denial/unsupported groups and Phase 04/06 barriers. No source/test/fixture/manifest/policy/contract/master edits or runtime execution.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+Current task uses only path/index/stat metadata for protected IDE files; prior task's deviation is not renewed. No R1/R2/BF-13, staging, commit or push. **READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**

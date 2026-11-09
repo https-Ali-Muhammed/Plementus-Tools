@@ -297,3 +297,13 @@ Progress remains **5/20 master phases; 28/72 official micro-phases**. Phase 04 *
 BF-09-AUTO/BF-10-R1/BF-11-R1 fixture acceptances remain recorded; original activeTab denial remains UNRESOLVED and eight unsupported groups NOT_RUN. Six tracking prefixes and protected documents are preserved. Preflight IDE hashing and a later unscoped diff-stat violated the no-read restriction; the plan discloses this deviation and does not claim full compliance. [Verification](../../04_TEST_EVIDENCE.md#pre-0703-planning-verification--2026-11-09-africacairo). Next: independent ChatGPT review, then explicit owner/security decisions and new exact-scope authorization. No BF-13 or runtime work.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+## PRE-07.03 R0 owner candidate reconciliation — 2026-11-09 (Africa/Cairo)
+
+**P1 OWNER-SELECTED CANDIDATE; required reviewer/security concurrence PENDING.** The owner identifies the PRE-07.03 package as accepted and selects disconnected one-shot read-only observation with mocked Chrome boundary, manual fallback, unchanged BF-07 and no real site/write access. [R0 decision register](PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md) records that direction without implementation authority. P2–P8 remain pending; proposed numeric caps are explicitly UNAPPROVED. Existing popup/wizard preserved; continuing navigation excluded; no webNavigation/product permission adoption.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+Original BF-11 denial remains UNRESOLVED; eight unsupported groups NOT_RUN. Acceptance of the planning package does not erase prior deviations, close security gates or implement 07.03. Current R0 excludes protected IDE contents from all reads/hashes/diffs. Next: independent review, applicable owner/security decisions, then fresh exact-scope R1 authorization. No R1/R2/BF-13 or runtime tests.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**

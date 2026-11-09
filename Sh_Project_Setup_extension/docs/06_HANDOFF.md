@@ -406,3 +406,15 @@ All twelve historical decisions, activeTab denial UNRESOLVED, eight NOT_RUN grou
 Skipped all application/browser/provider tests as required. No real-site inspection, account operation, credential handling, BF-13, source/manifest/policy/contract/master change, staging, commit or push.
 
 **READY_FOR_CHATGPT_REVIEW / PRE_07_03_PLANNING_ONLY**
+
+## PRE-07.03 R0 review handoff — 2026-11-09 (Africa/Cairo)
+
+Review [the R0 decision register](Phases/phase07/PHASE_07_03_R0_OWNER_SECURITY_DECISIONS.md) and [verification](04_TEST_EVIDENCE.md#pre-0703-r0-documentation-verification--2026-11-09-africacairo). P1 is OWNER-SELECTED CANDIDATE, awaiting required reviewer/security concurrence. The owner identifies the PRE-07.03 package as accepted; its historical text/deviations remain preserved. P2–P8 and proposed numeric budgets remain unapproved. Do not repeat candidate selection as a prerequisite; obtain the missing concurrence and explicit R1-applicable decisions instead.
+
+R1 cannot start without the register's complete prerequisites: mock-only contract/schema/budgets, explicit deferrals, disconnected sequencing exception, exact file/test authorization and review stop. R2/browser permissions/profile/origins, no-popup architecture, continuing navigation and official 07.03 require separate decisions. Preserve existing popup/wizard and strict disconnected BF-07; no real origins/accounts/writes or durable logs/credentials.
+
+Progress **5/20 master phases; 28/72 official micro-phases** unchanged. Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED / NOT ACCEPTED**; Phase 07 **IN_PROGRESS / NOT ACCEPTED**; 07.03 **NOT_STARTED / NOT_AUTHORIZED**; D-04/B-02/B-03 **OPEN**; all twelve historical decisions **PENDING**; production **NO_GO**.
+
+Original BF-11 denial UNRESOLVED; eight NOT_RUN groups and historical reference uncertainty retained. Required HEAD/upstream/live tip `150b1550d092d925ff7c93db0ef28c595851d6d6`, 0/0 divergence. Both IDE contents are excluded from every current check; metadata only, no byte-equality claim. No Node/Chromium/provider/application execution, R1/R2/BF-13, stage, commit or push.
+
+**READY_FOR_CHATGPT_REVIEW / PRE_07_03_R0_DECISIONS_ONLY**
