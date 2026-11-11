@@ -845,3 +845,16 @@ TDD **64 fail → 64 pass**; focused **211 PASS**, full **1,518 PASS**.
 10.01 is owner-confirmed ACCEPTED / PUBLISHED at `719107bdd308e787d9b18654fa55cf559ccd3cf3`.
 10.02 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**, progress **35/72**; Phase 10
 **IN_PROGRESS / NOT ACCEPTED**; 09.03 live write **BLOCKED**; production **NO_GO**.
+
+
+## Phase 11.01 offline utilities planner — 2026-11-11 (Africa/Cairo)
+
+Added standalone `planFixtureUtilities(text)`, 119 tests and two Phase 11 reports;
+six trackers receive append-only updates. Reuses accepted popup utility validation
+without modifying its behavior/tests; adds bounded canonical JSON, strict field
+boundaries, parent/child overlaps and immutable sanitized index/code summaries.
+All authority/effect flags are false; syntax never proves access or installation.
+[Report](Phases/phase11/PHASE_11_01.md): RED 118 failures plus one suffix-regression
+failure; GREEN **128 focused / 1,637 full PASS**. No runtime integration or Git mutation.
+**READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**, **36/72 unchanged**; 10.03 **BLOCKED /
+NOT AUTHORIZED**; Phase 10/11 **IN_PROGRESS / NOT ACCEPTED**; production **NO_GO**.

@@ -798,3 +798,15 @@ Focused **211 PASS**, full Node **1,518 PASS**, zero failures/skips; exact nine-
 Progress **35/72 unchanged**; Phase 10 parent **IN_PROGRESS / NOT ACCEPTED**;
 09.03 live write **BLOCKED**; production **NO_GO**. Other blockers unchanged.
 Next: independent ChatGPT review; **STOP**. No staging, commit, push or 10.03.
+
+
+## Phase 11.01 offline utilities planner — 2026-11-11 (Africa/Cairo)
+
+The current owner-supplied ledger remains **36/72** until independent acceptance
+and publication; earlier ledger entries remain historical. [11.01](Phases/phase11/PHASE_11_01.md)
+is **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**: bounded offline utility selections,
+URL/path validation, duplicates and path-overlap diagnostics; no execution authority.
+Owner-authorized offline sequencing exception: **10.03 BLOCKED / NOT AUTHORIZED**,
+not completed or simulated. Phase 10 and 11 parents **IN_PROGRESS / NOT ACCEPTED**;
+production **NO_GO**. Focused **128 PASS**, full Node **1,637 PASS**, zero failures/skips.
+Exactly ten task files (four new, six append-only). **STOP for ChatGPT review**.

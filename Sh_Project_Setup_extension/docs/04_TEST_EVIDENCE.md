@@ -1480,3 +1480,17 @@ The audit checks nine task paths, six original prefixes, existing files, both in
 worktrees, refs and protected metadata. Protected contents are not compared.
 No live/provider/browser test or external interaction occurred. 10.02 remains
 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**; official progress **35/72**.
+
+
+## Phase 11.01 offline utilities planner — 2026-11-11 (Africa/Cairo)
+
+[Reproducible commands and contract](Phases/phase11/PHASE_11_01.md), Node **v24.19.0**.
+Initial RED empty export: **0 pass / 118 fail**, exit 1; later suffix regression:
+**0 pass / 1 fail**, exit 1. GREEN: **128 pass** (119 planner + nine unchanged popup
+regressions), exit 0. Complete native Node suite: **1,637 pass / 0 fail / 0 skip /
+0 cancelled**, exit 0. Both syntax checks and all source-isolation tests pass.
+Nested canonical JSON's test classification was corrected to invalid entry;
+blocking behavior was retained. No existing tests changed. Bounds, hostile input,
+privacy, immutable deterministic output and denied authority are exercised.
+Logs/prefixes/snapshots/audit: `/tmp/phase11-01-baseline/`, outside both worktrees.
+No browser/provider/authentication tests. **36/72**, review pending; 10.03 remains blocked.

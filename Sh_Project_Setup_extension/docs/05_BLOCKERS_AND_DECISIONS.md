@@ -742,3 +742,17 @@ Phase 06 PARTIAL / BLOCKED; Phase 07/08 parents IN_PROGRESS / NOT ACCEPTED;
 D-04/B-02/B-03 OPEN; twelve historical security decisions PENDING, all unchanged.
 10.02 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**; Phase 10 **IN_PROGRESS / NOT ACCEPTED**;
 09.03 live write **BLOCKED**; production **NO_GO**; progress **35/72**. STOP for review.
+
+
+## Phase 11.01 offline utilities planner — 2026-11-11 (Africa/Cairo)
+
+Owner authorizes **11.01 only**, a FIXTURE_ONLY offline sequencing exception while
+**10.03 BLOCKED / NOT AUTHORIZED** and Phase 10 remains incomplete. No simulation
+or completion credit for 10.03. [Planner decision](Phases/phase11/PHASE_11_01.md):
+reuse popup syntax rules; add canonical primitive JSON, exact bounds/schema,
+no trimming and component-prefix conflicts. Valid syntax retains manual review
+for identity, permissions, revision and paths; all authority/effects remain false.
+No private/access/ownership assumption, invented SHA/Gitlink/installation, adapter
+change or provider access. Existing security/provider blockers remain unchanged.
+Historical **35 → 24 reference discrepancy UNVERIFIED**. Official progress **36/72**;
+Phase 10/11 **IN_PROGRESS / NOT ACCEPTED**; production **NO_GO**. STOP for review.
