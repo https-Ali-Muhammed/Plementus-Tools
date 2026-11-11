@@ -1530,3 +1530,55 @@ Phase 11 **IN_PROGRESS / NOT ACCEPTED**, pending exit review; Phase 10 unchanged
 **10.03 BLOCKED / NOT AUTHORIZED**; production **NO_GO**.
 Historical **35 → 24 reference discrepancy remains UNVERIFIED**.
 **STOP for ChatGPT review; no staging, commit, push or Phase 12.01.**
+
+
+## Phase 12.01 — 2026-11-11 (Africa/Cairo)
+
+**DOCUMENTATION_ONLY / FIXTURE-READY**. Node/browser/provider tests **NOT RUN**;
+no new implementation pass is claimed. Official GitHub deploy-key documentation
+and the Odoo.sh FAQ were read; Odoo 19.0 documentation timed out. Verified
+reference facts and unverified UI/format/lifecycle assumptions are separated in
+[the contract](Phases/phase12/PHASE_12_01.md). Live remote publication metadata
+matches the required baseline; the initial default-helper lookup was interrupted,
+then an anonymous credential-helper-disabled `git ls-remote` succeeded.
+
+Prospective audit material: `/tmp/phase12-01-audit/`; 29 refs, both indexes,
+worktrees/HEADs, Git control files, 274 permitted tracked-file digests and six
+original document prefixes. Both staged inventories empty; permitted worktree
+inventories clean before authoring, with the known IDE change and two sibling
+protected untracked documents recorded separately.
+
+Preflight limitation: the first unscoped `git status` may have mechanically read
+the tracked IDE file and refreshed index stat data. Its contents were not displayed
+or explicitly opened/hashed/edited; strict no-read compliance and pre-snapshot
+index equality cannot be certified. Subsequent checks exclude all IDE and protected
+source contents. Sibling preservation uses metadata only; no protected byte-equality
+claim. This caveat accompanies the prospective verification, not a blanket PASS.
+
+User-supplied ChatGPT acceptance: Phase 11.03 **ACCEPTED — FIXTURE_ONLY**;
+Phase 11 fixture-only parent exit **PASS**. Publication verified at
+`c100604267cbf9fc1f3a515902e28b3b83a031b5` (HEAD/local upstream/live remote).
+Historical reports remain verbatim; Phase 11 full live-capability acceptance
+**PENDING**. Official progress **39/72**, master-phase count **5/20**, unchanged
+pending 12.01 acceptance/publication. Phase 12 **IN_PROGRESS / NOT ACCEPTED**;
+10.03 **BLOCKED / NOT AUTHORIZED**; historical **35 → 24 discrepancy UNVERIFIED**;
+production **NO_GO**.
+
+**STOP for ChatGPT review. No staging, commit, push or Phase 12.02.**
+
+
+### Phase 12.01 measured prospective audit
+
+Executed `python3 /tmp/phase12-01-audit/verify.py` and scoped `git diff --check`:
+**PASS for the prospective comparison**. Exactly **eight authored files** (two new,
+six append-only); six historical prefixes; **268 other non-protected tracked files**;
+both raw indexes/empty staged states; all **29 refs**; Git control files; both
+worktree registrations/HEADs and sibling inventories preserved. Protected IDE and
+sibling source metadata show no prospective drift, with no content-equality claim.
+All **27 authored local Markdown links** resolve; encoding, LF/final-newline,
+trailing whitespace and fence checks pass. The initial unscoped-status limitation
+above still applies; this audit does not certify the pre-snapshot boundary.
+Source/tests and accepted reports are unchanged. Node/browser/provider tests
+**NOT RUN**. Skills: Ponytail; Superpowers design/planning and verification.
+Tools: shell/Git/Python 3 through `functions`, official-reference `web` lookup;
+no connected-service MCP or computer-use tool. **STOP for ChatGPT review.**
