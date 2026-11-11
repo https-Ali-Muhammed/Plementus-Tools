@@ -736,3 +736,76 @@ labeled final. Historical 35 → 24 preservation stays UNVERIFIED. Application t
 NOT REQUIRED / NOT RUN; historical Node 1,404 PASS is not a fresh result.
 **34/72 unchanged; LIVE_WRITE_NO_GO.** Independent review and separate owner/security
 decisions remain required. STOP; no execution.
+
+
+## Phase 09.03 Gate R1 owner/security decision preparation - 2026-11-11 (Africa/Cairo)
+
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY; not yet accepted.** Gate R1 is
+non-counted; official progress remains **34/72**. The owner confirms Gate R0
+**ACCEPTED / PUBLISHED — DOCUMENTATION_ONLY at
+`5db79778aa0968a6551d5df5e1f295a4e1f04ec6`**, matching local HEAD/configured upstream.
+09.01 and 09.02 remain **ACCEPTED / PUBLISHED — FIXTURE_ONLY**. This append
+reconciles historical pending text without changing the accepted reports.
+
+The [owner/security decision packet](Phases/phase09/PHASE_09_03_OWNER_SECURITY_DECISIONS.md) maps all **15 R0 decisions**
+and **12 outstanding live checklist groups**, with unanswered owner questions,
+independent human security-review criteria, safe evidence intake, dependencies
+and a response template. No owner/security approval was gathered or inferred.
+All missing live values remain **NOT_PROVIDED**. R0-12 privacy/retention is
+**BLOCKED** until an approved exact-target evidence channel and handling rules
+exist; no new store or policy exception is created. ChatGPT/Codex review is not
+human security concurrence, and fixture acceptance is not live authority.
+
+**DOCUMENTATION_READY / AWAITING_OWNER_INPUT / AWAITING_SECURITY_REVIEW /
+LIVE_WRITE_NO_GO.** Phase 09.03 execution **NOT_STARTED / NOT AUTHORIZED**;
+Phase 09 parent **IN_PROGRESS / NOT ACCEPTED**; live-write acceptance **BLOCKED**.
+Phase 04 **BLOCKED / POSTPONED**; Phase 06 **PARTIAL / BLOCKED**; Phase 07/08
+parents **IN_PROGRESS / NOT ACCEPTED**; D-04/B-02/B-03 **OPEN**; twelve historical
+security decisions **PENDING**; production **NO_GO**. Historical **35 → 24
+Git-reference gap remains UNVERIFIED**. A possible write with unknown outcome
+remains **RECONCILE_REQUIRED**, without retry or fresh-run bypass.
+
+Scope is one new report and six append-only documents; the six original bodies
+remain exact prefixes. Audit evidence is outside both worktrees at
+`/home/https_ali_muhammed/.local/share/sh-project-setup-review/phase09-03-gate-r1/`
+(directories 0700; files 0600). Protected IDE/source exceptions receive metadata
+observations only, without content inspection or byte-stability claims.
+Node/application/browser/provider tests **NOT REQUIRED / NOT RUN**;
+**1,404 PASS** is the accepted historical Node baseline, not rerun.
+
+**NEXT: independent ChatGPT documentation review, then explicit owner/security
+evidence collection under separate scope. STOP.** No live operation, account
+inspection, browser interaction, permission grant, authentication, repository
+creation, security decision approval, staging, commit, push or 09.03 execution.
+
+
+### Gate R1 measured documentation audit - 2026-11-11 (Africa/Cairo)
+
+The completed draft audit **PASS** verifies exactly seven authorized paths:
+one new report and six append-only files, with all six original bodies preserved
+as byte-exact prefixes. Phase 09.01/09.02 and R0 reports, runtime, tests, fixtures,
+master plan, policies, contracts, architecture, manifest and dependencies remain
+unchanged. Canonical coverage is **15/15 R0 decisions and 12/12 live checklist
+groups**, with 12 owner questions and 12 human security-review requirements.
+Proposed outcomes: **10 PENDING, 4 BLOCKED, 1 NOT_APPLICABLE_WITH_RATIONALE**;
+no live prerequisite is approved. The semantic review is Codex self-review only.
+
+UTF-8, LF, final newline, trailing whitespace, fences, authored tables and scoped
+Git whitespace checks pass. All **496 local Markdown link-path occurrences
+(28 authored)** resolve. Both index fingerprints, complete empty staged states,
+worktree registrations/HEADs and inventories are preserved except the authorized
+seven-path documentation delta. All **25 refs (10 normal, 15 Codex)** retain
+surviving targets/types; **zero Codex name additions/removals** were observed.
+Referenced object existence/type checks pass. Protected IDE and source-exception
+metadata are unchanged; their contents remain uninspected, without a byte-stability
+claim. Historical **35 → 24 Git-reference gap remains UNVERIFIED**.
+
+`draft-verification.json` records those measurements and `content-review.json`
+records the semantic checks in the restricted R1 audit directory. The authoritative
+**`final-verification.json` and `final-snapshot.json` are generated after this
+closure**, with completed-package checksums and any permitted Codex name deltas.
+Directory/file modes are **0700/0600**. Final failure requires STOP and a revised
+verdict. Node/application/browser/provider tests **NOT REQUIRED / NOT RUN**;
+**1,404 PASS** remains historical. No external action or Git mutation occurred.
+**R1 READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY; 34/72 unchanged;
+LIVE_WRITE_NO_GO.** No owner/security approval gathered or inferred. STOP.
