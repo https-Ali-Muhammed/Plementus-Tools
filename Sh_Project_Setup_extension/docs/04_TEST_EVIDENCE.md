@@ -1582,3 +1582,24 @@ Source/tests and accepted reports are unchanged. Node/browser/provider tests
 **NOT RUN**. Skills: Ponytail; Superpowers design/planning and verification.
 Tools: shell/Git/Python 3 through `functions`, official-reference `web` lookup;
 no connected-service MCP or computer-use tool. **STOP for ChatGPT review.**
+
+
+## 2026-11-11 — Phase 12.02 measured fixture evidence
+
+[Commands and full evidence](Phases/phase12/PHASE_12_02.md). Node v24.19.0.
+Initial RED: 0 pass/257 fail, exit 1; first GREEN: 257 pass, exit 0.
+Review regressions: 257/3, 261/3 and 287/13 pass/fail (exit 1), each followed by
+GREEN. Final focused **300 pass**, relevant regressions **690 pass**, explicit
+isolation **3 pass**, full suite **2,107 pass**; all exit 0, zero failures/skips/
+cancellations. Both new files pass syntax checks. Existing accepted tests unchanged.
+Temporary logs/snapshots: `/tmp/phase12-02-audit/`. Preservation covers exact nine-file
+scope, six prefixes, accepted extension content, refs/indexes/controls/worktrees;
+protected files receive metadata checks only, without content-equality claims.
+No live/browser/provider test ran. Progress **40/72**; stop for ChatGPT review.
+
+Final preservation exception: exact nine-file scope, six prefixes, 189 other
+extension files, original 31 refs/65 control-file bytes, three indexes and worktree
+registrations match. One new Codex checkpoint ref appeared (31 → 32), with shared
+`.git` directory mtime drift; cause **UNVERIFIED**. Protected-file metadata is
+unchanged; content equality remains unverified. See the 12.02 report for exact ref
+and audit details. Do not describe this as full ref-set preservation.
