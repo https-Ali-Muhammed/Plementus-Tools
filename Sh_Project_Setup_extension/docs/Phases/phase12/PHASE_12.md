@@ -45,3 +45,27 @@ remains pending 12.02 acceptance/publication. Parent **IN_PROGRESS / NOT ACCEPTE
 12.03 not started/not authorized. Phase 11 live acceptance **PENDING**; 10.03
 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 discrepancy **UNVERIFIED**;
 production **NO_GO**. Stop for review; no staging, commit or push.
+
+
+## 2026-11-11 — Phase 12.03 operator checkpoint review handoff
+
+Phase 12.02 is **ACCEPTED/PUBLISHED** at the user-supplied
+`18af12ecd45aaa6d85f5acc4d36952918eb4c419`, matching local HEAD/upstream.
+Its original report and earlier ledger wording remain historical and unchanged.
+[Phase 12.03](PHASE_12_03.md) is **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**.
+Missing/unknown key availability waits without approval or executable action;
+manual confirmation, attestation and synthetic match remain distinct. Possible
+write reconciliation survives cancellation. The report defines the exact manual
+operator fallback, including defer while waiting as no event, and no key input.
+
+Thirty new tests passed initially against unchanged source (GREEN, no manufactured
+RED). Focused: **30/30**; combined: **330/330**; full suite: **2,137/2,137**;
+source isolation: **3/3**; syntax check passed. No failures, skips or cancellations.
+Exactly eight files: two new, six append-only. Preservation details and metadata
+exceptions are recorded in the phase report. No accepted source/tests changed.
+Official progress stays **41/72** pending independent review/publication.
+Phase 12 parent **IN_PROGRESS / NOT ACCEPTED**, eligible for fixture-only exit
+assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDING**;
+10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
+**UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
+installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
