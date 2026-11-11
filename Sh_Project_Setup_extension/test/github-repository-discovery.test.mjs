@@ -239,7 +239,7 @@ test('import-free module has no external capability or product dependency', () =
   const source = readFileSync(new URL('../src/github/repository-discovery.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /\b(?:import|require|fetch|XMLHttpRequest|WebSocket|chrome|browser|localStorage|sessionStorage|indexedDB|process|eval|Function)\s*(?:[.(]|\{|'|"|\*)/);
   for (const file of readdirSync(new URL('../src/', import.meta.url), { recursive: true, withFileTypes: true })) {
-    if (file.isFile() && /\.(mjs|js|html)$/.test(file.name) && file.name !== 'repository-discovery.mjs') {
+    if (file.isFile() && /\.(mjs|js|html)$/.test(file.name) && file.name !== 'repository-discovery.mjs' && file.name !== 'branch-inspection.mjs') {
       assert.doesNotMatch(readFileSync(`${file.parentPath}/${file.name}`, 'utf8'), /repository-discovery|readFixtureRepositoryMetadata/);
     }
   }

@@ -809,3 +809,25 @@ verdict. Node/application/browser/provider tests **NOT REQUIRED / NOT RUN**;
 **1,404 PASS** remains historical. No external action or Git mutation occurred.
 **R1 READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY; 34/72 unchanged;
 LIVE_WRITE_NO_GO.** No owner/security approval gathered or inferred. STOP.
+
+
+## Phase 10.01 offline sequencing exception — 2026-11-11
+
+[Phase 10.01 report](Phases/phase10/PHASE_10_01.md): **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**.
+Owner-authorized disconnected inspection reuses the accepted Phase 08.02 reader.
+Only `branch-inspection.mjs` is added to the existing isolation test's exclusions;
+all other source modules remain prohibited (22 modules, 44 injected-reference checks).
+Default/target existing, missing, unknown, unavailable, unsupported and invalid states
+remain distinct; default-as-new-target is flagged, all authority/effects stay false,
+and manual fallback remains. No provider, browser, credential or external-write work.
+
+TDD: 50 failing new tests before implementation; focused **147 PASS**, full Node
+**1,454 PASS**, zero failures/skips; syntax and isolation checks PASS. Exact 11-path
+inventory, six append-only prefixes and the one-guard exception are audited in
+`/tmp/phase1001-audit/`. Both indexes, refs, worktree registrations and sibling inventory
+are preserved; protected content remains uninspected (metadata checks only).
+Historical **35 → 24 discrepancy UNVERIFIED**. No staging, commit or push.
+
+Official progress **34/72 unchanged** pending independent acceptance/publication.
+Phase 09.03 live execution **BLOCKED**; Phase 10 parent **NOT ACCEPTED**; production
+**NO_GO**. Next action: independent ChatGPT review of Phase 10.01. **STOP**.
