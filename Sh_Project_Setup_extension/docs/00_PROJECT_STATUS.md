@@ -957,3 +957,43 @@ this exception explicitly and passes original-ref preservation. No new index
 metadata drift observed; historical discrepancy/drift remain UNVERIFIED. See the
 13.02 report for the exact ref, SHA, evidence paths and checks. Full-ref-set
 identity is not claimed. **STOP for ChatGPT review; production NO_GO.**
+
+## 2026-11-12 — Phase 13.03 regression-only review appendix
+
+Per supplied acceptance, Phase 13.02 is **ACCEPTED/PUBLISHED — FIXTURE_ONLY**
+at `146a61a862549abea4ae35f3a6a09ae05b5f63d4`, matching local HEAD/upstream.
+This supersedes earlier pending-13.02/not-started-13.03 tracking without rewriting
+historical reports. [Phase 13.03](Phases/phase13/PHASE_13_03.md) is
+**READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**, tests and documentation only.
+
+Added 18 distinct unknown-page, explicit changed-context, negative version and
+isolation tests. First behavioral run **GREEN: 18/18**; no manufactured RED or
+accepted source/test change. Focused **59/59**, full **2196/2196**, all exit **0**,
+zero failed/skipped/cancelled/todo; new test syntax exit **0**. Accepted source
+isolation passes; new scenario replay reports zero capability accesses. The
+private fixed v1 catalog rejects valid unsupported versions without downgrade;
+unknown/marker-ambiguous outcomes retain no prior class and use MANUAL_PAGE.
+Other accepted manual codes and all 15 false flags remain intact. Guidance is
+documentation, not implemented UI. Scenarios explicitly supply changed context;
+no cross-call lifecycle/cache/navigation enforcement is claimed.
+
+Scope: two new files and these six append-only documents. Preflight inventoried
+37 actual refs and three raw indexes; exact inventory, preservation, setup-error
+accounting and limitations are recorded in the report. No protected content or
+sibling source inspection, browser/provider integration, selector discovery,
+credential handling, permissions or external writes. Historical **35 → 24 ref
+discrepancy** and **sibling-index drift remain UNVERIFIED**; no attribution/repair.
+
+Official progress remains **44/72 accepted; 5/20 master phases** until independent
+13.03 acceptance/publication. Phase 13 **IN_PROGRESS / NOT ACCEPTED**, fixture-only
+exit eligible for assessment after 13.03 publication. Phase 12 fixture-only exit
+**PASS**, full live capability **PENDING**. Phase 10.03 **BLOCKED / NOT AUTHORIZED**.
+Production **NO_GO**. **STOP for ChatGPT review; no stage, commit, push or 14.01.**
+
+Final measured audit exits **0**: exactly eight authorized changes; six original
+byte prefixes preserved; 201 other tracked extension files unchanged; 19 new
+local links resolve; LF/final-newline/whitespace checks pass. All 37 original refs
+preserved, current count 37, no additional refs. Three index byte/metadata
+snapshots, 11 existing sampled Git metadata files and three worktree identities
+preserved. No newly observed metadata exceptions; protected contents unverified.
+Historical discrepancy/drift remain UNVERIFIED. **STOP for ChatGPT review.**
