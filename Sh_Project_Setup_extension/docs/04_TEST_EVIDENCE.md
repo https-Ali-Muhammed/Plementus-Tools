@@ -1919,3 +1919,34 @@ are preserved; staged inventory empty. New local links and authored formatting
 pass. No observation-window exception; historical discrepancies stay UNVERIFIED.
 Protected IDE/sibling source bytes, Git objects, uncaptured metadata and remote
 freshness remain unchecked. See the Phase 14.03 report for exact scope and limits.
+
+
+## 2026-11-12 — Phase 14.04 deterministic approval/timeout/uncertainty evidence
+
+[Report, 30-case mapping and exact commands](Phases/phase14/PHASE_14_04.md).
+Commands ran from the extension root using accepted public exports and immutable
+F05 timeout/interrupted/unknown fixtures; no execution implementation added.
+
+| Verification | Exit | Tests / passed / failed / skipped / cancelled / todo |
+|---|---|---|
+| Unchanged full baseline | 0 | 2290 / 2290 / 0 / 0 / 0 / 0 |
+| New approval/timeout/uncertainty tests, initially GREEN | 0 | 32 / 32 / 0 / 0 / 0 / 0 |
+| Requested six-file focused run | 0 | 186 / 186 / 0 / 0 / 0 / 0 |
+| Full `node --test test/*.test.mjs` | 0 | 2322 / 2322 / 0 / 0 / 0 / 0 |
+| Separate existing isolation checks including A34/G25/D32/I36 | 0 | 15 / 15 / 0 / 0 / 0 / 0 |
+| New test syntax check | 0 | Syntax accepted; no tests |
+
+No RED manufactured, source defect or test rework. Zero capability accesses in
+the regression sentinel case. The accepted isolation tests also pass unchanged.
+No browser/provider/real-clock/persistence test ran. Fresh controllers forget
+in-memory uncertainty; stateless identical inputs replay; interruption diagnostics
+do not invalidate approval instances. These are explicit missing controls,
+not evidence of integrated lifecycle/reconciliation enforcement.
+
+Temporary logs and preservation snapshot: `/tmp/phase14-04-b8fw92tz/` (may expire).
+Two created/six append-only paths; final hash/prefix/Git/link audit in the report.
+14.04 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY / TEST_ONLY**; official
+**48/72; 5/20**; parent **EXIT ASSESSMENT PENDING CHATGPT REVIEW / NOT ACCEPTED**.
+Phase 13 fixture exit **PASS**, live **PENDING**; 10.03 **BLOCKED / NOT AUTHORIZED**;
+historical Git discrepancies **UNVERIFIED**; Production **NO_GO**.
+**STOP for independent ChatGPT review; no stage, commit, push or Phase 15.01.**

@@ -1212,3 +1212,23 @@ are preserved; staged inventory empty. New local links and authored formatting
 pass. No observation-window exception; historical discrepancies stay UNVERIFIED.
 Protected IDE/sibling source bytes, Git objects, uncaptured metadata and remote
 freshness remain unchecked. See the Phase 14.03 report for exact scope and limits.
+
+
+## 2026-11-12 — Phase 14.04 approval/timeout/uncertainty regressions
+
+Added only [native regression tests](../test/interaction-approval-timeout-uncertainty.test.mjs)
+and the [Phase 14.04 report](Phases/phase14/PHASE_14_04.md), with six append-only
+tracking records. No production code, accepted tests, dependency or permission
+change. F05 possible-write uncertainty stays stopped; synthetic approval cannot
+advance or authorize execution; interruption/replay/durability gaps are explicit.
+All 32 new tests initially GREEN; focused **186/186**, full **2322/2322**,
+unchanged baseline **2290/2290**, separate isolation **15/15**, syntax pass.
+All exits 0; zero failed/skipped/cancelled/todo; no genuine source defect/rework.
+
+Supplied 14.03 accepted/published at
+`632d016099d6c7fb86dd653282f6ec87932ef169`; official **48/72; 5/20**.
+14.04 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY / TEST_ONLY**; parent exit
+assessment **PENDING CHATGPT REVIEW / NOT ACCEPTED**, fixture-only PASS recommended
+subject to review. Phase 13 fixture exit **PASS**/live **PENDING**; 10.03
+**BLOCKED / NOT AUTHORIZED**; historical Git discrepancies **UNVERIFIED**;
+Production **NO_GO**. No stage, commit, push or Phase 15.01.

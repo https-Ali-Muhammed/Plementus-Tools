@@ -1160,3 +1160,25 @@ are preserved; staged inventory empty. New local links and authored formatting
 pass. No observation-window exception; historical discrepancies stay UNVERIFIED.
 Protected IDE/sibling source bytes, Git objects, uncaptured metadata and remote
 freshness remain unchecked. See the Phase 14.03 report for exact scope and limits.
+
+
+## 2026-11-12 — Phase 14.04 fixture-only regression review handoff
+
+User-supplied Phase 14.03 **ACCEPTED/PUBLISHED** baseline:
+`632d016099d6c7fb86dd653282f6ec87932ef169`; local required HEAD/upstream match.
+Official progress **48/72 accepted; 5/20 master phases**; historical text remains
+verbatim. [Phase 14.04](Phases/phase14/PHASE_14_04.md) is
+**READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY / TEST_ONLY**. New tests **32/32**
+initially GREEN, focused **186/186**, full **2322/2322** including the unchanged
+**2290/2290** baseline; isolation **15/15**, syntax pass; exits 0 and no
+failed/skipped/cancelled/todo. No accepted implementation/test changed.
+
+Two new and six append-only files; the report maps all 30 cases and records
+preservation evidence. Approval and coordinator remain disconnected; synthetic
+intent is never authority. Browser lifecycle invalidation, trusted approval,
+monotonic timeout, durable uncertainty and provider reconciliation are absent.
+[Phase 14 parent](Phases/phase14/PHASE_14.md): **EXIT ASSESSMENT PENDING CHATGPT
+REVIEW / NOT ACCEPTED**; recommend fixture-only PASS subject to that review.
+Phase 13 fixture exit **PASS**, live **PENDING**; Phase 10.03 **BLOCKED / NOT
+AUTHORIZED**; historical Git discrepancies **UNVERIFIED**; Production **NO_GO**.
+**STOP for independent ChatGPT review; no publication or Phase 15.01.**
