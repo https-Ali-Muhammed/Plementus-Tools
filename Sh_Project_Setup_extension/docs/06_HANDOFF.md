@@ -924,3 +924,35 @@ assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDIN
 10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
 **UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
 installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
+
+
+## 2026-11-11 — STOP for Phase 13.01 ChatGPT review
+
+Review [Phase 13.01](Phases/phase13/PHASE_13_01.md):
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY**. Exact eight-file inventory:
+new `Phases/phase13/PHASE_13.md`, `Phases/phase13/PHASE_13_01.md`; append-only
+`Phases/phase12/PHASE_12.md`, `00_PROJECT_STATUS.md`, `03_CHANGELOG.md`,
+`04_TEST_EVIDENCE.md`, `05_BLOCKERS_AND_DECISIONS.md`, `06_HANDOFF.md`, all relative
+to this docs directory. No source/tests or existing contracts changed.
+
+Review the closed v1 boundary, exact precedence and reason codes, immutable output,
+synthetic provenance, manual fallback, false authority flags and 40 future test
+cases. Phase 13.02 is not started or authorized; do not implement, stage, commit,
+push or operate a browser/provider under this task. Documentation verification
+and prospective Git preservation limits are in the report/evidence appendix.
+Application/Node/browser/provider tests **NOT RUN**.
+
+Phase 12.03 **ACCEPTED/PUBLISHED — FIXTURE_ONLY** at
+`af73ec2d81b1ec32633f9bd174f837ebf87d95f7`, user-supplied and corroborated by
+local HEAD/upstream. Phase 12 fixture-only exit **PASS**; full live capability
+**PENDING**. Official progress stays **42/72 accepted; 5/20 master phases accepted**;
+Phase 13 parent **IN_PROGRESS / NOT ACCEPTED**. Phase 10.03 **BLOCKED / NOT AUTHORIZED**;
+historical **35 → 24 discrepancy UNVERIFIED**; production **NO_GO**. Preserve
+original reports and all existing refs; the next action is independent ChatGPT
+review, not a new planning questionnaire or implementation phase.
+
+
+Preservation exception retained for review: the sibling Smart-Editor-Guard index
+changed inode/mtime while its bytes remained identical. Cause UNVERIFIED; no
+repair. All original refs, index byte hashes and worktree registrations/HEADs
+match. Full Git metadata equality is not claimed. Details are in the 13.01 report.

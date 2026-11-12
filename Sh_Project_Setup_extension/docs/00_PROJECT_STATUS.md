@@ -894,3 +894,22 @@ assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDIN
 10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
 **UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
 installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
+
+
+## 2026-11-11 — Phase 13.01 detection-contract review handoff
+
+[13.01](Phases/phase13/PHASE_13_01.md):
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY / FIXTURE-READY**.
+Standalone v1 synthetic page detection is specified, not implemented. Eight page
+classes, bounded inert inputs, deterministic rejection, sanitized immutable
+outputs and manual fallback grant no account/rights/execution authority.
+
+Phase 12.03 **ACCEPTED/PUBLISHED — FIXTURE_ONLY** at user-supplied
+`af73ec2d81b1ec32633f9bd174f837ebf87d95f7`, matching local HEAD/upstream;
+[Phase 12](Phases/phase12/PHASE_12.md) fixture-only exit **PASS**, full live
+capability **PENDING**. Historical reports are unchanged. Official progress
+**42/72 accepted; 5/20 master phases accepted**, unchanged pending independent
+13.01 acceptance/publication. [Phase 13](Phases/phase13/PHASE_13.md)
+**IN_PROGRESS / NOT ACCEPTED**; 13.02/13.03 not started/not authorized;
+10.03 **BLOCKED / NOT AUTHORIZED**; historical **35 → 24 discrepancy UNVERIFIED**;
+production **NO_GO**. STOP for ChatGPT review; no staging, commit or push.

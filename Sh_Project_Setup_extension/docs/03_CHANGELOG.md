@@ -946,3 +946,22 @@ assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDIN
 10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
 **UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
 installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
+
+
+## 2026-11-11 — Phase 13.01 read-only fixture detection design
+
+Created [Phase 13 parent](Phases/phase13/PHASE_13.md) and
+[v1 detection contract](Phases/phase13/PHASE_13_01.md). Defined closed canonical
+JSON configuration/observation inputs, fixed synthetic origin/marker taxonomy,
+generation and target checks, ordered reasons, 26-field immutable sanitized output,
+15 permanently false authority/verification flags, explicit manual fallback and
+40 next-phase acceptance cases. Versioned selector isolation must preserve v1;
+no actual route, selector, endpoint or browser integration is specified.
+
+Appended Phase 12.03 **ACCEPTED/PUBLISHED — FIXTURE_ONLY** reconciliation at
+`af73ec2d81b1ec32633f9bd174f837ebf87d95f7`: fixture-only parent exit **PASS**,
+live capability **PENDING**, historical bytes preserved. Exactly two new and six
+append-only documents; no source/test/config/permission change. Application/Node/
+browser/provider tests **NOT RUN**. 13.01 **READY_FOR_CHATGPT_REVIEW —
+DOCUMENTATION_ONLY**; progress **42/72**, master phases **5/20**; production
+**NO_GO**. STOP for ChatGPT review; no staging, commit, push or 13.02.

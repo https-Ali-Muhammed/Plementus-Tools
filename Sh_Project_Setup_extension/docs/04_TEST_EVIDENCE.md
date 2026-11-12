@@ -1627,3 +1627,48 @@ assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDIN
 10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
 **UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
 installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
+
+
+## 2026-11-11 — Phase 13.01 documentation verification boundary
+
+[Contract and future acceptance matrix](Phases/phase13/PHASE_13_01.md):
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY**. The 40 acceptance cases are
+specifications, **NOT RUN**. Application/Node/browser/provider tests **NOT RUN**.
+No new recognition behavior, actual page, provider capability, permission or
+account state has been tested. Phase 12 test counts remain historical, not rerun.
+
+Preflight root/branch/origin/local HEAD/upstream match
+`af73ec2d81b1ec32633f9bd174f837ebf87d95f7`; scoped extension/staged inventories
+were empty. Optional index refresh disabled from the first path-scoped status.
+Prospective snapshot `/tmp/phase13-01-u0345p7i/before.json` covers 202 extension
+files, six historical prefixes, 35 refs, 58 sampled metadata files including
+three raw indexes, and three worktree registrations/HEADs/root identities.
+Protected IDE contents were not read/hashed; metadata-only checks apply.
+Sibling source documents and sibling working-tree contents were not inspected.
+Final measured scope/preservation/formatting checks are recorded below.
+
+Phase 12.03 acceptance/publication is user-supplied with local corroboration;
+fixture-only exit **PASS**, live capability **PENDING**. No live remote lookup.
+Historical **35 → 24 discrepancy UNVERIFIED**; no ref repair. Progress **42/72**,
+master phases **5/20**, Phase 13 parent **IN_PROGRESS / NOT ACCEPTED**;
+10.03 **BLOCKED / NOT AUTHORIZED**, production **NO_GO**.
+
+
+### Phase 13.01 measured final preservation — metadata exception retained
+
+Exact eight-file scope, six original byte prefixes, and 196 other tracked
+extension files pass. All authored local links and Markdown/UTF-8/LF/newline/
+whitespace checks pass. JSON examples round-trip; 27 reasons have next-step
+mappings; 40 acceptance cases are documented, **NOT RUN**. Staging is empty;
+35/35 refs and three worktree registrations/HEADs/root identities match. All
+three index byte hashes and all 58 sampled metadata-file byte hashes match.
+
+Full metadata equality **does not hold**: the sibling Smart-Editor-Guard index's
+inode changed 10355012 → 10355023 and mtime changed
+1794408112695090696 → 1794411823916729341 ns, with identical 10,870-byte content
+and SHA-256. Cause **UNVERIFIED**; no repair. The initial strict audit failed on
+this metadata exception; the final check preserves and reports it separately.
+See the [13.01 report](Phases/phase13/PHASE_13_01.md) for the exact path/hash and
+local evidence. Protected IDE metadata matches; protected content/sibling source
+documents remain uninspected. Historical 35 → 24 discrepancy **UNVERIFIED**.
+Application/Node/browser/provider tests **NOT RUN**; production **NO_GO**.

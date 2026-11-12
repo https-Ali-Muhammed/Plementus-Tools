@@ -855,3 +855,25 @@ assessment after 12.03 publication; Phase 11 live-capability acceptance **PENDIN
 10.03 **BLOCKED / NOT AUTHORIZED**; historical 35 → 24 ref discrepancy
 **UNVERIFIED**; production **NO_GO**. No actual key, association, checkout or
 installation observed. STOP for ChatGPT review; no staging, commit, push or 13.01.
+
+
+## 2026-11-11 — Phase 13.01 fixture recognition decisions
+
+[13.01 contract](Phases/phase13/PHASE_13_01.md) chooses two primitive canonical JSON
+inputs and a standalone pure recognizer. Harness-owned configuration is separate
+from untrusted markers; explicit role selection, fixed synthetic origin,
+document/context generation, page class and target availability remain separate
+from evidence provenance, account/rights and execution authority. Unsupported,
+conflicting or stale input has fixed fail-closed reasons and manual next steps.
+No real selector, origin inference, authenticated route, permission adoption or
+adapter v1 change. Phase 13.03 may isolate the catalog only without weakening v1.
+
+Phase 12.03 **ACCEPTED/PUBLISHED — FIXTURE_ONLY** at
+`af73ec2d81b1ec32633f9bd174f837ebf87d95f7` per supplied instruction; local
+HEAD/upstream agree. Phase 12 fixture-only exit **PASS**; full live-capability
+acceptance **PENDING**. Historical wording remains verbatim. Phase 13 parent
+**IN_PROGRESS / NOT ACCEPTED**, 13.01 **READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY**;
+progress **42/72**, master phases **5/20**. Phase 10.03 **BLOCKED / NOT AUTHORIZED**;
+existing Codex checkpoint refs retained, historical **35 → 24 discrepancy UNVERIFIED**;
+production **NO_GO**. No application/Node/browser/provider tests run. Stop for
+ChatGPT review; no staging, commit, push or Phase 13.02.
