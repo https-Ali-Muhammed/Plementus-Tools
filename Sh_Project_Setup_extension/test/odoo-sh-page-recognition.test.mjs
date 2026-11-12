@@ -282,10 +282,47 @@ test('A34 no imports, runtime callers or capability accesses, including import i
   assert.deepEqual(Object.keys(recognition), ['recognizeFixtureOdooShPage']);
   assert.doesNotMatch(source, /\b(?:import|require|fetch|XMLHttpRequest|WebSocket|chrome|browser|localStorage|sessionStorage|indexedDB|process|eval|Function|globalThis|window|document|navigator|Date|performance|setTimeout|setInterval|setImmediate|queueMicrotask|Worker|Promise|console)\b/);
   assert.doesNotMatch(source, /Math\.random|node:|child_process/);
-  for (const file of readdirSync(new URL('../src/', import.meta.url), { recursive: true, withFileTypes: true })) {
-    if (file.isFile() && /\.(mjs|js|html|json)$/.test(file.name) && file.name !== 'page-recognition.mjs')
-      assert.doesNotMatch(readFileSync(`${file.parentPath}/${file.name}`, 'utf8'), /page-recognition|recognizeFixtureOdooShPage/);
+  const approvedPath = 'interaction/context-guards.mjs';
+  const approvedImport = "import { recognizeFixtureOdooShPage } from '../odoo-sh/page-recognition.mjs';";
+  function inspectConsumer(relativePath, text) {
+    if (relativePath !== approvedPath) {
+      assert.doesNotMatch(text, /page-recognition|recognizeFixtureOdooShPage/);
+      return;
+    }
+    assert.ok(text.startsWith(approvedImport + '\n'));
+    const body = text.slice(approvedImport.length + 1);
+    assert.doesNotMatch(body, /\b(?:import|require)\b|\bexport\s*(?:\*|\{)|page-recognition|fx:|\bPAGES\b/);
+    assert.equal((body.match(/\brecognizeFixtureOdooShPage\b/g) ?? []).length, 1);
+    assert.ok(body.includes('recognizeFixtureOdooShPage(configurationText, observationText)'));
   }
+  const witness = approvedImport + '\nexport function assessFixtureInteractionContext(bindingText, configurationText, observationText) {\n'
+    + '  return recognizeFixtureOdooShPage(configurationText, observationText);\n}\n';
+  assert.doesNotThrow(() => inspectConsumer(approvedPath, witness));
+  for (const path of ['other.mjs', 'context-guards.mjs', 'other/context-guards.mjs',
+    'interaction/context-guards.mjs.backup', 'interaction/context-guards-copy.mjs'])
+    assert.throws(() => inspectConsumer(path, witness), assert.AssertionError);
+  for (const text of [
+    witness.replace('{ recognizeFixtureOdooShPage }', '* as recognition'),
+    witness.replace("'../odoo-sh/page-recognition.mjs'", "'../odoo-sh/other.mjs'"),
+    witness.replace('import {', 'import /* fixture */ {'),
+    witness.replace(approvedImport, "const recognition = import('../odoo-sh/page-recognition.mjs');"),
+    witness.replace(approvedImport, "export { recognizeFixtureOdooShPage } from '../odoo-sh/page-recognition.mjs';"),
+    witness + approvedImport + '\n', witness + "import './other.mjs';\n",
+    witness + "import('./other.mjs');\n", witness + "export * from './other.mjs';\n",
+    witness + 'recognizeFixtureOdooShPage;\n', witness + source,
+    witness + source.replaceAll('recognizeFixtureOdooShPage', 'copiedRecognizer'),
+  ]) assert.throws(() => inspectConsumer(approvedPath, text), assert.AssertionError);
+  const sourceRoot = new URL('../src/', import.meta.url);
+  let approvedConsumers = 0;
+  for (const file of readdirSync(sourceRoot, { recursive: true, withFileTypes: true })) {
+    if (!file.isFile() || !/\.(mjs|js|html|json)$/.test(file.name)) continue;
+    const fileUrl = new URL(file.name, `file://${file.parentPath}/`);
+    const relativePath = decodeURIComponent(fileUrl.pathname.slice(sourceRoot.pathname.length));
+    if (relativePath === 'odoo-sh/page-recognition.mjs') continue;
+    inspectConsumer(relativePath, readFileSync(fileUrl, 'utf8'));
+    if (relativePath === approvedPath) approvedConsumers++;
+  }
+  assert.equal(approvedConsumers, 1);
   let accesses = 0; const context = {};
   for (const key of ['fetch', 'XMLHttpRequest', 'WebSocket', 'chrome', 'browser', 'localStorage', 'sessionStorage', 'indexedDB', 'caches', 'document', 'window', 'navigator', 'clipboard', 'setTimeout', 'setInterval', 'setImmediate', 'queueMicrotask', 'Date', 'performance', 'console', 'process', 'Worker', 'eval', 'Function'])
     Object.defineProperty(context, key, { get() { accesses++; throw new Error('fixture-sentinel'); } });

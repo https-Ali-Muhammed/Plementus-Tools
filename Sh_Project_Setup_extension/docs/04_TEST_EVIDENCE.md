@@ -1756,3 +1756,69 @@ preserved, current count 37, no additional refs. Three index byte/metadata
 snapshots, 11 existing sampled Git metadata files and three worktree identities
 preserved. No newly observed metadata exceptions; protected contents unverified.
 Historical discrepancy/drift remain UNVERIFIED. **STOP for ChatGPT review.**
+
+## 2026-11-12 — Phase 14.01 contract conflict: review stop
+
+Per supplied acceptance/publication, Phase 13.03 is **ACCEPTED/PUBLISHED —
+FIXTURE_ONLY** at `6b392368d0806f45353802b7500570e8d379b59c`, matching local
+HEAD/upstream. Phase 13 fixture-only parent exit **PASS**; live capability
+**PENDING**. Historical Phase 13 documentation remains verbatim.
+
+[Phase 14.01](Phases/phase14/PHASE_14_01.md) is **BLOCKED — CONTRACT REVIEW
+REQUIRED**: accepted recognition test A34 rejects the direct recognizer import
+required by this task. Applying its exact assertion to the required import text
+reproduces ERR_ASSERTION without changing accepted source/tests. Review a narrow
+isolation-contract/test revision before implementation; none is authorized here.
+The guard schema, source and tests remain pending. No behavioral RED/GREEN claim.
+
+Unchanged baseline: recognition **59/59**, full Node suite **2196/2196**, exits 0,
+zero failed/skipped/cancelled/todo; existing isolation checks pass. Actual scope is
+**seven documentation files: two new, five append-only**. The two planned guard
+source/test files were not created because the review stop fired. No live/browser,
+DOM, account, credential, provider, permission, dependency or execution changes.
+See the report for reproduction, inventory, preservation checks and exceptions.
+
+Official progress stays **45/72 accepted; 5/20 master phases**. [Phase 14
+parent](Phases/phase14/PHASE_14.md) **IN_PROGRESS / NOT ACCEPTED**. Phase 10.03
+**BLOCKED / NOT AUTHORIZED**. Historical Git reference discrepancy and sibling-index
+drift **UNVERIFIED**. Production **NO_GO**.
+**STOP for ChatGPT review. No stage, commit, push or Phase 14.02.**
+
+Measured preservation: five original prefixes and 204 other tracked extension
+files unchanged; 38/38 refs, three raw indexes, 11 sampled Git metadata files and
+three worktree identities preserved. No newly observed metadata exception;
+historical discrepancies remain UNVERIFIED. Links/formatting pass; staged empty.
+
+## 2026-11-12 — Phase 14.01-R1 completed for fixture-only review
+
+The separately supplied ChatGPT decision authorizes an A34-only amendment for
+exactly one offline direct recognizer consumer. [Phase 14.01-R1](Phases/phase14/PHASE_14_01.md)
+is **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**; this supersedes the prior blocked
+next action without rewriting its original evidence. Closed canonical binding,
+bounded sanitized frozen outputs, tab/origin/generation/account/target/access/
+lifecycle guards and manual fallbacks are implemented. Only accepted FIXTURE_MATCH
+can support SYNTHETIC_CONTEXT_MATCH; all 17 authority/effect flags remain false.
+
+A34 preserves recognizer self-isolation and recursive scanning, matches the exact
+normalized consumer path, requires one exact static import/direct invocation and
+rejects unauthorized callers, extra/dynamic imports, re-exports and dependency
+copies. No accepted test outside A34 or recognizer source changed.
+Genuine RED **25 tests: 24 failed, 1 passed**, exit 1; final guard GREEN **25/25**,
+recognition **41/41**, fallback **18/18**, combined **84/84**, full **2221/2221**,
+all final exits 0, no failed/skipped/cancelled/todo. Three syntax checks pass;
+existing isolation and capability-sentinel replays report zero capability access.
+
+Exactly **10 files: four new, six modified**. Five original tracking prefixes and
+seven R1 stop-packet prefixes intact; 203 other tracked extension files unchanged.
+39 R1 refs, three indexes, 11 sampled Git metadata files and three worktree
+identities preserved; staged empty. An earlier-to-R1 interval removed one capture
+and added two Codex refs; actor/cause/continuity **UNVERIFIED**, exact details in
+the report. No repair or cross-turn full-ref-equality claim. Historical Git
+metadata discrepancies remain **UNVERIFIED**; protected/sibling bytes unchecked.
+
+Official progress stays **45/72 accepted; 5/20 master phases** pending independent
+review/publication. [Phase 14](Phases/phase14/PHASE_14.md) **IN_PROGRESS / NOT
+ACCEPTED**; Phase 13 fixture-only exit **PASS**, live capability **PENDING**;
+Phase 10.03 **BLOCKED / NOT AUTHORIZED**; production **NO_GO**. No browser/provider,
+account inspection, permission/dependency changes or execution authority added.
+**STOP for ChatGPT review. No staging, commit, push or Phase 14.02.**
