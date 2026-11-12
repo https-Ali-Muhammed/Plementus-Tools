@@ -913,3 +913,47 @@ capability **PENDING**. Historical reports are unchanged. Official progress
 **IN_PROGRESS / NOT ACCEPTED**; 13.02/13.03 not started/not authorized;
 10.03 **BLOCKED / NOT AUTHORIZED**; historical **35 → 24 discrepancy UNVERIFIED**;
 production **NO_GO**. STOP for ChatGPT review; no staging, commit or push.
+
+## 2026-11-12 — Phase 13.02 fixture recognition review appendix
+
+[Phase 13.01](Phases/phase13/PHASE_13_01.md) is **ACCEPTED/PUBLISHED** at
+`9d6b3534c9846d6a95c9eb165fde959a6db043e1` per supplied acceptance, corroborated by
+local HEAD/upstream. Historical reports above and the accepted contract remain
+verbatim; this appendix supersedes their pending-13.01/not-started-13.02 tracking.
+[Phase 13.02](Phases/phase13/PHASE_13_02.md) is **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**.
+The pure standalone recognizer implements all eight synthetic page classes,
+two interruptions, canonical two-string validation and exact 29-row precedence.
+All 26 output fields are frozen/sanitized; all 15 authority/effect flags are false.
+No browser, provider, credential, permission, UI or runtime integration is added.
+
+Actual behavioral RED: exported empty stub, **41 tests, 40 failed, 1 passed**,
+exit **1**, assertion failures rather than module-not-found. GREEN: **41/41**
+focused and **2,178/2,178** full-suite tests, exits **0**, no skips/failures.
+Both requested syntax checks exit **0**. A01–A40 and competing precedence are
+covered; capability sentinels report zero accesses. Independent read-only AI
+review reran 41/41 and found no actionable findings; acceptance remains pending.
+Additional synthetic adversarial checks cover 82,944 marker/target scenarios,
+reversed order and 19 malformed/control cases, totaling 165,907 calls.
+
+Nine-file scope: three new files and these six append-only tracking documents.
+Exact inventory, acceptance mapping, test evidence and measured preservation
+results are in the linked report. Accepted source/tests and contract are unchanged;
+protected IDE/sibling contents were not read or hashed. Historical **35 → 24
+ref discrepancy UNVERIFIED** and historical sibling-index metadata drift remain
+unresolved and unattributed; no repair or blanket metadata-equality claim.
+
+Official progress **43/72 accepted; 5/20 master phases**, unchanged pending
+independent 13.02 acceptance/publication. Phase 13 **IN_PROGRESS / NOT ACCEPTED**;
+Phase 12 fixture-only exit **PASS**, live capability **PENDING**; Phase 10.03
+**BLOCKED / NOT AUTHORIZED**; production **NO_GO**. No staging, commit, push
+or Phase 13.03. **STOP for ChatGPT review.**
+
+Measured preservation: nine authorized changes; six exact original byte prefixes;
+198 other tracked extension files unchanged; three index byte/metadata snapshots
+and three worktree identities preserved. The strict full-ref-set audit initially
+exited 1: **35 → 36** from one added Codex checkpoint, cause **UNVERIFIED**; all
+35 original refs are unchanged. No repair or attribution. Subsequent audit records
+this exception explicitly and passes original-ref preservation. No new index
+metadata drift observed; historical discrepancy/drift remain UNVERIFIED. See the
+13.02 report for the exact ref, SHA, evidence paths and checks. Full-ref-set
+identity is not claimed. **STOP for ChatGPT review; production NO_GO.**
