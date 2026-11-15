@@ -1293,3 +1293,54 @@ No runtime coordinator, browser/provider operation, staging, commit, push or
 Phase 16 work. **STOP for independent ChatGPT review.**
 
 Detailed contract, matrices and measured evidence: [Phase 15.04](Phases/phase15/PHASE_15_04.md).
+
+
+## Phase 16.01 customer Apps fixture review handoff — 2026-11-15 (Africa/Cairo)
+
+[Phase 16.01 report](Phases/phase16/PHASE_16_01.md) and
+[Phase 16 parent](Phases/phase16/PHASE_16.md).
+**PHASE 16.01: READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY**.
+Phase 15.04 ACCEPTED/PUBLISHED and Phase 15 ACCEPTED / OFFLINE FIXTURE EXIT PASS
+at `5ac699948ce5f704a2e56d4ea6f9815b74764730`, per supplied acceptance and matching
+local HEAD/upstream. This append supersedes earlier pending tracking without
+rewriting historical evidence. Official progress remains **53/72; 6/20**.
+
+Standalone caller-supplied canonical synthetic Apps snapshots distinguish Production
+preview, separate unselected Test, module availability, pl_auth not-installed and
+cedar_labels static-installed. Unknown/conflicting/stale/context/authentication/
+review/control cases fail closed. All 17 authority/effect flags remain false;
+static listing and reviewed intent grant no installation or execution authority.
+No runtime consumer, imports, provider capability, HTML parser or installation
+simulation was added. Source/tests were preserved through conditional resumption.
+
+Original RED **1 pass / 70 assertion failures**, exit 1; unchanged-test GREEN
+**71/71**, final focused **370/370**, full **2630/2630** (all 2559 baseline tests),
+separate isolation **10/10**, and both syntax checks PASS. All final commands exit 0;
+zero skips/cancellations/todos. Internal read-only review found no actionable defects;
+independent ChatGPT acceptance/publication remains required.
+
+Original exact-ref check stopped on unexplained movement. Following a metadata-only
+investigation, ChatGPT approved resumption for this phase only with additions/removals
+confined to `refs/codex/turn-diffs/captures/*` and
+`refs/codex/turn-diffs/checkpoints/*`. **EXCEPTION RECORDED — NOT BYTE/NAME IDENTICAL**.
+Protected project-state preservation is independently reverified; final results and
+all exact observed ref names/object IDs are in the report. No ref manipulation;
+no claim of harmlessness, temporary lifetime, management or creator attribution.
+Cause and historical Git discrepancies remain **UNVERIFIED**.
+
+Decision: the narrow ref exception permits completion only while protected project state remains unchanged. It does not resolve the original mismatch or authorize changes outside the two exact namespaces. Any protected-state drift requires STOP.
+
+Phase 09.03/10.03 **BLOCKED / NOT AUTHORIZED**. 16.02–16.04 **NOT_STARTED /
+NOT AUTHORIZED**. Production **NO_GO**. Real customer origins/selectors/layouts,
+account/rights, authenticated approval, installation, provider outcomes, Plementus
+mapping/native Connect, trusted context and durable replay remain unverified.
+Protected IDE contents were not read/hashed/modified; status observation only.
+No staging, commit, push or subsequent phase. **STOP for ChatGPT review.**
+
+Final measured audit: exactly nine paths (four new, five append-only); all five
+historical byte prefixes and 230 other existing extension files preserved.
+**Protected project state PASS**: required branch/HEAD/upstream/origins, all
+non-excepted refs, three raw indexes and worktree identities match original entry.
+**EXCEPTION RECORDED — NOT BYTE/NAME IDENTICAL** for scoped captures/checkpoints
+ref movement; cause and historical discrepancies UNVERIFIED. UTF-8/LF, whitespace,
+fences, final newlines, 25 authored internal links and scoped diff check pass.
