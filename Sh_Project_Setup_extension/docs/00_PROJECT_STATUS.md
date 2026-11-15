@@ -1454,3 +1454,55 @@ published fixture unchanged. Formatting and 15 authored links pass. Exact refs
 and protected state preserved; staging empty. Read-only reviewer found no actionable
 issues and independently passed 76 mapping plus 3 isolation tests. No acceptance
 or publication inferred. **55/72; 6/20; Production NO_GO. STOP for ChatGPT review.**
+
+
+## Phase 16.04 — native Connect manual fixture handoff (2026-11-15, Africa/Cairo)
+
+Phase 16.03 **ACCEPTED/PUBLISHED at d78e6c4**
+(`d78e6c40a9acca785f45aa351169b8121c2a6caa`), per supplied acceptance and verified
+HEAD/upstream/live origin. Historical pending-review text remains verbatim.
+Phase 16.04 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY / MANUAL_HANDOFF_ONLY**.
+Official progress **56/72 micro-phases; 6/20 parent phases** until independent
+acceptance/publication. Phase 16 **IN_PROGRESS / NOT ACCEPTED**;
+**PARENT ACCEPTANCE PENDING**. Phase 17+ **NOT AUTHORIZED**;
+09.03/10.03 **BLOCKED / NOT AUTHORIZED**. Production **NO_GO**.
+
+Standalone native Connect handoff evaluator binds separate Live/Test synthetic
+checkpoints and acknowledgment/attempt/result claims. Both fixture Connect controls
+must stay disabled and both states not-connected. Database INFO remains an unsubmitted
+preview. All outputs are flat frozen SIMULATED/SYNTHETIC_UNTRUSTED with all 17 flags
+false. Claimed success/independent verification never proves real state; uncertain
+or possibly completed attempts require manual reconciliation without automatic retry.
+
+RED **0 pass / 127 assertion failures**; initial implementation **121/127** due to
+one contradictory privacy assertion. Corrected RED **0/127**, then GREEN **127/127**
+with unchanged corrected tests and first implementation. Exact correction and both
+histories are retained in the report. Focused **479/479**, full **2898/2898**
+(2771 preserved +127), isolation **13/13**, both syntax checks pass. Final commands
+exit 0 with zero failure/skip/cancelled/todo. No live/provider/browser tests.
+
+Pre-documentation audits: all 50 refs identical, three raw indexes/worktree identities
+preserved, staging empty, required branch/HEAD/upstream and both origin URLs unchanged.
+Six historical prefixes and 239 other tracked extension files preserved; fixture hash
+unchanged. Protected IDE contents never read/hashed/modified; path/status only.
+No ref exception needed at those endpoints; historical discrepancies UNVERIFIED.
+Final nine-file, prefix, formatting/link and Git audit appears in the report.
+
+Actual native Connect, real authentication, Database INFO submissions and connection
+verification remain **UNVERIFIED**. Human authentication, connection and result
+verification need a separately authorized future workflow. After 16.04 independent
+acceptance/publication, the parent still needs a separately authorized offline exit
+assessment of all four accepted adapters and their interactions. No parent composition
+or acceptance, runtime consumers, permissions or later work were added.
+No staging, commit or push. **STOP for ChatGPT review.**
+
+Current action: independent ChatGPT review of 16.04; do not increment progress.
+
+See [Phase 16.04 report](Phases/phase16/PHASE_16_04.md).
+
+Final measured documentation/preservation audit: exactly nine paths (three new,
+six append-only), six historical prefixes, 239 other tracked extension files and
+fixture hash preserved; 15 authored links and formatting pass. Exact refs 50/50
+identical, three raw indexes/worktree identities and sibling statuses unchanged;
+staging empty. Read-only reviewer independently passed 127 tests with no actionable
+findings. Progress stays 56/72; parent PARENT ACCEPTANCE PENDING; Production NO_GO.
