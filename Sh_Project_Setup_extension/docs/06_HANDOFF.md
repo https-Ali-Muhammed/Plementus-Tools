@@ -1463,3 +1463,45 @@ Final documentation audit: exactly nine authorized paths, six original prefixes 
 pass. Protected Git state PASS; exact refs 48/48 identical, no object-ID differences
 and no exception applied. Three raw indexes/worktree identities unchanged; staging
 empty. Source/tests match the verified snapshots. Production NO_GO.
+
+
+## Phase 16.03 — Plementus Database INFO mapping (2026-11-15, Africa/Cairo)
+
+Phase 16.02 **ACCEPTED/PUBLISHED at 5099891**
+(`5099891291e1416df44ac7a2e9c1571298dde4f2`), per supplied acceptance and matching
+HEAD/upstream/live origin. Its historical pending-review bytes remain unchanged.
+Phase 16.03 **READY_FOR_CHATGPT_REVIEW — FIXTURE_ONLY / READ_ONLY / NO EXECUTION
+AUTHORITY**. Progress remains **55/72 micro-phases; 6/20 parent phases** pending
+acceptance/publication. Phase 16 parent **IN_PROGRESS / NOT ACCEPTED**.
+16.04 **NOT_STARTED / NOT AUTHORIZED**; 09.03/10.03 **BLOCKED / NOT AUTHORIZED**.
+Production **NO_GO**.
+
+New standalone evaluator maps only the four fictional Database INFO fields, keeps
+Live/Test separate and requires complete compatible mapping plus an independent
+review checkpoint. Outputs are frozen, sanitized SIMULATED / SYNTHETIC_UNTRUSTED;
+all 17 authority/effect flags remain false. No raw values/credentials, Submit/Connect
+execution or runtime/browser capability. Unknown real mapping requires manual review.
+
+RED **0 pass / 76 assertion failures**; corrected RED **0/76**, then unchanged-test
+GREEN **76/76**. One invalid-array probe was corrected before implementation to
+respect the prewritten schema; both RED histories are retained. Focused **352/352**,
+full **2771/2771** (2695 preserved +76), isolation **12/12**; both syntax checks pass.
+All final commands exit 0 with zero failures/skips/cancelled/todo.
+
+Protected-state checks through pre-documentation: 49/49 exact refs identical,
+three raw indexes/worktree identities preserved, staging empty, required branch/
+HEAD/upstream and both origin URLs unchanged. Protected IDE contents unread and
+untouched; metadata-only continuity. No narrow ref exception needed. Historical
+Git discrepancies remain UNVERIFIED. Final scope/prefix/link audit is in the report.
+Real Plementus mapping/native Connect and Production remain unverified. No staging,
+commit, push or Phase 16.04. **STOP for ChatGPT review.**
+
+Next action: independent ChatGPT review of [16.03 report](Phases/phase16/PHASE_16_03.md), source and tests; owner controls publication after acceptance. Do not start 16.04. Review the retained RED/GREEN, exact scope and final preservation evidence.
+
+Final measured audit: exactly nine authorized paths (three new/six append-only),
+all six historical prefixes and 236 other tracked extension files preserved;
+published fixture unchanged. Formatting and 15 authored links pass. Exact refs
+49/49 identical; no ref exception applied. Three raw indexes/worktree identities
+and protected state preserved; staging empty. Read-only reviewer found no actionable
+issues and independently passed 76 mapping plus 3 isolation tests. No acceptance
+or publication inferred. **55/72; 6/20; Production NO_GO. STOP for ChatGPT review.**
