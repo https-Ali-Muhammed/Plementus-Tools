@@ -1560,3 +1560,36 @@ both origin URLs unchanged; all staging empty; protected IDE path/status unchang
 without reading/hashing its contents. Formatting and 12 authored internal links pass.
 Parent remains a PARENT_EXIT_PASS review candidate, not accepted. **57/72; 6/20;
 Production NO_GO. STOP for ChatGPT review.**
+
+
+## Parent acceptance reconciliation — 2026-11-15 (Africa/Cairo)
+
+Scope: **DOCUMENTATION_ONLY**. The user supplies these independent review
+dispositions; historical review statements and original evidence are retained.
+
+- Phase 08: **PARENT ACCEPTANCE PENDING**.
+- Phase 11: **ACCEPT — OFFLINE ONLY**.
+- Phase 12: **ACCEPT — OFFLINE ONLY**.
+- Phase 13: **ACCEPT — OFFLINE ONLY**.
+- Phase 14: **OFFLINE FIXTURE EXIT PASS; FULL PARENT ACCEPTANCE HOLD**.
+
+Current published progress: **57/72 micro-phases; 7/20 parents**.
+**10/20 parents is prospective only, after reconciliation publication is verified
+by ChatGPT**; the three additions would be Phases 11, 12 and 13. No micro-phase
+is added or counted. Phases 08 and 14 remain unaccepted.
+
+The supplied current baseline includes the published Phase 16 offline parent
+exit at bdf5eab51febeaeb27e5156d72f4a8e7bed6605d. Earlier 6/20 and pending
+Phase 16 wording remains historical. Acceptance provenance is the supplied
+review instruction; matching Git publication alone does not grant acceptance.
+
+Historical Git discrepancies remain **UNVERIFIED**. Phase 04 **BLOCKED /
+POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 parent **IN_PROGRESS /
+NOT ACCEPTED** and 07.03 **ACCEPTED — MOCK_ONLY** restrictions remain unchanged.
+Phase 09.03/10.03 **BLOCKED / NOT AUTHORIZED**; Phase 18/19 **HARD GATES** remain.
+No Phase 17 implementation, real-site work, new authority or security-policy
+modification. Production **NO_GO**.
+
+[Eleven-file inventory, evidence and preservation report](Phases/PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
+**PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
+**STOP for ChatGPT review.** No staging, commit or push.

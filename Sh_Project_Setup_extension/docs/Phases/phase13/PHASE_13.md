@@ -122,3 +122,28 @@ preserved, current count 37, no additional refs. Three index byte/metadata
 snapshots, 11 existing sampled Git metadata files and three worktree identities
 preserved. No newly observed metadata exceptions; protected contents unverified.
 Historical discrepancy/drift remain UNVERIFIED. **STOP for ChatGPT review.**
+
+
+## Parent acceptance reconciliation — 2026-11-15 (Africa/Cairo)
+
+User-supplied independent review disposition: **ACCEPT — OFFLINE ONLY**.
+Acceptance is limited to disconnected Odoo.sh page recognition, unknown-page
+fallback and versioned fixture isolation. Real-page compatibility and trusted
+browser observation remain **UNVERIFIED**.
+
+Current published progress: **57/72 micro-phases; 7/20 parents**.
+**10/20 parents is prospective only, after reconciliation publication is verified
+by ChatGPT**; the three additions would be Phases 11, 12 and 13. No micro-phase
+is added or counted. Phases 08 and 14 remain unaccepted.
+
+Historical Git discrepancies remain **UNVERIFIED**. Phase 04 **BLOCKED /
+POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07 parent **IN_PROGRESS /
+NOT ACCEPTED** and 07.03 **ACCEPTED — MOCK_ONLY** restrictions remain unchanged.
+Phase 09.03/10.03 **BLOCKED / NOT AUTHORIZED**; Phase 18/19 **HARD GATES** remain.
+No Phase 17 implementation, real-site work, new authority or security-policy
+modification. Production **NO_GO**.
+
+[Reconciliation report and evidence](../PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
+Earlier review statements and their original evidence remain verbatim. This
+documentation records the supplied decision; publication review is still pending.
+**PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
