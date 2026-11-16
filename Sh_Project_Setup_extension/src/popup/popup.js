@@ -1,5 +1,24 @@
 import { validateProjectSubscription, validateGithub, validateUtilities, validateEnvironment } from "./validation.mjs";
 
+const workspaceLaunch = document.querySelector("#workspace-launch");
+const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
+document.body.classList.toggle("workspace", workspaceMode);
+workspaceLaunch.hidden = workspaceMode;
+document.querySelector("#open-workspace").addEventListener("click", async event => {
+  const button = event.currentTarget;
+  const error = document.querySelector("#workspace-error");
+  error.hidden = true;
+  button.disabled = true;
+  try {
+    await chrome.tabs.create({ url: chrome.runtime.getURL("src/popup/popup.html?workspace=1") });
+  } catch {
+    error.textContent = "Could not open the workspace. Please try again.";
+    error.hidden = false;
+  } finally {
+    button.disabled = false;
+  }
+});
+
 const form = document.querySelector("#project-subscription-form");
 form.addEventListener("submit", event => event.preventDefault());
 const fields = {

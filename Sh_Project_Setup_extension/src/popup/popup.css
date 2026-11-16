@@ -20,6 +20,33 @@ main {
   padding: 1rem;
 }
 
+body.workspace {
+  min-width: 0;
+  max-width: none;
+  max-height: none;
+}
+
+.workspace main {
+  box-sizing: border-box;
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+#workspace-launch {
+  margin-bottom: 1rem;
+}
+
+#workspace-launch p {
+  margin: 0.4rem 0 0;
+  color: #53627c;
+  font-size: 0.8rem;
+}
+
+#workspace-launch #workspace-error {
+  color: #b42318;
+}
+
 h1,
 h2,
 p {
