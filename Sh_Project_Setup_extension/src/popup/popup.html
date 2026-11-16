@@ -17,6 +17,19 @@
           <p>Opening the workspace begins a fresh local form. Data from this popup is not transferred.</p>
           <p id="workspace-error" role="alert" hidden></p>
         </div>
+        <section id="tab-observation" aria-labelledby="tab-observation-heading">
+          <h2 id="tab-observation-heading">Current browser tab</h2>
+          <button id="inspect-current-tab" type="button">Inspect current tab</button>
+          <p id="tab-observation-state" role="status" aria-live="polite" aria-atomic="true">Not inspected</p>
+          <div id="tab-observation-details" hidden>
+            <dl>
+              <dt>Provider</dt><dd id="tab-observation-provider"></dd>
+              <dt>Observation</dt><dd id="tab-observation-source"></dd>
+              <dt id="tab-observation-repository-row">Repository candidate</dt><dd id="tab-observation-repository"></dd>
+            </dl>
+            <p>Account and repository permissions are not verified.</p>
+          </div>
+        </section>
       </header>
 
       <nav aria-label="Setup progress">

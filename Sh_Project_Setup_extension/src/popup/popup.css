@@ -47,6 +47,33 @@ body.workspace {
   color: #b42318;
 }
 
+#tab-observation {
+  border-color: #b8cbe5;
+  background: #f6f9ff;
+}
+
+#tab-observation button {
+  margin-bottom: 0.65rem;
+}
+
+#tab-observation-state {
+  font-weight: 700;
+}
+
+#tab-observation dl {
+  margin: 0.7rem 0;
+  font-size: 0.875rem;
+}
+
+#tab-observation dt {
+  font-weight: 700;
+}
+
+#tab-observation dd {
+  margin: 0 0 0.45rem;
+  overflow-wrap: anywhere;
+}
+
 h1,
 h2,
 p {

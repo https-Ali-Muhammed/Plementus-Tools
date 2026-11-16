@@ -1,10 +1,50 @@
 import { validateProjectSubscription, validateGithub, validateUtilities, validateEnvironment } from "./validation.mjs";
 import { createDemoPlan, createDemoRunner } from "./demo-simulation.mjs";
+import { assessTabObservation } from "./tab-observation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
 document.body.classList.toggle("workspace", workspaceMode);
 workspaceLaunch.hidden = workspaceMode;
+const tabObservation = document.querySelector("#tab-observation");
+tabObservation.hidden = workspaceMode;
+const inspectCurrentTab = document.querySelector("#inspect-current-tab");
+const observationState = document.querySelector("#tab-observation-state");
+const observationDetails = document.querySelector("#tab-observation-details");
+const repositoryRow = document.querySelector("#tab-observation-repository-row");
+const repositoryValue = document.querySelector("#tab-observation-repository");
+
+inspectCurrentTab.addEventListener("click", async () => {
+  observationState.textContent = "Inspecting";
+  observationDetails.hidden = true;
+  inspectCurrentTab.disabled = true;
+  try {
+    if (!chrome.tabs?.query) {
+      observationState.textContent = "Access unavailable";
+      return;
+    }
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const result = assessTabObservation(Array.isArray(tabs) && tabs.length === 1 ? tabs[0] : undefined);
+    observationState.textContent = {
+      github: "GitHub tab observed",
+      unsupported: "Unsupported tab",
+      "access-unavailable": "Access unavailable",
+    }[result.state];
+    if (result.state === "github") {
+      document.querySelector("#tab-observation-provider").textContent = "GitHub";
+      document.querySelector("#tab-observation-source").textContent = "browser tab metadata";
+      repositoryRow.hidden = !result.repositoryCandidate;
+      repositoryValue.hidden = !result.repositoryCandidate;
+      repositoryValue.textContent = result.repositoryCandidate || "";
+      observationDetails.hidden = false;
+    }
+  } catch {
+    observationState.textContent = "Observation failed";
+  } finally {
+    inspectCurrentTab.disabled = false;
+  }
+});
+
 document.querySelector("#open-workspace").addEventListener("click", async event => {
   const button = event.currentTarget;
   const error = document.querySelector("#workspace-error");
