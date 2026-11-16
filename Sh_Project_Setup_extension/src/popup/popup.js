@@ -22,8 +22,8 @@ function currentValues() {
 
 const githubFields = {
   organization: document.querySelector("#github-organization"),
-  repository: document.querySelector("#repository"),
   mode: document.querySelector("#repository-mode"),
+  repository: document.querySelector("#repository"),
 };
 const githubErrors = {
   organization: document.querySelector("#github-organization-error"),
@@ -88,11 +88,15 @@ document.querySelector("#add-utility").addEventListener("click", () => {
     });
     field.addEventListener("input", validateUtilityFields);
   }
-  row.querySelector(".remove-utility").addEventListener("click", () => {
+  const removeUtility = () => {
     row.remove();
     validateUtilityFields();
     document.querySelector("#add-utility").focus();
-  });
+  };
+  const removeButton = row.querySelector(".remove-utility");
+  // Remove before blur validation can move the button away from a pointer click.
+  removeButton.addEventListener("pointerdown", removeUtility);
+  removeButton.addEventListener("click", removeUtility);
   utilityList.append(row);
   row.querySelector(".utility-url").focus();
 });
@@ -175,6 +179,7 @@ function renderSummary() {
     ["Production branch", environmentFields.production.value],
     ["Staging branch", environmentFields.staging.value],
     ["Domain preference", environmentFields.domainMode.selectedOptions[0]?.textContent],
+    ["Modules", "Unavailable"],
     ...(environmentFields.domainMode.value === "custom" ? [
       ["Production hostname", environmentFields.productionDomain.value],
       ["Staging hostname", environmentFields.stagingDomain.value],
@@ -195,3 +200,95 @@ utilityList.addEventListener("click", renderSummary);
 document.querySelector("#add-utility").addEventListener("click", renderSummary);
 updateEnvironment();
 renderSummary();
+
+const steps = [...form.querySelectorAll(":scope > section")];
+const progress = [...document.querySelectorAll(".progress li")];
+const backButton = document.querySelector("#back");
+const continueButton = document.querySelector("#continue");
+const prepareButton = document.querySelector("#prepare");
+let stepIndex = 0;
+let prepared = false;
+
+function showStep(index, focus = true) {
+  stepIndex = index;
+  steps.forEach((section, position) => { section.hidden = position !== index; });
+  progress.forEach((item, position) => {
+    item.classList.toggle("current", position === index);
+    if (position === index) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+  backButton.disabled = prepared || index === 0;
+  continueButton.hidden = index === steps.length - 1;
+  prepareButton.hidden = index !== steps.length - 1;
+  if (focus) steps[index].querySelector("h2").focus();
+}
+
+function firstInvalidField(index) {
+  if (index === 0) {
+    Object.keys(fields).forEach(name => touchedFields.add(name));
+    validateTouchedFields();
+    const validation = validateProjectSubscription(currentValues());
+    const name = Object.keys(fields).find(key => validation[key]);
+    return name ? fields[name] : null;
+  }
+  if (index === 1) {
+    Object.keys(githubFields).forEach(name => githubTouched.add(name));
+    validateGithubFields();
+    const rows = [...utilityList.querySelectorAll("fieldset")];
+    rows.forEach(row => row.querySelectorAll(".utility-url, .utility-path")
+      .forEach(field => { field.dataset.touched = "true"; }));
+    validateUtilityFields();
+    const githubValidation = validateGithub(Object.fromEntries(
+      Object.entries(githubFields).map(([name, field]) => [name, field.value]),
+    ));
+    const githubName = Object.keys(githubFields).find(name => githubValidation[name]);
+    if (githubName) return githubFields[githubName];
+    const utilitiesValidation = validateUtilities(rows.map(row => ({
+      url: row.querySelector(".utility-url").value,
+      path: row.querySelector(".utility-path").value,
+    })));
+    for (const [position, errors] of utilitiesValidation.entries()) {
+      for (const name of ["url", "path"]) {
+        if (errors[name]) return rows[position].querySelector(`.utility-${name}`);
+      }
+    }
+  }
+  if (index === 2) {
+    Object.keys(environmentFields).forEach(name => environmentTouched.add(name));
+    updateEnvironment();
+    const validation = validateEnvironment(Object.fromEntries(
+      Object.entries(environmentFields).map(([name, field]) => [name, field.value]),
+    ));
+    const name = Object.keys(environmentFields).find(key => validation[key]);
+    if (name) return environmentFields[name];
+  }
+  return null;
+}
+
+backButton.addEventListener("click", () => {
+  if (!prepared && stepIndex > 0) showStep(stepIndex - 1);
+});
+continueButton.addEventListener("click", () => {
+  if (prepared || stepIndex >= steps.length - 1) return;
+  const invalid = firstInvalidField(stepIndex);
+  if (invalid) return invalid.focus();
+  if (stepIndex === steps.length - 2) renderSummary();
+  showStep(stepIndex + 1);
+});
+prepareButton.addEventListener("click", () => {
+  if (prepared || stepIndex !== steps.length - 1) return;
+  for (let index = 0; index < steps.length - 1; index++) {
+    const invalid = firstInvalidField(index);
+    if (invalid) {
+      showStep(index);
+      invalid.focus();
+      return;
+    }
+  }
+  renderSummary();
+  prepared = true;
+  document.querySelector("#plan-status").textContent =
+    "Setup plan prepared locally. Provisioning has not started.";
+  form.querySelectorAll("input, select, button").forEach(control => { control.disabled = true; });
+});
+showStep(0, false);

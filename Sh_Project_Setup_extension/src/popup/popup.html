@@ -11,21 +11,21 @@
       <header class="wizard-header">
         <p class="eyebrow">Plementus Project Setup</p>
         <h1 id="popup-title">Set Up New Customer</h1>
-        <p class="notice">Preview only — provisioning is not yet functional.</p>
+        <p class="notice">Prepare a local setup plan. Provisioning has not started.</p>
       </header>
 
       <nav aria-label="Setup progress">
         <ol class="progress">
-          <li class="current"><span>1</span> Customer</li>
+          <li class="current" aria-current="step"><span>1</span> Customer</li>
           <li><span>2</span> Repository</li>
           <li><span>3</span> Environments</li>
           <li><span>4</span> Review</li>
         </ol>
       </nav>
 
-      <form id="project-subscription-form" aria-label="New customer setup preview" novalidate>
+      <form id="project-subscription-form" aria-label="New customer setup" novalidate>
         <section aria-labelledby="customer-heading">
-          <h2 id="customer-heading">Customer, project and subscription</h2>
+          <h2 id="customer-heading" tabindex="-1">Customer, project and subscription</h2>
           <label for="customer-name">Customer or project name</label>
           <input id="customer-name" name="projectName" type="text" maxlength="100" autocomplete="off" aria-describedby="customer-name-error">
           <p id="customer-name-error" class="field-error" role="alert" hidden></p>
@@ -41,8 +41,8 @@
           <p id="subscription-reference-error" class="field-error" role="alert" hidden></p>
         </section>
 
-        <section aria-labelledby="repository-heading">
-          <h2 id="repository-heading">GitHub repository and Utilities</h2>
+        <section aria-labelledby="repository-heading" hidden>
+          <h2 id="repository-heading" tabindex="-1">GitHub repository and Utilities</h2>
           <label for="github-organization">GitHub organization</label>
           <input id="github-organization" type="text" maxlength="39" autocomplete="off" aria-describedby="github-organization-error">
           <p id="github-organization-error" class="field-error" role="alert" hidden></p>
@@ -71,8 +71,8 @@
           </template>
         </section>
 
-        <section aria-labelledby="environment-heading">
-          <h2 id="environment-heading">Production, Staging, modules and domains</h2>
+        <section aria-labelledby="environment-heading" hidden>
+          <h2 id="environment-heading" tabindex="-1">Production, Staging, modules and domains</h2>
           <label for="production">Production branch</label>
           <input id="production" type="text" maxlength="200" placeholder="main or master" autocomplete="off" aria-describedby="production-error">
           <p id="production-error" class="field-error" role="alert" hidden></p>
@@ -95,19 +95,22 @@
             <p id="staging-domain-error" class="field-error" role="alert" hidden></p>
           </div>
           <p>Hostnames are checked locally; ownership and DNS are not verified.</p>
-          <label for="modules">Modules</label>
+          <label for="modules">Modules (unavailable)</label>
           <input id="modules" type="text" placeholder="Not configured" disabled>
+          <p>Module selection is unavailable until implemented.</p>
         </section>
 
-        <section aria-labelledby="review-heading">
-          <h2 id="review-heading">Review and confirmation</h2>
-          <p>Preview of current selections; values have not been verified.</p>
+        <section aria-labelledby="review-heading" hidden>
+          <h2 id="review-heading" tabindex="-1">Review and confirmation</h2>
+          <p>Current selections have been checked locally. Provider details have not been verified.</p>
           <dl id="review-summary"></dl>
+          <p id="plan-status" role="status" aria-live="polite"></p>
         </section>
 
         <div class="actions">
-          <button type="button" disabled>Back</button>
-          <button type="button" disabled>Continue (preview only)</button>
+          <button id="back" type="button" disabled>Back</button>
+          <button id="continue" type="button">Continue</button>
+          <button id="prepare" type="button" hidden>Prepare setup plan</button>
         </div>
       </form>
     </main>
