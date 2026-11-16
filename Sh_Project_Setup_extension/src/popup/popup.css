@@ -155,6 +155,91 @@ button:disabled {
   opacity: 1;
 }
 
+#start-simulation {
+  margin-top: 1rem;
+  border-color: #174ea6;
+  background: #174ea6;
+  color: #fff;
+  font-weight: 700;
+}
+
+#start-simulation:disabled {
+  border-color: #aeb9cc;
+  background: #dfe4ef;
+  color: #59657a;
+}
+
+#simulation-panel {
+  border-color: #9bb7df;
+  background: #f6f9ff;
+}
+
+.simulation-label {
+  margin-bottom: 0.35rem;
+  color: #174ea6;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+#simulation-progress {
+  width: 100%;
+  height: 1rem;
+  accent-color: #174ea6;
+}
+
+#simulation-status {
+  min-height: 1.4rem;
+  margin: 0.65rem 0;
+  font-weight: 700;
+}
+
+#simulation-timeline {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#simulation-timeline li {
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid #d5e0ef;
+  border-left: 0.3rem solid #aebbd0;
+  border-radius: 0.35rem;
+  background: #fff;
+}
+
+#simulation-timeline li:has(.state-running) { border-left-color: #174ea6; }
+#simulation-timeline li:has(.state-simulated) { border-left-color: #20805e; }
+#simulation-timeline li:has(.state-not_configured) { border-left-color: #a06617; }
+
+#simulation-timeline strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.simulation-state {
+  display: inline-block;
+  margin-top: 0.3rem;
+  color: #174ea6;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+#simulation-timeline p { margin-top: 0.3rem; }
+
+#simulation-finish {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 0.35rem;
+  background: #e1f3ec;
+  color: #14543c;
+  font-weight: 700;
+}
+
 input:disabled,
 select:disabled {
   background: #f2f4f8;

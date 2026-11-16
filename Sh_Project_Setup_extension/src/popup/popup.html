@@ -110,6 +110,7 @@
           <p>Current selections have been checked locally. Provider details have not been verified.</p>
           <dl id="review-summary"></dl>
           <p id="plan-status" role="status" aria-live="polite"></p>
+          <button id="start-simulation" type="button" hidden>Start simulated setup</button>
         </section>
 
         <div class="actions">
@@ -118,6 +119,16 @@
           <button id="prepare" type="button" hidden>Prepare setup plan</button>
         </div>
       </form>
+      <section id="simulation-panel" aria-labelledby="simulation-heading" hidden>
+        <p class="simulation-label">SIMULATION · LOCAL DEMONSTRATION</p>
+        <h2 id="simulation-heading">Setup timeline</h2>
+        <p>All outcomes below are invented locally. No external actions are verified or performed.</p>
+        <label for="simulation-progress">Overall progress <span id="simulation-count">0 of 6 steps</span></label>
+        <progress id="simulation-progress" max="6" value="0"></progress>
+        <p id="simulation-status" role="status" aria-live="polite" aria-atomic="true"></p>
+        <ol id="simulation-timeline"></ol>
+        <p id="simulation-finish" hidden></p>
+      </section>
     </main>
     <script type="module" src="popup.js"></script>
   </body>

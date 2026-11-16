@@ -1,4 +1,5 @@
 import { validateProjectSubscription, validateGithub, validateUtilities, validateEnvironment } from "./validation.mjs";
+import { createDemoPlan, createDemoRunner } from "./demo-simulation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -225,8 +226,41 @@ const progress = [...document.querySelectorAll(".progress li")];
 const backButton = document.querySelector("#back");
 const continueButton = document.querySelector("#continue");
 const prepareButton = document.querySelector("#prepare");
+const startSimulationButton = document.querySelector("#start-simulation");
 let stepIndex = 0;
 let prepared = false;
+let demoRunner;
+
+function renderSimulation(snapshot) {
+  document.querySelector("#simulation-panel").hidden = false;
+  document.querySelector("#simulation-progress").value = snapshot.completed;
+  document.querySelector("#simulation-count").textContent = `${snapshot.completed} of ${snapshot.steps.length} steps`;
+  const timeline = document.querySelector("#simulation-timeline");
+  timeline.replaceChildren(...snapshot.steps.map(step => {
+    const item = document.createElement("li");
+    const name = document.createElement("strong");
+    const state = document.createElement("span");
+    const detail = document.createElement("p");
+    name.textContent = step.name;
+    state.textContent = step.state;
+    state.className = `simulation-state state-${step.state.toLowerCase()}`;
+    detail.textContent = step.detail;
+    item.append(name, state, detail);
+    return item;
+  }));
+  const running = snapshot.steps.find(step => step.state === "RUNNING");
+  document.querySelector("#simulation-status").textContent = snapshot.summary ||
+    (running ? `${running.name}: RUNNING` : `${snapshot.completed} of ${snapshot.steps.length} steps complete`);
+  const finish = document.querySelector("#simulation-finish");
+  finish.hidden = !snapshot.summary;
+  finish.textContent = snapshot.summary;
+}
+
+startSimulationButton.addEventListener("click", () => {
+  if (!workspaceMode || !demoRunner || startSimulationButton.disabled) return;
+  startSimulationButton.disabled = true;
+  void demoRunner.start();
+});
 
 function showStep(index, focus = true) {
   stepIndex = index;
@@ -305,9 +339,25 @@ prepareButton.addEventListener("click", () => {
     }
   }
   renderSummary();
+  const plan = createDemoPlan({
+    ...currentValues(),
+    organization: githubFields.organization.value,
+    repository: githubFields.repository.value,
+    repositoryMode: githubFields.mode.value,
+    utilities: [...utilityList.querySelectorAll("fieldset")].map(row => ({
+      url: row.querySelector(".utility-url").value,
+      path: row.querySelector(".utility-path").value,
+    })),
+    ...Object.fromEntries(Object.entries(environmentFields).map(([name, field]) => [name, field.value])),
+  });
   prepared = true;
   document.querySelector("#plan-status").textContent =
     "Setup plan prepared locally. Provisioning has not started.";
   form.querySelectorAll("input, select, button").forEach(control => { control.disabled = true; });
+  if (workspaceMode) {
+    demoRunner = createDemoRunner(plan, renderSimulation);
+    startSimulationButton.hidden = false;
+    startSimulationButton.disabled = false;
+  }
 });
 showStep(0, false);
