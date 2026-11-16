@@ -163,6 +163,16 @@ button:disabled {
   font-weight: 700;
 }
 
+#simulation-setup { margin-top: 1rem; }
+
+#simulation-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+#simulation-controls button { width: auto; flex: 1; }
+
 #start-simulation:disabled {
   border-color: #aeb9cc;
   background: #dfe4ef;
@@ -239,6 +249,18 @@ button:disabled {
   color: #14543c;
   font-weight: 700;
 }
+
+#simulation-report {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: 1px solid #b8cbe5;
+  border-radius: 0.35rem;
+  background: #fff;
+}
+
+#simulation-report h3 { margin-top: 0; }
+#simulation-report dt { margin-top: 0.7rem; font-weight: 700; }
+#simulation-report dd { margin: 0.15rem 0 0; overflow-wrap: anywhere; }
 
 input:disabled,
 select:disabled {

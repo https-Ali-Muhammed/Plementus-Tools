@@ -110,7 +110,21 @@
           <p>Current selections have been checked locally. Provider details have not been verified.</p>
           <dl id="review-summary"></dl>
           <p id="plan-status" role="status" aria-live="polite"></p>
+          <div id="simulation-setup" hidden>
+            <label for="simulation-scenario">Demo scenario</label>
+            <select id="simulation-scenario">
+              <option value="normal">Normal local simulation</option>
+              <option value="production-failure">Simulated failure at Production</option>
+              <option value="staging-unknown">Simulated unknown outcome at Staging</option>
+            </select>
+          </div>
           <button id="start-simulation" type="button" hidden>Start simulated setup</button>
+          <div id="simulation-controls">
+            <button id="pause-simulation" type="button" hidden>Pause</button>
+            <button id="resume-simulation" type="button" hidden>Resume</button>
+            <button id="cancel-simulation" type="button" hidden>Cancel</button>
+          </div>
+          <p id="simulation-status" role="status" aria-live="polite" aria-atomic="true" hidden>Run state: <span id="simulation-run-state">IDLE</span>. <span id="simulation-current"></span></p>
         </section>
 
         <div class="actions">
@@ -125,9 +139,12 @@
         <p>All outcomes below are invented locally. No external actions are verified or performed.</p>
         <label for="simulation-progress">Overall progress <span id="simulation-count">0 of 6 steps</span></label>
         <progress id="simulation-progress" max="6" value="0"></progress>
-        <p id="simulation-status" role="status" aria-live="polite" aria-atomic="true"></p>
         <ol id="simulation-timeline"></ol>
         <p id="simulation-finish" hidden></p>
+        <section id="simulation-report" aria-labelledby="simulation-report-heading" hidden>
+          <h3 id="simulation-report-heading">Local demonstration report</h3>
+          <dl id="simulation-report-details"></dl>
+        </section>
       </section>
     </main>
     <script type="module" src="popup.js"></script>

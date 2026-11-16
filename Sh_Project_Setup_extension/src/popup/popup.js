@@ -227,9 +227,14 @@ const backButton = document.querySelector("#back");
 const continueButton = document.querySelector("#continue");
 const prepareButton = document.querySelector("#prepare");
 const startSimulationButton = document.querySelector("#start-simulation");
+const scenarioSelect = document.querySelector("#simulation-scenario");
+const pauseSimulationButton = document.querySelector("#pause-simulation");
+const resumeSimulationButton = document.querySelector("#resume-simulation");
+const cancelSimulationButton = document.querySelector("#cancel-simulation");
 let stepIndex = 0;
 let prepared = false;
 let demoRunner;
+let demoPlan;
 
 function renderSimulation(snapshot) {
   document.querySelector("#simulation-panel").hidden = false;
@@ -249,18 +254,51 @@ function renderSimulation(snapshot) {
     return item;
   }));
   const running = snapshot.steps.find(step => step.state === "RUNNING");
-  document.querySelector("#simulation-status").textContent = snapshot.summary ||
+  document.querySelector("#simulation-run-state").textContent = snapshot.runState;
+  document.querySelector("#simulation-current").textContent = snapshot.summary ||
     (running ? `${running.name}: RUNNING` : `${snapshot.completed} of ${snapshot.steps.length} steps complete`);
   const finish = document.querySelector("#simulation-finish");
   finish.hidden = !snapshot.summary;
   finish.textContent = snapshot.summary;
+  const active = snapshot.runState === "RUNNING" || snapshot.runState === "PAUSED";
+  pauseSimulationButton.hidden = snapshot.runState !== "RUNNING";
+  resumeSimulationButton.hidden = snapshot.runState !== "PAUSED";
+  cancelSimulationButton.hidden = !active;
+  scenarioSelect.disabled = snapshot.runState !== "IDLE";
+  const report = document.querySelector("#simulation-report");
+  report.hidden = !snapshot.report;
+  if (snapshot.report) {
+    const values = [
+      ["Demo scenario", scenarioSelect.selectedOptions[0].textContent],
+      ["Terminal run state", snapshot.report.runState],
+      ["Locally simulated steps", `${snapshot.report.simulatedCount} locally simulated steps: ${snapshot.report.simulatedSteps.join(", ") || "None"}`],
+      ["Not-configured steps", snapshot.report.notConfiguredSteps.join(", ") || "None"],
+      ["Pending or unattempted steps", `${snapshot.report.pendingSteps.length} pending or unattempted steps: ${snapshot.report.pendingSteps.join(", ") || "None"}`],
+      ["Attempted but unfinished step", snapshot.report.unfinishedStep || "None"],
+      ["Manual handoffs", snapshot.report.manualHandoffs.join(", ")],
+      ["External provisioning", snapshot.report.externalProvisioning],
+    ];
+    const details = document.querySelector("#simulation-report-details");
+    details.replaceChildren();
+    for (const [label, value] of values) {
+      const term = document.createElement("dt");
+      const detail = document.createElement("dd");
+      term.textContent = label;
+      detail.textContent = value;
+      details.append(term, detail);
+    }
+  }
 }
 
 startSimulationButton.addEventListener("click", () => {
-  if (!workspaceMode || !demoRunner || startSimulationButton.disabled) return;
+  if (!workspaceMode || !demoPlan || startSimulationButton.disabled) return;
   startSimulationButton.disabled = true;
+  demoRunner = createDemoRunner(demoPlan, renderSimulation, undefined, scenarioSelect.value);
   void demoRunner.start();
 });
+pauseSimulationButton.addEventListener("click", () => demoRunner?.pause());
+resumeSimulationButton.addEventListener("click", () => demoRunner?.resume());
+cancelSimulationButton.addEventListener("click", () => demoRunner?.cancel());
 
 function showStep(index, focus = true) {
   stepIndex = index;
@@ -339,7 +377,7 @@ prepareButton.addEventListener("click", () => {
     }
   }
   renderSummary();
-  const plan = createDemoPlan({
+  demoPlan = createDemoPlan({
     ...currentValues(),
     organization: githubFields.organization.value,
     repository: githubFields.repository.value,
@@ -353,9 +391,12 @@ prepareButton.addEventListener("click", () => {
   prepared = true;
   document.querySelector("#plan-status").textContent =
     "Setup plan prepared locally. Provisioning has not started.";
-  form.querySelectorAll("input, select, button").forEach(control => { control.disabled = true; });
+  form.querySelectorAll("input, select, button").forEach(control => {
+    if (!control.closest("#simulation-setup, #simulation-controls")) control.disabled = true;
+  });
   if (workspaceMode) {
-    demoRunner = createDemoRunner(plan, renderSimulation);
+    document.querySelector("#simulation-setup").hidden = false;
+    document.querySelector("#simulation-status").hidden = false;
     startSimulationButton.hidden = false;
     startSimulationButton.disabled = false;
   }
