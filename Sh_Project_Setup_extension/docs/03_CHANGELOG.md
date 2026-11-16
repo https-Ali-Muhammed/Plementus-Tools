@@ -1646,3 +1646,17 @@ modification. Production **NO_GO**.
 [Eleven-file inventory, evidence and preservation report](Phases/PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
 **PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
 **STOP for ChatGPT review.** No staging, commit or push.
+
+## Phase 08 offline parent-acceptance documentation — 2026-11-16
+
+Recorded the owner-supplied independent ChatGPT acceptance of the 23-case
+fixture-only parent regression. Created one report and appended six current
+records: seven authorized documentation paths. The local test matches the
+uploaded SHA-256. No accepted source, test, fixture, manifest, master plan,
+policy or configuration was edited. Prior Codex results of 23/23 focused,
+488/488 combined and 2,968/2,968 full were not rerun here. Publication and
+the 11/20 parent increment remain pending; current progress is **57/72;
+10/20**. Production **NO_GO**.
+
+[Acceptance scope and preservation](Phases/phase08/PHASE_08_PARENT_EXIT.md).
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.** STOP.

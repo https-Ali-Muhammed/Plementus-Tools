@@ -2379,3 +2379,26 @@ modification. Production **NO_GO**.
 [Eleven-file inventory, evidence and preservation report](Phases/PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
 **PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
 **STOP for ChatGPT review.** No staging, commit or push.
+
+## Phase 08 offline parent-exit acceptance evidence — 2026-11-16
+
+The local untracked `test/phase08-parent-exit.test.mjs` matches uploaded
+SHA-256 `01994f0c18adaaacb2ed0396e4449954f4c84e9c16fb6a308f30b62c33f29dc4`.
+Owner-supplied ChatGPT review checked its syntax and assertions and **ACCEPTED**
+its 23 cases **OFFLINE_FIXTURE_ONLY**; it did not rerun functional tests.
+Previously run from `Sh_Project_Setup_extension/` by Codex:
+
+| Exact command | Reported result | Exit |
+|---|---:|---:|
+| `node --check test/phase08-parent-exit.test.mjs` | Syntax PASS | 0 |
+| `node --test test/phase08-parent-exit.test.mjs` | 23/23 PASS | 0 |
+| `node --test test/github-permission-reader.test.mjs test/github-repository-discovery.test.mjs test/github-api-error-fixtures.test.mjs test/phase08-parent-exit.test.mjs` | 488/488 PASS | 0 |
+| `node --test test/*.test.mjs` | 2,968/2,968 PASS | 0 |
+
+The three component suites had 79, 97 and 289 passing cases. **No application,
+browser or provider tests ran in this documentation task.** The matrix proves
+separate simulated results and false authority flags; it does not establish
+runtime aggregation, authenticated target correlation or real GitHub behavior.
+
+[Exact evidence and limits](Phases/phase08/PHASE_08_PARENT_EXIT.md).
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.** STOP.

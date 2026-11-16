@@ -1593,3 +1593,19 @@ modification. Production **NO_GO**.
 [Eleven-file inventory, evidence and preservation report](Phases/PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
 **PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
 **STOP for ChatGPT review.** No staging, commit or push.
+
+## Phase 08 offline parent-exit acceptance — 2026-11-16 (Africa/Cairo)
+
+Owner-supplied independent ChatGPT review accepted the 23-case regression
+**OFFLINE_FIXTURE_ONLY** after checking syntax and assertions, without
+rerunning functional tests. The local test SHA-256 matches the supplied
+digest. Prior Codex results: 23/23 focused, 488/488 combined and 2,968/2,968
+full, all exit 0. No application tests were rerun in this documentation task.
+The evidence is **ACCEPTED for documentation**; Phase 08 parent publication
+remains pending. Current published progress stays **57/72; 10/20**;
+prospective after verified publication is **57/72; 11/20**. Real provider
+behavior and authenticated target correlation remain unverified. Production
+**NO_GO**.
+
+[Phase 08 parent acceptance record](Phases/phase08/PHASE_08_PARENT_EXIT.md).
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.** STOP.

@@ -1572,3 +1572,22 @@ modification. Production **NO_GO**.
 [Eleven-file inventory, evidence and preservation report](Phases/PARENT_ACCEPTANCE_RECONCILIATION_2026_11_15.md).
 **PARENT RECONCILIATION: READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.**
 **STOP for ChatGPT review.** No staging, commit or push.
+
+## Phase 08 offline parent-exit decision boundary — 2026-11-16
+
+Owner-supplied ChatGPT review **ACCEPTED** the 23-case evidence
+**OFFLINE_FIXTURE_ONLY**. This closes the missing offline parent-level
+demonstration for documentation; Phase 08 parent publication remains pending.
+There is no runtime aggregator or authenticated correlation between failure
+evidence and a selected repository. Real GitHub authentication, permissions,
+provider responses and browser behavior remain **NOT_VERIFIED**.
+
+Phase 04 **BLOCKED / POSTPONED**, Phase 06 **PARTIAL / BLOCKED**, Phase 07
+parent **IN_PROGRESS / NOT ACCEPTED** with 07.03 **MOCK_ONLY**, and Phase 14
+full parent acceptance **HOLD** remain unchanged. Phase 17 implementation is
+not authorized here; Phase 18/19 remain hard gates. Historical Git uncertainty
+remains **UNVERIFIED**. Production **NO_GO**. Current progress **57/72; 10/20**;
+prospective after verified Phase 08 publication **11/20**.
+
+[Decision evidence and scoped ref exception](Phases/phase08/PHASE_08_PARENT_EXIT.md).
+**READY_FOR_CHATGPT_REVIEW — DOCUMENTATION_ONLY.** STOP.
