@@ -56,7 +56,8 @@ body.workspace {
   margin-bottom: 0.65rem;
 }
 
-#tab-observation-state {
+#tab-observation-state,
+#github-page-state {
   font-weight: 700;
 }
 

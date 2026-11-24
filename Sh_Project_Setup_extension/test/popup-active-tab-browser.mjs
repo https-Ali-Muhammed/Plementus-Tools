@@ -19,7 +19,7 @@ try {
   const id = /^chrome-extension:\/\/([^/]+)\//.exec(worker.url())?.[1];
   assert.ok(id, "unpacked extension loaded");
   const manifest = await worker.evaluate(() => chrome.runtime.getManifest());
-  assert.deepEqual(manifest.permissions, ["activeTab"]);
+  assert.deepEqual(manifest.permissions, ["activeTab", "scripting"]);
   assert.equal("host_permissions" in manifest, false);
   assert.equal("content_scripts" in manifest, false);
   assert.equal(manifest.action.default_popup, "src/popup/popup.html");

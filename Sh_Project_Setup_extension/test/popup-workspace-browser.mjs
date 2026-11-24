@@ -21,7 +21,7 @@ test("popup opens a fresh full-page workspace with the same local wizard", async
     assert.ok(id, "unpacked extension loaded");
     const manifest = await worker.evaluate(() => chrome.runtime.getManifest());
     assert.equal(manifest.action.default_popup, "src/popup/popup.html");
-    assert.deepEqual(manifest.permissions, ["activeTab"]);
+    assert.deepEqual(manifest.permissions, ["activeTab", "scripting"]);
     assert.equal("host_permissions" in manifest, false);
 
     const requests = [];

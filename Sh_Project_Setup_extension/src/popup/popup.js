@@ -1,6 +1,7 @@
 import { validateProjectSubscription, validateGithub, validateUtilities, validateEnvironment } from "./validation.mjs";
 import { createDemoPlan, createDemoRunner } from "./demo-simulation.mjs";
 import { assessTabObservation } from "./tab-observation.mjs";
+import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./github-page-observation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -13,8 +14,22 @@ const observationState = document.querySelector("#tab-observation-state");
 const observationDetails = document.querySelector("#tab-observation-details");
 const repositoryRow = document.querySelector("#tab-observation-repository-row");
 const repositoryValue = document.querySelector("#tab-observation-repository");
+const readGithubPageButton = document.querySelector("#read-github-page");
+const githubPageState = document.querySelector("#github-page-state");
+const githubPageDetails = document.querySelector("#github-page-details");
+let reviewedTab = null;
+function requireReinspection() {
+  reviewedTab = null;
+  readGithubPageButton.hidden = true;
+  observationDetails.hidden = true;
+}
 
 inspectCurrentTab.addEventListener("click", async () => {
+  reviewedTab = null;
+  readGithubPageButton.hidden = true;
+  readGithubPageButton.disabled = true;
+  githubPageState.textContent = "Not read";
+  githubPageDetails.hidden = true;
   observationState.textContent = "Inspecting";
   observationDetails.hidden = true;
   inspectCurrentTab.disabled = true;
@@ -24,7 +39,8 @@ inspectCurrentTab.addEventListener("click", async () => {
       return;
     }
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    const result = assessTabObservation(Array.isArray(tabs) && tabs.length === 1 ? tabs[0] : undefined);
+    const selected = Array.isArray(tabs) && tabs.length === 1 ? tabs[0] : undefined;
+    const result = assessTabObservation(selected);
     observationState.textContent = {
       github: "GitHub tab observed",
       unsupported: "Unsupported tab",
@@ -37,11 +53,88 @@ inspectCurrentTab.addEventListener("click", async () => {
       repositoryValue.hidden = !result.repositoryCandidate;
       repositoryValue.textContent = result.repositoryCandidate || "";
       observationDetails.hidden = false;
+      if (result.repositoryCandidate) {
+        reviewedTab = { id: selected.id, windowId: selected.windowId, url: selected.url,
+          repositoryCandidate: result.repositoryCandidate };
+        readGithubPageButton.hidden = false;
+        readGithubPageButton.disabled = false;
+      }
     }
   } catch {
     observationState.textContent = "Observation failed";
   } finally {
     inspectCurrentTab.disabled = false;
+  }
+});
+
+readGithubPageButton.addEventListener("click", async () => {
+  if (!reviewedTab) return;
+  githubPageState.textContent = "Reading";
+  githubPageDetails.hidden = true;
+  readGithubPageButton.disabled = true;
+  inspectCurrentTab.disabled = true;
+  try {
+    if (!chrome.tabs?.query || !chrome.scripting?.executeScript) {
+      githubPageState.textContent = "Access unavailable";
+      requireReinspection();
+      return;
+    }
+    const before = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!Array.isArray(before) || before.length !== 1 ||
+        assessTabObservation(before[0]).state === "access-unavailable") {
+      githubPageState.textContent = "Access unavailable";
+      requireReinspection();
+      return;
+    }
+    if (!sameGithubTab(before[0], reviewedTab)) {
+      githubPageState.textContent = "Page changed / reinspection required";
+      requireReinspection();
+      return;
+    }
+
+    let injections;
+    try {
+      injections = await chrome.scripting.executeScript({
+        target: { tabId: reviewedTab.id, frameIds: [0] },
+        func: readGithubPage,
+        args: [reviewedTab.repositoryCandidate],
+      });
+    } catch {
+      githubPageState.textContent = "Read failed";
+      return;
+    }
+
+    const after = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!Array.isArray(after) || after.length !== 1 ||
+        assessTabObservation(after[0]).state === "access-unavailable") {
+      githubPageState.textContent = "Access unavailable";
+      requireReinspection();
+      return;
+    }
+    if (!sameGithubTab(after[0], reviewedTab)) {
+      githubPageState.textContent = "Page changed / reinspection required";
+      requireReinspection();
+      return;
+    }
+
+    const page = Array.isArray(injections) && injections.length === 1 && injections[0]?.frameId === 0
+      ? validateGithubPageResult(injections[0].result, reviewedTab.repositoryCandidate) : null;
+    if (!page) {
+      githubPageState.textContent = "Read failed";
+      return;
+    }
+    document.querySelector("#github-page-repository").textContent = page.repositoryCandidate;
+    document.querySelector("#github-page-title").textContent = page.title;
+    document.querySelector("#github-page-heading").textContent = page.heading || "Not determined";
+    document.querySelector("#github-page-source").textContent = "Read-only GitHub page observation";
+    githubPageDetails.hidden = false;
+    githubPageState.textContent = "Page observed";
+  } catch {
+    githubPageState.textContent = "Access unavailable";
+    requireReinspection();
+  } finally {
+    inspectCurrentTab.disabled = false;
+    readGithubPageButton.disabled = !reviewedTab;
   }
 });
 

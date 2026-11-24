@@ -29,6 +29,17 @@
             </dl>
             <p>Account and repository permissions are not verified.</p>
           </div>
+          <button id="read-github-page" type="button" hidden disabled>Read GitHub page</button>
+          <p id="github-page-state" role="status" aria-live="polite" aria-atomic="true">Not read</p>
+          <div id="github-page-details" hidden>
+            <dl>
+              <dt>GitHub repository candidate</dt><dd id="github-page-repository"></dd>
+              <dt>Page title</dt><dd id="github-page-title"></dd>
+              <dt>Repository heading match</dt><dd id="github-page-heading"></dd>
+              <dt>Source</dt><dd id="github-page-source"></dd>
+            </dl>
+            <p>Account access and repository permissions are not verified.</p>
+          </div>
         </section>
       </header>
 

@@ -35,7 +35,7 @@ try {
   const id = /^chrome-extension:\/\/([^/]+)\//.exec(worker.url())?.[1];
   assert.ok(id);
   const manifest = await worker.evaluate(() => chrome.runtime.getManifest());
-  assert.deepEqual(manifest.permissions, ["activeTab"]);
+  assert.deepEqual(manifest.permissions, ["activeTab", "scripting"]);
   assert.equal("host_permissions" in manifest, false);
 
   const requests = [];
