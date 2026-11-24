@@ -43,6 +43,32 @@
           <button id="open-observed-workspace" type="button" hidden>Open workspace with observed repository</button>
         </section>
       </header>
+      <section id="sandbox-branch-assistant" aria-labelledby="sandbox-branch-heading">
+        <h2 id="sandbox-branch-heading">GitHub sandbox branch assistant</h2>
+        <p>Use only an explicitly selected disposable repository. This assistant does not verify ownership or write permission.</p>
+        <label for="sandbox-repository">Exact sandbox owner/repository</label>
+        <input id="sandbox-repository" type="text" maxlength="140" autocomplete="off" spellcheck="false" placeholder="owner/disposable-repository">
+        <label for="sandbox-source">Source branch</label>
+        <input id="sandbox-source" type="text" maxlength="100" autocomplete="off" spellcheck="false" placeholder="main">
+        <label for="sandbox-new-branch">New test branch</label>
+        <input id="sandbox-new-branch" type="text" maxlength="64" autocomplete="off" spellcheck="false" placeholder="plementus-mvp-check-1">
+        <label class="sandbox-acknowledgment" for="sandbox-acknowledgment">
+          <input id="sandbox-acknowledgment" type="checkbox">
+          I confirm this repository is disposable and has no customer data, deployment integrations or production dependencies.
+        </label>
+        <button id="sandbox-preview-button" type="button">Review exact operation</button>
+        <p id="sandbox-branch-state" role="status" aria-live="polite">NOT_CONFIGURED</p>
+        <div id="sandbox-preview" hidden>
+          <p>Repository: <strong id="sandbox-preview-repository"></strong></p>
+          <p>Source branch: <strong id="sandbox-preview-source"></strong></p>
+          <p>New branch: <strong id="sandbox-preview-new"></strong></p>
+          <p>GitHub destination: <strong id="sandbox-destination"></strong></p>
+          <p>Review only. This does not grant ownership, permission or branch creation authority.</p>
+        </div>
+        <button id="sandbox-open-button" type="button" disabled>Open GitHub branch management</button>
+        <button id="sandbox-prepare-button" type="button" disabled>Prepare native branch form</button>
+        <p id="sandbox-instructions">Open the native New branch dialog yourself. Final Create branch submission is always manual.</p>
+      </section>
       <section id="observed-repository-card" aria-labelledby="observed-repository-heading" hidden>
         <h2 id="observed-repository-heading">Observed GitHub repository</h2>
         <p id="observed-repository-candidate"></p>

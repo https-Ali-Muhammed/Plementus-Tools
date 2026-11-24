@@ -3,6 +3,7 @@ import { createDemoPlan, createDemoRunner } from "./demo-simulation.mjs";
 import { assessTabObservation } from "./tab-observation.mjs";
 import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./github-page-observation.mjs";
 import { createHandoff, handoffKey, consumeHandoff } from "./observation-handoff.mjs";
+import { validateSandboxBranchRequest, matchesSandboxBranchesTab, prepareNativeBranchForm } from "./sandbox-branch-assistant.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -10,6 +11,136 @@ document.body.classList.toggle("workspace", workspaceMode);
 workspaceLaunch.hidden = workspaceMode;
 const tabObservation = document.querySelector("#tab-observation");
 tabObservation.hidden = workspaceMode;
+const sandboxSection = document.querySelector("#sandbox-branch-assistant");
+sandboxSection.hidden = workspaceMode;
+const sandboxFields = {
+  repository: document.querySelector("#sandbox-repository"),
+  sourceBranch: document.querySelector("#sandbox-source"),
+  newBranch: document.querySelector("#sandbox-new-branch"),
+  acknowledged: document.querySelector("#sandbox-acknowledgment"),
+};
+const sandboxState = document.querySelector("#sandbox-branch-state");
+const sandboxPreview = document.querySelector("#sandbox-preview");
+const sandboxPreviewButton = document.querySelector("#sandbox-preview-button");
+const sandboxOpen = document.querySelector("#sandbox-open-button");
+const sandboxPrepare = document.querySelector("#sandbox-prepare-button");
+const sandboxInstructions = document.querySelector("#sandbox-instructions");
+let sandboxReview = null;
+let sandboxBusy = false;
+
+function sandboxValues() {
+  return { repository: sandboxFields.repository.value, sourceBranch: sandboxFields.sourceBranch.value,
+    newBranch: sandboxFields.newBranch.value, acknowledged: sandboxFields.acknowledged.checked };
+}
+function currentSandboxReview(review) {
+  if (!review || sandboxReview !== review) return false;
+  const current = validateSandboxBranchRequest(sandboxValues());
+  return current.state === "PREVIEW_READY" && current.repository === review.repository &&
+    current.sourceBranch === review.sourceBranch && current.newBranch === review.newBranch;
+}
+function renderSandboxControls() {
+  for (const field of Object.values(sandboxFields)) field.disabled = sandboxBusy;
+  sandboxPreviewButton.disabled = sandboxBusy;
+  sandboxOpen.disabled = sandboxBusy || !currentSandboxReview(sandboxReview);
+  sandboxPrepare.disabled = sandboxOpen.disabled;
+}
+function resetSandboxReview() {
+  sandboxReview = null;
+  sandboxState.textContent = "NOT_CONFIGURED";
+  sandboxPreview.hidden = true;
+  renderSandboxControls();
+}
+for (const field of Object.values(sandboxFields)) {
+  field.addEventListener("input", resetSandboxReview);
+  field.addEventListener("change", resetSandboxReview);
+}
+sandboxPreviewButton.addEventListener("click", () => {
+  if (sandboxBusy) return;
+  const review = validateSandboxBranchRequest(sandboxValues());
+  if (review.state !== "PREVIEW_READY") {
+    resetSandboxReview();
+    sandboxInstructions.textContent = "Enter an exact disposable repository, distinct valid branches and the acknowledgment. New names must begin plementus-mvp-.";
+    return;
+  }
+  sandboxReview = Object.freeze(review);
+  document.querySelector("#sandbox-preview-repository").textContent = review.repository;
+  document.querySelector("#sandbox-preview-source").textContent = review.sourceBranch;
+  document.querySelector("#sandbox-preview-new").textContent = review.newBranch;
+  document.querySelector("#sandbox-destination").textContent = review.destination;
+  sandboxPreview.hidden = false;
+  sandboxState.textContent = "PREVIEW_READY";
+  renderSandboxControls();
+  sandboxInstructions.textContent = "After opening the page, invoke the extension again on that GitHub tab for a fresh activeTab grant. Open the native New branch dialog yourself.";
+});
+sandboxOpen.addEventListener("click", async () => {
+  if (sandboxBusy) return;
+  const review = sandboxReview;
+  if (!currentSandboxReview(review)) {
+    resetSandboxReview();
+    return;
+  }
+  sandboxBusy = true;
+  renderSandboxControls();
+  try {
+    await chrome.tabs.create({ url: review.destination });
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    sandboxState.textContent = "NATIVE_PAGE_OPENED";
+    sandboxInstructions.textContent = "Invoke the extension again on the opened GitHub tab for a fresh activeTab grant. Re-enter and review the exact target; then open GitHub's native New branch dialog yourself.";
+  } catch {
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    sandboxState.textContent = "FAILED";
+    sandboxInstructions.textContent = "Could not open GitHub branch management. Review the target and try again.";
+  } finally {
+    sandboxBusy = false;
+    renderSandboxControls();
+  }
+});
+sandboxPrepare.addEventListener("click", async () => {
+  if (sandboxBusy) return;
+  const review = sandboxReview;
+  if (!currentSandboxReview(review)) {
+    resetSandboxReview();
+    return;
+  }
+  sandboxBusy = true;
+  renderSandboxControls();
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    const selected = Array.isArray(tabs) && tabs.length === 1 ? tabs[0] : null;
+    if (!matchesSandboxBranchesTab(selected, review.repository)) {
+      sandboxState.textContent = "UNSUPPORTED_PAGE";
+      sandboxInstructions.textContent = "Open the exact reviewed GitHub branches page, then invoke the extension there.";
+      return;
+    }
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    const result = await chrome.scripting.executeScript({
+      target: { tabId: selected.id, frameIds: [0] }, func: prepareNativeBranchForm,
+      args: [review.repository, review.sourceBranch, review.newBranch],
+    });
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    const after = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    if (!Array.isArray(after) || after.length !== 1 || !matchesSandboxBranchesTab(after[0], review.repository) ||
+        after[0].id !== selected.id || after[0].windowId !== selected.windowId) {
+      sandboxState.textContent = "UNSUPPORTED_PAGE";
+      return;
+    }
+    const outcome = Array.isArray(result) && result.length === 1 && result[0]?.frameId === 0 ? result[0].result : null;
+    sandboxState.textContent = ["FORM_PREPARED", "MANUAL_ACTION_REQUIRED", "UNSUPPORTED_PAGE"].includes(outcome)
+      ? outcome : "FAILED";
+    sandboxInstructions.textContent = outcome === "FORM_PREPARED"
+      ? "Native form prepared only. This does not mean the branch exists. Final Create branch submission is manual and requires separate F04.02 authorization."
+      : "Open the exact page and a visible native New branch dialog with the expected source branch. If recognition fails, enter the branch name manually; do not infer a write.";
+  } catch {
+    if (!currentSandboxReview(review)) { resetSandboxReview(); return; }
+    sandboxState.textContent = "FAILED";
+    sandboxInstructions.textContent = "Could not prepare the native form. Use GitHub manually after separate authorization.";
+  } finally {
+    sandboxBusy = false;
+    renderSandboxControls();
+  }
+});
 const inspectCurrentTab = document.querySelector("#inspect-current-tab");
 const observationState = document.querySelector("#tab-observation-state");
 const observationDetails = document.querySelector("#tab-observation-details");

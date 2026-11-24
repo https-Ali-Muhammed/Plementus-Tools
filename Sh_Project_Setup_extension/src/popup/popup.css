@@ -52,6 +52,40 @@ body.workspace {
   background: #f6f9ff;
 }
 
+#sandbox-branch-assistant {
+  border-color: #9bb7d6;
+  background: #f4f8ff;
+}
+
+#sandbox-branch-assistant .sandbox-acknowledgment {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+#sandbox-acknowledgment {
+  width: auto;
+  min-height: 0;
+  margin: 0.15rem 0 0;
+}
+
+#sandbox-branch-assistant button {
+  margin-top: 0.55rem;
+}
+
+#sandbox-branch-state {
+  margin: 0.6rem 0;
+  font-weight: 700;
+}
+
+#sandbox-preview {
+  overflow-wrap: anywhere;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #b8cbe5;
+}
+
 #observed-repository-card {
   margin-bottom: 1rem;
   padding: 1rem;

@@ -193,6 +193,11 @@ try {
 
   await popup.evaluate(() => {
     chrome.tabs.create = async () => { throw Error('tab denied'); };
+    const remove = chrome.storage.session.remove.bind(chrome.storage.session);
+    chrome.storage.session.remove = async (...args) => {
+      await new Promise(resolve => { window.releaseTransferCleanup = resolve; }); // CONTROLLED cleanup delay
+      return remove(...args);
+    };
     window.pendingTransferQueries = 0;
     chrome.tabs.query = () => {
       window.pendingTransferQueries++;
@@ -209,8 +214,13 @@ try {
   assert.equal(await popup.evaluate(() => window.pendingTransferQueries), 1);
   assert.equal(await popup.locator('#github-page-state').textContent(), 'Page observed');
   await popup.evaluate(value => window.releaseTransferQuery([value]), selected);
-  assert.equal(await popup.locator('#workspace-error').isVisible(), true);
-  assert.match(await popup.locator('#workspace-error').textContent(), /Could not open the observed workspace/);
+  await popup.waitForFunction(() => typeof window.releaseTransferCleanup === 'function');
+  const workspaceError = popup.locator('#workspace-error');
+  assert.equal(await workspaceError.isVisible(), false);
+  await popup.evaluate(() => window.releaseTransferCleanup());
+  await workspaceError.waitFor({ state: 'visible', timeout: 5000 });
+  assert.equal(await workspaceError.isVisible(), true);
+  assert.match(await workspaceError.textContent(), /Could not open the observed workspace/);
   assert.deepEqual(await worker.evaluate(() => chrome.storage.session.get(null)), {});
   assert.deepEqual(requests, []);
   assert.deepEqual(errors, []);
