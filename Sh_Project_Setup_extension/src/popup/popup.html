@@ -40,8 +40,17 @@
             </dl>
             <p>Account access and repository permissions are not verified.</p>
           </div>
+          <button id="open-observed-workspace" type="button" hidden>Open workspace with observed repository</button>
         </section>
       </header>
+      <section id="observed-repository-card" aria-labelledby="observed-repository-heading" hidden>
+        <h2 id="observed-repository-heading">Observed GitHub repository</h2>
+        <p id="observed-repository-candidate"></p>
+        <p>Previously observed GitHub page. This is a snapshot, not a current verification of repository existence, account access or permissions.</p>
+        <button id="use-observed-repository" type="button">Use this repository</button>
+        <button id="dismiss-observed-repository" type="button">Dismiss</button>
+      </section>
+      <p id="observation-import-status" role="status" hidden></p>
 
       <nav aria-label="Setup progress">
         <ol class="progress">

@@ -2,6 +2,7 @@ import { validateProjectSubscription, validateGithub, validateUtilities, validat
 import { createDemoPlan, createDemoRunner } from "./demo-simulation.mjs";
 import { assessTabObservation } from "./tab-observation.mjs";
 import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./github-page-observation.mjs";
+import { createHandoff, handoffKey, consumeHandoff } from "./observation-handoff.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -17,15 +18,26 @@ const repositoryValue = document.querySelector("#tab-observation-repository");
 const readGithubPageButton = document.querySelector("#read-github-page");
 const githubPageState = document.querySelector("#github-page-state");
 const githubPageDetails = document.querySelector("#github-page-details");
+const openObservedWorkspace = document.querySelector("#open-observed-workspace");
 let reviewedTab = null;
+let observedCandidate = null;
+let transferInProgress = false;
 function requireReinspection() {
   reviewedTab = null;
+  observedCandidate = null;
+  openObservedWorkspace.hidden = true;
   readGithubPageButton.hidden = true;
-  observationDetails.hidden = true;
+  for (const details of [observationDetails, githubPageDetails]) {
+    details.hidden = true;
+    details.querySelectorAll("dd").forEach(value => { value.textContent = ""; });
+  }
 }
 
 inspectCurrentTab.addEventListener("click", async () => {
+  if (transferInProgress) return;
   reviewedTab = null;
+  observedCandidate = null;
+  openObservedWorkspace.hidden = true;
   readGithubPageButton.hidden = true;
   readGithubPageButton.disabled = true;
   githubPageState.textContent = "Not read";
@@ -68,7 +80,9 @@ inspectCurrentTab.addEventListener("click", async () => {
 });
 
 readGithubPageButton.addEventListener("click", async () => {
-  if (!reviewedTab) return;
+  if (!reviewedTab || transferInProgress) return;
+  observedCandidate = null;
+  openObservedWorkspace.hidden = true;
   githubPageState.textContent = "Reading";
   githubPageDetails.hidden = true;
   readGithubPageButton.disabled = true;
@@ -129,10 +143,49 @@ readGithubPageButton.addEventListener("click", async () => {
     document.querySelector("#github-page-source").textContent = "Read-only GitHub page observation";
     githubPageDetails.hidden = false;
     githubPageState.textContent = "Page observed";
+    observedCandidate = page.repositoryCandidate;
+    openObservedWorkspace.hidden = false;
   } catch {
     githubPageState.textContent = "Access unavailable";
     requireReinspection();
   } finally {
+    inspectCurrentTab.disabled = false;
+    readGithubPageButton.disabled = !reviewedTab;
+  }
+});
+
+openObservedWorkspace.addEventListener("click", async () => {
+  if (!reviewedTab || !observedCandidate || transferInProgress) return;
+  const error = document.querySelector("#workspace-error");
+  error.hidden = true;
+  transferInProgress = true;
+  openObservedWorkspace.disabled = true;
+  inspectCurrentTab.disabled = true;
+  readGithubPageButton.disabled = true;
+  let key;
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!Array.isArray(tabs) || tabs.length !== 1 || !sameGithubTab(tabs[0], reviewedTab)) {
+      githubPageState.textContent = "Page changed / reinspection required";
+      requireReinspection();
+      return;
+    }
+    const id = crypto.randomUUID();
+    const record = createHandoff(observedCandidate, id, Date.now());
+    if (!record) throw Error("Invalid observed repository");
+    key = handoffKey(id);
+    await chrome.storage.session.set({ [key]: record });
+    await chrome.tabs.create({ url: chrome.runtime.getURL(`src/popup/popup.html?workspace=1&handoff=${id}`) });
+    key = null;
+  } catch {
+    if (key) {
+      try { await chrome.storage.session.remove(key); } catch { /* Workspace rejects unavailable handoffs. */ }
+    }
+    error.textContent = "Could not open the observed workspace. Please try again.";
+    error.hidden = false;
+  } finally {
+    transferInProgress = false;
+    openObservedWorkspace.disabled = false;
     inspectCurrentTab.disabled = false;
     readGithubPageButton.disabled = !reviewedTab;
   }
@@ -184,6 +237,48 @@ const githubErrors = {
   mode: document.querySelector("#repository-mode-error"),
 };
 const githubTouched = new Set();
+const observedCard = document.querySelector("#observed-repository-card");
+let suggestedRepository = null;
+document.querySelector("#use-observed-repository").addEventListener("click", () => {
+  if (!suggestedRepository || prepared) return;
+  githubFields.organization.value = suggestedRepository.organization;
+  githubFields.repository.value = suggestedRepository.repository;
+  githubFields.mode.value = suggestedRepository.mode;
+  Object.keys(githubFields).forEach(name => githubTouched.add(name));
+  validateGithubFields();
+  renderSummary();
+  observedCard.hidden = true;
+  document.querySelector("#observation-import-status").textContent =
+    "Values copied from an unverified browser observation. Review and edit them before preparing the setup plan.";
+  document.querySelector("#observation-import-status").hidden = false;
+  suggestedRepository = null;
+});
+document.querySelector("#dismiss-observed-repository").addEventListener("click", () => {
+  observedCard.hidden = true;
+  suggestedRepository = null;
+});
+
+if (workspaceMode) {
+  const url = new URL(location.href);
+  const id = url.searchParams.get("handoff");
+  if (url.searchParams.has("handoff")) {
+    void (async () => {
+      try {
+        const suggestion = await consumeHandoff(chrome.storage.session, id);
+        if (suggestion && !prepared) {
+          suggestedRepository = suggestion;
+          document.querySelector("#observed-repository-candidate").textContent =
+            `${suggestion.organization}/${suggestion.repository}`;
+          observedCard.hidden = false;
+        }
+      } catch {
+        // A storage failure leaves the workspace as a fresh form.
+      } finally {
+        history.replaceState(null, "", `${location.pathname}?workspace=1`);
+      }
+    })();
+  }
+}
 
 function showError(field, error, message) {
   error.textContent = message;
@@ -522,6 +617,8 @@ prepareButton.addEventListener("click", () => {
     ...Object.fromEntries(Object.entries(environmentFields).map(([name, field]) => [name, field.value])),
   });
   prepared = true;
+  observedCard.hidden = true;
+  suggestedRepository = null;
   document.querySelector("#plan-status").textContent =
     "Setup plan prepared locally. Provisioning has not started.";
   form.querySelectorAll("input, select, button").forEach(control => {
