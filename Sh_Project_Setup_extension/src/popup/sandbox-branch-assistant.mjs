@@ -47,26 +47,38 @@ export function prepareNativeBranchForm(repository, sourceBranch, newBranch) {
     const eligible = control => control.isConnected && dialog.contains(control) && visible(control) &&
       !control.matches(":disabled") && !control.readOnly &&
       !control.closest('[inert], [aria-disabled="true"]');
-    const headings = [...dialog.querySelectorAll("h1, h2, h3, [role=heading]")]
-      .filter(visible).filter(node => node.textContent.trim() === "New branch");
+    const normalized = node => node.textContent.trim().replace(/\s+/g, " ");
+    const recognizedHeadings = () => [...dialog.querySelectorAll("h1, h2, h3, [role=heading]")]
+      .filter(visible).filter(node => ["New branch", "Create a branch"].includes(normalized(node)));
+    const headings = recognizedHeadings();
     if (headings.length !== 1) return "MANUAL_ACTION_REQUIRED";
-    const controls = label => [...dialog.querySelectorAll("label")]
-      .filter(node => visible(node) && node.textContent.trim() === label)
+    const headingText = normalized(headings[0]);
+    const sourceIsPicker = headingText === "Create a branch";
+    const labels = text => [...dialog.querySelectorAll("label")]
+      .filter(node => visible(node) && normalized(node) === text);
+    const controls = label => labels(label)
       .map(node => node.control).filter(node => node && visible(node));
+    const pickers = () => [...dialog.querySelectorAll('button[id^="ref-picker-"]')].filter(visible);
     const names = controls("New branch name");
-    const sources = controls("Source branch");
-    if (names.length !== 1 || sources.length !== 1 || !dialog.isConnected ||
-        names[0] === sources[0] || !eligible(names[0]) || !eligible(sources[0]) ||
-        names[0].tagName !== "INPUT" || names[0].type !== "text" ||
-        !["INPUT", "SELECT"].includes(sources[0].tagName) ||
-        sources[0].value !== sourceBranch ||
+    const targetValid = () => eligible(names[0]) && names[0].tagName === "INPUT" && names[0].type === "text";
+    const sources = sourceIsPicker ? pickers() : controls("Source branch");
+    const sourceValid = () => sources.length === 1 && eligible(sources[0]) &&
+      (sourceIsPicker
+        ? labels("Source").length === 1 && pickers().length === 1 && pickers()[0] === sources[0] &&
+          sources[0].tagName === "BUTTON" && sources[0].type === "button" &&
+          sources[0].getAttribute("aria-haspopup") === "true" &&
+          normalized(sources[0]) === sourceBranch &&
+          sources[0].getAttribute("aria-label")?.trim().replace(/\s+/g, " ") === `${sourceBranch} branch`
+        : controls("Source branch").length === 1 && controls("Source branch")[0] === sources[0] &&
+          ["INPUT", "SELECT"].includes(sources[0].tagName) && sources[0].value === sourceBranch);
+    if (names.length !== 1 || !dialog.isConnected ||
+        names[0] === sources[0] || !targetValid() || !sourceValid() ||
         names[0].value) return "MANUAL_ACTION_REQUIRED";
 
     // Recheck the page and dialog immediately before the only form interaction.
     if (location.origin !== "https://github.com" ||
         location.pathname !== `/${repository}/branches` || location.search || location.hash ||
-        !dialog.isConnected || !visible(dialog) || !eligible(names[0]) || !eligible(sources[0]) ||
-        sources[0].value !== sourceBranch) return "UNSUPPORTED_PAGE";
+        !dialog.isConnected || !visible(dialog) || !targetValid() || !sourceValid()) return "UNSUPPORTED_PAGE";
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
     setter.call(names[0], newBranch);
     names[0].dispatchEvent(new Event("input", { bubbles: true }));
@@ -74,13 +86,12 @@ export function prepareNativeBranchForm(repository, sourceBranch, newBranch) {
         location.pathname !== `/${repository}/branches` || location.search || location.hash) return "UNSUPPORTED_PAGE";
     const currentDialogs = [...document.querySelectorAll('dialog[open], [role="dialog"][aria-modal="true"]')]
       .filter(visible);
-    if (currentDialogs.length !== 1 || currentDialogs[0] !== dialog || !eligible(names[0]) ||
-        !eligible(sources[0]) || controls("New branch name").length !== 1 ||
-        controls("New branch name")[0] !== names[0] || controls("Source branch").length !== 1 ||
-        controls("Source branch")[0] !== sources[0] ||
-        sources[0].value !== sourceBranch || names[0].value !== newBranch ||
-        [...dialog.querySelectorAll("h1, h2, h3, [role=heading]")]
-          .filter(visible).filter(node => node.textContent.trim() === "New branch").length !== 1) {
+    const currentHeadings = recognizedHeadings();
+    if (currentDialogs.length !== 1 || currentDialogs[0] !== dialog || !targetValid() ||
+        !sourceValid() || controls("New branch name").length !== 1 ||
+        controls("New branch name")[0] !== names[0] || names[0].value !== newBranch ||
+        currentHeadings.length !== 1 || currentHeadings[0] !== headings[0] ||
+        normalized(currentHeadings[0]) !== headingText) {
       return "MANUAL_ACTION_REQUIRED";
     }
     return "FORM_PREPARED";

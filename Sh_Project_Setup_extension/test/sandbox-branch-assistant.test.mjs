@@ -47,4 +47,7 @@ test("matches only a complete active tab on the exact reviewed page", () => {
     assert.equal(matchesSandboxBranchesTab({ ...tab, url }, valid.repository), false, url);
   }
   assert.equal(matchesSandboxBranchesTab({ ...tab, pendingUrl: tab.url }, valid.repository), false);
+  assert.equal(matchesSandboxBranchesTab({ ...tab, active: false }, valid.repository), false);
+  assert.equal(matchesSandboxBranchesTab({ ...tab, incognito: true }, valid.repository), false);
+  assert.equal(matchesSandboxBranchesTab({ ...tab, status: "loading" }, valid.repository), false);
 });

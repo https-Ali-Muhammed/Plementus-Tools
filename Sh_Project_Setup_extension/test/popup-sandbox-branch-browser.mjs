@@ -20,12 +20,13 @@ try {
   assert.deepEqual(manifest.permissions, ["activeTab", "scripting", "storage"]);
   assert.equal("host_permissions" in manifest, false);
   const fixture = await context.newPage();
-  await fixture.route("https://github.com/**", route => route.fulfill({ status: 200, contentType: "text/html",
-    body: `<!doctype html><title>Local branch form fixture</title><dialog open aria-label="New branch">
+  let fixtureBody = `<!doctype html><title>Local branch form fixture</title><dialog open aria-label="New branch">
       <h2>New branch</h2><label for="branch-name">New branch name</label><input id="branch-name" type="text">
       <label for="source-branch">Source branch</label><select id="source-branch"><option selected>main</option><option>develop</option></select>
       <button type="button" id="final-create">Create branch</button></dialog>
-      <script>window.submissions=0; document.querySelector('#final-create').onclick=()=>window.submissions++;</script>` }));
+      <script>window.submissions=0; document.querySelector('#final-create').onclick=()=>window.submissions++;</script>`;
+  await fixture.route("https://github.com/**", route => route.fulfill({ status: 200, contentType: "text/html",
+    body: fixtureBody }));
   await fixture.goto(destination);
   const popup = await context.newPage();
   const errors = [];
@@ -301,6 +302,107 @@ try {
   assert.equal(await popup.locator("#sandbox-preview-button").isEnabled(), true);
   assert.equal(await popup.locator("#sandbox-open-button").isEnabled(), true);
   assert.equal(await popup.locator("#sandbox-prepare-button").isEnabled(), true);
+  const observedBody = `<!doctype html><title>Observed branch form fixture</title>
+    <div role="dialog" aria-modal="true"><h2>Create a branch</h2>
+    <label for="_r_14_">New branch name</label><input type="text" id="_r_14_">
+    <label for="_r_1d_">Source</label>
+    <button type="button" id="ref-picker-_r_1f_" aria-haspopup="true" aria-label="main branch">main</button>
+    <button type="button">Cancel</button><button type="button">Create new branch</button></div>`;
+  fixtureBody = observedBody;
+  await fixture.reload();
+  await popup.reload();
+  await preview();
+  await popup.evaluate(() => {
+    window.injections = 0;
+    chrome.tabs.query = async () => [{ id: 7, windowId: 2, active: true, incognito: false,
+      status: "complete", url: "https://github.com/fixture-owner/disposable-repo/branches" }];
+    chrome.scripting.executeScript = async options => {
+      window.injections++;
+      return window.fixtureExecute(options.func.toString(), options.args);
+    };
+  });
+  await fixture.evaluate(() => {
+    window.actions = [];
+    for (const button of document.querySelectorAll("button")) {
+      button.addEventListener("click", () => window.actions.push(button.textContent));
+    }
+    document.querySelector("input").addEventListener("input", () => window.actions.push("input"));
+  });
+  await prepareExpect("FORM_PREPARED");
+  assert.equal(await fixture.locator("#_r_14_").inputValue(), "plementus-mvp-check-1");
+  assert.deepEqual(await fixture.evaluate(() => window.actions), ["input"]);
+  async function observedCase(change, expected = "MANUAL_ACTION_REQUIRED", value = "") {
+    await fixture.reload();
+    await fixture.evaluate(change);
+    await prepareExpect(expected);
+    assert.equal(await fixture.locator("input").inputValue(), value);
+  }
+  await observedCase(() => {
+    const input = document.querySelector("input");
+    input.id = "_r_222_";
+    document.querySelector('label[for="_r_14_"]').htmlFor = input.id;
+    document.querySelector('label[for="_r_1d_"]').htmlFor = "_r_333_";
+    document.querySelector('button[id^="ref-picker-"]').id = "ref-picker-_r_444_";
+  }, "FORM_PREPARED", "plementus-mvp-check-1");
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').textContent = "main-old"; });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').setAttribute("aria-label", "main-old branch"); });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').setAttribute("aria-label", "main tag"); });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').remove(); });
+  await observedCase(() => {
+    const picker = document.querySelector('button[id^="ref-picker-"]');
+    const duplicate = picker.cloneNode(true);
+    duplicate.id = "ref-picker-_r_555_";
+    picker.after(duplicate);
+  });
+  await observedCase(() => document.body.append(document.querySelector('button[id^="ref-picker-"]')));
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').disabled = true; });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').setAttribute("inert", ""); });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').type = "submit"; });
+  await observedCase(() => { document.querySelector('button[id^="ref-picker-"]').setAttribute("aria-haspopup", "listbox"); });
+  await observedCase(() => { document.querySelector('label[for="_r_1d_"]').remove(); });
+  await observedCase(() => { document.querySelector("input").value = "already-entered"; }, "MANUAL_ACTION_REQUIRED", "already-entered");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      document.querySelector('button[id^="ref-picker-"]').textContent = "develop";
+    });
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      document.querySelector('button[id^="ref-picker-"]').setAttribute("aria-label", "develop branch");
+    });
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      document.querySelector("h2").textContent = "New branch";
+    });
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").oninput = () => {
+      document.querySelector("input").type = "password";
+    };
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").oninput = () => {
+      document.querySelector("h2").insertAdjacentHTML("afterend", "<h2>New branch</h2>");
+    };
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      const picker = document.querySelector('button[id^="ref-picker-"]');
+      picker.replaceWith(picker.cloneNode(true));
+    });
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      const input = document.querySelector("input");
+      input.replaceWith(input.cloneNode(true));
+    });
+  }, "MANUAL_ACTION_REQUIRED", "plementus-mvp-check-1");
+  await observedCase(() => {
+    document.querySelector("input").addEventListener("input", () => {
+      history.replaceState(null, "", "/fixture-owner/other/branches");
+    });
+  }, "UNSUPPORTED_PAGE", "plementus-mvp-check-1");
   assert.deepEqual(errors, []);
   assert.deepEqual(await popup.evaluate(() => [localStorage.length, sessionStorage.length]), [0, 0]);
   console.log("PASS: local intercepted GitHub DOM fixture; preview, exact navigation, denials and form preparation");
