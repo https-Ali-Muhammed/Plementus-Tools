@@ -192,6 +192,25 @@
           <button id="prepare" type="button" hidden>Prepare setup plan</button>
         </div>
       </form>
+      <section id="workspace-branch-navigation" aria-labelledby="workspace-branch-heading" hidden>
+        <h2 id="workspace-branch-heading">Sandbox branch preparation</h2>
+        <p>Uses the repository, Production source branch and Staging destination branch from the reviewed setup plan. Navigation only; GitHub page readiness and branch creation are not verified.</p>
+        <label class="sandbox-acknowledgment" for="workspace-branch-acknowledgment">
+          <input id="workspace-branch-acknowledgment" type="checkbox" aria-describedby="workspace-branch-acknowledgment-error">
+          I confirm this repository is disposable and has no customer data, deployment integrations or production dependencies.
+        </label>
+        <p id="workspace-branch-acknowledgment-error" class="field-error" role="alert" hidden></p>
+        <button id="workspace-branch-review" type="button">Review exact sandbox operation</button>
+        <div id="workspace-branch-errors" role="alert" hidden></div>
+        <div id="workspace-branch-preview" hidden>
+          <p>Repository: <strong id="workspace-branch-repository"></strong></p>
+          <p>Source branch: <strong id="workspace-branch-source"></strong></p>
+          <p>New branch: <strong id="workspace-branch-new"></strong></p>
+          <p>GitHub destination: <strong id="workspace-branch-destination"></strong></p>
+        </div>
+        <button id="workspace-branch-start" type="button" disabled>Start sandbox preparation</button>
+        <p id="workspace-branch-state" role="status" aria-live="polite" aria-atomic="true">NOT_CONFIGURED</p>
+      </section>
       <section id="simulation-panel" aria-labelledby="simulation-heading" hidden>
         <p class="simulation-label">SIMULATION · LOCAL DEMONSTRATION</p>
         <h2 id="simulation-heading">Setup timeline</h2>

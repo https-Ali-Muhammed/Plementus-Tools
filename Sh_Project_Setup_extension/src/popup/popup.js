@@ -4,6 +4,7 @@ import { assessTabObservation } from "./tab-observation.mjs";
 import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./github-page-observation.mjs";
 import { createHandoff, handoffKey, consumeHandoff } from "./observation-handoff.mjs";
 import { validateSandboxBranchRequest, matchesSandboxBranchesTab, prepareNativeBranchForm } from "./sandbox-branch-assistant.mjs";
+import { reviewWorkspaceBranch } from "./workspace-branch-navigation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -594,6 +595,121 @@ let stepIndex = 0;
 let prepared = false;
 let demoRunner;
 let demoPlan;
+const workspaceBranchSection = document.querySelector("#workspace-branch-navigation");
+const workspaceBranchAck = document.querySelector("#workspace-branch-acknowledgment");
+const workspaceBranchReviewButton = document.querySelector("#workspace-branch-review");
+const workspaceBranchStart = document.querySelector("#workspace-branch-start");
+const workspaceBranchPreview = document.querySelector("#workspace-branch-preview");
+const workspaceBranchState = document.querySelector("#workspace-branch-state");
+let workspaceBranchReview = null;
+let workspaceBranchBusy = false;
+let workspaceBranchAttempted = false;
+
+function currentWorkspaceBranch() {
+  return reviewWorkspaceBranch({
+    github: demoPlan?.github, branches: demoPlan?.branches,
+  }, workspaceBranchAck.checked);
+}
+
+function matchesWorkspaceBranch(review) {
+  if (!prepared || !workspaceMode || !review || workspaceBranchReview !== review) return false;
+  const current = currentWorkspaceBranch();
+  return current.state === "PREVIEW_READY" && current.repository === review.repository &&
+    current.sourceBranch === review.sourceBranch && current.newBranch === review.newBranch &&
+    current.destination === review.destination &&
+    githubFields.organization.value === demoPlan.github.organization &&
+    githubFields.repository.value === demoPlan.github.repository &&
+    githubFields.mode.value === demoPlan.github.mode &&
+    environmentFields.production.value === demoPlan.branches.production &&
+    environmentFields.staging.value === demoPlan.branches.staging;
+}
+
+workspaceBranchAck.addEventListener("change", () => {
+  if (workspaceBranchAttempted) return;
+  workspaceBranchReview = null;
+  workspaceBranchPreview.hidden = true;
+  workspaceBranchStart.disabled = true;
+  workspaceBranchState.textContent = "NOT_CONFIGURED";
+});
+workspaceBranchReviewButton.addEventListener("click", () => {
+  if (!prepared || !workspaceMode || workspaceBranchBusy || workspaceBranchAttempted) return;
+  const result = currentWorkspaceBranch();
+  const ackError = document.querySelector("#workspace-branch-acknowledgment-error");
+  ackError.textContent = result.errors.acknowledged || "";
+  ackError.hidden = !result.errors.acknowledged;
+  workspaceBranchAck.toggleAttribute("aria-invalid", Boolean(result.errors.acknowledged));
+  const otherErrors = document.querySelector("#workspace-branch-errors");
+  otherErrors.replaceChildren();
+  for (const [field, message] of Object.entries(result.errors)) {
+    if (field === "acknowledged") continue;
+    const item = document.createElement("p");
+    item.textContent = message;
+    otherErrors.append(item);
+  }
+  otherErrors.hidden = !otherErrors.childElementCount;
+  workspaceBranchReview = null;
+  workspaceBranchPreview.hidden = true;
+  workspaceBranchStart.disabled = true;
+  if (result.state !== "PREVIEW_READY") {
+    workspaceBranchState.textContent = "NOT_CONFIGURED";
+    return;
+  }
+  workspaceBranchReview = Object.freeze({ repository: result.repository,
+    sourceBranch: result.sourceBranch, newBranch: result.newBranch, destination: result.destination });
+  document.querySelector("#workspace-branch-repository").textContent = result.repository;
+  document.querySelector("#workspace-branch-source").textContent = result.sourceBranch;
+  document.querySelector("#workspace-branch-new").textContent = result.newBranch;
+  document.querySelector("#workspace-branch-destination").textContent = result.destination;
+  workspaceBranchPreview.hidden = false;
+  workspaceBranchStart.disabled = false;
+  workspaceBranchState.textContent = "PREVIEW_READY";
+});
+workspaceBranchStart.addEventListener("click", async () => {
+  if (workspaceBranchBusy || workspaceBranchAttempted) return;
+  const review = workspaceBranchReview;
+  if (!matchesWorkspaceBranch(review)) {
+    workspaceBranchReview = null;
+    workspaceBranchPreview.hidden = true;
+    workspaceBranchStart.disabled = true;
+    workspaceBranchState.textContent = "STALE_PLAN: Review the current operation again.";
+    return;
+  }
+  workspaceBranchBusy = true;
+  workspaceBranchAttempted = true;
+  workspaceBranchStart.disabled = true;
+  workspaceBranchReviewButton.disabled = true;
+  workspaceBranchAck.disabled = true;
+  workspaceBranchState.textContent = "NAVIGATION_PENDING";
+  try {
+    const tab = await chrome.tabs.create({ url: review.destination });
+    if (!matchesWorkspaceBranch(review)) {
+      workspaceBranchState.textContent = "STALE_PLAN: Navigation may have opened; result discarded.";
+      workspaceBranchReview = null;
+      workspaceBranchPreview.hidden = true;
+      return;
+    }
+    if (!Number.isInteger(tab?.id) || tab.id < 0 ||
+        (tab.url !== undefined && tab.url !== review.destination) ||
+        (tab.pendingUrl !== undefined && tab.pendingUrl !== review.destination)) {
+      workspaceBranchState.textContent = "NAVIGATION_UNCONFIRMED: Browser response was invalid; a tab may have opened.";
+      return;
+    }
+    workspaceBranchState.textContent = "NAVIGATION_REQUESTED: GitHub page readiness is unverified. No branch was created.";
+  } catch {
+    if (matchesWorkspaceBranch(review)) {
+      workspaceBranchState.textContent = "NAVIGATION_UNCONFIRMED: Browser rejected the request; a tab may have opened.";
+    } else {
+      workspaceBranchReview = null;
+      workspaceBranchPreview.hidden = true;
+      workspaceBranchState.textContent = "STALE_PLAN: Navigation may have opened; result discarded.";
+    }
+  } finally {
+    workspaceBranchBusy = false;
+    workspaceBranchAck.disabled = workspaceBranchAttempted;
+    workspaceBranchReviewButton.disabled = workspaceBranchAttempted;
+    workspaceBranchStart.disabled = workspaceBranchAttempted || !matchesWorkspaceBranch(workspaceBranchReview);
+  }
+});
 
 function renderSimulation(snapshot) {
   document.querySelector("#simulation-panel").hidden = false;
@@ -756,6 +872,7 @@ prepareButton.addEventListener("click", () => {
     if (!control.closest("#simulation-setup, #simulation-controls")) control.disabled = true;
   });
   if (workspaceMode) {
+    workspaceBranchSection.hidden = false;
     document.querySelector("#simulation-setup").hidden = false;
     document.querySelector("#simulation-status").hidden = false;
     startSimulationButton.hidden = false;
