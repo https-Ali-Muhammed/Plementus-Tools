@@ -1,5 +1,5 @@
 import { validateSandboxBranchRequest } from "../popup/sandbox-branch-assistant.mjs";
-import { prepareWorkspaceBranch } from "../popup/workspace-branch-preparation.mjs";
+import { prepareWorkspaceBranch, waitForCommittedBranchTab } from "../popup/workspace-branch-preparation.mjs";
 
 export const RECORD_KEY = "sandboxPreparation.current.v1";
 // Local Chrome API calls get two seconds, within the preparation engine's 15-second deadline.
@@ -120,15 +120,14 @@ export function createSandboxPreparationController(api, execute = prepareWorkspa
           if (!await checkpoint) throw Error("persistence checkpoint unavailable");
           current();
           if (target) {
-            let tab;
-            try { tab = await withinWait(() => api.tabs.get(target.tabId),
-              Math.max(1, Math.min(waitLimit, deadline - Date.now()))); }
-            catch { tab = null; }
+            const readiness = await waitForCommittedBranchTab({ api, id: target.tabId,
+              destination: review.destination, deadline, readTimeoutMs: waitLimit,
+              fresh: () => !stopped && !unavailable && !completed && !blockedReason && record?.runId === next.runId,
+              // The wait is permitted only for a script already bound to a captured document.
+              allowLoading: Array.isArray(target.documentIds) && target.documentIds.length === 1 });
             current();
-            if (tab === timedOut) block(dispatched ? "PREPARATION_UNCERTAIN" : "NAVIGATION_TIMEOUT");
-            if (tab?.id !== target.tabId || !Number.isInteger(tab.windowId) || tab.windowId < 0 ||
-                tab.incognito !== false || tab.status !== "complete" || tab.pendingUrl != null ||
-                tab.url !== review.destination) block("UNSUPPORTED_PAGE");
+            if (readiness.state === "TIMEOUT") block(dispatched ? "PREPARATION_UNCERTAIN" : "NAVIGATION_TIMEOUT");
+            if (readiness.state !== "READY") block("UNSUPPORTED_PAGE");
           }
           let permission;
           try { permission = await withinWait(() => api.permissions.contains({ origins: ["https://github.com/*"] }),

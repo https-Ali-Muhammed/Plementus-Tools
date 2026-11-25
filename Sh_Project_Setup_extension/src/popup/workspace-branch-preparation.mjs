@@ -106,30 +106,83 @@ async function withinDeadline(call, deadline) {
   } finally { clearTimeout(timer); }
 }
 
-function validTab(tab, id, destination) {
+function exactCommittedTab(tab, id, destination) {
   return tab?.id === id && Number.isInteger(tab.windowId) && tab.windowId >= 0 &&
-    tab.incognito === false && tab.status === "complete" && tab.pendingUrl == null &&
-    tab.url === destination;
+    tab.incognito === false && tab.pendingUrl == null && tab.url === destination;
 }
 
-async function readyTab(api, id, destination, deadline) {
+function validTab(tab, id, destination) {
+  return exactCommittedTab(tab, id, destination) && tab.status === "complete";
+}
+
+// GitHub may report a new loading interval while its native dialog is already
+// visible. Only wait on the exact committed tab, with no pending navigation.
+// Never acquire a replacement document ID; later injections still target the
+// captured document. Both the engine and worker use this bounded read-only wait.
+export async function waitForCommittedBranchTab({ api, id, destination, deadline,
+  fresh, allowLoading = false, readTimeoutMs = Infinity }) {
+  let waited = false;
+  for (;;) {
+    if (!fresh()) return { state: "STALE_PLAN", waited };
+    if (Date.now() >= deadline) return { state: "TIMEOUT", waited };
+    let tab;
+    try {
+      tab = await withinDeadline(() => api.tabs.get(id), Math.min(deadline, Date.now() + readTimeoutMs));
+    } catch { return { state: "UNSUPPORTED_PAGE", waited }; }
+    if (!fresh()) return { state: "STALE_PLAN", waited };
+    if (isTimeout(tab) || Date.now() >= deadline) return { state: "TIMEOUT", waited };
+    if (!exactCommittedTab(tab, id, destination)) return { state: "UNSUPPORTED_PAGE", waited };
+    if (tab.status === "complete") return { state: "READY", waited };
+    if (!allowLoading || tab.status !== "loading") return { state: "UNSUPPORTED_PAGE", waited };
+    waited = true;
+    await new Promise(resolve => setTimeout(resolve, Math.min(100, Math.max(0, deadline - Date.now()))));
+  }
+}
+
+// Tab updates are a fast path. A bounded read-only poll also observes completion
+// if an update is missed or arrives while an earlier metadata read is pending.
+async function readyTab(api, id, destination, deadline, fresh) {
   return new Promise(resolve => {
     let settled = false;
+    let checking = false;
+    let checkAgain = false;
+    let poll;
     const finish = value => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      clearTimeout(poll);
       api.tabs.onUpdated.removeListener(updated);
       api.tabs.onRemoved.removeListener(removed);
       resolve(value);
     };
     const check = async () => {
+      if (settled) return;
+      if (!fresh()) { finish("STALE_PLAN"); return; }
+      if (Date.now() >= deadline) { finish("NAVIGATION_TIMEOUT"); return; }
+      if (checking) { checkAgain = true; return; }
+      clearTimeout(poll);
+      checking = true;
       try {
         const tab = await api.tabs.get(id);
-        if (tab?.url && tab.url !== destination || tab?.incognito === true || tab?.pendingUrl && tab.pendingUrl !== destination)
-          finish("UNSUPPORTED_PAGE");
+        if (settled) return;
+        if (!fresh()) finish("STALE_PLAN");
+        else if (Date.now() >= deadline) finish("NAVIGATION_TIMEOUT");
+        else if (tab?.url && tab.url !== destination || tab?.incognito === true ||
+            tab?.pendingUrl && tab.pendingUrl !== destination) finish("UNSUPPORTED_PAGE");
         else if (validTab(tab, id, destination)) finish("READY");
       } catch { finish("UNSUPPORTED_PAGE"); }
+      finally {
+        checking = false;
+        if (!settled) {
+          if (checkAgain) {
+            checkAgain = false;
+            void check();
+          } else {
+            poll = setTimeout(() => void check(), Math.min(500, Math.max(0, deadline - Date.now())));
+          }
+        }
+      }
     };
     const updated = tabId => { if (tabId === id) void check(); };
     const removed = tabId => { if (tabId === id) finish("UNSUPPORTED_PAGE"); };
@@ -165,23 +218,26 @@ export async function prepareWorkspaceBranch({ api, review, permissionRequest, f
         created.pendingUrl !== undefined && created.pendingUrl !== review.destination)
       return report("NAVIGATION_UNCONFIRMED");
     const id = created.id;
-    const readiness = await readyTab(api, id, review.destination, deadline);
+    const readiness = await readyTab(api, id, review.destination, deadline, fresh);
     if (!fresh()) return report("STALE_PLAN");
     if (Date.now() >= deadline) return report("NAVIGATION_TIMEOUT");
     if (readiness !== "READY") return report(readiness);
-    const check = async timeoutState => {
+    const check = async (timeoutState, allowLoading = false) => {
       if (!fresh()) return "STALE_PLAN";
       const permission = await withinDeadline(() => api.permissions.contains(githubOrigin), deadline);
       if (!fresh()) return "STALE_PLAN";
       if (isTimeout(permission)) return timeoutState;
       if (permission !== true) return "PERMISSION_MISSING";
-      try {
-        const tab = await withinDeadline(() => api.tabs.get(id), deadline);
+      const readiness = await waitForCommittedBranchTab({ api, id, destination: review.destination,
+        deadline, fresh, allowLoading });
+      if (readiness.state !== "READY") return readiness.state === "TIMEOUT" ? timeoutState : readiness.state;
+      // Permission may have changed while waiting for a same-page loading interval.
+      if (readiness.waited) {
+        const after = await withinDeadline(() => api.permissions.contains(githubOrigin), deadline);
         if (!fresh()) return "STALE_PLAN";
-        if (isTimeout(tab)) return timeoutState;
-        if (!validTab(tab, id, review.destination)) return "UNSUPPORTED_PAGE";
+        if (isTimeout(after)) return timeoutState;
+        if (after !== true) return "PERMISSION_MISSING";
       }
-      catch { return "UNSUPPORTED_PAGE"; }
       if (!fresh()) return "STALE_PLAN";
       return Date.now() >= deadline ? timeoutState : null;
     };
@@ -213,7 +269,7 @@ export async function prepareWorkspaceBranch({ api, review, permissionRequest, f
     // A timed-out injection may still complete in Chrome; no further action is dispatched.
     if (opened === timedOut) return report("PREPARATION_UNCERTAIN");
     if (opened !== "DIALOG_OPENED") return report(opened === "UNSUPPORTED_PAGE" || opened === "DOCUMENT_CHANGED" ? "UNSUPPORTED_PAGE" : "UNSUPPORTED_UI");
-    issue = await check("DIALOG_TIMEOUT");
+    issue = await check("DIALOG_TIMEOUT", true);
     if (issue) return report(issue);
     report("WAITING_FOR_DIALOG");
     const remaining = Math.max(0, deadline - Date.now());
@@ -221,21 +277,21 @@ export async function prepareWorkspaceBranch({ api, review, permissionRequest, f
     if (dialog === "DOCUMENT_CHANGED") return report("UNSUPPORTED_PAGE");
     if (dialog !== true || Date.now() >= deadline)
       return report("DIALOG_TIMEOUT");
-    issue = await check("DIALOG_TIMEOUT");
+    issue = await check("DIALOG_TIMEOUT", true);
     if (issue) return report(issue);
     report("PREPARING_FORM");
     const prepared = await inject(prepareNativeBranchForm, [review.repository, review.sourceBranch, review.newBranch]);
     if (prepared === expiredBeforeDispatch) return report("DIALOG_TIMEOUT");
     if (prepared === timedOut) return report("PREPARATION_UNCERTAIN");
     if (prepared === "DOCUMENT_CHANGED") return report("UNSUPPORTED_PAGE");
-    issue = await check("PREPARATION_UNCERTAIN");
+    issue = await check("PREPARATION_UNCERTAIN", true);
     if (issue) return report(issue);
     if (prepared !== "FORM_PREPARED") return report("PREPARATION_UNCERTAIN");
     const final = await inject(verifyPreparedNativeBranchForm,
       [review.repository, review.sourceBranch, review.newBranch]);
     if (final === "DOCUMENT_CHANGED") return report("UNSUPPORTED_PAGE");
     if (final !== true) return report("PREPARATION_UNCERTAIN");
-    issue = await check("PREPARATION_UNCERTAIN");
+    issue = await check("PREPARATION_UNCERTAIN", true);
     if (issue) return report(issue);
     return report("FORM_PREPARED");
   } catch {

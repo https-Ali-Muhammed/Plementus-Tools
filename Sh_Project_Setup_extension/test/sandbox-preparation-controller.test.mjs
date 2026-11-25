@@ -458,3 +458,94 @@ test("an engine error after a recorded terminal result cannot erase it", async (
   await f.controller.idle();
   assert.equal(f.record.state, "FORM_PREPARED");
 });
+
+// Real live trace: the dialog is visible in the original document, then the
+// tab temporarily reports loading with exact committed URL and no pending URL.
+function postDialogLoadingFixture({ mode = 'recover', duringCheckpoint = false } = {}) {
+  const f = engineFixture({ timeoutMs: 800 });
+  let loading = false, reads = 0, documentChanged = false, permission = true;
+  const get = f.api.tabs.get;
+  const script = f.api.scripting.executeScript;
+  f.api.permissions.contains = async () => permission;
+  f.api.tabs.get = async id => {
+    const tab = await get(id);
+    if (!loading) return tab;
+    reads++;
+    if (mode === 'timeout') return { ...tab, status: 'loading' };
+    if (reads === 1) return { ...tab, status: 'loading' };
+    if (mode === 'redirect') return { ...tab, url: 'https://github.com/login' };
+    if (mode === 'pending') return { ...tab, status: 'loading', pendingUrl: tab.url };
+    if (mode === 'incognito') return { ...tab, incognito: true };
+    if (mode === 'revoked') permission = false;
+    if (mode === 'replaced') documentChanged = true;
+    loading = false;
+    return tab;
+  };
+  f.api.scripting.executeScript = async options => {
+    // A replacement document cannot receive an injection bound to the old ID.
+    if (documentChanged && options.target.documentIds) throw Error('document no longer exists');
+    const result = await script(options);
+    if (!duringCheckpoint && options.func.name === 'waitForNativeBranchDialog') loading = true;
+    return result;
+  };
+  if (duringCheckpoint) {
+    const set = f.api.storage.session.set;
+    f.api.storage.session.set = async value => {
+      await set(value);
+      if (value[RECORD_KEY].state === 'PREPARING_FORM') loading = true;
+    };
+  }
+  return f;
+}
+
+test('live loading transition after dialog readiness recovers without replay', async () => {
+  const f = postDialogLoadingFixture();
+  assert.equal((await f.controller.handle(start, sender)).ok, true);
+  await f.controller.idle();
+  assert.equal(f.record.state, 'FORM_PREPARED');
+  assert.deepEqual(f.calls, ['tabs.create', 'inspectWorkspaceBranchPage', 'openNativeBranchDialog',
+    'waitForNativeBranchDialog', 'prepareNativeBranchForm', 'verifyPreparedNativeBranchForm']);
+});
+
+test('live loading transition during persisted form checkpoint recovers without replay', async () => {
+  const f = postDialogLoadingFixture({ duringCheckpoint: true });
+  assert.equal((await f.controller.handle(start, sender)).ok, true);
+  await f.controller.idle();
+  assert.equal(f.record.state, 'FORM_PREPARED');
+  assert.deepEqual(f.calls, ['tabs.create', 'inspectWorkspaceBranchPage', 'openNativeBranchDialog',
+    'waitForNativeBranchDialog', 'prepareNativeBranchForm', 'verifyPreparedNativeBranchForm']);
+});
+
+test('live loading transition rejects redirect, pending navigation, incognito, revoked permission and replacement document', async () => {
+  for (const duringCheckpoint of [false, true]) {
+    for (const mode of ['redirect', 'pending', 'incognito', 'revoked', 'replaced']) {
+      const f = postDialogLoadingFixture({ mode, duringCheckpoint });
+      assert.equal((await f.controller.handle(start, sender)).ok, true);
+      await f.controller.idle();
+      assert.equal(f.record.state, mode === 'revoked' ? 'PERMISSION_MISSING' : mode === 'replaced' ? 'PREPARATION_UNCERTAIN' : 'UNSUPPORTED_PAGE', `${mode}/${duringCheckpoint}`);
+      assert.equal(f.calls.includes('prepareNativeBranchForm'), false, `${mode}/${duringCheckpoint}`);
+      assert.equal(f.calls.filter(x => x === 'openNativeBranchDialog').length, 1);
+    }
+  }
+});
+
+test('live loading transition that never completes times out without input', async () => {
+  const f = postDialogLoadingFixture({ mode: 'timeout' });
+  assert.equal((await f.controller.handle(start, sender)).ok, true);
+  await f.controller.idle();
+  assert.equal(f.record.state, 'DIALOG_TIMEOUT');
+  assert.equal(f.calls.includes('prepareNativeBranchForm'), false);
+});
+
+test('live loading at form checkpoint cannot dispatch after engine deadline', async () => {
+  const f = postDialogLoadingFixture({ mode: 'timeout', duringCheckpoint: true });
+  assert.equal((await f.controller.handle(start, sender)).ok, true);
+  await f.controller.idle();
+  assert.equal(f.record.state, 'PREPARATION_UNCERTAIN');
+  assert.equal(f.calls.includes('prepareNativeBranchForm'), false);
+  // The worker guard can still be unwinding a read-only polling interval;
+  // completing its last interval cannot release the expired mutation.
+  await new Promise(resolve => setTimeout(resolve, 150));
+  assert.equal(f.calls.includes('prepareNativeBranchForm'), false);
+  assert.equal(f.record.state, 'PREPARATION_UNCERTAIN');
+});

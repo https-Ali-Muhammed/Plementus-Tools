@@ -318,3 +318,70 @@ test("B02 deadline immediately before opener or form dispatch reports no dispatc
     }
   } finally { Date.now = now; }
 });
+
+test("live readiness: pending exact URL progresses to complete without a completion event", async () => {
+  const { prepareWorkspaceBranch } = await import("../src/popup/workspace-branch-preparation.mjs");
+  const f = fixture({ tab: { ...complete, status: "loading", url: undefined, pendingUrl: review.destination } });
+  f.api.tabs.create = async options => { f.calls.push(["create", options]); return { ...f.state.tab }; };
+  let reads = 0;
+  f.api.tabs.get = async id => {
+    f.calls.push(["get", id]);
+    if (++reads === 1) return f.state.tab;
+    if (reads === 2) return { ...complete, status: "loading" };
+    return complete;
+  };
+  assert.equal(await prepareWorkspaceBranch({ api: f.api, review, permissionRequest: Promise.resolve(true),
+    fresh: () => true, onState: () => {}, timeoutMs: 2000 }), "FORM_PREPARED");
+  assert.equal(f.calls.filter(([kind]) => kind === "create").length, 1);
+  assert.equal(f.calls.filter(([, , name]) => name === "openNativeBranchDialog").length, 1);
+  assert.equal(f.calls.filter(([, , name]) => name === "prepareNativeBranchForm").length, 1);
+  assert.equal(f.listeners.size, 0);
+  assert.equal(f.removed.size, 0);
+});
+
+test("live readiness: polling observes a redirected target and refuses injection", async () => {
+  const { prepareWorkspaceBranch } = await import("../src/popup/workspace-branch-preparation.mjs");
+  const f = fixture({ tab: { ...complete, status: "loading", url: undefined, pendingUrl: review.destination } });
+  let reads = 0;
+  f.api.tabs.get = async id => {
+    f.calls.push(["get", id]);
+    return ++reads === 1 ? f.state.tab : { ...complete, url: "https://github.com/login" };
+  };
+  assert.equal(await prepareWorkspaceBranch({ api: f.api, review, permissionRequest: Promise.resolve(true),
+    fresh: () => true, onState: () => {}, timeoutMs: 1500 }), "UNSUPPORTED_PAGE");
+  assert.equal(f.calls.some(([kind]) => kind === "script"), false);
+  assert.equal(f.listeners.size, 0);
+  assert.equal(f.removed.size, 0);
+});
+
+test("live readiness: stale operation stops polling before script dispatch", async () => {
+  const { prepareWorkspaceBranch } = await import("../src/popup/workspace-branch-preparation.mjs");
+  const f = fixture({ tab: { ...complete, status: "loading" } });
+  const run = prepareWorkspaceBranch({ api: f.api, review, permissionRequest: Promise.resolve(true),
+    fresh: () => f.state.fresh, onState: () => {}, timeoutMs: 1500 });
+  setImmediate(() => { f.state.fresh = false; });
+  assert.equal(await run, "STALE_PLAN");
+  assert.equal(f.calls.some(([kind]) => kind === "script"), false);
+  assert.equal(f.listeners.size, 0);
+  assert.equal(f.removed.size, 0);
+});
+
+test("live readiness: event burst does not overlap tab reads or dispatch after timeout", async () => {
+  const { prepareWorkspaceBranch } = await import("../src/popup/workspace-branch-preparation.mjs");
+  const f = fixture();
+  let reads = 0, release, reached;
+  const entered = new Promise(resolve => { reached = resolve; });
+  f.api.tabs.get = () => { reads++; reached(); return new Promise(resolve => { release = resolve; }); };
+  const run = prepareWorkspaceBranch({ api: f.api, review, permissionRequest: Promise.resolve(true),
+    fresh: () => true, onState: () => {}, timeoutMs: 100 });
+  await entered;
+  for (let i = 0; i < 5; i++) for (const listener of f.listeners) listener(42);
+  assert.equal(reads, 1);
+  assert.equal(await run, "NAVIGATION_TIMEOUT");
+  release(complete);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(reads, 1);
+  assert.equal(f.calls.some(([kind]) => kind === "script"), false);
+  assert.equal(f.listeners.size, 0);
+  assert.equal(f.removed.size, 0);
+});
