@@ -5,11 +5,70 @@ import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./githu
 import { createHandoff, handoffKey, consumeHandoff } from "./observation-handoff.mjs";
 import { validateSandboxBranchRequest, matchesSandboxBranchesTab, prepareNativeBranchForm } from "./sandbox-branch-assistant.mjs";
 import { reviewWorkspaceBranch } from "./workspace-branch-navigation.mjs";
-import { prepareWorkspaceBranch } from "./workspace-branch-preparation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
 document.body.classList.toggle("workspace", workspaceMode);
+const currentPreparation = document.querySelector("#current-sandbox-preparation");
+const currentPreparationState = document.querySelector("#current-sandbox-state");
+currentPreparation.hidden = !workspaceMode;
+const activePreparationStates = new Set(["ADMITTED", "NAVIGATION_PENDING", "OPENING_DIALOG", "WAITING_FOR_DIALOG", "PREPARING_FORM"]);
+// Longer than Chrome's idle window so status reads do not keep the worker alive.
+const STATUS_POLL_MS = 45000;
+const STATUS_WAIT_MS = 3000;
+let statusTimer;
+let statusInFlight = false;
+let statusPending = false;
+function showPreparationStatus(response) {
+  if (!response?.ok) {
+    currentPreparationState.textContent = `${response?.reason || "SESSION_UNAVAILABLE"}: Current operation status is unavailable.`;
+    if (workspaceBranchOperationId) workspaceBranchState.textContent = currentPreparationState.textContent;
+    return;
+  }
+  const record = response.record;
+  currentPreparationState.textContent = record
+    ? `${record.state} · Operation ${record.operationId} · ${record.repository} · ${record.sourceBranch} → ${record.newBranch}. ${
+      record.state === "FORM_PREPARED" ? "Prepared at the recorded time; the dialog is not verified now. No branch was created." :
+      record.state === "INTERRUPTED" ? "Worker stopped before completion; review manually before any new attempt." :
+      record.state === "PREPARATION_UNCERTAIN" ? "Browser action may have completed; inspect the tab manually." :
+      "Controller status from this browser session; no branch submission."}`
+    : "No current sandbox preparation in this browser session.";
+  if (record && record.operationId === workspaceBranchOperationId && workspaceBranchReview &&
+      record.repository === workspaceBranchReview.repository &&
+      record.sourceBranch === workspaceBranchReview.sourceBranch &&
+      record.newBranch === workspaceBranchReview.newBranch)
+    workspaceBranchState.textContent = currentPreparationState.textContent;
+}
+async function refreshPreparationStatus() {
+  if (statusInFlight) { statusPending = true; return; }
+  clearTimeout(statusTimer);
+  statusInFlight = true;
+  let timeout;
+  let active = false;
+  try {
+    const response = await Promise.race([
+      chrome.runtime.sendMessage({ type: "SANDBOX_PREPARATION_STATUS" }),
+      new Promise((_, reject) => { timeout = setTimeout(() => reject(Error("status timeout")), STATUS_WAIT_MS); }),
+    ]);
+    showPreparationStatus(response);
+    active = response?.ok && activePreparationStates.has(response.record?.state);
+  } catch {
+    showPreparationStatus({ ok: false, reason: "SESSION_UNAVAILABLE" });
+  } finally {
+    clearTimeout(timeout);
+    statusInFlight = false;
+    if (statusPending) { statusPending = false; void refreshPreparationStatus(); }
+    // An open workspace observes controller-only failures even if session storage emits no change.
+    else if (active) statusTimer = setTimeout(() => void refreshPreparationStatus(), STATUS_POLL_MS);
+  }
+}
+if (workspaceMode) {
+  void refreshPreparationStatus();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "session" && Object.hasOwn(changes, "sandboxPreparation.current.v1"))
+      void refreshPreparationStatus();
+  });
+}
 workspaceLaunch.hidden = workspaceMode;
 const tabObservation = document.querySelector("#tab-observation");
 tabObservation.hidden = workspaceMode;
@@ -603,6 +662,7 @@ const workspaceBranchStart = document.querySelector("#workspace-branch-start");
 const workspaceBranchPreview = document.querySelector("#workspace-branch-preview");
 const workspaceBranchState = document.querySelector("#workspace-branch-state");
 let workspaceBranchReview = null;
+let workspaceBranchOperationId = null;
 let workspaceBranchBusy = false;
 let workspaceBranchAttempted = false;
 let workspacePermissionAtReview = null;
@@ -704,18 +764,22 @@ workspaceBranchStart.addEventListener("click", async () => {
     catch { permissionRequest = Promise.resolve("MISSING"); }
   }
   try {
-    await prepareWorkspaceBranch({ api: chrome, review, permissionRequest,
-      fresh: () => matchesWorkspaceBranch(review),
-      onState: state => { workspaceBranchState.textContent = `${state}: ${
-        state === "FORM_PREPARED" ? "Native name prepared; branch not created. Final submission requires separate authorization." :
-        state === "PERMISSION_DENIED" || state === "PERMISSION_MISSING" ? "GitHub access unavailable; preparation stopped." :
-        state === "DIALOG_TIMEOUT" || state === "NAVIGATION_TIMEOUT" ? "Timed out; inspect the opened tab before any retry." :
-        state === "UNSUPPORTED_UI" || state === "UNSUPPORTED_PAGE" ? "Page or native controls could not be verified." :
-        state === "PREPARATION_UNCERTAIN" ? "Form state could not be confirmed; inspect it manually." :
-        "Sandbox preparation in progress."}`; },
-    });
+    const granted = await permissionRequest;
+    if (!matchesWorkspaceBranch(review)) {
+      workspaceBranchState.textContent = "STALE_PLAN: Review the current operation again.";
+      return;
+    }
+    if (granted !== true) {
+      workspaceBranchState.textContent = `${granted === "MISSING" ? "PERMISSION_MISSING" : "PERMISSION_DENIED"}: GitHub access unavailable; preparation stopped.`;
+      return;
+    }
+    const response = await chrome.runtime.sendMessage({ type: "SANDBOX_PREPARATION_START",
+      operationId: crypto.randomUUID(), repository: review.repository, sourceBranch: review.sourceBranch,
+      newBranch: review.newBranch, acknowledged: true });
+    if (!response?.ok) workspaceBranchState.textContent = `${response?.reason || "SESSION_UNAVAILABLE"}: Sandbox preparation was rejected.`;
+    else { workspaceBranchOperationId = response.record.operationId; void refreshPreparationStatus(); }
   } catch {
-    workspaceBranchState.textContent = "PREPARATION_UNCERTAIN: Browser operation could not be confirmed.";
+    workspaceBranchState.textContent = "SESSION_UNAVAILABLE: Current operation status could not be confirmed.";
   } finally {
     workspaceBranchBusy = false;
     workspaceBranchAck.disabled = workspaceBranchAttempted;

@@ -18,6 +18,8 @@ try {
   assert.ok(id);
   const requests = [];
   const errors = [];
+  await context.route("https://github.com/**", route => route.fulfill({ status: 200,
+    contentType: "text/html", body: "Controlled fixture: no live GitHub content." }));
   context.on("request", request => {
     if (!request.url().startsWith("chrome-extension://")) requests.push(request.url());
   });
@@ -65,18 +67,19 @@ try {
   assert.equal(preview.includes("Private customer"), false);
   assert.equal(await page.locator("#workspace-branch-start").isEnabled(), true);
   assert.deepEqual(requests, []);
-  await page.evaluate(() => {
-    window.navigationCalls = [];
-    chrome.tabs.create = async options => { window.navigationCalls.push(options); return { id: 42, url: options.url }; };
+  await worker.evaluate(() => {
+    self.navigationCalls = [];
+    chrome.permissions.contains = async () => true;
+    chrome.tabs.create = async options => { self.navigationCalls.push(options); return { id: 42, url: options.url }; };
     chrome.tabs.get = async id => ({ id, windowId: 1, incognito: false, status: "complete", url: "https://github.com/fixture-owner/disposable-repo/branches" });
     chrome.scripting.executeScript = async () => [{ frameId: 0, result: false }];
   });
   await page.locator("#workspace-branch-start").click();
   await page.locator("#workspace-branch-start").dispatchEvent("click");
-  assert.deepEqual(await page.evaluate(() => window.navigationCalls), [{ url: destination }]);
-  await page.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("UNSUPPORTED_PAGE"));
-  assert.match(await page.locator("#workspace-branch-state").textContent(), /UNSUPPORTED_PAGE/);
-  assert.doesNotMatch(await page.locator("#workspace-branch-state").textContent(), /FORM_PREPARED/);
+  assert.deepEqual(await worker.evaluate(() => self.navigationCalls), [{ url: destination }]);
+  await page.waitForFunction(() => document.querySelector("#current-sandbox-state").textContent.includes("UNSUPPORTED_PAGE"));
+  assert.match(await page.locator("#current-sandbox-state").textContent(), /UNSUPPORTED_PAGE/);
+  assert.doesNotMatch(await page.locator("#current-sandbox-state").textContent(), /FORM_PREPARED/);
   assert.equal(await page.locator("#workspace-branch-start").isDisabled(), true);
   assert.equal(page.url(), `chrome-extension://${id}/src/popup/popup.html?workspace=1`);
 
@@ -114,54 +117,66 @@ try {
   assert.equal(await stale.locator("#workspace-branch-start").isDisabled(), true);
   await stale.close();
 
-  for (const response of ["reject", "malformed"]) {
-    const failed = await preparedWorkspace();
-    await failed.locator("#workspace-branch-acknowledgment").check();
-    await failed.locator("#workspace-branch-review").click();
-    await failed.evaluate(kind => {
-      window.navigationCalls = [];
-      chrome.tabs.create = async options => {
-        window.navigationCalls.push(options);
-        if (kind === "reject") throw Error("controlled denial");
-        return { id: "wrong", url: options.url };
-      };
-    }, response);
-    await failed.locator("#workspace-branch-start").click();
-    assert.match(await failed.locator("#workspace-branch-state").textContent(), /NAVIGATION_UNCONFIRMED/);
-    assert.equal(await failed.locator("#workspace-branch-start").isDisabled(), true);
-    await failed.locator("#workspace-branch-start").dispatchEvent("click");
-    assert.deepEqual(await failed.evaluate(() => window.navigationCalls), [{ url: destination }]);
-    await failed.close();
-  }
-
   const pending = await preparedWorkspace();
   await pending.locator("#workspace-branch-acknowledgment").check();
   await pending.locator("#workspace-branch-review").click();
-  await pending.evaluate(() => {
-    window.navigationCalls = [];
+  await worker.evaluate(() => {
+    self.navigationCalls = [];
     chrome.tabs.create = options => {
-      window.navigationCalls.push(options);
-      return new Promise(resolve => { window.finishNavigation = resolve; });
+      self.navigationCalls.push(options);
+      return new Promise(resolve => { self.finishNavigation = resolve; });
     };
   });
   await pending.locator("#workspace-branch-start").click();
   await pending.locator("#workspace-branch-start").dispatchEvent("click");
-  assert.deepEqual(await pending.evaluate(() => window.navigationCalls), [{ url: destination }]);
-  assert.match(await pending.locator("#workspace-branch-state").textContent(), /NAVIGATION_PENDING/);
+  assert.deepEqual(await worker.evaluate(() => self.navigationCalls), [{ url: destination }]);
+  await pending.waitForFunction(() => document.querySelector("#current-sandbox-state").textContent.includes("NAVIGATION_PENDING"));
   await pending.evaluate(() => {
     document.querySelector("#repository").value = "changed-repo";
-    window.finishNavigation({ id: 44, url: "https://github.com/fixture-owner/disposable-repo/branches" });
   });
-  await pending.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("STALE_PLAN"));
+  await worker.evaluate(() => self.finishNavigation({ id: 44, url: "https://github.com/fixture-owner/disposable-repo/branches" }));
+  await pending.waitForFunction(() => document.querySelector("#current-sandbox-state").textContent.includes("UNSUPPORTED_PAGE"));
+  assert.equal(await worker.evaluate(() => self.navigationCalls.length), 1, "workspace edits cannot replay an admitted worker operation");
   assert.equal(await pending.locator("#workspace-branch-start").isDisabled(), true);
   await pending.close();
+
+  const failed = await preparedWorkspace();
+  await failed.locator("#workspace-branch-acknowledgment").check();
+  await failed.locator("#workspace-branch-review").click();
+  await worker.evaluate(() => {
+    self.navigationCalls = [];
+    chrome.tabs.create = async options => { self.navigationCalls.push(options); throw Error("controlled denial"); };
+  });
+  const previousId = await worker.evaluate(async () =>
+    (await chrome.storage.session.get("sandboxPreparation.current.v1"))["sandboxPreparation.current.v1"]?.operationId);
+  await failed.locator("#workspace-branch-start").click();
+  await failed.waitForFunction(async old => {
+    const result = await chrome.runtime.sendMessage({ type: "SANDBOX_PREPARATION_STATUS" });
+    return result.record?.operationId !== old && result.record?.state === "NAVIGATION_UNCONFIRMED";
+  }, previousId);
+  const currentId = await worker.evaluate(async () =>
+    (await chrome.storage.session.get("sandboxPreparation.current.v1"))["sandboxPreparation.current.v1"].operationId);
+  await failed.waitForFunction(id => document.querySelector("#current-sandbox-state").textContent.includes(id), currentId);
+  assert.match(await failed.locator("#current-sandbox-state").textContent(), /NAVIGATION_UNCONFIRMED/);
+  assert.equal(await failed.locator("#workspace-branch-start").isDisabled(), true);
+  await failed.locator("#workspace-branch-start").dispatchEvent("click");
+  assert.deepEqual(await worker.evaluate(() => self.navigationCalls), [{ url: destination }]);
+  await failed.close();
+
+  const conflict = await preparedWorkspace();
+  await conflict.locator("#workspace-branch-acknowledgment").check();
+  await conflict.locator("#workspace-branch-review").click();
+  await conflict.locator("#workspace-branch-start").click();
+  await conflict.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("OPERATION_CONFLICT"));
+  assert.equal(await worker.evaluate(() => self.navigationCalls.length), 1);
+  await conflict.close();
 
   const denied = await context.newPage();
   await denied.goto(`chrome-extension://${id}/src/popup/popup.html?workspace=1`);
   assert.equal(await denied.locator("#workspace-branch-navigation").isHidden(), true);
   assert.deepEqual(requests, []);
   assert.deepEqual(errors, []);
-  console.log("PASS: controlled workspace navigation, blocked plans, duplicate/stale requests, API failures and isolation");
+  console.log("PASS: worker-owned workspace navigation, blocked plans, duplicate/stale requests, API failures and isolation");
 } finally {
   if (context) await context.close();
   fs.rmSync(profile, { recursive: true, force: true });

@@ -43,6 +43,11 @@
           <button id="open-observed-workspace" type="button" hidden>Open workspace with observed repository</button>
         </section>
       </header>
+      <section id="current-sandbox-preparation" aria-labelledby="current-sandbox-heading" hidden>
+        <h2 id="current-sandbox-heading">Current sandbox preparation</h2>
+        <p id="current-sandbox-state" role="status" aria-live="polite" aria-atomic="true">Loading current operation…</p>
+        <p>Session status may be lost after a browser restart or extension reload. A restored result is historical; inspect the GitHub tab before relying on its current form.</p>
+      </section>
       <section id="sandbox-branch-assistant" aria-labelledby="sandbox-branch-heading">
         <h2 id="sandbox-branch-heading">GitHub sandbox branch assistant</h2>
         <p>Use only an explicitly selected disposable repository. This assistant does not verify ownership or write permission.</p>

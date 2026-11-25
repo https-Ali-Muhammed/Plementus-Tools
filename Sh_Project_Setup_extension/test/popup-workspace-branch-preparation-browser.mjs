@@ -23,6 +23,8 @@ try {
   assert.deepEqual(manifest.optional_host_permissions, ["https://github.com/*"]);
   assert.equal("host_permissions" in manifest, false);
   const requests = [];
+  await context.route("https://github.com/**", route => route.fulfill({ status: 200,
+    contentType: "text/html", body: "Controlled fixture: no live GitHub content." }));
   context.on("request", request => { if (!request.url().startsWith("chrome-extension://")) requests.push(request.url()); });
   async function preparedPage(permissionInitiallyPresent) {
     const popup = await context.newPage();
@@ -59,11 +61,15 @@ try {
   await page.evaluate(() => {
     window.calls = [];
     chrome.permissions.request = options => { window.calls.push(["permission", options]); window.permissionAvailable = true; return Promise.resolve(true); };
-    chrome.tabs.create = async options => { window.calls.push(["create", options]); return { id: 42, url: options.url }; };
+  });
+  await worker.evaluate(() => {
+    self.calls = [];
+    chrome.permissions.contains = async () => true;
+    chrome.tabs.create = async options => { self.calls.push(["create", options]); return { id: 42, url: options.url }; };
     chrome.tabs.get = async id => ({ id, windowId: 1, incognito: false, status: "complete",
       url: "https://github.com/fixture-owner/disposable-repo/branches" });
     chrome.scripting.executeScript = async options => {
-      window.calls.push(["script", options.target, options.func.name, options.args]);
+      self.calls.push(["script", options.target, options.func.name, options.args]);
       return [{ frameId: 0, documentId: "fixture-document", result:
         options.func.name === "inspectWorkspaceBranchPage" ? true :
           options.func.name === "openNativeBranchDialog" ? "DIALOG_OPENED" :
@@ -73,47 +79,46 @@ try {
   });
   await page.locator("#workspace-branch-start").click();
   await page.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("FORM_PREPARED"));
-  const calls = await page.evaluate(() => window.calls);
-  assert.deepEqual(calls.filter(([kind]) => kind === "permission"), [["permission", { origins: ["https://github.com/*"] }]]);
+  const calls = await worker.evaluate(() => self.calls);
+  assert.deepEqual(await page.evaluate(() => window.calls), [["permission", { origins: ["https://github.com/*"] }]]);
   assert.equal(calls.filter(([kind]) => kind === "create").length, 1);
   assert.equal(calls.filter(([, , func]) => func === "openNativeBranchDialog").length, 1);
   assert.equal(calls.filter(([, , func]) => func === "prepareNativeBranchForm").length, 1);
   assert.equal(JSON.stringify(calls).includes("private-subscription-secret"), false);
+  assert.equal(JSON.stringify(await worker.evaluate(() => chrome.storage.session.get("sandboxPreparation.current.v1"))).includes("private-subscription-secret"), false);
   assert.deepEqual(requests, []);
   assert.equal(await page.locator("#workspace-branch-start").isDisabled(), true);
   const existing = await preparedPage(true);
   assert.match(await existing.locator("#workspace-branch-permission").textContent(), /already available/);
   await existing.evaluate(() => {
-    window.navigationCalls = 0;
     chrome.permissions.request = () => { throw Error("pre-existing grant must not be requested again"); };
-    chrome.tabs.create = async () => { window.navigationCalls++; throw Error("controlled navigation rejection"); };
   });
+  await worker.evaluate(() => { self.navigationCalls = 0;
+    chrome.tabs.create = async () => { self.navigationCalls++; throw Error("controlled navigation rejection"); }; });
   await existing.locator("#workspace-branch-start").click();
   await existing.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("NAVIGATION_UNCONFIRMED"));
-  assert.equal(await existing.evaluate(() => window.navigationCalls), 1);
+  assert.equal(await worker.evaluate(() => self.navigationCalls), 1);
   assert.equal(await existing.evaluate(() => window.permissionRequests), 0);
   await existing.close();
   const denied = await preparedPage(false);
   await denied.evaluate(() => {
-    window.navigationCalls = 0;
     chrome.permissions.request = () => { window.permissionRequests++; return Promise.resolve(false); };
-    chrome.tabs.create = () => { window.navigationCalls++; throw Error("must not navigate"); };
   });
+  await worker.evaluate(() => { self.navigationCalls = 0; chrome.tabs.create = () => { self.navigationCalls++; throw Error("must not navigate"); }; });
   await denied.locator("#workspace-branch-start").click();
   await denied.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("PERMISSION_DENIED"));
-  assert.equal(await denied.evaluate(() => window.navigationCalls), 0);
+  assert.equal(await worker.evaluate(() => self.navigationCalls), 0);
   assert.equal(await denied.evaluate(() => window.permissionRequests), 1);
   await denied.close();
   const missing = await preparedPage(false);
   await missing.evaluate(() => {
-    window.navigationCalls = 0;
     chrome.permissions.request = () => { throw Error("permission API unavailable"); };
-    chrome.tabs.create = () => { window.navigationCalls++; throw Error("must not navigate"); };
   });
+  await worker.evaluate(() => { self.navigationCalls = 0; });
   await missing.locator("#workspace-branch-start").click();
   await missing.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("PERMISSION_MISSING"),
     null, { timeout: 1000 });
-  assert.equal(await missing.evaluate(() => window.navigationCalls), 0);
+  assert.equal(await worker.evaluate(() => self.navigationCalls), 0);
   await missing.close();
   // Real Chromium DOM with a routed fixture URL; no live GitHub page or grant is used.
   await context.route("https://github.com/fixture-owner/disposable-repo/branches", route => route.fulfill({
@@ -203,7 +208,7 @@ try {
     ["fixture-owner/disposable-repo", "main", "plementus-mvp-check-1"]), "MANUAL_ACTION_REQUIRED");
   assert.equal(await fixturePage.evaluate(() => window.submitCount), 0);
   await fixturePage.close();
-  console.log("PASS: mocked permission and scripting APIs drove one workspace preparation with no external request");
+  console.log("PASS: real worker messaging/session storage with mocked provider APIs; one preparation and no external request");
 } finally {
   if (context) await context.close();
   fs.rmSync(profile, { recursive: true, force: true });
