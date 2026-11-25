@@ -1,6 +1,7 @@
 /** Native button contract for the exact reviewed disposable sandbox.
- * NOT connected to runtime messaging or the installed worker. This is a DOM
- * adapter, not an authority, source-SHA verifier or durable attempt ledger.
+ * Reachable through the reviewed coordinator only after its trust gates. The
+ * installed route supplies no trusted services. This is a DOM adapter, not an
+ * authority, source-SHA verifier or durable attempt ledger.
  * A future trusted caller must enforce those gates and bind the injection to
  * the previously verified document. Inspect is non-mutating; dispatch is not.
  * Keep self-contained for Chrome executeScript serialization.

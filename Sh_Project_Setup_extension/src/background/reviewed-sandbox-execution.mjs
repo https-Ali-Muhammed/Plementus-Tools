@@ -2,7 +2,7 @@ import { createSandboxPreparationController, RECORD_KEY } from './sandbox-prepar
 import { prepareWorkspaceBranch, verifyPreparedNativeBranchForm } from '../popup/workspace-branch-preparation.mjs';
 import { reviewedSandboxBranchButton } from '../github/reviewed-sandbox-submission.mjs';
 
-// Offline integration candidate. Not imported by the installed worker. The host
+// Reviewed coordinator. The installed worker routes requests with both trusted services absent. The host
 // must supply a separately approved authority and independent authenticated ref
 // reader. Neither the workspace, DOM, nor a stored approval string is authority.
 export const REVIEWED_SCOPE = Object.freeze({
@@ -44,7 +44,7 @@ function snapshotMatches(value, after, now) {
   return value.heads.every(h=>exact(h,['ref','sha']) && h.sha === REVIEWED_SCOPE.sourceSha && expected.delete(h.ref)) && expected.size === 0;
 }
 
-/** No installed runtime entry point. An injected authority must independently
+/** The installed route is blocked until trusted services are provided. An injected authority must independently
  * authenticate and validate owner AND independent human security decisions; an
  * injected reader must obtain complete fresh authenticated provider refs. Tests
  * use synthetic implementations of both. Do not wire synthetic services live.
