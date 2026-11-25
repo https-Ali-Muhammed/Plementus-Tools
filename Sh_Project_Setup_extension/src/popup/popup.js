@@ -5,6 +5,7 @@ import { readGithubPage, validateGithubPageResult, sameGithubTab } from "./githu
 import { createHandoff, handoffKey, consumeHandoff } from "./observation-handoff.mjs";
 import { validateSandboxBranchRequest, matchesSandboxBranchesTab, prepareNativeBranchForm } from "./sandbox-branch-assistant.mjs";
 import { reviewWorkspaceBranch } from "./workspace-branch-navigation.mjs";
+import { prepareWorkspaceBranch } from "./workspace-branch-preparation.mjs";
 
 const workspaceLaunch = document.querySelector("#workspace-launch");
 const workspaceMode = new URL(location.href).searchParams.get("workspace") === "1";
@@ -604,6 +605,7 @@ const workspaceBranchState = document.querySelector("#workspace-branch-state");
 let workspaceBranchReview = null;
 let workspaceBranchBusy = false;
 let workspaceBranchAttempted = false;
+let workspacePermissionAtReview = null;
 
 function currentWorkspaceBranch() {
   return reviewWorkspaceBranch({
@@ -627,11 +629,12 @@ function matchesWorkspaceBranch(review) {
 workspaceBranchAck.addEventListener("change", () => {
   if (workspaceBranchAttempted) return;
   workspaceBranchReview = null;
+  workspacePermissionAtReview = null;
   workspaceBranchPreview.hidden = true;
   workspaceBranchStart.disabled = true;
   workspaceBranchState.textContent = "NOT_CONFIGURED";
 });
-workspaceBranchReviewButton.addEventListener("click", () => {
+workspaceBranchReviewButton.addEventListener("click", async () => {
   if (!prepared || !workspaceMode || workspaceBranchBusy || workspaceBranchAttempted) return;
   const result = currentWorkspaceBranch();
   const ackError = document.querySelector("#workspace-branch-acknowledgment-error");
@@ -648,6 +651,7 @@ workspaceBranchReviewButton.addEventListener("click", () => {
   }
   otherErrors.hidden = !otherErrors.childElementCount;
   workspaceBranchReview = null;
+  workspacePermissionAtReview = null;
   workspaceBranchPreview.hidden = true;
   workspaceBranchStart.disabled = true;
   if (result.state !== "PREVIEW_READY") {
@@ -661,8 +665,22 @@ workspaceBranchReviewButton.addEventListener("click", () => {
   document.querySelector("#workspace-branch-new").textContent = result.newBranch;
   document.querySelector("#workspace-branch-destination").textContent = result.destination;
   workspaceBranchPreview.hidden = false;
-  workspaceBranchStart.disabled = false;
   workspaceBranchState.textContent = "PREVIEW_READY";
+  const review = workspaceBranchReview;
+  try {
+    const existing = await chrome.permissions.contains({ origins: ["https://github.com/*"] });
+    if (workspaceBranchReview !== review) return;
+    workspacePermissionAtReview = existing === true;
+  } catch {
+    if (workspaceBranchReview !== review) return;
+    workspacePermissionAtReview = false;
+  }
+  if (workspaceBranchReview === review && !workspaceBranchAttempted) {
+    document.querySelector("#workspace-branch-permission").textContent = workspacePermissionAtReview
+      ? "GitHub-origin access was already available at review."
+      : "Start will request optional access to https://github.com/* (all GitHub HTTPS paths).";
+    workspaceBranchStart.disabled = false;
+  }
 });
 workspaceBranchStart.addEventListener("click", async () => {
   if (workspaceBranchBusy || workspaceBranchAttempted) return;
@@ -679,30 +697,25 @@ workspaceBranchStart.addEventListener("click", async () => {
   workspaceBranchStart.disabled = true;
   workspaceBranchReviewButton.disabled = true;
   workspaceBranchAck.disabled = true;
-  workspaceBranchState.textContent = "NAVIGATION_PENDING";
+  // Request while the reviewed Start click still has its user gesture.
+  let permissionRequest = Promise.resolve(true);
+  if (workspacePermissionAtReview !== true) {
+    try { permissionRequest = chrome.permissions.request({ origins: ["https://github.com/*"] }).catch(() => false); }
+    catch { permissionRequest = Promise.resolve("MISSING"); }
+  }
   try {
-    const tab = await chrome.tabs.create({ url: review.destination });
-    if (!matchesWorkspaceBranch(review)) {
-      workspaceBranchState.textContent = "STALE_PLAN: Navigation may have opened; result discarded.";
-      workspaceBranchReview = null;
-      workspaceBranchPreview.hidden = true;
-      return;
-    }
-    if (!Number.isInteger(tab?.id) || tab.id < 0 ||
-        (tab.url !== undefined && tab.url !== review.destination) ||
-        (tab.pendingUrl !== undefined && tab.pendingUrl !== review.destination)) {
-      workspaceBranchState.textContent = "NAVIGATION_UNCONFIRMED: Browser response was invalid; a tab may have opened.";
-      return;
-    }
-    workspaceBranchState.textContent = "NAVIGATION_REQUESTED: GitHub page readiness is unverified. No branch was created.";
+    await prepareWorkspaceBranch({ api: chrome, review, permissionRequest,
+      fresh: () => matchesWorkspaceBranch(review),
+      onState: state => { workspaceBranchState.textContent = `${state}: ${
+        state === "FORM_PREPARED" ? "Native name prepared; branch not created. Final submission requires separate authorization." :
+        state === "PERMISSION_DENIED" || state === "PERMISSION_MISSING" ? "GitHub access unavailable; preparation stopped." :
+        state === "DIALOG_TIMEOUT" || state === "NAVIGATION_TIMEOUT" ? "Timed out; inspect the opened tab before any retry." :
+        state === "UNSUPPORTED_UI" || state === "UNSUPPORTED_PAGE" ? "Page or native controls could not be verified." :
+        state === "PREPARATION_UNCERTAIN" ? "Form state could not be confirmed; inspect it manually." :
+        "Sandbox preparation in progress."}`; },
+    });
   } catch {
-    if (matchesWorkspaceBranch(review)) {
-      workspaceBranchState.textContent = "NAVIGATION_UNCONFIRMED: Browser rejected the request; a tab may have opened.";
-    } else {
-      workspaceBranchReview = null;
-      workspaceBranchPreview.hidden = true;
-      workspaceBranchState.textContent = "STALE_PLAN: Navigation may have opened; result discarded.";
-    }
+    workspaceBranchState.textContent = "PREPARATION_UNCERTAIN: Browser operation could not be confirmed.";
   } finally {
     workspaceBranchBusy = false;
     workspaceBranchAck.disabled = workspaceBranchAttempted;

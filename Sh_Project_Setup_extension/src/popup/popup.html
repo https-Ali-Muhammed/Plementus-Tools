@@ -194,7 +194,7 @@
       </form>
       <section id="workspace-branch-navigation" aria-labelledby="workspace-branch-heading" hidden>
         <h2 id="workspace-branch-heading">Sandbox branch preparation</h2>
-        <p>Uses the repository, Production source branch and Staging destination branch from the reviewed setup plan. Navigation only; GitHub page readiness and branch creation are not verified.</p>
+        <p>Uses the repository, Production source branch and Staging destination branch from the reviewed setup plan. Start may request access to the GitHub HTTPS origin, then opens its native branch dialog and prepares the name only. GitHub access may persist until you revoke it in Chrome extension settings. No branch is created.</p>
         <label class="sandbox-acknowledgment" for="workspace-branch-acknowledgment">
           <input id="workspace-branch-acknowledgment" type="checkbox" aria-describedby="workspace-branch-acknowledgment-error">
           I confirm this repository is disposable and has no customer data, deployment integrations or production dependencies.
@@ -207,6 +207,7 @@
           <p>Source branch: <strong id="workspace-branch-source"></strong></p>
           <p>New branch: <strong id="workspace-branch-new"></strong></p>
           <p>GitHub destination: <strong id="workspace-branch-destination"></strong></p>
+          <p id="workspace-branch-permission"></p>
         </div>
         <button id="workspace-branch-start" type="button" disabled>Start sandbox preparation</button>
         <p id="workspace-branch-state" role="status" aria-live="polite" aria-atomic="true">NOT_CONFIGURED</p>

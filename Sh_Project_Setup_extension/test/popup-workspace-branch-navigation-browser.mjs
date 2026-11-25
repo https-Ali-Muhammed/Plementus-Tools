@@ -29,6 +29,12 @@ try {
     mode = "existing", production = "main", staging = "plementus-mvp-check-1" } = {}) {
     const workspace = await context.newPage();
     await workspace.goto(`chrome-extension://${id}/src/popup/popup.html?workspace=1`);
+    await workspace.evaluate(() => {
+      // New optional GitHub permission is granted only by the reviewed Start action.
+      window.githubGrant = false;
+      chrome.permissions.contains = async () => window.githubGrant;
+      chrome.permissions.request = async () => { window.githubGrant = true; return true; };
+    });
     assert.equal(await workspace.locator("#workspace-branch-navigation").isHidden(), true);
     await workspace.locator("#customer-name").fill("Private customer");
     await workspace.locator("#subscription").selectOption("customer");
@@ -62,12 +68,14 @@ try {
   await page.evaluate(() => {
     window.navigationCalls = [];
     chrome.tabs.create = async options => { window.navigationCalls.push(options); return { id: 42, url: options.url }; };
-    chrome.scripting.executeScript = () => { throw Error("toolbar must not run"); };
+    chrome.tabs.get = async id => ({ id, windowId: 1, incognito: false, status: "complete", url: "https://github.com/fixture-owner/disposable-repo/branches" });
+    chrome.scripting.executeScript = async () => [{ frameId: 0, result: false }];
   });
   await page.locator("#workspace-branch-start").click();
   await page.locator("#workspace-branch-start").dispatchEvent("click");
   assert.deepEqual(await page.evaluate(() => window.navigationCalls), [{ url: destination }]);
-  assert.match(await page.locator("#workspace-branch-state").textContent(), /NAVIGATION_REQUESTED/);
+  await page.waitForFunction(() => document.querySelector("#workspace-branch-state").textContent.includes("UNSUPPORTED_PAGE"));
+  assert.match(await page.locator("#workspace-branch-state").textContent(), /UNSUPPORTED_PAGE/);
   assert.doesNotMatch(await page.locator("#workspace-branch-state").textContent(), /FORM_PREPARED/);
   assert.equal(await page.locator("#workspace-branch-start").isDisabled(), true);
   assert.equal(page.url(), `chrome-extension://${id}/src/popup/popup.html?workspace=1`);
