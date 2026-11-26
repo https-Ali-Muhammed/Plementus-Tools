@@ -13,7 +13,7 @@ async function boot(t) {
   const originalIDB=Object.getOwnPropertyDescriptor(globalThis,'indexedDB');
   const effects=[], sessionCalls=[], listeners=[];
   const fail=name=>(...args)=>{effects.push(name);throw Error(`unexpected ${name}`);};
-  const chrome={runtime:{id:sender.id,getURL:p=>`${origin}/${p}`,onMessage:{addListener:fn=>listeners.push(fn)},onInstalled:{addListener(){}}},
+  const chrome={runtime:{id:sender.id,getURL:p=>`${origin}/${p}`,onMessage:{addListener:fn=>listeners.push(fn)},onInstalled:{addListener(){}},sendNativeMessage:fail('runtime.sendNativeMessage')},
     storage:{session:{setAccessLevel:async()=>sessionCalls.push('access'),get:async k=>{sessionCalls.push(`get:${k}`);return {};},set:fail('session.set')}},
     permissions:{contains:fail('permissions.contains'),request:fail('permissions.request')},
     tabs:{create:fail('tabs.create'),get:fail('tabs.get')},scripting:{executeScript:fail('script')}};
@@ -40,7 +40,7 @@ function blocked(result,reason){
   assert.equal(result.clickConfirmed,false);assert.equal(result.postcondition,'NOT_CHECKED');
 }
 
-test('installed worker routes exact reviewed request and fails closed with unavailable trusted services',async t=>{
+test('installed worker routes exact reviewed request and fails closed with missing trusted authorization (native reader wired)',async t=>{
   const f=await boot(t),before=[...f.sessionCalls];
   blocked(await f.send(request),'TRUSTED_SERVICES_UNAVAILABLE');
   assert.deepEqual(f.effects,[]);assert.deepEqual(f.sessionCalls,before);
