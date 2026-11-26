@@ -2,6 +2,7 @@
 // budget is NOT the coordinator's independent evidence/freshness policy.
 import { REVIEWED_SCOPE } from './reviewed-sandbox-execution.mjs';
 export const NATIVE_HOST = 'com.plementus.reviewed_git_refs';
+export const MAIN_NATIVE_HOST = 'com.plementus.reviewed_git_refs_main';
 export const READ_KIND = 'READ_REVIEWED_GIT_REFS_V1';
 export const TRANSPORT_MS = 6500;
 const repo = REVIEWED_SCOPE.repository;
@@ -23,18 +24,18 @@ export function validSnapshot(s) {
 }
 // One read at a time; no retry. A timeout poisons this instance because the
 // underlying host might still be unwinding. It cannot authorize a write.
-export function createReviewedNativeRefBridge({runtime, wall=Date.now, monotonic=()=>performance.now(), nonce=()=>crypto.randomUUID(), waitMs=TRANSPORT_MS}={}) {
+export function createReviewedNativeRefBridge({runtime, wall=Date.now, monotonic=()=>performance.now(), nonce=()=>crypto.randomUUID(), waitMs=TRANSPORT_MS, host=NATIVE_HOST}={}) {
   let busy=false, uncertain=false;
   const budget=Number.isFinite(waitMs)?Math.max(1,Math.min(TRANSPORT_MS,waitMs)):TRANSPORT_MS;
   return async repository => {
-    if (repository!==repo || busy || uncertain || typeof runtime?.sendNativeMessage!=='function') return null;
+    if (![NATIVE_HOST, MAIN_NATIVE_HOST].includes(host) || repository!==repo || busy || uncertain || typeof runtime?.sendNativeMessage!=='function') return null;
     busy=true; let timer;
     try {
       const start=wall(), tick=monotonic(), id=nonce();
       if(!Number.isSafeInteger(start)||!Number.isFinite(tick)||!validNonce(id))return null;
       const expired=Symbol('expired');
       const response=await Promise.race([
-        Promise.resolve().then(()=>runtime.sendNativeMessage(NATIVE_HOST,{kind:READ_KIND,nonce:id})),
+        Promise.resolve().then(()=>runtime.sendNativeMessage(host,{kind:READ_KIND,nonce:id})),
         new Promise(resolve=>{timer=setTimeout(()=>resolve(expired),budget);})
       ]);
       const end=wall(), elapsed=monotonic()-tick;

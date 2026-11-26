@@ -3,6 +3,7 @@
   "name": "Plementus Project Setup",
   "version": "0.1.0",
   "permissions": ["activeTab", "scripting", "storage"],
+  "optional_permissions": ["nativeMessaging"],
   "optional_host_permissions": ["https://github.com/*"],
   "background": {
     "service_worker": "src/background.js",

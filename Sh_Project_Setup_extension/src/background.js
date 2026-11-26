@@ -2,6 +2,9 @@ import { createSandboxPreparationController } from "./background/sandbox-prepara
 import { createReviewedSandboxExecution } from "./background/reviewed-sandbox-execution.mjs";
 import { createReviewedAttemptLedger } from "./background/reviewed-attempt-ledger.mjs";
 
+import { createMainRefCheck } from "./background/reviewed-main-ref-check.mjs";
+
+const mainRefCheck = createMainRefCheck(chrome);
 const sandboxPreparation = createSandboxPreparationController(chrome);
 // The installed route deliberately supplies no authority or authenticated ref
 // reader. The coordinator fails closed before any reservation, permission check,
@@ -12,6 +15,11 @@ const reviewedExecution = createReviewedSandboxExecution({
   ledger: createReviewedAttemptLedger(globalThis.indexedDB),
 });
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type === "REVIEWED_MAIN_REF_CHECK") {
+    void mainRefCheck(message, sender).then(sendResponse, () =>
+      sendResponse({ok:false, reason:"READ_UNAVAILABLE"}));
+    return true;
+  }
   if (message?.type === "REVIEWED_SANDBOX_CREATE") {
     void reviewedExecution.run(message, sender).then(sendResponse, () =>
       sendResponse({ state: "BLOCKED", reason: "RUNTIME_UNAVAILABLE", reserved: false,

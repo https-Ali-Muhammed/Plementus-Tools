@@ -99,8 +99,11 @@ test('legacy profile still refuses slow reads; unknown profiles cannot perform e
   const invalid=setup({refReadProfile:'unknown'});assert.equal((await invalid.run()).reason,'INVALID_TIMING_PROFILE');assert.deepEqual(invalid.calls,[]);
   const injected=setup();assert.equal((await injected.run({...message,refReadProfile:nativeProfile})).reason,'INVALID_REQUEST');assert.deepEqual(injected.calls,[]);
 });
-test('native candidate rejects a replayed snapshot predating the current acquisition',async()=>{
-  const f=setup({refReadProfile:nativeProfile,refs:heads=>snapshot(heads,Date.now()-1)});
+test('native candidate rejects a replayed snapshot predating the current acquisition',async t=>{
+  // Freeze the wall clock so scheduling cannot turn stale evidence into a current read.
+  const now=Date.now();
+  t.mock.method(Date,'now',()=>now);
+  const f=setup({refReadProfile:nativeProfile,refs:heads=>snapshot(heads,now-1)});
   assert.equal((await f.run()).reason,'PREFLIGHT_REFS_MISMATCH');assert.equal(f.ledger.size,0);assert.equal(f.clicks,0);
 });
 test('native candidate rejects post-receipt evidence aged by awaited context checks',async()=>{
