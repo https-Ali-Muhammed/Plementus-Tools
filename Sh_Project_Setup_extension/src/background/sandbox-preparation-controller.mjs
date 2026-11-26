@@ -19,7 +19,12 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const exactKeys = (value, keys) => value && Object.getPrototypeOf(value) === Object.prototype &&
   Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
 
-export function createSandboxPreparationController(api, execute = prepareWorkspaceBranch, { waitMs = CONTROLLER_WAIT_MS } = {}) {
+export function isPreparationIdle(result) {
+  return result?.ok === true && (result.record === null ||
+    knownStates.has(result.record?.state) && !unsafeToRepeat.has(result.record.state));
+}
+
+export function createSandboxPreparationController(api, execute = prepareWorkspaceBranch, { waitMs = CONTROLLER_WAIT_MS, operationGate } = {}) {
   const waitLimit = Number.isFinite(waitMs) ? Math.max(1, Math.min(CONTROLLER_WAIT_MS, waitMs)) : CONTROLLER_WAIT_MS;
   let record = null;
   let unavailable = false;
@@ -96,12 +101,17 @@ export function createSandboxPreparationController(api, execute = prepareWorkspa
       catch { allowed = false; }
       if (allowed === timedOut) { unavailable = true; return { ok: false, reason: "SESSION_UNAVAILABLE" }; }
       if (allowed !== true) return { ok: false, reason: "PERMISSION_MISSING" };
+      // Acquire after validation/permission, before any admission checkpoint.
+      // Only the installed worker provides the shared gate; isolated fixtures
+      // and the reviewed coordinator's internal controller already own a slot.
+      const release = operationGate ? await operationGate.acquire("ordinary", sender) : () => {};
+      if (!release) return { ok: false, reason: "OPERATION_CONFLICT" };
       const now = Date.now();
       const next = { operationId: message.operationId, runId: crypto.randomUUID(),
         repository: review.repository, sourceBranch: review.sourceBranch, newBranch: review.newBranch,
         state: "ADMITTED", startedAt: now, updatedAt: now };
       try { await persist(next); }
-      catch { unavailable = true; return { ok: false, reason: "SESSION_UNAVAILABLE" }; }
+      catch { unavailable = true; release(); return { ok: false, reason: "SESSION_UNAVAILABLE" }; }
       stopped = false;
       dispatched = false;
       uncertain = false;
@@ -182,7 +192,7 @@ export function createSandboxPreparationController(api, execute = prepareWorkspa
         if (record?.runId !== next.runId || !activeStates.has(record.state)) return;
         try { await enqueue(() => persist({ ...record, state: "PREPARATION_UNCERTAIN", updatedAt: Date.now() })); }
         catch { unavailable = true; uncertain = dispatched; }
-      });
+      }).finally(release);
       return { ok: true, record: next };
     });
   }

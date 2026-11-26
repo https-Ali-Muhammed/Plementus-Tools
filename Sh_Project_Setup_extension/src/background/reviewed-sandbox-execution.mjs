@@ -2,9 +2,9 @@ import { createSandboxPreparationController, RECORD_KEY } from './sandbox-prepar
 import { prepareWorkspaceBranch, verifyPreparedNativeBranchForm } from '../popup/workspace-branch-preparation.mjs';
 import { reviewedSandboxBranchButton } from '../github/reviewed-sandbox-submission.mjs';
 
-// Reviewed coordinator. The installed worker routes requests with both trusted services absent. The host
-// must supply a separately approved authority and independent authenticated ref
-// reader. Neither the workspace, DOM, nor a stored approval string is authority.
+// Reviewed coordinator. The installed worker has the independent ref reader but
+// no trusted authority provider. Neither the workspace, DOM, nor a stored
+// approval string is authority.
 export const REVIEWED_SCOPE = Object.freeze({
   repository: 'https-Ali-Muhammed/plementus-mvp-sandbox', sourceBranch: 'main',
   newBranch: 'plementus-mvp-test01', sourceSha: '072833552870034a3772d58a4ff552868fb1eeab',
@@ -15,8 +15,8 @@ const args = [REVIEWED_SCOPE.repository, REVIEWED_SCOPE.sourceBranch, REVIEWED_S
 const origin = { origins: ['https://github.com/*'] };
 const preparationKey = 'reviewedSandboxExecution.preparation.v1';
 const timeout = Symbol('timeout');
-// Offline candidate only. A longer acquisition window is not a refresh of the
-// provider observation time. The installed worker retains the legacy profile.
+// A longer acquisition window is not a refresh of provider observation time.
+// The installed worker selects this profile but remains gated.
 export const NATIVE_REF_READ_CANDIDATE = 'native-read-candidate-v1';
 const NATIVE_READ_WAIT_MS = 7000;
 const NATIVE_RECEIPT_AGE_MS = 6500;
@@ -57,7 +57,7 @@ function snapshotMatches(value, after, now, maxAge=2000) {
  * use synthetic implementations of both. Do not wire synthetic services live.
  * ledger.add must be atomic insert-if-absent, true only after durable commit.
  */
-export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,waitMs=2000,refReadProfile}={}) {
+export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,waitMs=2000,refReadProfile,operationGate}={}) {
   const nativeRead = refReadProfile === NATIVE_REF_READ_CANDIDATE;
   let used=false;
   const wait = Number.isFinite(waitMs) ? Math.max(1,Math.min(2000,waitMs)) : 2000;
@@ -107,7 +107,13 @@ export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,wa
       return current()&&approvalMatches(value,Date.now())&&value.operator===approval.operator&&value.reviewer===approval.reviewer&&
         value.securityApprovalReference===approval.securityApprovalReference&&value.expiresAt===approval.expiresAt;
     }
+    let release;
     try {
+      if(operationGate){
+        release=await operationGate.acquire('reviewed',sender);
+        if(!release)return report('BLOCKED','OPERATION_CONFLICT');
+      }
+      if(remaining()<=0)return report('BLOCKED','DEADLINE_EXPIRED');
       const decision=await bounded(()=>authorize(REVIEWED_SCOPE,sender));
       if(!approvalMatches(decision,Date.now()))return report('BLOCKED','INDEPENDENT_APPROVAL_UNAVAILABLE');
       approval=Object.freeze({...decision,scope:REVIEWED_SCOPE});
@@ -186,6 +192,6 @@ export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,wa
         return report('OUTCOME_UNKNOWN','OUTCOME_PERSISTENCE_UNCONFIRMED');
       return result;
     } catch {return report(dispatched?'OUTCOME_UNKNOWN':'BLOCKED',dispatched?'RECONCILIATION_REQUIRED':'PRE_DISPATCH_FAILURE');}
-    finally{finished=true;}
+    finally{finished=true;release?.();}
   }});
 }

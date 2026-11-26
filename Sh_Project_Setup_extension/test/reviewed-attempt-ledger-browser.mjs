@@ -56,15 +56,19 @@ const a = { fixture: 'A' }, b = { fixture: 'B' };
 try {
   await start();
   const p = await page(), q = await page();
+  assert.equal(await p.evaluate(()=>window.fixtureLedger.hasCheckpoint()),false);
+  assert.equal(await p.evaluate(async()=> (await indexedDB.databases()).some(d=>d.name==='plementus-reviewed-sandbox-execution-v1')),false);
   const results = await Promise.all([add(p, 'reservation', a), add(q, 'reservation', b)]);
   assert.equal(results.filter(x => x === true).length, 1);
   assert.equal(results.filter(x => x === false).length, 1);
   const winner = results[0] ? a : b;
   assert.deepEqual(await read(p), { reservation: winner });
+  assert.equal(await q.evaluate(()=>window.fixtureLedger.hasCheckpoint()),true);
   console.log('PASS: competing tabs admit exactly one reservation; read-only transaction confirms winner');
   await context.close(); context = undefined;
   await start();
   const r = await page();
+  assert.equal(await r.evaluate(()=>window.fixtureLedger.hasCheckpoint()),true);
   assert.equal(await add(r, 'reservation', { fixture: 'replay' }), false);
   assert.deepEqual(await read(r), { reservation: winner });
   assert.equal(await add(r, 'dispatch', winner), true);
@@ -76,12 +80,13 @@ try {
   await context.close(); context = undefined;
   await start();
   const s = await page();
+  assert.equal(await s.evaluate(()=>window.fixtureLedger.hasCheckpoint()),true);
   assert.deepEqual(await read(s), { reservation: winner, dispatch: winner, outcome: winner });
   assert.deepEqual(await Promise.all(['reservation', 'dispatch', 'outcome'].map(k => add(s, k, { fixture: 'replay' }))), [false, false, false]);
   assert.deepEqual(await read(s), { reservation: winner, dispatch: winner, outcome: winner });
   assert.equal(unexpected, 0);
   assert.equal(intercepted, 4);
-  console.log('PASS: all three immutable checkpoints survive second restart; all replays refused; 4 intercepted fixture navigations, zero forwarded requests');
+  console.log('PASS: all three immutable checkpoints survive second restart; all replays refused; read-only admission detects existing checkpoints; 4 intercepted fixture navigations, zero forwarded requests');
 } finally {
   try { await context?.close(); } finally { await rm(dir, { recursive: true, force: true }); }
 }

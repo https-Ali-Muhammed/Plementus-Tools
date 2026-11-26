@@ -8,17 +8,24 @@ const sender = {id:'fixture-id', origin, url:`${origin}/src/popup/popup.html?wor
   frameId:0, tab:{id:7,incognito:false}};
 const request = {type:'REVIEWED_SANDBOX_CREATE',acknowledged:true};
 let serial = 0;
-async function boot(t) {
+async function boot(t, { checkpoint = false } = {}) {
   const originalChrome=Object.getOwnPropertyDescriptor(globalThis,'chrome');
   const originalIDB=Object.getOwnPropertyDescriptor(globalThis,'indexedDB');
   const effects=[], sessionCalls=[], listeners=[];
   const fail=name=>(...args)=>{effects.push(name);throw Error(`unexpected ${name}`);};
   const chrome={runtime:{id:sender.id,getURL:p=>`${origin}/${p}`,onMessage:{addListener:fn=>listeners.push(fn)},onInstalled:{addListener(){}},sendNativeMessage:fail('runtime.sendNativeMessage')},
     storage:{session:{setAccessLevel:async()=>sessionCalls.push('access'),get:async k=>{sessionCalls.push(`get:${k}`);return {};},set:fail('session.set')}},
-    permissions:{contains:fail('permissions.contains'),request:fail('permissions.request')},
+    permissions:{contains:checkpoint?async()=>true:fail('permissions.contains'),request:fail('permissions.request')},
     tabs:{create:fail('tabs.create'),get:fail('tabs.get')},scripting:{executeScript:fail('script')}};
   Object.defineProperty(globalThis,'chrome',{value:chrome,writable:true,configurable:true});
-  Object.defineProperty(globalThis,'indexedDB',{value:{open:fail('indexedDB.open')},configurable:true});
+  const idb=checkpoint?{
+    databases:async()=>[{name:'plementus-reviewed-sandbox-execution-v1',version:1}],
+    open:()=>{const db={close(){},transaction(store,mode){
+      assert.equal(mode,'readonly');const tx={objectStore(){return {count(){return {result:1};}}}};
+      queueMicrotask(()=>tx.oncomplete());return tx;
+    }};const request={result:db};queueMicrotask(()=>request.onsuccess());return request;},
+  }:{open:fail('indexedDB.open'),databases:fail('indexedDB.databases')};
+  Object.defineProperty(globalThis,'indexedDB',{value:idb,configurable:true});
   t.after(()=>{for(const [key,old] of [['chrome',originalChrome],['indexedDB',originalIDB]]){
     if(old)Object.defineProperty(globalThis,key,old);else delete globalThis[key];
   }});
@@ -68,5 +75,14 @@ test('ordinary status and malformed message behavior are preserved alongside rev
   assert.deepEqual(await f.send({type:'SANDBOX_PREPARATION_START',unexpected:true}),{ok:false,reason:'MALFORMED_MESSAGE'});
   assert.deepEqual(await f.send({type:'SANDBOX_PREPARATION_STATUS'}),{ok:true,record:null});
   assert.deepEqual(await f.send({type:'SANDBOX_PREPARATION_STATUS'},{...sender,origin:'https://github.com'}),{ok:false,reason:'UNTRUSTED_SENDER'});
+  assert.deepEqual(f.effects,[]);
+});
+
+test('installed ordinary route cannot admit a new preparation after a durable reviewed checkpoint',async t=>{
+  const f=await boot(t,{checkpoint:true});
+  const start={type:'SANDBOX_PREPARATION_START',operationId:'123e4567-e89b-42d3-a456-426614174000',repository:'fixture-owner/disposable-repo',sourceBranch:'main',newBranch:'plementus-mvp-check',acknowledged:true};
+  assert.deepEqual(await f.send(start),{ok:false,reason:'OPERATION_CONFLICT'});
+  assert.deepEqual(await f.send({type:'SANDBOX_PREPARATION_STATUS'}),{ok:true,record:null});
+  blocked(await f.send(request),'TRUSTED_SERVICES_UNAVAILABLE');
   assert.deepEqual(f.effects,[]);
 });
