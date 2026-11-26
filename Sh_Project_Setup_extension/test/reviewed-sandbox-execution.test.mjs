@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createReviewedSandboxExecution, REVIEWED_SCOPE as scope } from '../src/background/reviewed-sandbox-execution.mjs';
+import { createReviewedSandboxExecution, REVIEWED_SCOPE as scope, NATIVE_REF_READ_CANDIDATE } from '../src/background/reviewed-sandbox-execution.mjs';
 import { createReviewedAttemptLedger } from '../src/background/reviewed-attempt-ledger.mjs';
 
 const sender={id:'test-extension',origin:'chrome-extension://test-extension',url:'chrome-extension://test-extension/src/popup/popup.html?workspace=1',frameId:0,tab:{id:7,incognito:false}};
@@ -8,7 +8,7 @@ const message={type:'REVIEWED_SANDBOX_CREATE',acknowledged:true};
 const url=`https://github.com/${scope.repository}/branches`;
 const source={ref:'refs/heads/main',sha:scope.sourceSha}, dest={ref:`refs/heads/${scope.newBranch}`,sha:scope.sourceSha};
 const events={addListener(){},removeListener(){}};
-function setup({ledger=new Map(),authority,refs,add,script,tab,permission,waitMs=100,missing}={}){
+function setup({ledger=new Map(),authority,refs,add,script,tab,permission,waitMs=100,missing,refReadProfile}={}){
   const calls=[], session={}, heads=[source];let clicks=0,reads=0,auths=0;
   const decision={scope,securityApprovalReference:'synthetic-review-01',operator:'fixture-operator',reviewer:'fixture-independent-reviewer',expiresAt:Date.now()+60000};
   const api={runtime:{id:sender.id,getURL:p=>`${sender.origin}/${p}`},storage:{session:{setAccessLevel:async()=>{},get:async k=>({[k]:session[k]}),set:async v=>Object.assign(session,structuredClone(v))}},permissions:{contains:async()=>permission?.()??true},tabs:{create:async o=>{assert.equal(o.url,url);calls.push('navigate');return {id:42,url};},get:async id=>tab?.(id)??{id,windowId:1,incognito:false,status:'complete',url},onUpdated:events,onRemoved:events},scripting:{executeScript:async o=>{
@@ -17,7 +17,7 @@ function setup({ledger=new Map(),authority,refs,add,script,tab,permission,waitMs
     if(mode==='dispatch'){clicks++;heads.push(dest);result='CLICK_DISPATCHED';}
     return script?.(o,result)??[{frameId:0,documentId:'fixture-doc',result}];
   }}};
-  const services={api,ledger:{add:async(k,v)=>{calls.push(`ledger:${k}`);if(add)return add(k,v,ledger);if(ledger.has(k))return false;ledger.set(k,structuredClone(v));return true;}},authorize:async()=>{auths++;return authority?authority(decision,auths):decision;},readRefs:async repository=>{reads++;calls.push('refs');return refs?refs(heads,reads):{repository,complete:true,observedAt:Date.now(),heads:structuredClone(heads)};},waitMs};
+  const services={api,ledger:{add:async(k,v)=>{calls.push(`ledger:${k}`);if(add)return add(k,v,ledger);if(ledger.has(k))return false;ledger.set(k,structuredClone(v));return true;}},authorize:async()=>{auths++;return authority?authority(decision,auths):decision;},readRefs:async repository=>{reads++;calls.push('refs');return refs?refs(heads,reads):{repository,complete:true,observedAt:Date.now(),heads:structuredClone(heads)};},waitMs,refReadProfile};
   if(missing)delete services[missing];
   return {run:(m=message,s=sender)=>createReviewedSandboxExecution(services).run(m,s),calls,ledger,session,get clicks(){return clicks;}};
 }
@@ -82,4 +82,31 @@ test('pre-dispatch ref evidence must remain fresh after awaited context checks',
   let readCount=0,hold=false;
   const f=setup({waitMs:2000,refs:(heads,n)=>{readCount=n;if(n===2){hold=true;return {repository:scope.repository,complete:true,observedAt:Date.now()-1500,heads:[source]};}return {repository:scope.repository,complete:true,observedAt:Date.now(),heads:structuredClone(heads)};},tab:async id=>{if(hold)await new Promise(r=>setTimeout(r,600));return {id,windowId:1,incognito:false,status:'complete',url};}});
   assert.equal((await f.run()).reason,'POST_CLAIM_REVALIDATION_FAILED');assert.equal(readCount,2);assert.equal(f.clicks,0);assert.equal(f.ledger.has('dispatch'),true);
+});
+
+// Native timing is an explicit offline profile, never a workspace request option.
+const nativeProfile=NATIVE_REF_READ_CANDIDATE;
+const snapshot=(heads,observedAt=Date.now())=>({repository:scope.repository,complete:true,observedAt,heads:structuredClone(heads)});
+test('native candidate accepts measured slow acquisition without replacing the provider timestamp',async()=>{
+  const f=setup({refReadProfile:nativeProfile,waitMs:1000,refs:async heads=>{
+    const proof=snapshot(heads); await new Promise(r=>setTimeout(r,2250)); return proof;
+  }});
+  const r=await f.run();assert.equal(r.state,'REFS_MATCHED');assert.equal(f.clicks,1);
+});
+test('legacy profile still refuses slow reads; unknown profiles cannot perform effects',async()=>{
+  const f=setup({waitMs:20,refs:async heads=>{await new Promise(r=>setTimeout(r,60));return snapshot(heads);}});
+  assert.equal((await f.run()).reason,'PREFLIGHT_REFS_MISMATCH');assert.equal(f.ledger.size,0);assert.equal(f.clicks,0);
+  const invalid=setup({refReadProfile:'unknown'});assert.equal((await invalid.run()).reason,'INVALID_TIMING_PROFILE');assert.deepEqual(invalid.calls,[]);
+  const injected=setup();assert.equal((await injected.run({...message,refReadProfile:nativeProfile})).reason,'INVALID_REQUEST');assert.deepEqual(injected.calls,[]);
+});
+test('native candidate rejects a replayed snapshot predating the current acquisition',async()=>{
+  const f=setup({refReadProfile:nativeProfile,refs:heads=>snapshot(heads,Date.now()-1)});
+  assert.equal((await f.run()).reason,'PREFLIGHT_REFS_MISMATCH');assert.equal(f.ledger.size,0);assert.equal(f.clicks,0);
+});
+test('native candidate rejects post-receipt evidence aged by awaited context checks',async()=>{
+  let hold=false;
+  const f=setup({refReadProfile:nativeProfile,waitMs:2000,refs:(heads,n)=>{if(n===2)hold=true;return snapshot(heads);},
+    tab:async id=>{if(hold)await new Promise(r=>setTimeout(r,1150));return {id,windowId:1,incognito:false,status:'complete',url};},
+    permission:async()=>{if(hold)await new Promise(r=>setTimeout(r,1150));return true;}});
+  assert.equal((await f.run()).reason,'POST_CLAIM_REVALIDATION_FAILED');assert.equal(f.clicks,0);assert.equal(f.ledger.has('dispatch'),true);
 });

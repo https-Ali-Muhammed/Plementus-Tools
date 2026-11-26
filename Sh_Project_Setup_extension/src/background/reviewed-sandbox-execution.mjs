@@ -15,6 +15,13 @@ const args = [REVIEWED_SCOPE.repository, REVIEWED_SCOPE.sourceBranch, REVIEWED_S
 const origin = { origins: ['https://github.com/*'] };
 const preparationKey = 'reviewedSandboxExecution.preparation.v1';
 const timeout = Symbol('timeout');
+// Offline candidate only. A longer acquisition window is not a refresh of the
+// provider observation time. The installed worker retains the legacy profile.
+export const NATIVE_REF_READ_CANDIDATE = 'native-read-candidate-v1';
+const NATIVE_READ_WAIT_MS = 7000;
+const NATIVE_RECEIPT_AGE_MS = 6500;
+const NATIVE_TOTAL_AGE_MS = 8500;
+const POST_RECEIPT_MS = 2000;
 const exact = (obj, keys) => obj && Object.getPrototypeOf(obj) === Object.prototype &&
   Object.keys(obj).length === keys.length && keys.every(k => Object.hasOwn(obj,k));
 function trusted(api,sender) {
@@ -35,9 +42,9 @@ function approvalMatches(value, now) {
     /^[a-zA-Z0-9._-]{1,128}$/.test(value.securityApprovalReference) &&
     Number.isSafeInteger(value.expiresAt) && value.expiresAt > now && value.expiresAt - now <= 300000;
 }
-function snapshotMatches(value, after, now) {
+function snapshotMatches(value, after, now, maxAge=2000) {
   if (!exact(value,['repository','complete','observedAt','heads']) || value.repository !== REVIEWED_SCOPE.repository ||
-      value.complete !== true || !Number.isSafeInteger(value.observedAt) || value.observedAt > now || now-value.observedAt > 2000 ||
+      value.complete !== true || !Number.isSafeInteger(value.observedAt) || value.observedAt > now || now-value.observedAt > maxAge ||
       !Array.isArray(value.heads) || value.heads.length !== (after ? 2 : 1)) return false;
   const expected = new Set(['refs/heads/main']);
   if (after) expected.add('refs/heads/plementus-mvp-test01');
@@ -50,7 +57,8 @@ function snapshotMatches(value, after, now) {
  * use synthetic implementations of both. Do not wire synthetic services live.
  * ledger.add must be atomic insert-if-absent, true only after durable commit.
  */
-export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,waitMs=2000}={}) {
+export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,waitMs=2000,refReadProfile}={}) {
+  const nativeRead = refReadProfile === NATIVE_REF_READ_CANDIDATE;
   let used=false;
   const wait = Number.isFinite(waitMs) ? Math.max(1,Math.min(2000,waitMs)) : 2000;
   return Object.freeze({async run(message,sender) {
@@ -59,6 +67,7 @@ export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,wa
     if (used) return report('BLOCKED','ALREADY_ATTEMPTED');
     if (!trusted(api,sender) || !exact(message,['type','acknowledged']) || message.type!=='REVIEWED_SANDBOX_CREATE' || message.acknowledged!==true)
       return report('BLOCKED','INVALID_REQUEST');
+    if (refReadProfile !== undefined && !nativeRead) return report('BLOCKED','INVALID_TIMING_PROFILE');
     if (typeof authorize!=='function'||typeof readRefs!=='function'||typeof ledger?.add!=='function')
       return report('BLOCKED','TRUSTED_SERVICES_UNAVAILABLE');
     used=true;
@@ -73,11 +82,25 @@ export function createReviewedSandboxExecution({api,ledger,authorize,readRefs,wa
       finally{clearTimeout(timer);}
     }
     async function readSnapshot(after){
-      const value=await bounded(()=>readRefs(REVIEWED_SCOPE.repository));
-      return snapshotMatches(value,after,Date.now()) ? {value,checkedAt:performance.now()} : null;
+      const started=Date.now(), tick=performance.now();
+      const value=await bounded(()=>readRefs(REVIEWED_SCOPE.repository),nativeRead?NATIVE_READ_WAIT_MS:wait);
+      const receivedAt=Date.now(), checkedAt=performance.now();
+      if(nativeRead && (!Number.isSafeInteger(started)||!Number.isSafeInteger(receivedAt)||receivedAt<started||
+        receivedAt-started>=NATIVE_READ_WAIT_MS||!Number.isFinite(checkedAt-tick)||checkedAt<tick||checkedAt-tick>=NATIVE_READ_WAIT_MS||
+        !Number.isSafeInteger(value?.observedAt)||value.observedAt<started||receivedAt-value.observedAt>=NATIVE_RECEIPT_AGE_MS))return null;
+      return snapshotMatches(value,after,receivedAt,nativeRead?NATIVE_RECEIPT_AGE_MS:2000) ? {value,checkedAt,receivedAt} : null;
     }
     const refs=async after=>!!await readSnapshot(after);
-    const freshSnapshot=proof=>!!proof && performance.now()-proof.checkedAt<=2000 && snapshotMatches(proof.value,false,Date.now());
+    const freshSnapshot=proof=>{
+      if(!proof)return false;
+      const elapsed=performance.now()-proof.checkedAt, now=Date.now();
+      if(!nativeRead)return elapsed<=2000&&snapshotMatches(proof.value,false,now);
+      // Both clocks must remain forward-moving and the original timestamp is
+      // retained. No late result or receipt can renew the evidence lifetime.
+      return Number.isFinite(elapsed)&&elapsed>=0&&elapsed<POST_RECEIPT_MS&&Number.isSafeInteger(now)&&now>=proof.receivedAt&&
+        now-proof.receivedAt<POST_RECEIPT_MS&&now-proof.value.observedAt<NATIVE_TOTAL_AGE_MS&&
+        snapshotMatches(proof.value,false,now,NATIVE_TOTAL_AGE_MS);
+    };
     async function stillAuthorized(){
       if(!current())return false;
       const value=await bounded(()=>authorize(REVIEWED_SCOPE,sender));
